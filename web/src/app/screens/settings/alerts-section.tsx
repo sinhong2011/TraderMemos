@@ -4,6 +4,12 @@ import { EmptyState } from "@/components/EmptyState";
 import { Modal } from "@/components/Modal";
 import { Field } from "@/components/Field";
 import { FormInput } from "@/components/FormInput";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import { ListSkeleton } from "@/components/skeletons/list-skeleton";
 import { useToastManager } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
@@ -21,14 +27,14 @@ import {
   useTestAlertChannel,
 } from "@/lib/hooks/useAlerts";
 import { timezoneSelectOptions, TIMEZONE_LOCAL, resolveDisplayTimezone } from "@/lib/displayPrefs";
+import { cn } from "@/lib/cn";
 import { fmtDateTime } from "@/lib/format";
 import {
   BtnGhost,
   DeleteButton,
-  SettingsGroup,
+  SettingsCard,
+  SettingsCardNote,
   SettingsGroupRow,
-  SettingsPanelBody,
-  SettingsSection,
 } from "./settings-ui";
 
 /** Small bounded integer input that commits on blur/Enter. */
@@ -58,8 +64,8 @@ function IntInput({
     onCommit(n);
   };
   return (
-    <span className="flex items-center gap-1.5">
-      <FormInput
+    <InputGroup className="h-8 w-30 shrink-0">
+      <InputGroupInput
         type="number"
         inputMode="numeric"
         min={min}
@@ -67,15 +73,19 @@ function IntInput({
         value={draft ?? String(value)}
         disabled={disabled}
         aria-label={ariaLabel}
-        className="w-20 text-right tabular-nums"
+        className="text-right tabular-nums"
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}
         onKeyDown={(e) => {
           if (e.key === "Enter") (e.target as HTMLInputElement).blur();
         }}
       />
-      {suffix ? <span className="text-[12px] text-muted-foreground">{suffix}</span> : null}
-    </span>
+      {suffix ? (
+        <InputGroupAddon align="inline-end">
+          <InputGroupText className="text-[12px]">{suffix}</InputGroupText>
+        </InputGroupAddon>
+      ) : null}
+    </InputGroup>
   );
 }
 
@@ -188,27 +198,37 @@ export function AlertsSection() {
 
   return (
     <>
-      <SettingsSection
+      <SettingsCard
         title="Journal Alerts"
-        description="Notifications when a journal rule is broken, evaluated on your own server after every trade write and on a background scan. Delivered to mobile push and webhooks — free, always."
-      >
-        {settingsQ.isLoading ? (
-          <SettingsPanelBody>
-            <ListSkeleton rows={4} />
-          </SettingsPanelBody>
-        ) : settingsQ.isError ? (
-          <SettingsPanelBody>
-            <p className="text-[12px] text-destructive">Failed to load alert settings.</p>
-          </SettingsPanelBody>
-        ) : settings ? (
-          <SettingsGroup>
-            <SettingsGroupRow label="Enable alerts" detail="Master switch for every rule below.">
+        description="Fired when a journal rule is broken — evaluated on your own server after every trade write and on a background scan. Delivered to mobile push and webhooks, free."
+        action={
+          settings ? (
+            <span className="flex items-center gap-2 sm:pt-0.5">
+              <span className="text-[12px] font-medium text-muted-foreground">
+                {enabled ? "On" : "Off"}
+              </span>
               <Switch
                 checked={enabled}
                 onCheckedChange={(v) => save({ enabled: v })}
                 aria-label="Enable alerts"
               />
-            </SettingsGroupRow>
+            </span>
+          ) : undefined
+        }
+      >
+        {settingsQ.isLoading ? (
+          <div className="px-5 py-3">
+            <ListSkeleton rows={4} />
+          </div>
+        ) : settingsQ.isError ? (
+          <SettingsCardNote tone="destructive">Failed to load alert settings.</SettingsCardNote>
+        ) : settings ? (
+          <div
+            className={cn(
+              "flex flex-col transition-opacity duration-150 motion-reduce:transition-none",
+              !enabled && "opacity-60",
+            )}
+          >
             <SettingsGroupRow
               label="Risk rule broken"
               detail="A closed trade risked more than your max risk per trade (set under Risk Rules)."
@@ -313,7 +333,7 @@ export function AlertsSection() {
                 }}
                 aria-label="Alert timezone"
                 className="w-full"
-                wrapperClassName="w-full"
+                wrapperClassName="w-full md:max-w-[280px]"
               >
                 {tzOptions.map((o) => (
                   <NativeSelectOption key={o.value} value={o.value}>
@@ -322,11 +342,11 @@ export function AlertsSection() {
                 ))}
               </NativeSelect>
             </SettingsGroupRow>
-          </SettingsGroup>
+          </div>
         ) : null}
-      </SettingsSection>
+      </SettingsCard>
 
-      <SettingsSection
+      <SettingsCard
         title="Alert Channels"
         description="Where alerts get delivered. Webhooks post JSON that renders natively in Discord, Slack, and ntfy; mobile push registers itself when you sign in on the app."
         action={
@@ -337,23 +357,31 @@ export function AlertsSection() {
         }
       >
         {channelsQ.isLoading ? (
-          <SettingsPanelBody>
+          <div className="px-5 py-3">
             <ListSkeleton rows={2} />
-          </SettingsPanelBody>
+          </div>
         ) : channelsQ.isError ? (
-          <SettingsPanelBody>
-            <p className="text-[12px] text-destructive">Failed to load alert channels.</p>
-          </SettingsPanelBody>
+          <SettingsCardNote tone="destructive">Failed to load alert channels.</SettingsCardNote>
         ) : channels.length === 0 ? (
-          <SettingsPanelBody className="py-8">
-            <EmptyState
-              title="No channels yet"
-              hint="Add a Discord, Slack, or ntfy webhook — or sign in on the mobile app to register push."
-              icon={<Bell size={28} strokeWidth={1.5} />}
-            />
-          </SettingsPanelBody>
+          <EmptyState
+            className="p-6 py-8"
+            title="No channels yet"
+            hint="Add a Discord, Slack, or ntfy webhook — or sign in on the mobile app to register push."
+            icon={<Bell size={24} strokeWidth={1.5} />}
+            actions={
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setWebhookModal(true)}
+              >
+                <Plus size={13} strokeWidth={1.5} />
+                Add webhook
+              </Button>
+            }
+          />
         ) : (
-          <SettingsGroup>
+          <>
             {channels.map((ch, index) => (
               <SettingsGroupRow
                 key={ch.id}
@@ -402,30 +430,28 @@ export function AlertsSection() {
                 </span>
               </SettingsGroupRow>
             ))}
-          </SettingsGroup>
+          </>
         )}
-      </SettingsSection>
+      </SettingsCard>
 
       {events.length > 0 ? (
-        <SettingsSection
+        <SettingsCard
           title="Recent Alerts"
           description="The last alerts this server fired, newest first."
         >
-          <SettingsGroup>
-            {events.map((ev, index) => (
-              <SettingsGroupRow
-                key={ev.id}
-                label={ev.title}
-                detail={ev.body}
-                last={index === events.length - 1}
-              >
-                <span className="text-[11px] tabular-nums text-muted-foreground">
-                  {fmtDateTime(ev.fired_at)}
-                </span>
-              </SettingsGroupRow>
-            ))}
-          </SettingsGroup>
-        </SettingsSection>
+          {events.map((ev, index) => (
+            <SettingsGroupRow
+              key={ev.id}
+              label={ev.title}
+              detail={ev.body}
+              last={index === events.length - 1}
+            >
+              <span className="text-[11px] tabular-nums text-muted-foreground">
+                {fmtDateTime(ev.fired_at)}
+              </span>
+            </SettingsGroupRow>
+          ))}
+        </SettingsCard>
       ) : null}
 
       <Modal

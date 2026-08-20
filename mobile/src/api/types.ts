@@ -143,7 +143,7 @@ export type TradeDetail = Omit<Trade, 'initial_risk'> & {
 };
 
 /** GET /market/bars (api/internal/marketdata/types.go). Wire intervals: 1|5|15|60|240|D. */
-export type BarInterval = '1' | '5' | '15' | '60' | '240' | 'D';
+export type BarInterval = '1' | '5' | '15' | '30' | '60' | '240' | 'D' | 'W' | 'M';
 
 export type MarketBar = {
   /** Unix seconds, UTC. */
@@ -237,6 +237,8 @@ export type RiskRules = {
   max_daily_loss: number | null;
   max_open_risk: number | null;
   default_account_risk_pct: number | null;
+  max_trades_per_day: number | null;
+  max_consecutive_losses: number | null;
 };
 
 /** One cash ledger entry (api dto) — amount is signed; outflows are negative. */
@@ -501,6 +503,8 @@ export type ComplianceDay = {
   risk_violations: number;
   unknown_risk: number;
   daily_loss_breach: boolean;
+  trade_limit_breach: boolean;
+  loss_streak_breach: boolean;
   compliant: boolean;
 };
 
@@ -515,6 +519,8 @@ export type ComplianceReport = {
   risk_violations: number;
   unknown_risk: number;
   daily_loss_breaches: number;
+  trade_limit_breaches: number;
+  loss_streak_breaches: number;
 };
 
 /** One flagged trade in a behavior section (analytics.BehaviorEvent). */
@@ -749,6 +755,98 @@ export type FlexSyncResult = {
   skipped: number;
   trades: number;
   rows: number;
+};
+
+/**
+ * One execution axis (Go: analytics.ExecAxisScore). `score` is null — not
+ * zero — when too few trades carry the axis's inputs.
+ */
+export type ExecAxisScore = {
+  score: number | null;
+  scored: number;
+  excluded: number;
+};
+
+/** One drill-down series bucket (Go: analytics.ExecScorePoint). */
+export type ExecScorePoint = {
+  date: string;
+  trades: number;
+  composite: number | null;
+  entry: number | null;
+  exit: number | null;
+  risk: number | null;
+  stability: number | null;
+  tempo: number | null;
+};
+
+/** Payload of GET /analytics/execution-score (Go: analytics.ExecScoreReport). */
+export type ExecScoreReport = {
+  trades: number;
+  rules_configured: boolean;
+  bucket: 'week' | 'month';
+  composite: number | null;
+  entry: ExecAxisScore;
+  exit: ExecAxisScore;
+  risk: ExecAxisScore;
+  stability: ExecAxisScore;
+  tempo: ExecAxisScore;
+  series: ExecScorePoint[];
+};
+
+/** One fan-chart checkpoint of GET /analytics/montecarlo (Go: analytics.McBand). */
+export type McBand = {
+  n: number;
+  p05: number;
+  p25: number;
+  p50: number;
+  p75: number;
+  p95: number;
+};
+
+/** Payload of GET /analytics/montecarlo (Go: analytics.MonteCarloResult). */
+export type MonteCarloResult = {
+  insufficient_data: boolean;
+  trades: number;
+  paths: number;
+  horizon: number;
+  seed: number;
+  steps: McBand[];
+  terminal: {
+    p05: number;
+    p25: number;
+    p50: number;
+    p75: number;
+    p95: number;
+    mean: number;
+    prob_negative: number;
+  };
+  max_drawdown: { p50: number; p90: number; p95: number; p99: number; worst: number };
+  /** A few individual simulated paths, equity at the same checkpoints as steps. */
+  sample_paths: number[][];
+  risk_of_ruin: number;
+  ruin_threshold: number;
+  historical_max_drawdown: number;
+};
+
+/** GET /flex-sync — every configured connection plus its account. */
+export type FlexSyncConnection = FlexSyncSettings & {
+  account_id: string;
+  account_name: string;
+};
+
+/** GET /imports row (import_handlers.go importBatchDTO). */
+export type ImportBatch = {
+  id: string;
+  user_id: string;
+  account_id: string;
+  source: string;
+  filename: string | null;
+  column_mapping: string | null;
+  row_count: number;
+  /** "committed" | "reversed" | "pending" */
+  status: string;
+  /** RFC3339 */
+  created_at: string;
 };
 
 // ---------------------------------------------------------------------------

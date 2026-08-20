@@ -7,9 +7,9 @@
  */
 
 import { useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, type ReactNode } from 'react';
-import { Animated, RefreshControl, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { createContext, useContext, useRef, type ReactNode } from 'react';
+import { RefreshControl, ScrollView, View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { useAccounts, useCash } from '@/api/hooks';
 import type { Filters } from '@/api/types';
@@ -19,7 +19,8 @@ import { netDeposits } from '@/lib/cash';
 import { useGlobalFilters } from '@/lib/filters';
 import { useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
-import { useSoftTopEdge } from '@/lib/soft-scroll-edge';
+import { PagerTabs } from '@/components/pager-tabs';
+import { nominateSoftTopEdge, useSoftTopEdge } from '@/lib/soft-scroll-edge';
 import { usePagerBottomInset } from '@/lib/pager-insets';
 import { accountBaseCurrency } from '@/lib/prefs';
 import {
@@ -70,19 +71,15 @@ export function useReportsMoney(): ReportsMoneyContext {
 export type SectionOption = { value: ReportsSection; label: string };
 
 /**
- * The segmented switcher floats above the pages and slides out of the way as
- * you read, so every section reports its scroll to one shared value instead of
- * carrying its own copy of the bar.
+ * The section switcher is rendered by each page at the top of its own scroll
+ * content (see the note on the index screen), so the pages need the strip's
+ * options and the index's change handler.
  */
 export type ReportsScroll = {
-  /**
-   * Live offset of whichever page is on screen. RN's `Animated` rather than
-   * Reanimated: the value is written by a native-driven scroll event, so no
-   * component ever assigns to it — which is the only form the React Compiler
-   * accepts for a value handed down through context.
-   */
-  offset: Animated.Value;
-  /** Measured height of the floating switcher — the pages' top inset. */
+  sections: readonly SectionOption[];
+  section: ReportsSection;
+  onChange: (value: ReportsSection) => void;
+  /** Expanded header height — the pages' manual top inset (see the index). */
   headerHeight: number;
 };
 
@@ -101,59 +98,56 @@ export function SectionScaffold({
   children: ReactNode;
 }) {
   const queryClient = useQueryClient();
-  const { theme } = useUnistyles();
-  const reportsScroll = useContext(ReportsScrollContext);
-  const headerHeight = reportsScroll?.headerHeight ?? 0;
+  // The page fill has to be a JS value: `ScrollView`'s style is not a place
+  // Uniwind can take a `className`.
+  const [background] = useCSSVariable(['--color-background']) as [string];
+  const switcher = useContext(ReportsScrollContext);
   // Nested in the pager, `automatic` never gets the tab-bar bottom inset
   // (see lib/pager-insets.ts) — the last card needs explicit clearance.
   const bottomInset = usePagerBottomInset();
   const softTopEdge = useSoftTopEdge();
 
-  const onScroll = reportsScroll
-    ? Animated.event([{ nativeEvent: { contentOffset: { y: reportsScroll.offset } } }], {
-        useNativeDriver: true,
-        // Same boolean the index has always used for its title; setState with
-        // an unchanged value is a no-op, so it needn't be de-duped here.
-        listener: (event) => {
-          const { y } = (event.nativeEvent as { contentOffset: { y: number } }).contentOffset;
-          onScrolledChange?.(y > 24);
-        },
-      })
-    : undefined;
+  const scrollNode = useRef<unknown>(null);
 
   return (
-    <Animated.ScrollView
-      // The screens-level scrollEdgeEffects can't reach a list nested in the
-      // pager — nominate this scroll view for the soft top fade explicitly.
-      ref={softTopEdge}
-      style={styles.page}
-      contentContainerStyle={[
-        styles.content,
-        { paddingTop: headerHeight, paddingBottom: theme.spacing.xl * 2 + bottomInset },
-      ]}
-      contentInsetAdjustmentBehavior="automatic"
+    <ScrollView
+      // Neither UIKit's nor screens' own discovery reaches a list this deep
+      // (floating pager root), so nominate it: that is what gives this screen
+      // the blurred header its content scrolls under, plus the native
+      // large-title collapse. See lib/soft-scroll-edge.
+      ref={(node: unknown) => {
+        scrollNode.current = node;
+        softTopEdge(node);
+      }}
+      style={{ flex: 1, backgroundColor: background }}
+      // Both insets are manual here: the pager hides this scroll view from
+      // UIKit's automatic adjustment (see lib/pager-insets.ts), so `automatic`
+      // would leave the content under the transparent bar entirely.
+      contentInsetAdjustmentBehavior="never"
+      contentContainerStyle={{ paddingTop: switcher?.headerHeight ?? 0, paddingBottom: 48 + bottomInset }}
       scrollEventThrottle={16}
-      onScroll={onScroll}
+      onScroll={() => {
+        // Whichever page the user drags is the one the header should track —
+        // repeat nominations dedupe natively.
+        nominateSoftTopEdge(scrollNode.current);
+      }}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
-          // Clears the switcher instead of spinning behind it.
-          progressViewOffset={headerHeight}
           onRefresh={() => void queryClient.invalidateQueries()}
         />
       }
     >
-      <View style={styles.stack}>{children}</View>
-    </Animated.ScrollView>
+      {switcher ? (
+        <View className="px-4 pt-1">
+          <PagerTabs
+            options={switcher.sections}
+            value={switcher.section}
+            onChange={switcher.onChange}
+          />
+        </View>
+      ) : null}
+      <View className="gap-4 p-4 pt-3">{children}</View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: { paddingBottom: theme.spacing.xl * 2 },
-  stack: {
-    padding: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-    gap: theme.spacing.lg,
-  },
-}));

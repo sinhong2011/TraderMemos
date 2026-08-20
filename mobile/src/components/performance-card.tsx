@@ -1,5 +1,5 @@
-import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Card, cn } from 'panelui-native';
+import { Text, View, type TextStyle } from 'react-native';
 
 import type { Summary, Trade } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
@@ -7,13 +7,23 @@ import { RollingNumber } from '@/components/rolling-number';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { formatPercent, formatRatio, useFormatters } from '@/lib/format';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
 
-function Meta({ label, value, tint }: { label: string; value: string; tint?: string }) {
+/** The rolling hero is a `Text` style, so its hue has to be a JS value. */
+const HERO_TEXT: TextStyle = {
+  fontSize: 34,
+  fontWeight: '600',
+  letterSpacing: -1,
+  fontVariant: ['tabular-nums'],
+};
+
+function Meta({ label, value, tintClass }: { label: string; value: string; tintClass?: string }) {
   return (
-    <View style={styles.meta}>
-      <Text style={styles.metaLabel}>{label}</Text>
-      <Text style={[styles.metaValue, tint ? { color: tint } : null]}>{value}</Text>
+    <View className="flex-row items-baseline gap-1.5">
+      <Text className="text-[13px] font-medium text-muted-foreground">{label}</Text>
+      <Text className={cn('text-[13px] font-medium text-foreground tabular-nums', tintClass)}>
+        {value}
+      </Text>
     </View>
   );
 }
@@ -34,10 +44,9 @@ export function PerformanceCard({
   /** Base→display conversion applied before formatting (1 = account currency). */
   fxRate?: number;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatCurrency, formatPnl } = useFormatters();
-  const pnl = (v: number | null | undefined) => pnlColor(theme.colors, v);
   const fx = (v: number) => v * fxRate;
   // gross_profit/gross_loss are net-based buckets; real gross adds back fees.
   const gross = summary.net_pnl + summary.total_fees;
@@ -47,28 +56,33 @@ export function PerformanceCard({
 
   return (
     <DashboardCard title={t`Performance`} flush>
-      <View style={styles.hero}>
-        <Text style={styles.heroLabel}>{t`Net`}</Text>
+      {/* The Net headline keeps a card of its own — it is the one block on Home
+          that is a statement rather than a tile, so it gets the full-width
+          surface the tiles below sit apart from. */}
+      <Card className="items-center gap-2 rounded-lg border-0 p-4">
+        <Text className="self-start text-xs font-medium tracking-wide text-muted-foreground">
+          {t`Net`}
+        </Text>
         {/* 42 for a 34pt line: enough to clear the glyph box so a rolling digit
             isn't clipped standing still. */}
         <RollingNumber
           value={formatPnl(fx(summary.net_pnl), currency)}
-          style={[styles.heroValue, { color: pnl(summary.net_pnl) }]}
+          style={[HERO_TEXT, { color: pnlColor(palette, summary.net_pnl) }]}
           cellHeight={42}
         />
-        <View style={styles.metaRow}>
-          <Meta label={t`Gross`} value={formatPnl(fx(gross), currency)} tint={pnl(gross)} />
+        <View className="flex-row flex-wrap justify-center gap-x-4 gap-y-1">
+          <Meta label={t`Gross`} value={formatPnl(fx(gross), currency)} tintClass={pnlClass(gross)} />
           <Meta label={t`Fees`} value={formatCurrency(fx(summary.total_fees), currency)} />
           <Meta label={t`PF`} value={formatRatio(summary.profit_factor)} />
           <Meta
             label={t`Expect`}
             value={formatPnl(fx(summary.expectancy), currency)}
-            tint={pnl(summary.expectancy)}
+            tintClass={pnlClass(summary.expectancy)}
           />
         </View>
-      </View>
+      </Card>
 
-      <View style={styles.grid}>
+      <View className="flex-row flex-wrap gap-2">
         <StatBar
           label={t`Wins`}
           value={String(summary.wins)}
@@ -98,7 +112,7 @@ export function PerformanceCard({
         />
       </View>
 
-      <View style={styles.grid}>
+      <View className="flex-row flex-wrap gap-2">
         <StatBar
           label={t`Avg win`}
           value={formatCurrency(fx(summary.avg_win), currency)}
@@ -113,37 +127,3 @@ export function PerformanceCard({
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  // The Net headline keeps a card of its own — it is the one block on Home that
-  // is a statement rather than a tile, so it gets the full-width white surface
-  // the tiles below sit apart from.
-  hero: {
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    padding: theme.spacing.lg,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-  },
-  heroLabel: {
-    alignSelf: 'flex-start',
-    fontSize: 12,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-    letterSpacing: 0.4,
-  },
-  heroValue: { fontSize: 34, fontWeight: '600', letterSpacing: -1, ...theme.numeric },
-  metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    columnGap: theme.spacing.lg,
-    rowGap: theme.spacing.xs,
-  },
-  meta: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.xs + 2 },
-  metaLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.mutedForeground },
-  metaValue: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground, ...theme.numeric },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-}));

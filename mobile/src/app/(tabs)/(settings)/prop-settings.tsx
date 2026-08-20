@@ -1,10 +1,3 @@
-import {
-  Button,
-  Picker,
-  Section,
-  Text as UIText,
-} from '@expo/ui/swift-ui';
-import { tag } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert } from 'react-native';
@@ -12,17 +5,20 @@ import { Alert } from 'react-native';
 import { queryKeys, useAccounts, useApiRequest, usePropSettings } from '@/api/hooks';
 import type { DrawdownMode, PropSettings } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
+import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsPicker, SettingsSection } from '@/components/settings-rows';
+import { usePrompt } from '@/components/use-prompt';
 import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
 import { errorMessage } from '@/lib/errors';
 import { formatPercent, useFormatters } from '@/lib/format';
-import { AppHost } from '@/components/app-host';
 
 /**
  * Prop-firm evaluation rules for one account. Every edit PUTs the whole DTO
- * (the endpoint replaces); blank clears that rule. iOS idiom: rows show the
- * value, editing happens in native prompts.
+ * (the endpoint replaces); blank clears that rule. Settings idiom: rows show
+ * the value on the trailing edge, editing happens in native prompts — so the
+ * rows carry no chevron, since a tap here opens an alert rather than pushing.
  */
 export default function PropSettingsScreen() {
   const { formatCurrency } = useFormatters();
@@ -32,6 +28,7 @@ export default function PropSettingsScreen() {
   const api = useApiRequest();
   const accounts = useAccounts();
   const settings = usePropSettings(accountId ?? '');
+  const { prompt, element: promptElement } = usePrompt();
 
   const account = accounts.data?.find((candidate) => candidate.id === accountId);
   const currency = account?.base_currency ?? 'USD';
@@ -66,56 +63,42 @@ export default function PropSettingsScreen() {
     title: string,
     key: 'profit_target' | 'max_drawdown' | 'daily_loss_limit',
   ) {
-    Alert.prompt(
+    prompt({
       title,
-      t`Leave blank to drop this rule.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Save`,
-          onPress: (text?: string) => {
-            const amount = parseAmount(text ?? '');
-            if (amount === undefined) {
-              Alert.alert(t`Could not save`, t`Enter a valid amount.`);
-              return;
-            }
-            save.mutate({ ...current, [key]: amount });
-          },
-        },
-      ],
-      'plain-text',
-      current[key] != null ? String(current[key]) : '',
-      'decimal-pad',
-    );
+      message: t`Leave blank to drop this rule.`,
+      defaultValue: current[key] != null ? String(current[key]) : '',
+      keyboardType: 'decimal-pad',
+      onSubmit: (text) => {
+        const amount = parseAmount(text);
+        if (amount === undefined) {
+          Alert.alert(t`Could not save`, t`Enter a valid amount.`);
+          return;
+        }
+        save.mutate({ ...current, [key]: amount });
+      },
+    });
   }
 
   function editConsistency() {
-    Alert.prompt(
-      t`Consistency rule`,
-      t`Max share of profit one day may contribute, as a percent (e.g. 40). Leave blank to drop.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Save`,
-          onPress: (text?: string) => {
-            const raw = (text ?? '').trim();
-            if (raw === '') {
-              save.mutate({ ...current, consistency_pct: null });
-              return;
-            }
-            const parsed = Number(raw);
-            if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 100) {
-              Alert.alert(t`Could not save`, t`Enter a percent between 1 and 100.`);
-              return;
-            }
-            save.mutate({ ...current, consistency_pct: parsed / 100 });
-          },
-        },
-      ],
-      'plain-text',
-      current.consistency_pct != null ? String(current.consistency_pct * 100) : '',
-      'decimal-pad',
-    );
+    prompt({
+      title: t`Consistency rule`,
+      message: t`Max share of profit one day may contribute, as a percent (e.g. 40). Leave blank to drop.`,
+      defaultValue: current.consistency_pct != null ? String(current.consistency_pct * 100) : '',
+      keyboardType: 'decimal-pad',
+      onSubmit: (text) => {
+        const raw = text.trim();
+        if (raw === '') {
+          save.mutate({ ...current, consistency_pct: null });
+          return;
+        }
+        const parsed = Number(raw);
+        if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 100) {
+          Alert.alert(t`Could not save`, t`Enter a percent between 1 and 100.`);
+          return;
+        }
+        save.mutate({ ...current, consistency_pct: parsed / 100 });
+      },
+    });
   }
 
   function confirmDelete() {
@@ -129,63 +112,66 @@ export default function PropSettingsScreen() {
     value != null ? formatCurrency(value, currency) : t`Not set`;
 
   return (
-    <AppHost style={{ flex: 1 }}>
-      <SettingsForm>
-        <Section
-          title={account ? account.name : t`Prop rules`}
-          footer={<UIText>{t`Rules the firm scores this evaluation on. Blank rules are skipped.`}</UIText>}
-        >
-          <Button
-            systemImage="target"
-            label={t`Profit target — ${valueLabel(current.profit_target)}`}
-            onPress={() => editAmount(t`Profit target`, 'profit_target')}
-          />
-          <Button
-            systemImage="arrow.down.to.line"
-            label={t`Max drawdown — ${valueLabel(current.max_drawdown)}`}
-            onPress={() => editAmount(t`Max drawdown`, 'max_drawdown')}
-          />
-          <Picker
-            label={t`Drawdown model`}
-            selection={current.drawdown_mode}
-            onSelectionChange={(value) =>
-              save.mutate({ ...current, drawdown_mode: value as DrawdownMode })
-            }
-          >
-            <UIText key="trailing" modifiers={[tag('trailing')]}>
-              {t`Trailing — ratchets on every high`}
-            </UIText>
-            <UIText key="eod" modifiers={[tag('eod')]}>
-              {t`EOD trailing — ratchets at day close`}
-            </UIText>
-            <UIText key="static" modifiers={[tag('static')]}>
-              {t`Static — fixed floor`}
-            </UIText>
-          </Picker>
-          <Button
-            systemImage="calendar.badge.exclamationmark"
-            label={t`Daily loss limit — ${valueLabel(current.daily_loss_limit)}`}
-            onPress={() => editAmount(t`Daily loss limit`, 'daily_loss_limit')}
-          />
-          <Button
-            systemImage="chart.pie"
-            label={
-              current.consistency_pct != null
-                ? t`Consistency — ${formatPercent(current.consistency_pct, 0)}`
-                : t`Consistency — Not set`
-            }
-            onPress={editConsistency}
-          />
-        </Section>
+    <SettingsForm>
+      {promptElement}
+      <SettingsSection
+        title={account ? account.name : t`Prop rules`}
+        footer={t`Rules the firm scores this evaluation on. Blank rules are skipped.`}
+      >
+        <NavRow
+          systemImage="target"
+          label={t`Profit target`}
+          value={valueLabel(current.profit_target)}
+          accessory="none"
+          onPress={() => editAmount(t`Profit target`, 'profit_target')}
+        />
+        <NavRow
+          systemImage="arrow.down.to.line"
+          label={t`Max drawdown`}
+          value={valueLabel(current.max_drawdown)}
+          accessory="none"
+          onPress={() => editAmount(t`Max drawdown`, 'max_drawdown')}
+        />
+        <SettingsPicker
+          systemImage="chart.line.downtrend.xyaxis"
+          label={t`Drawdown model`}
+          selectedValue={current.drawdown_mode}
+          onValueChange={(value) =>
+            save.mutate({ ...current, drawdown_mode: value as DrawdownMode })
+          }
+          items={[
+            { value: 'trailing', label: t`Trailing — ratchets on every high` },
+            { value: 'eod', label: t`EOD trailing — ratchets at day close` },
+            { value: 'static', label: t`Static — fixed floor` },
+          ]}
+        />
+        <NavRow
+          systemImage="calendar.badge.exclamationmark"
+          label={t`Daily loss limit`}
+          value={valueLabel(current.daily_loss_limit)}
+          accessory="none"
+          onPress={() => editAmount(t`Daily loss limit`, 'daily_loss_limit')}
+        />
+        <NavRow
+          systemImage="chart.pie"
+          label={t`Consistency`}
+          value={
+            current.consistency_pct != null
+              ? formatPercent(current.consistency_pct, 0)
+              : t`Not set`
+          }
+          accessory="none"
+          onPress={editConsistency}
+        />
+      </SettingsSection>
 
-        <Section>
-          <CenteredButton
-            role="destructive"
-            label={remove.isPending ? t`Removing…` : t`Remove prop rules`}
-            onPress={confirmDelete}
-          />
-        </Section>
-      </SettingsForm>
-    </AppHost>
+      {/* Standalone action, not a row: a filled button inside a section card
+          would fill the card edge to edge and read as a red panel. */}
+      <CenteredButton
+        role="destructive"
+        label={remove.isPending ? t`Removing…` : t`Remove prop rules`}
+        onPress={confirmDelete}
+      />
+    </SettingsForm>
   );
 }

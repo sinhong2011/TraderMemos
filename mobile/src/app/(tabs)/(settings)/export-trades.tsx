@@ -1,22 +1,15 @@
-import {
-  Picker,
-  Section,
-  Text as UIText,
-  Toggle,
-} from '@expo/ui/swift-ui';
-import { tag } from '@expo/ui/swift-ui/modifiers';
+import { Frame, Text } from 'panelui-native';
 import { useState } from 'react';
-import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { Alert, View } from 'react-native';
 
 import { useAccounts, useApiRaw } from '@/api/hooks';
 import type { ExportFormat } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsPicker, SettingsSection, SettingsToggle } from '@/components/settings-rows';
 import { errorMessage } from '@/lib/errors';
 import { filenameFromDisposition, shareFile } from '@/lib/file-transfer';
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
 
 const EXPORT_MIME: Record<ExportFormat, string> = {
   json: 'application/json',
@@ -29,7 +22,6 @@ const EXPORT_MIME: Record<ExportFormat, string> = {
  * parity: account, json/csv/zip, omit-account for the canonical formats).
  */
 export default function ExportTradesScreen() {
-  const { theme } = useUnistyles();
   const api = useApiRaw();
   const { data: accounts } = useAccounts();
 
@@ -88,63 +80,62 @@ export default function ExportTradesScreen() {
   }
 
   return (
-    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <SettingsForm>
-        <Section title={t`Account`}>
-          {(accounts ?? []).length > 0 ? (
-            <Picker
-              label={t`Account`}
-              selection={selectedAccount}
-              onSelectionChange={(value) => value != null && setAccountId(value)}
-            >
-              {(accounts ?? []).map((account) => (
-                <UIText key={account.id} modifiers={[tag(account.id)]}>
-                  {account.name}
-                </UIText>
-              ))}
-            </Picker>
-          ) : (
-            <UIText>{t`No accounts yet`}</UIText>
-          )}
-        </Section>
-
-        <Section
-          title={t`Format`}
-          footer={<UIText>{formatOptions.find((option) => option.value === format)?.blurb}</UIText>}
-        >
-          <Picker
-            label={t`Format`}
-            selection={format}
-            onSelectionChange={(value) => value != null && setFormat(value as ExportFormat)}
-          >
-            {formatOptions.map((option) => (
-              <UIText key={option.value} modifiers={[tag(option.value)]}>
-                {option.label}
-              </UIText>
-            ))}
-          </Picker>
-          {supportsOmit ? (
-            <Toggle label={t`Omit account details`} isOn={omitAccount} onIsOnChange={setOmitAccount} />
-          ) : null}
-        </Section>
-
-        <Section
-          footer={
-            supportsOmit && omitAccount ? (
-              <UIText>
-                {t`Strips the account name, broker, and IDs from the export — useful for sharing.`}
-              </UIText>
-            ) : undefined
-          }
-        >
-          <CenteredButton
-            label={exporting ? t`Preparing…` : t`Download & share`}
-            onPress={() => {
-              if (!exporting) void download();
-            }}
+    <SettingsForm>
+      <SettingsSection title={t`Account`}>
+        {(accounts ?? []).length > 0 ? (
+          <SettingsPicker
+            label={t`Account`}
+            selectedValue={selectedAccount}
+            onValueChange={setAccountId}
+            items={(accounts ?? []).map((account) => ({
+              value: account.id,
+              label: account.name,
+            }))}
           />
-        </Section>
-      </SettingsForm>
-    </AppHost>
+        ) : (
+          <Frame.Row>
+            <Text size="sm" muted className="flex-1">
+              {t`No accounts yet`}
+            </Text>
+          </Frame.Row>
+        )}
+      </SettingsSection>
+
+      <SettingsSection
+        title={t`Format`}
+        footer={formatOptions.find((option) => option.value === format)?.blurb}
+      >
+        <SettingsPicker
+          label={t`Format`}
+          selectedValue={format}
+          onValueChange={(value) => setFormat(value as ExportFormat)}
+          items={formatOptions.map((option) => ({ value: option.value, label: option.label }))}
+        />
+        {supportsOmit ? (
+          <SettingsToggle
+            label={t`Omit account details`}
+            value={omitAccount}
+            onValueChange={setOmitAccount}
+          />
+        ) : null}
+      </SettingsSection>
+
+      {/* Outside a section card: the export is an action on the choices above,
+          not another row among them. */}
+      <View className="gap-2">
+        <CenteredButton
+          label={exporting ? t`Preparing…` : t`Download & share`}
+          loading={exporting}
+          onPress={() => {
+            if (!exporting) void download();
+          }}
+        />
+        {supportsOmit && omitAccount ? (
+          <Text size="xs" muted className="px-4">
+            {t`Strips the account name, broker, and IDs from the export — useful for sharing.`}
+          </Text>
+        ) : null}
+      </View>
+    </SettingsForm>
   );
 }

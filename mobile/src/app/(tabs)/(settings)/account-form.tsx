@@ -1,39 +1,32 @@
-import {
-  HStack,
-  LabeledContent,
-  Picker,
-  Section,
-  Text as UIText,
-  TextField,
-  useNativeState,
-} from '@expo/ui/swift-ui';
-import {
-  foregroundStyle,
-  keyboardType,
-  multilineTextAlignment,
-  scrollDismissesKeyboard,
-  tag,
-} from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { Frame, Text } from 'panelui-native';
 
-import { queryKeys, useAccounts, useApiRequest, useCash, useTrades } from '@/api/hooks';
+import {
+  flexSyncFailed,
+  queryKeys,
+  useAccounts,
+  useApiRequest,
+  useCash,
+  useFlexSync,
+  useTrades,
+} from '@/api/hooks';
 import type { Account } from '@/api/types';
-import { CenteredButton } from '@/components/centered-button';
+import { FormField, FormInput, FormPicker, FormScreen } from '@/components/form-kit';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { NavRow } from '@/components/nav-row';
-import { useNumericState } from '@/components/numeric-field';
 import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
+import { Pill } from '@/components/pill';
+import { SettingsButton, SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
 import { numericText, parseAmount } from '@/lib/amount';
 import { ledgerBalance } from '@/lib/cash';
 import { errorMessage } from '@/lib/errors';
 import { formatPercent, useFormatters } from '@/lib/format';
 import { DISPLAY_CURRENCIES } from '@/lib/prefs';
-import { AppHost } from '@/components/app-host';
+import { pnlColor, usePnlPalette } from '@/styles/pnl';
 
 /** Mirrors the web settings broker dropdown; anything else is a custom entry. */
 const POPULAR_BROKERS = [
@@ -70,15 +63,15 @@ export default function AccountFormScreen() {
 
   if (id != null && !account) {
     return (
-      <AppHost style={{ flex: 1 }}>
-        <SettingsForm>
-          <Section>
-            <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
+      <SettingsForm>
+        <SettingsSection>
+          <Frame.Row>
+            <Text size="sm" muted className="flex-1">
               {t`Loading…`}
-            </UIText>
-          </Section>
-        </SettingsForm>
-      </AppHost>
+            </Text>
+          </Frame.Row>
+        </SettingsSection>
+      </SettingsForm>
     );
   }
 
@@ -89,16 +82,19 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const { theme } = useUnistyles();
+  // Sync state drives the Integrations row's value and whether it shows at
+  // all — an account that isn't IBKR and has no connection gets no dead row.
+  const flexSync = useFlexSync(account?.id ?? '', account != null);
+  // Live P&L hues from the theme tokens (see styles/pnl.ts).
+  const pnl = usePnlPalette();
   // Formatters bound to the display prefs (see lib/format.ts).
-  const { formatCurrency, formatPnl } = useFormatters();
+  const { formatCurrency, formatPnl, formatDate, formatTime } = useFormatters();
 
   const isEdit = account != null;
   const knownBroker = account != null && POPULAR_BROKERS.includes(account.broker.trim());
 
-  // Same SwiftUI-binding pattern as the settings hub: observable state drives
-  // the native field, a ref mirror captures keystrokes for submit-time reads.
-  const nameState = useNativeState(account?.name ?? '');
+  // The fields are uncontrolled (`FormInput` holds its own text); the ref
+  // mirrors capture keystrokes for submit-time reads.
   const nameText = useRef(account?.name ?? '');
   // The ref holds the value; this boolean is the only part the header action
   // needs, so it re-renders on empty↔filled rather than on every keystroke.
@@ -107,14 +103,11 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
     account == null ? POPULAR_BROKERS[0] : knownBroker ? account.broker.trim() : OTHER_BROKER,
   );
   const initialCustomBroker = account != null && !knownBroker ? account.broker.trim() : '';
-  const customBrokerState = useNativeState(initialCustomBroker);
   const customBrokerText = useRef(initialCustomBroker);
   const [accountType, setAccountType] = useState('cash');
   // Picker, not a text field: the balance row echoes the choice, and a free
   // text code would let "usd" / "US$" through `toUpperCase` untouched.
   const [currency, setCurrency] = useState<string>('USD');
-  // Number field: the state itself rejects anything but digits (worklet guard).
-  const balanceState = useNumericState('');
   const balanceText = useRef('');
 
   // Stats for the edit summary (both lists are cached app-wide already).
@@ -224,13 +217,9 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   }
 
   const isOnlyAccount = accountCount <= 1;
-  const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' });
-  // Form rows read as one column of values: SwiftUI trails `Picker` selections
-  // but leaves `TextField` text against the label unless told otherwise.
-  const trailing = multilineTextAlignment('trailing');
 
   return (
-    <AppHost style={{ flex: 1 }}>
+    <>
       <Stack.Screen
         options={{
           title: isEdit ? t`Account` : t`New account`,
@@ -246,168 +235,200 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
           ),
         }}
       />
-      <SettingsForm modifiers={[scrollDismissesKeyboard('immediately')]}>
-        <Section title={t`Details`}>
-          <LabeledContent label={t`Name`}>
-            <TextField
-              placeholder={t`e.g. Main Account`}
-              text={nameState}
-              onTextChange={(text) => {
-                nameText.current = text;
-                setHasName(text.trim() !== '');
+      <FormScreen>
+        <FormField label={t`Name`}>
+          <FormInput
+            placeholder={t`e.g. Main Account`}
+            defaultValue={account?.name ?? ''}
+            onChangeText={(text) => {
+              nameText.current = text;
+              setHasName(text.trim() !== '');
+            }}
+          />
+        </FormField>
+        <FormField label={t`Broker`}>
+          <FormPicker
+            label={t`Broker`}
+            selectedValue={brokerChoice}
+            onValueChange={setBrokerChoice}
+            items={[
+              ...POPULAR_BROKERS.map((broker) => ({ value: broker, label: broker })),
+              { value: OTHER_BROKER, label: t`Other` },
+            ]}
+          />
+        </FormField>
+        {brokerChoice === OTHER_BROKER ? (
+          <FormField label={t`Custom broker`}>
+            <FormInput
+              placeholder={t`Type broker name`}
+              defaultValue={initialCustomBroker}
+              onChangeText={(text) => {
+                customBrokerText.current = text;
               }}
-              modifiers={[trailing]}
             />
-          </LabeledContent>
-          <Picker label={t`Broker`} selection={brokerChoice} onSelectionChange={setBrokerChoice}>
-            {POPULAR_BROKERS.map((broker) => (
-              <UIText key={broker} modifiers={[tag(broker)]}>
-                {broker}
-              </UIText>
-            ))}
-            <UIText modifiers={[tag(OTHER_BROKER)]}>{t`Other`}</UIText>
-          </Picker>
-          {brokerChoice === OTHER_BROKER ? (
-            <LabeledContent label={t`Custom broker`}>
-              <TextField
-                placeholder={t`Type broker name`}
-                text={customBrokerState}
-                onTextChange={(text) => {
-                  customBrokerText.current = text;
-                }}
-                modifiers={[trailing]}
-              />
-            </LabeledContent>
-          ) : null}
-        </Section>
+          </FormField>
+        ) : null}
 
         {!isEdit ? (
-          <Section
-            title={t`Funding`}
+          <>
+            <FormField label={t`Account type`}>
+              <FormPicker
+                label={t`Account type`}
+                selectedValue={accountType}
+                onValueChange={setAccountType}
+                items={ACCOUNT_TYPES.map((option) => ({
+                  value: option.value,
+                  label: option.label(),
+                }))}
+              />
+            </FormField>
+            <FormField label={t`Base currency`}>
+              <FormPicker
+                label={t`Base currency`}
+                selectedValue={currency}
+                onValueChange={setCurrency}
+                items={DISPLAY_CURRENCIES.map((code) => ({ value: code, label: code }))}
+              />
+            </FormField>
+            <FormField label={t`Starting balance`}>
+              <FormInput
+                placeholder="0.00"
+                keyboardType="decimal-pad"
+                suffix={currency}
+                description={t`The starting balance is saved as the first deposit in the cash ledger.`}
+                onChangeText={(text) => {
+                  balanceText.current = numericText(text);
+                }}
+              />
+            </FormField>
+          </>
+        ) : null}
+
+
+        {/* Web AccountDetailView's Broker connection card, in section form:
+            health + last sync at a glance here, the flex-sync screen for
+            credentials and manual runs. */}
+        {isEdit ? (
+          <SettingsSection
+            title={t`Broker connection`}
             footer={
-              <UIText>
-                {t`The starting balance is saved as the first deposit in the cash ledger.`}
-              </UIText>
+              flexSync.data?.configured
+                ? (flexSync.data.last_error ?? undefined)
+                : t`Pulls new fills into this account automatically. Statements can also be imported by file.`
             }
           >
-            <Picker
-              label={t`Account type`}
-              selection={accountType}
-              onSelectionChange={setAccountType}
-            >
-              {ACCOUNT_TYPES.map((option) => (
-                <UIText key={option.value} modifiers={[tag(option.value)]}>
-                  {option.label()}
-                </UIText>
-              ))}
-            </Picker>
-            <Picker label={t`Base currency`} selection={currency} onSelectionChange={setCurrency}>
-              {DISPLAY_CURRENCIES.map((code) => (
-                <UIText key={code} modifiers={[tag(code)]}>
-                  {code}
-                </UIText>
-              ))}
-            </Picker>
-            <LabeledContent label={t`Starting balance`}>
-              <HStack spacing={8}>
-                <TextField
-                  placeholder="0.00"
-                  text={balanceState}
-                  onTextChange={(text) => {
-                    balanceText.current = numericText(text);
-                  }}
-                  modifiers={[keyboardType('decimal-pad'), trailing]}
+            {flexSync.data?.configured ? (
+              <>
+                <SettingsRow label={t`Health`}>
+                  <Pill
+                    tone={
+                      flexSyncFailed(flexSync.data) ? 'neg' : flexSync.data.enabled ? 'pos' : 'muted'
+                    }
+                  >
+                    {flexSyncFailed(flexSync.data)
+                      ? t`Sync failing`
+                      : flexSync.data.enabled
+                        ? t`Healthy`
+                        : t`Manual only`}
+                  </Pill>
+                </SettingsRow>
+                <SettingsRow label={t`Last synced`}>
+                  <ValueText>
+                    {flexSync.data.last_synced_at
+                      ? `${formatDate(flexSync.data.last_synced_at)} ${formatTime(flexSync.data.last_synced_at)}`
+                      : t`Never`}
+                  </ValueText>
+                </SettingsRow>
+                <NavRow
+                  systemImage="arrow.triangle.2.circlepath"
+                  label={t`IBKR Flex sync`}
+                  onPress={() =>
+                    router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
+                  }
                 />
-                <UIText modifiers={[secondary]}>{currency}</UIText>
-              </HStack>
-            </LabeledContent>
-          </Section>
-        ) : null}
-
-        {isEdit ? (
-          <Section title={t`Performance`}>
-            <LabeledContent label={t`Deposited`}>
-              <UIText modifiers={[secondary]}>
-                {formatCurrency(deposited, account.base_currency)}
-              </UIText>
-            </LabeledContent>
-            <LabeledContent label={t`Equity`}>
-              <UIText modifiers={[secondary]}>
-                {formatCurrency(equity, account.base_currency)}
-              </UIText>
-            </LabeledContent>
-            <LabeledContent label={t`Realized P&L`}>
-              <UIText
-                modifiers={[
-                  foregroundStyle(
-                    netPnl > 0
-                      ? theme.colors.profit
-                      : netPnl < 0
-                        ? theme.colors.loss
-                        : theme.colors.mutedForeground,
-                  ),
-                ]}
-              >
-                {formatPnl(netPnl, account.base_currency)}
-              </UIText>
-            </LabeledContent>
-            {deposited !== 0 ? (
-              <LabeledContent label={t`Return`}>
-                <UIText modifiers={[secondary]}>{formatPercent(netPnl / deposited)}</UIText>
-              </LabeledContent>
-            ) : null}
-            <LabeledContent label={t`Trades`}>
-              <UIText modifiers={[secondary]}>{String(tradeCount)}</UIText>
-            </LabeledContent>
-          </Section>
-        ) : null}
-
-        {isEdit ? (
-          <Section title={t`Integrations`}>
-            {account.account_type === 'prop' ? (
-              <NavRow
-                systemImage="flag.checkered"
-                label={t`Prop rules`}
+              </>
+            ) : /ibkr|interactive brokers/i.test(account.broker) ? (
+              <SettingsButton
+                systemImage="arrow.triangle.2.circlepath"
+                label={t`Connect IBKR Flex sync`}
                 onPress={() =>
-                  router.push({ pathname: '/prop-settings', params: { accountId: account.id } })
+                  router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
                 }
               />
+            ) : (
+              // A non-IBKR account gets the broker catalogue, not a hard-coded
+              // IBKR pitch — auto-sync only exists for IBKR, but file import
+              // covers the rest.
+              <SettingsButton
+                systemImage="building.columns"
+                label={t`Connect a broker`}
+                onPress={() => router.push('/connect-broker')}
+              />
+            )}
+          </SettingsSection>
+        ) : null}
+        {isEdit ? (
+          <SettingsSection title={t`Performance`}>
+            <SettingsRow label={t`Deposited`}>
+              <ValueText>{formatCurrency(deposited, account.base_currency)}</ValueText>
+            </SettingsRow>
+            <SettingsRow label={t`Equity`}>
+              <ValueText>{formatCurrency(equity, account.base_currency)}</ValueText>
+            </SettingsRow>
+            <SettingsRow label={t`Realized P&L`}>
+              <ValueText color={pnlColor(pnl, netPnl)}>
+                {formatPnl(netPnl, account.base_currency)}
+              </ValueText>
+            </SettingsRow>
+            {deposited !== 0 ? (
+              <SettingsRow label={t`Return`}>
+                <ValueText>{formatPercent(netPnl / deposited)}</ValueText>
+              </SettingsRow>
             ) : null}
-            <NavRow
-              systemImage="arrow.triangle.2.circlepath"
-              label={t`IBKR Flex sync`}
-              onPress={() =>
-                router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
-              }
-            />
-          </Section>
+            <SettingsRow label={t`Trades`}>
+              <ValueText>{String(tradeCount)}</ValueText>
+            </SettingsRow>
+          </SettingsSection>
         ) : null}
 
+        {isEdit && account.account_type === 'prop' ? (
+          <SettingsSection title={t`Integrations`}>
+            <NavRow
+              systemImage="flag.checkered"
+              label={t`Prop rules`}
+              onPress={() =>
+                router.push({ pathname: '/prop-settings', params: { accountId: account.id } })
+              }
+            />
+          </SettingsSection>
+        ) : null}
+
+        {/* Destructive actions live in a grouped card of red action rows —
+            the SettingsButton idiom (two-factor, data-backup), not floating
+            ghost text. */}
         {isEdit ? (
-          <Section
-            footer={
-              isOnlyAccount ? (
-                <UIText>{t`Add another account before deleting this one.`}</UIText>
-              ) : undefined
-            }
+          <SettingsSection
+            footer={isOnlyAccount ? t`Add another account before deleting this one.` : undefined}
           >
-            <CenteredButton
+            <SettingsButton
+              systemImage="clock.arrow.circlepath"
               role="destructive"
               label={clearTrades.isPending ? t`Clearing…` : t`Clear trade history`}
               disabled={clearTrades.isPending}
               onPress={confirmClearTrades}
             />
             {!isOnlyAccount ? (
-              <CenteredButton
+              <SettingsButton
+                systemImage="trash"
                 role="destructive"
                 label={deleteAccount.isPending ? t`Deleting…` : t`Delete account`}
                 disabled={deleteAccount.isPending}
                 onPress={confirmDeleteAccount}
               />
             ) : null}
-          </Section>
+          </SettingsSection>
         ) : null}
-      </SettingsForm>
-    </AppHost>
+      </FormScreen>
+    </>
   );
 }

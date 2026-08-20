@@ -872,6 +872,28 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                 </a>
               </div>
               <p className="mt-4 text-sm text-fd-muted-foreground/80">{d('note')}</p>
+              {/* Companion app — TestFlight for iOS, sideloaded APK for Android */}
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-2 text-sm font-medium text-fd-muted-foreground">
+                  <Smartphone className="size-4" />
+                  {d('appLead')}
+                </span>
+                <Link
+                  href={`/${lang}/docs/getting-started/mobile-app`}
+                  className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition hover:-translate-y-0.5 hover:bg-fd-accent ${focusRing}`}
+                >
+                  {d('appIos')}
+                  <ArrowRight className="size-3.5 opacity-60" />
+                </Link>
+                <a
+                  href={`${repoUrl}/releases/latest`}
+                  rel="noreferrer"
+                  className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition hover:-translate-y-0.5 hover:bg-fd-accent ${focusRing}`}
+                >
+                  {d('appAndroid')}
+                  <ArrowUpRight className="size-3.5 opacity-60" />
+                </a>
+              </div>
             </div>
             <div className="relative self-center">
               <div className="overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-white/10">

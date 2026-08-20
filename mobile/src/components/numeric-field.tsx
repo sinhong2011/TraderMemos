@@ -1,61 +1,37 @@
-import {
-  TextField,
-  useNativeState,
-} from '@expo/ui/swift-ui';
-import {
-  autocorrectionDisabled,
-  font,
-  foregroundStyle,
-  keyboardType,
-  monospacedDigit,
-  multilineTextAlignment,
-} from '@expo/ui/swift-ui/modifiers';
-import { useEffect, useRef } from 'react';
-import { useUnistyles } from 'react-native-unistyles';
+import { cn } from 'panelui-native';
+import { TextInput } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { numericText } from '@/lib/amount';
-import { AppHost } from '@/components/app-host';
 
-/**
- * Native text state that can only hold a number.
- *
- * The listener is a worklet, so it runs synchronously on the UI runtime inside
- * the write that produced the text — a rejected character is replaced before
- * SwiftUI draws the field again, rather than a commit later like the RN
- * round-trip. For SwiftUI fields that already live inside a `Form` host (the
- * settings screens); RN screens use `NumericField` below.
- */
-export function useNumericState(initialValue: string, { decimals = true } = {}) {
-  const state = useNativeState(initialValue);
-  useEffect(() => {
-    // Assigning `onChange` is the @expo/ui API for this — a native object with
-    // one listener slot, not React state the compiler needs to track.
-    /* eslint-disable react-hooks/immutability */
-    state.onChange = (text: string) => {
-      'worklet';
-      const next = numericText(text, { decimals });
-      // Writing back re-enters this listener once, with `next` already clean.
-      if (next !== text) state.value = next;
-    };
-    return () => {
-      state.onChange = null;
-    };
-    /* eslint-enable react-hooks/immutability */
-  }, [state, decimals]);
-  return state;
-}
+/** RN font weights for the four ranks the old SwiftUI `font()` modifier took. */
+const WEIGHTS = {
+  regular: '400',
+  medium: '500',
+  semibold: '600',
+  bold: '700',
+} as const;
 
 /**
  * A field that can only hold a number — the app's one number input.
  *
  * A numeric `keyboardType` is a hint, not a guard: hardware keyboards, paste,
- * dictation and autofill all get past it. An RN `TextInput` can only answer
- * after the fact — the character is drawn, the change crosses to JS, and the
- * corrected value crosses back a commit later, which is the letter you see
- * appear and vanish. This is a SwiftUI `TextField` instead, and its native
- * state carries a **worklet** change listener: the rejected character is
- * rewritten synchronously on the UI runtime, inside the same state write that
- * produced it, so it never survives to a drawn frame.
+ * dictation and autofill all get past it, so every keystroke is run through
+ * `numericText` and the field only ever reports digits (and one separator).
+ *
+ * It is deliberately chrome-less — no border, no fill, transparent background.
+ * Every call site already owns a surface for it: a grouped `InputRow`, the
+ * `FormInput` shell, the R calculator's field box. PanelUI's `Input` draws its
+ * own outline/fill and `NumberInput` adds a stepper and speaks `number` rather
+ * than the partially-typed string ("10.") a live amount field has to hold, so
+ * neither fits here.
+ *
+ * The old SwiftUI implementation filtered inside a worklet on the native state,
+ * so a rejected character never reached a drawn frame. A JS-drawn field can
+ * only answer after the fact: React re-renders with the unchanged `value` and
+ * RN restores the text, which is a rejected character appearing for a frame.
+ * That is the cost of one codepath on both platforms — the value that leaves
+ * this component is clean either way.
  */
 export function NumericField({
   value,
@@ -63,7 +39,7 @@ export function NumericField({
   placeholder,
   align = 'leading',
   size = 16,
-  weight,
+  weight = 'regular',
   layout = 'flex',
   decimals = true,
   autoFocus,
@@ -82,51 +58,35 @@ export function NumericField({
   /** Integer-only fields pass false — the separator is dropped as well. */
   decimals?: boolean;
 }) {
-  const { theme } = useUnistyles();
-  const state = useNumericState(value, { decimals });
-  // What we last handed the parent — distinguishes its echo of our own value
-  // from a genuine outside change (reset, prefill, preset button).
-  const echoed = useRef(value);
-
-  useEffect(() => {
-    if (value === echoed.current) return;
-    echoed.current = value;
-    state.set(value);
-  }, [state, value]);
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
 
   return (
-    <AppHost
-      matchContents={{ vertical: true }}
-      style={[layout === 'flex' ? styles.flex : styles.stretch, { minHeight: size * 1.5 }]}
-    >
-      <TextField
-        text={state}
-        placeholder={placeholder}
-        autoFocus={autoFocus}
-        onTextChange={(text) => {
-          // The listener already cleaned the field; clean again for the value
-          // that leaves this component — JS never sees the rejected keystroke.
-          const next = numericText(text, { decimals });
-          echoed.current = next;
-          if (next !== value) onChangeText(next);
-        }}
-        modifiers={[
-          keyboardType(decimals ? 'decimal-pad' : 'numeric'),
-          autocorrectionDisabled(),
-          multilineTextAlignment(align),
-          font({ size, weight }),
-          // Figures line up column-wise while typing, per DESIGN.md.
-          monospacedDigit(),
-          foregroundStyle(theme.colors.foreground),
-        ]}
-      />
-    </AppHost>
+    <TextInput
+      value={value}
+      onChangeText={(text) => {
+        const next = numericText(text, { decimals });
+        if (next !== value) onChangeText(next);
+      }}
+      placeholder={placeholder}
+      placeholderTextColor={mutedForeground}
+      autoFocus={autoFocus}
+      keyboardType={decimals ? 'decimal-pad' : 'number-pad'}
+      autoCorrect={false}
+      autoCapitalize="none"
+      className={cn(
+        // Figures line up column-wise while typing, per DESIGN.md.
+        'p-0 text-foreground tabular-nums',
+        // flexBasis 0 + minWidth 0: the field has no intrinsic width to
+        // negotiate with, so the row hands it everything left over instead of
+        // collapsing it.
+        layout === 'flex' ? 'min-w-0 shrink grow basis-0' : 'self-stretch',
+      )}
+      style={{
+        minHeight: size * 1.5,
+        fontSize: size,
+        fontWeight: WEIGHTS[weight],
+        textAlign: align === 'trailing' ? 'right' : 'left',
+      }}
+    />
   );
 }
-
-const styles = {
-  // flexBasis 0 + minWidth 0: the host has no intrinsic width to negotiate
-  // with, so the row hands it everything left over instead of collapsing it.
-  flex: { flexGrow: 1, flexBasis: 0, minWidth: 0 },
-  stretch: { alignSelf: 'stretch' },
-} as const;

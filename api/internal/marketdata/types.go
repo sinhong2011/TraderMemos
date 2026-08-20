@@ -16,7 +16,7 @@ type Bar struct {
 type Request struct {
 	Symbol         string
 	InstrumentType string
-	Interval       string // 1, 5, 15, 60, 240, D
+	Interval       string // 1, 5, 15, 30, 60, 240, D, W, M
 	From           time.Time
 	To             time.Time
 }

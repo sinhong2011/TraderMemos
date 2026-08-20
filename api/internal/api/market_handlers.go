@@ -116,8 +116,14 @@ func chartPadding(interval string) time.Duration {
 		return time.Hour
 	case "15":
 		return 2 * time.Hour
+	case "30":
+		return 4 * time.Hour
 	case "60", "240":
 		return 6 * time.Hour
+	case "W":
+		return 14 * 24 * time.Hour
+	case "M":
+		return 60 * 24 * time.Hour
 	default:
 		return 24 * time.Hour
 	}

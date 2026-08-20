@@ -1,15 +1,13 @@
-import { Chart } from '@expo/ui/swift-ui';
 import { useRouter } from 'expo-router';
+import { BarChart, cn, Skeleton, TreemapChart } from 'panelui-native';
 import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useBreakdown, type BreakdownDim } from '@/api/hooks';
 import type { BreakGroup } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
-import { Skeleton } from '@/components/skeleton';
 import { PnlHeatmapCard } from '@/components/reports/pnl-heatmap-card';
-import { MagnitudeRow } from '@/components/reports/shared';
+import { MagnitudeRow, signedBars } from '@/components/reports/shared';
 import {
   SectionScaffold,
   useReportsFilters,
@@ -17,15 +15,17 @@ import {
   type ReportsMoneyContext,
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
+import { DurationScatterCard } from '@/components/reports/duration-scatter-card';
+import { SessionClockCard } from '@/components/reports/session-clock-card';
 import { formatPercent, formatRatio, useFormatters } from '@/lib/format';
-import { pnlColor } from '@/styles/unistyles';
-import { AppHost } from '@/components/app-host';
+import { pnlClass, usePnlPalette } from '@/styles/pnl';
 
 const MAX_ROWS = 10;
 
 /**
- * Ranked magnitude list — the phone's answer to web's horizontal bar charts
- * and the symbol treemap in one visual: label, share-of-|P&L| bar, amount.
+ * Ranked magnitude list — the phone's answer to web's horizontal bar charts:
+ * label, share-of-|P&L| bar, amount. With `treemap` the card leads with the
+ * web-style area map of the same share.
  */
 function RankedBreakdownCard({
   title,
@@ -34,6 +34,7 @@ function RankedBreakdownCard({
   emptyLabel,
   labelFor,
   onPressRow,
+  treemap,
 }: {
   title: string;
   dim: BreakdownDim;
@@ -42,7 +43,10 @@ function RankedBreakdownCard({
   labelFor?: (key: string) => string;
   /** Makes each row tappable — the Symbols card opens the symbol journal. */
   onPressRow?: (key: string) => void;
+  /** Leads with a P&L-share treemap of the top rows (web's symbol treemap). */
+  treemap?: boolean;
 }) {
+  const palette = usePnlPalette();
   const filters = useReportsFilters();
   const breakdown = useBreakdown(dim, filters);
   const { money } = ctx;
@@ -50,7 +54,7 @@ function RankedBreakdownCard({
   if (breakdown.isLoading) {
     return (
       <DashboardCard title={title}>
-        <Skeleton style={styles.listSkeleton} />
+        <Skeleton className="h-[220px] rounded-lg" />
       </DashboardCard>
     );
   }
@@ -69,7 +73,7 @@ function RankedBreakdownCard({
   if (groups.length === 0) {
     return (
       <DashboardCard title={title}>
-        <Text style={styles.empty}>{emptyLabel}</Text>
+        <Text className="py-4 text-[13px] text-muted-foreground">{emptyLabel}</Text>
       </DashboardCard>
     );
   }
@@ -77,9 +81,38 @@ function RankedBreakdownCard({
   const shown = groups.slice(0, MAX_ROWS);
   const maxAbs = Math.max(...shown.map((g) => Math.abs(money.pnl(g.summary))), 1);
 
+  // Tile area is share of |P&L| (like the ranked bars below); the tint is the
+  // sign. Sliced to 8 up front rather than via `maxTiles`, whose "Other" tile
+  // would sum absolute values across mixed signs into a number that means
+  // nothing. Signed amounts ride a label lookup because the datum's own value
+  // must be the unsigned area.
+  const tiles = shown.slice(0, 8).map((group) => {
+    const value = money.pnl(group.summary);
+    return {
+      label: labelFor ? labelFor(group.key) : group.key,
+      value: Math.abs(value),
+      color: value >= 0 ? palette.profit : palette.loss,
+    };
+  });
+  const signedByLabel = new Map(
+    shown.map((group) => [
+      labelFor ? labelFor(group.key) : group.key,
+      money.formatCompact(money.pnl(group.summary)),
+    ]),
+  );
+  const fmtTile = (value: number, tile: { label: string }) =>
+    signedByLabel.get(tile.label) ?? money.formatCompact(value);
+
   return (
     <DashboardCard title={title}>
-      <View style={styles.rows}>
+      {treemap && tiles.length >= 3 && tiles.some((tile) => tile.value > 0) ? (
+        <TreemapChart data={tiles} aspectRatio={1.7}>
+          <TreemapChart.Tiles />
+          <TreemapChart.Labels formatValue={fmtTile} />
+          <TreemapChart.Tooltip formatValue={fmtTile} />
+        </TreemapChart>
+      ) : null}
+      <View className="gap-3">
         {shown.map((group) => {
           const value = money.pnl(group.summary);
           const row = (
@@ -97,7 +130,7 @@ function RankedBreakdownCard({
               key={group.key}
               onPress={() => onPressRow(group.key)}
               accessibilityRole="button"
-              style={({ pressed }) => pressed && styles.pressed}
+              className="active:opacity-60"
             >
               {row}
             </Pressable>
@@ -107,15 +140,15 @@ function RankedBreakdownCard({
         })}
       </View>
       {groups.length > MAX_ROWS ? (
-        <Text style={styles.footnote}>{t`Top ${MAX_ROWS} of ${groups.length} by magnitude.`}</Text>
+        <Text className="text-xs text-muted-foreground">{t`Top ${MAX_ROWS} of ${groups.length} by magnitude.`}</Text>
       ) : null}
     </DashboardCard>
   );
 }
 
-/** Mon–Sun vertical bars — weekday count is exactly what Swift Charts likes. */
+/** Mon–Sun vertical bars — seven categories is exactly a bar chart's width. */
 function DayOfWeekCard({ ctx }: { ctx: ReportsMoneyContext }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const filters = useReportsFilters();
   const breakdown = useBreakdown('day_of_week', filters);
   const { money } = ctx;
@@ -123,7 +156,7 @@ function DayOfWeekCard({ ctx }: { ctx: ReportsMoneyContext }) {
   if (breakdown.isLoading) {
     return (
       <DashboardCard title={t`Day of week`}>
-        <Skeleton style={styles.chart} />
+        <Skeleton className="h-[200px] rounded-lg" />
       </DashboardCard>
     );
   }
@@ -138,7 +171,7 @@ function DayOfWeekCard({ ctx }: { ctx: ReportsMoneyContext }) {
   if (groups.length === 0) {
     return (
       <DashboardCard title={t`Day of week`}>
-        <Text style={styles.empty}>{t`No trades in this range.`}</Text>
+        <Text className="py-4 text-[13px] text-muted-foreground">{t`No trades in this range.`}</Text>
       </DashboardCard>
     );
   }
@@ -146,20 +179,18 @@ function DayOfWeekCard({ ctx }: { ctx: ReportsMoneyContext }) {
   // The API sorts by P&L; a weekday chart wants calendar order.
   const ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const ordered = [...groups].sort((a, b) => ORDER.indexOf(a.key) - ORDER.indexOf(b.key));
-  const data = ordered.map((group) => {
-    const value = money.display(money.pnl(group.summary));
-    return {
-      x: group.key.slice(0, 3),
-      y: value,
-      color: value >= 0 ? theme.colors.profit : theme.colors.loss,
-    };
-  });
+  const data = ordered.map((group) =>
+    signedBars(group.key.slice(0, 3), money.display(money.pnl(group.summary))),
+  );
 
   return (
     <DashboardCard title={t`Day of week`}>
-      <AppHost style={styles.chart}>
-        <Chart data={data} type="bar" showGrid animate barStyle={{ cornerRadius: 2 }} />
-      </AppHost>
+      <BarChart data={data} xDataKey="name" stacked aspectRatio={2} cornerRadius={2}>
+        <BarChart.Grid />
+        <BarChart.Bar dataKey="gain" color={palette.profit} />
+        <BarChart.Bar dataKey="loss" color={palette.loss} />
+        <BarChart.XAxis />
+      </BarChart>
     </DashboardCard>
   );
 }
@@ -181,7 +212,6 @@ function HourOfDayCard({ ctx }: { ctx: ReportsMoneyContext }) {
 
 /** Premarket / RTH / Afterhours / Overnight stats — always on the ET clock. */
 function SessionCard({ ctx }: { ctx: ReportsMoneyContext }) {
-  const { theme } = useUnistyles();
   const filters = useReportsFilters();
   const breakdown = useBreakdown('session', filters);
   const { money } = ctx;
@@ -189,7 +219,7 @@ function SessionCard({ ctx }: { ctx: ReportsMoneyContext }) {
   if (breakdown.isLoading) {
     return (
       <DashboardCard title={t`Sessions`}>
-        <Skeleton style={styles.listSkeleton} />
+        <Skeleton className="h-[220px] rounded-lg" />
       </DashboardCard>
     );
   }
@@ -204,7 +234,7 @@ function SessionCard({ ctx }: { ctx: ReportsMoneyContext }) {
   if (groups.length === 0) {
     return (
       <DashboardCard title={t`Sessions`}>
-        <Text style={styles.empty}>{t`No trades in this range.`}</Text>
+        <Text className="py-4 text-[13px] text-muted-foreground">{t`No trades in this range.`}</Text>
       </DashboardCard>
     );
   }
@@ -227,14 +257,14 @@ function SessionCard({ ctx }: { ctx: ReportsMoneyContext }) {
   const row = (group: BreakGroup) => {
     const value = money.pnl(group.summary);
     return (
-      <View key={group.key} style={styles.sessionRow}>
-        <View style={styles.sessionHead}>
-          <Text style={styles.sessionName}>{sessionLabel(group.key)}</Text>
-          <Text style={[styles.sessionPnl, { color: pnlColor(theme.colors, value) }]}>
+      <View key={group.key} className="gap-0.5">
+        <View className="flex-row items-baseline justify-between">
+          <Text className="text-sm font-semibold text-foreground">{sessionLabel(group.key)}</Text>
+          <Text className={cn('text-sm font-semibold tabular-nums', pnlClass(value))}>
             {money.formatCompact(value)}
           </Text>
         </View>
-        <Text style={styles.sessionMeta}>
+        <Text className="text-xs tabular-nums text-muted-foreground">
           {t`${group.summary.total_trades} trades`} · {formatPercent(group.summary.win_rate, 0)} ·{' '}
           {t`avg`} {money.formatCompact(group.summary.avg_trade)} · PF{' '}
           {formatRatio(group.summary.profit_factor)}
@@ -245,8 +275,8 @@ function SessionCard({ ctx }: { ctx: ReportsMoneyContext }) {
 
   return (
     <DashboardCard title={t`Sessions`}>
-      <View style={styles.rows}>{groups.map(row)}</View>
-      <Text style={styles.footnote}>{t`Sessions follow the New York clock.`}</Text>
+      <View className="gap-3">{groups.map(row)}</View>
+      <Text className="text-xs text-muted-foreground">{t`Sessions follow the New York clock.`}</Text>
     </DashboardCard>
   );
 }
@@ -269,6 +299,7 @@ export function DetailedSection({
         dim="symbol"
         ctx={ctx}
         emptyLabel={t`No trades in this range.`}
+        treemap
         // A symbol row answers "how did I do on X?" — the journal shows where.
         onPressRow={(symbol) =>
           router.push({ pathname: '/(tabs)/(dashboard)/symbol-journal', params: { symbol } })
@@ -280,24 +311,12 @@ export function DetailedSection({
         ctx={ctx}
         emptyLabel={t`No tagged trades in this range.`}
       />
+      <SessionClockCard />
       <DayOfWeekCard ctx={ctx} />
       <HourOfDayCard ctx={ctx} />
       <PnlHeatmapCard ctx={ctx} />
+      <DurationScatterCard ctx={ctx} />
       <SessionCard ctx={ctx} />
     </SectionScaffold>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  rows: { gap: theme.spacing.md },
-  pressed: { opacity: 0.6 },
-  chart: { height: 200 },
-  listSkeleton: { height: 220, borderRadius: theme.radius.lg },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.lg },
-  footnote: { fontSize: 12, color: theme.colors.mutedForeground },
-  sessionRow: { gap: 2 },
-  sessionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  sessionName: { fontSize: 14, fontWeight: '600', color: theme.colors.foreground },
-  sessionPnl: { fontSize: 14, fontWeight: '600', ...theme.numeric },
-  sessionMeta: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-}));

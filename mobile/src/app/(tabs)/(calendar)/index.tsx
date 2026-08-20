@@ -1,9 +1,9 @@
 // See the note in trade-form.tsx: @expo/ui's SwiftUI pager swallows taps on RN
 // views inside its pages, which killed day-cell selection on these boards.
 import PagerView from 'react-native-pager-view';
+import { FitText } from '@/components/fit-text';
 import { Stack, useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
-import { useMemo, useRef, useState } from 'react';
+import { Fragment, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import Animated, {
   Easing,
@@ -13,13 +13,14 @@ import Animated, {
   type EntryExitAnimationFunction,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-screens/experimental';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { BottomSheet, cn, Skeleton } from 'panelui-native';
+import { useCSSVariable } from 'uniwind';
 
+import { Icon } from '@/components/icon';
 import type { Trade } from '@/api/types';
 import { useAccounts, useCash, useDaily, useEquityCurve, useTrades } from '@/api/hooks';
 import { ErrorState } from '@/components/error-state';
 import { Segmented } from '@/components/segmented';
-import { Skeleton } from '@/components/skeleton';
 import { WeekPnlStrip } from '@/components/week-pnl-strip';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
@@ -36,7 +37,54 @@ import { dayBounds, useGlobalFilters } from '@/lib/filters';
 import { formatPercent, formatPercentPoints, formatRatio, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency, resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
-import { pnlBgTint, pnlColor, pnlDotTint } from '@/styles/unistyles';
+import { pnlBgTint, pnlClass, pnlDotTint, usePnlPalette } from '@/styles/pnl';
+
+/**
+ * One day (or week-summary) tile. `borderCurve` has no class, and every board
+ * shares this footprint, so it lives here rather than in six call sites.
+ */
+const CELL = 'flex-1 rounded-lg px-[3px] py-1';
+
+/** The number in a tile's top-right corner. In flow (not absolute) so the
+ * body below can never be laid out over it on short tiles. */
+const DAY_NUM = 'self-end pr-1 pt-0.5 text-[11px] leading-[13px] tabular-nums';
+
+/** Tile body text on a tinted cell — `muted-foreground` fails contrast there. */
+const ON_TINT = 'text-foreground opacity-[0.72]';
+
+/** The stacked figures under a tile's day number, centered in the space the
+ * number row leaves. Tight leadings keep six-week months inside the tile. */
+const CELL_BODY = 'max-w-full flex-1 items-center justify-center self-center gap-[3px]';
+
+/** Week bento: caption, tile surface, and the three edge-stat figures. */
+const BENTO_LABEL = 'text-[10px] text-muted-foreground';
+const BENTO_TILE = 'gap-0.5 rounded-md bg-card px-2 py-1';
+const BENTO_STAT = 'text-[13px] font-semibold tabular-nums text-foreground';
+
+/** Summary header above a board: caption over the period's net figure. */
+const SUMMARY_SUB = 'text-xs tabular-nums text-muted-foreground';
+
+/**
+ * Nav-bar-title weight, sized down and width-capped: the compact segmented
+ * control and pager chevrons leave the title only the bar's middle sliver.
+ */
+const HEADER_TITLE = 'max-w-[118px] text-[11px] font-semibold text-foreground';
+
+const PAGER_BUTTON = 'h-8 w-8 items-center justify-center rounded-full active:opacity-60';
+
+/** Summary header above the grid: big net figure left, period facts right. */
+const SUMMARY_ROW = 'flex-row items-end justify-between gap-3 px-0.5 pb-3 pt-1';
+
+/**
+ * One week of tiles. Rows split the viewport height evenly so the month board
+ * fills the screen down to the tab bar without scrolling; the floor keeps tiles
+ * tappable.
+ */
+const GRID_ROW = 'mb-1.5 min-h-[52px] flex-1 flex-row gap-1.5';
+
+const SUMMARY_LABEL = 'mb-0.5 text-[11px] text-muted-foreground';
+const SUMMARY_VALUE = 'text-2xl font-bold tracking-[-0.4px] tabular-nums';
+const DOW_LABEL = 'flex-1 py-1 text-center text-xs font-medium text-muted-foreground';
 
 type Mode = 'week' | 'month' | 'year';
 
@@ -100,18 +148,6 @@ function pageWindow(mode: Mode, anchor: string): [string, string, string] {
 function afterFlush(fn: () => void) {
   requestAnimationFrame(() => requestAnimationFrame(fn));
 }
-
-/** The wheel card drops in from under the nav bar and settles. */
-const panelEntering: EntryExitAnimationFunction = () => {
-  'worklet';
-  return {
-    initialValues: { opacity: 0, transform: [{ translateY: -8 }, { scale: 0.97 }] },
-    animations: {
-      opacity: withTiming(1, EASE),
-      transform: [{ translateY: withTiming(0, EASE) }, { scale: withTiming(1, EASE) }],
-    },
-  };
-};
 
 /** Per-day closed-trade tallies (close basis) behind the count and W/L badges. */
 type DayStats = { count: number; wins: number; losses: number };
@@ -178,64 +214,68 @@ function WeekBento({
   endBalance: number | null;
   showBalance: boolean;
 }) {
-  const { theme } = useUnistyles();
   const { formatPnl, formatCurrency } = useFormatters();
-  const pnlTint = pnlColor(theme.colors, weekPnl);
-  const expTint = pnlColor(theme.colors, stats.expectancy);
+  const pnlTint = pnlClass(weekPnl);
 
   const hasBalance = startBalance != null && endBalance != null;
 
   return (
-    <View style={styles.weekBento}>
-      <View style={styles.weekBentoRow}>
-        <View style={styles.weekBentoHero}>
-          <Text style={styles.weekBentoLabel}>{t`Net P&L`}</Text>
-          <View style={styles.weekBentoHeroValueRow}>
-            <Text
-              style={[styles.weekBentoHeroValue, { color: pnlTint }]}
+    <View className="gap-1">
+      <View className="flex-row items-start gap-1">
+        <View className="min-w-0 flex-[1.5] gap-0.5 px-2">
+          <Text className={BENTO_LABEL}>{t`Net P&L`}</Text>
+          <View className="flex-row flex-wrap items-baseline gap-1">
+            <FitText
+              className={cn('text-[22px] font-bold tracking-[-0.3px] tabular-nums', pnlTint)}
               numberOfLines={1}
               adjustsFontSizeToFit
+              minimumFontScale={0.75}
             >
               {formatPnl(weekPnl, currency)}
-            </Text>
+            </FitText>
             {weekReturnPct != null ? (
-              <Text
-                style={[styles.weekBentoHeroReturn, { color: pnlTint }]}
+              <FitText
+                className={cn('text-sm font-semibold tabular-nums', pnlTint)}
                 numberOfLines={1}
                 adjustsFontSizeToFit
+                minimumFontScale={0.75}
               >
                 {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
-              </Text>
+              </FitText>
             ) : null}
           </View>
         </View>
-        <View style={styles.weekBentoSide}>
-          <Text style={styles.weekBentoLabel}>{t`Activity`}</Text>
-          <WinLoss wins={weekWins} losses={weekLosses} style={styles.weekBentoSideValue} />
-          <Text style={styles.weekBentoSideSub}>
+        <View className="min-w-0 flex-1 justify-center gap-0.5 px-2">
+          <Text className={BENTO_LABEL}>{t`Activity`}</Text>
+          <WinLoss
+            wins={weekWins}
+            losses={weekLosses}
+            className="text-sm font-semibold text-foreground"
+          />
+          <Text className="text-[11px] tabular-nums text-muted-foreground">
             {weekCount === 1 ? t`1 trade` : t`${weekCount} trades`}
           </Text>
         </View>
       </View>
-      <View style={styles.weekBentoRow}>
-        <View style={[styles.weekBentoTile, styles.weekBentoStat]}>
-          <Text style={styles.weekBentoLabel}>{t`Win rate`}</Text>
-          <Text style={styles.weekBentoStatValue}>{formatPercent(stats.winRate, 0)}</Text>
+      <View className="flex-row items-start gap-1">
+        <View className={cn(BENTO_TILE, 'min-w-0 flex-1 items-center')}>
+          <Text className={BENTO_LABEL}>{t`Win rate`}</Text>
+          <Text className={BENTO_STAT}>{formatPercent(stats.winRate, 0)}</Text>
         </View>
-        <View style={[styles.weekBentoTile, styles.weekBentoStat]}>
-          <Text style={styles.weekBentoLabel}>{t`Profit factor`}</Text>
-          <Text style={styles.weekBentoStatValue}>{formatRatio(stats.profitFactor)}</Text>
+        <View className={cn(BENTO_TILE, 'min-w-0 flex-1 items-center')}>
+          <Text className={BENTO_LABEL}>{t`Profit factor`}</Text>
+          <Text className={BENTO_STAT}>{formatRatio(stats.profitFactor)}</Text>
         </View>
-        <View style={[styles.weekBentoTile, styles.weekBentoStat]}>
-          <Text style={styles.weekBentoLabel}>{t`Expectancy`}</Text>
-          <Text style={[styles.weekBentoStatValue, { color: expTint }]}>
+        <View className={cn(BENTO_TILE, 'min-w-0 flex-1 items-center')}>
+          <Text className={BENTO_LABEL}>{t`Expectancy`}</Text>
+          <Text className={cn(BENTO_STAT, pnlClass(stats.expectancy))}>
             {formatPnl(stats.expectancy, currency)}
           </Text>
         </View>
       </View>
       {showBalance ? (
         <View
-          style={styles.weekBentoBalance}
+          className={BENTO_TILE}
           accessible
           accessibilityLabel={
             hasBalance
@@ -243,15 +283,26 @@ function WeekBento({
               : t`Balance, ${formatCurrency(0, currency)}`
           }
         >
-          <Text style={styles.weekBentoBalanceLabel}>{t`Balance`}</Text>
-          <View style={styles.weekBentoBalanceRow}>
+          <Text className={cn(BENTO_LABEL, 'text-center')}>{t`Balance`}</Text>
+          <View className="relative min-h-[21px] justify-center">
             {hasBalance ? (
-              <Text style={styles.weekBentoBalanceFrom} numberOfLines={1}>
+              <Text
+                className="max-w-[38%] text-[9px] font-medium tabular-nums text-muted-foreground"
+                numberOfLines={1}
+              >
                 {`${formatCurrency(startBalance, currency)} →`}
               </Text>
             ) : null}
-            <View style={styles.weekBentoBalanceValueOverlay} pointerEvents="none">
-              <Text style={styles.weekBentoBalanceEnd} numberOfLines={1}>
+            {/* Centred on the row rather than in it, so the "from" figure
+                beside it cannot shove the balance off centre. */}
+            <View
+              className="absolute left-0 right-0 items-center justify-center"
+              pointerEvents="none"
+            >
+              <Text
+                className="text-center text-[17px] font-bold leading-[21px] tracking-[-0.2px] tabular-nums text-foreground"
+                numberOfLines={1}
+              >
                 {formatCurrency(hasBalance ? endBalance : 0, currency)}
               </Text>
             </View>
@@ -290,7 +341,13 @@ function weekStart(key: string): Date {
  * flexes to fill whatever height remains.
  */
 export default function CalendarScreen() {
-  const { theme } = useUnistyles();
+  // `expo-symbols` takes a resolved color, and react-native-screens'
+  // `SafeAreaView` is not a core component Uniwind can take a `className` on —
+  // so both of these are JS values off the tokens.
+  const [foreground, background] = useCSSVariable([
+    '--color-foreground',
+    '--color-background',
+  ]) as [string, string];
   const router = useRouter();
   const now = new Date();
   const todayKey = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
@@ -360,9 +417,11 @@ export default function CalendarScreen() {
     setAnchor(nextAnchor);
     setPages(pageWindow(next, nextAnchor));
     setPickerOpen(false);
-    // The remounted pager starts centered; forget any in-flight page state.
+    // The remounted pager starts centered; forget any in-flight page state
+    // and let the fresh mount take its post-layout snap.
     settledPage.current = 1;
     recentering.current = false;
+    snappedAfterLayout.current = false;
   }
 
   const selectWeek = (date: string) => switchMode('week', date);
@@ -417,7 +476,19 @@ export default function CalendarScreen() {
   // native scroll is still settling compounds leftover momentum.
   const settledPage = useRef(1);
   const recentering = useRef(false);
+  // Android's ViewPager2 can mount mid-layout and land a fraction off
+  // `initialPage`; one post-layout snap squares it. Reset per mode remount.
+  const snappedAfterLayout = useRef(false);
+  function onPagerLayout() {
+    if (snappedAfterLayout.current) return;
+    snappedAfterLayout.current = true;
+    pagerRef.current?.setPageWithoutAnimation(1);
+  }
   function onPageSelected(event: { nativeEvent: { position: number } }) {
+    // The recenter's programmatic jump and dataset rebuild emit their own
+    // selected events (Android keeps emitting for a few frames); recording
+    // them would trigger a phantom second recenter on the next idle.
+    if (recentering.current) return;
     settledPage.current = event.nativeEvent.position;
   }
   function onPageScrollStateChanged(event: {
@@ -427,15 +498,21 @@ export default function CalendarScreen() {
     const pos = settledPage.current;
     settledPage.current = 1;
     if (pos === 1 || recentering.current) return;
-    recentering.current = true;
     const landed = pos === 2 ? pages[2] : pages[0];
+    // A stale event replaying the period we already recentered onto is a no-op.
+    if (landed === anchor) return;
+    recentering.current = true;
     setAnchor(landed);
     setPages((w) => (pos === 2 ? [w[0], w[2], w[2]] : [w[0], w[0], w[2]]));
     afterFlush(() => {
       pagerRef.current?.setPageWithoutAnimation(1);
       afterFlush(() => {
         setPages((w) => pageWindow(mode, w[1]));
-        recentering.current = false;
+        // Hold the guard one more flush: ViewPager2 keeps emitting
+        // selected/idle for the dataset rebuild itself.
+        afterFlush(() => {
+          recentering.current = false;
+        });
       });
     });
   }
@@ -476,44 +553,50 @@ export default function CalendarScreen() {
           ),
           headerLeft: () =>
             mode === 'week' ? (
-              <Text style={styles.headerTitle} numberOfLines={1} adjustsFontSizeToFit>
+              <FitText
+                className={HEADER_TITLE}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
+              >
                 {pagerLabel}
-              </Text>
+              </FitText>
             ) : (
               <Pressable
                 onPress={() => setPickerOpen((open) => !open)}
                 hitSlop={8}
                 accessibilityRole="button"
-                style={({ pressed }) => [styles.headerTitleButton, pressed && styles.pressed]}
+                className="flex-row items-center gap-[5px] active:opacity-60"
               >
-                <Text
-                  style={[styles.headerTitle, pickerOpen && { color: theme.colors.accent }]}
+                <FitText
+                  className={cn(HEADER_TITLE, pickerOpen && 'text-heading')}
                   numberOfLines={1}
                   adjustsFontSizeToFit
+                  minimumFontScale={0.75}
                 >
                   {pagerLabel}
-                </Text>
+                </FitText>
               </Pressable>
             ),
           headerRight: () => (
-            <View style={styles.pagerButtons}>
+            <View className="flex-row gap-2">
               <Pressable
                 onPress={() => pagerRef.current?.setPage(0)}
                 hitSlop={10}
                 accessibilityRole="button"
                 accessibilityLabel={t`Previous`}
-                style={({ pressed }) => [styles.pagerButton, pressed && styles.pressed]}
+                className={PAGER_BUTTON}
               >
-                <SymbolView name="chevron.left" size={15} tintColor={theme.colors.foreground} />
+                <Icon name="chevron.left" size={15} tintColor={foreground} />
               </Pressable>
               <Pressable
                 onPress={() => pagerRef.current?.setPage(2)}
                 hitSlop={10}
                 accessibilityRole="button"
                 accessibilityLabel={t`Next`}
-                style={({ pressed }) => [styles.pagerButton, pressed && styles.pressed]}
+                className={PAGER_BUTTON}
               >
-                <SymbolView name="chevron.right" size={15} tintColor={theme.colors.foreground} />
+                <Icon name="chevron.right" size={15} tintColor={foreground} />
               </Pressable>
             </View>
           ),
@@ -523,10 +606,15 @@ export default function CalendarScreen() {
           header + floating tab bar overlap (the tab trigger sets
           disableAutomaticContentInsets), so flexed rows can split the true visible
           height — the ScrollView remains only as a pull-to-refresh host. */}
-      <SafeAreaView style={styles.page} edges={{ top: true, bottom: true }}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: background }}
+        edges={{ top: true, bottom: true }}
+      >
         <ScrollView
-          style={styles.fill}
-          contentContainerStyle={styles.content}
+          className="flex-1"
+          // flexGrow + flexed rows make each mode fill the safe area exactly —
+          // no scrolling in normal use; small screens can still overflow.
+          contentContainerClassName="grow px-3 py-1"
           refreshControl={
             <RefreshControl
               refreshing={daily.isRefetching}
@@ -542,18 +630,23 @@ export default function CalendarScreen() {
              entering one instead of holding a layout slot and shoving it down.
              While the daily query loads, the skeleton overlays the pager
              rather than replacing it — swapping mounts made the pager's first
-             layout pass (three unsized panes) flash on screen. */
-          <View style={styles.boardHost}>
+             layout pass (three unsized panes) flash on screen.
+
+             The host below keeps the viewport-filling layout slot; the boards
+             stack inside it absolutely, so an exiting one overlaps the
+             entering one during a transition. */
+          <View className="flex-1">
             <Animated.View
               key={mode}
               entering={boardEntering[anim]}
               exiting={boardExiting}
-              style={styles.boardLayer}
+              className="absolute bottom-0 left-0 right-0 top-0"
             >
               <PagerView
                 ref={pagerRef}
                 initialPage={1}
-                style={styles.fill}
+                style={{ flex: 1 }}
+                onLayout={onPagerLayout}
                 onPageSelected={onPageSelected}
                 onPageScrollStateChanged={onPageScrollStateChanged}
               >
@@ -561,7 +654,7 @@ export default function CalendarScreen() {
                   const pageDate = new Date(`${pageKey}T00:00:00Z`);
                   const pageYear = pageDate.getUTCFullYear();
                   return (
-                    <View key={pane} style={styles.fill}>
+                    <View key={pane} className="flex-1">
                       {mode === 'month' ? (
                         <MonthView
                           year={pageYear}
@@ -610,9 +703,11 @@ export default function CalendarScreen() {
               </PagerView>
             </Animated.View>
             {daily.isLoading ? (
+              // Opaque so the pager settling its first layout stays hidden
+              // underneath.
               <Animated.View
                 exiting={FadeOut.duration(150)}
-                style={[styles.boardLayer, styles.skeletonOverlay]}
+                className="absolute bottom-0 left-0 right-0 top-0 bg-background"
               >
                 <BoardSkeleton />
               </Animated.View>
@@ -623,7 +718,7 @@ export default function CalendarScreen() {
               // quietly claiming you broke even every day is worse than no
               // calendar. Same layer as the skeleton, so the header pager and
               // pull-to-refresh keep working behind it.
-              <View style={[styles.boardLayer, styles.skeletonOverlay]}>
+              <View className="absolute bottom-0 left-0 right-0 top-0 bg-background">
                 <ErrorState
                   error={daily.error}
                   onRetry={() => void daily.refetch()}
@@ -634,52 +729,127 @@ export default function CalendarScreen() {
           </View>
         }
         </ScrollView>
-        {pickerOpen ? (
-          <>
-            {/* Scrim closes the picker; kept light so the live board reads through. */}
-            <Pressable style={styles.pickerScrim} onPress={() => setPickerOpen(false)} />
-            <Animated.View
-              entering={panelEntering}
-              exiting={FadeOut.duration(120)}
-              style={[styles.pickerCard, mode === 'year' && styles.pickerCardNarrow]}
-            >
-              {mode === 'month' ? (
-                <Segmented
-                  variant="wheel"
-                  options={monthOptions}
-                  value={String(month)}
-                  onChange={(m) => jumpTo(year, Number(m))}
-                />
-              ) : null}
-              <Segmented
-                variant="wheel"
-                options={yearOptions}
-                value={String(year)}
-                onChange={(y) => jumpTo(Number(y), month)}
-              />
-            </Animated.View>
-          </>
-        ) : null}
+        <MonthYearSheet
+          open={pickerOpen}
+          onOpenChange={setPickerOpen}
+          showMonths={mode === 'month'}
+          monthOptions={monthOptions}
+          yearOptions={yearOptions}
+          month={month}
+          year={year}
+          onJump={jumpTo}
+        />
       </SafeAreaView>
     </>
+  );
+}
+
+/**
+ * Month/year jump — the app's picker-sheet anatomy (52pt rows, chosen row
+ * bold with a trailing check) in one bottom sheet, two columns when a month
+ * board also needs the month. Year taps retune the board and keep the sheet
+ * open; the month tap is the final word and closes it.
+ */
+function MonthYearSheet({
+  open,
+  onOpenChange,
+  showMonths,
+  monthOptions,
+  yearOptions,
+  month,
+  year,
+  onJump,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  showMonths: boolean;
+  monthOptions: { value: string; label: string }[];
+  yearOptions: { value: string; label: string }[];
+  month: number;
+  year: number;
+  onJump: (year: number, month: number) => void;
+}) {
+  const [primary] = useCSSVariable(['--color-primary']) as [string];
+
+  const column = (
+    items: { value: string; label: string }[],
+    selected: string,
+    onPick: (value: string) => void,
+  ) => {
+    const selectedIndex = Math.max(
+      0,
+      items.findIndex((item) => item.value === selected),
+    );
+    return (
+      <ScrollView
+        className="max-h-[380px] flex-1"
+        bounces={false}
+        contentOffset={{ x: 0, y: Math.max(0, selectedIndex * 52 - 130) }}
+      >
+        {items.map((item, index) => {
+          const isSelected = item.value === selected;
+          return (
+            <Fragment key={item.value}>
+              {index > 0 ? <View className="h-px bg-border/60" /> : null}
+              <Pressable
+                onPress={() => onPick(item.value)}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: isSelected }}
+                className="min-h-[52px] flex-row items-center gap-3 active:opacity-60"
+              >
+                <Text
+                  className={cn('flex-1 text-[17px] text-foreground', isSelected && 'font-semibold')}
+                  numberOfLines={1}
+                >
+                  {item.label}
+                </Text>
+                {isSelected ? (
+                  <Icon name="checkmark.circle.fill" size={22} tintColor={primary} />
+                ) : null}
+              </Pressable>
+            </Fragment>
+          );
+        })}
+      </ScrollView>
+    );
+  };
+
+  return (
+    <BottomSheet open={open} onOpenChange={onOpenChange}>
+      <BottomSheet.Content>
+        <BottomSheet.Header title={showMonths ? t`Jump to` : t`Year`} />
+        <View className="flex-row gap-6">
+          {showMonths
+            ? column(monthOptions, String(month), (m) => {
+                onJump(year, Number(m));
+                onOpenChange(false);
+              })
+            : null}
+          {column(yearOptions, String(year), (y) => {
+            onJump(Number(y), month);
+            if (!showMonths) onOpenChange(false);
+          })}
+        </View>
+      </BottomSheet.Content>
+    </BottomSheet>
   );
 }
 
 /** Month-board-shaped placeholder while the daily P&L query loads. */
 function BoardSkeleton() {
   return (
-    <View style={styles.fill}>
-      <View style={styles.summaryRow}>
-        <View style={styles.skeletonSummary}>
-          <Skeleton style={styles.skeletonLabel} />
-          <Skeleton style={styles.skeletonValue} />
+    <View className="flex-1">
+      <View className={SUMMARY_ROW}>
+        <View className="gap-1.5">
+          <Skeleton className="h-3 w-14" label={t`Loading calendar`} />
+          <Skeleton className="h-[26px] w-[150px]" />
         </View>
-        <Skeleton style={styles.skeletonSide} />
+        <Skeleton className="h-[34px] w-[84px]" />
       </View>
       {Array.from({ length: 5 }, (_, row) => (
-        <View key={row} style={[styles.gridRow, styles.gridRowFlex]}>
+        <View key={row} className={GRID_ROW}>
           {Array.from({ length: 6 }, (_, col) => (
-            <Skeleton key={col} style={styles.skeletonCell} />
+            <Skeleton key={col} className="flex-1 rounded-lg" />
           ))}
         </View>
       ))}
@@ -688,14 +858,21 @@ function BoardSkeleton() {
 }
 
 /** "3W 2L" fragment — wins in profit color, losses in loss color, zeros omitted. */
-function WinLoss({ wins, losses, style }: { wins: number; losses: number; style?: object }) {
-  const { theme } = useUnistyles();
+function WinLoss({
+  wins,
+  losses,
+  className,
+}: {
+  wins: number;
+  losses: number;
+  className?: string;
+}) {
   if (wins === 0 && losses === 0) return null;
   return (
-    <Text style={[styles.wl, style]} numberOfLines={1}>
-      {wins > 0 ? <Text style={{ color: theme.colors.profit }}>{wins}W</Text> : null}
+    <Text className={cn('text-[10px] font-semibold tabular-nums', className)} numberOfLines={1}>
+      {wins > 0 ? <Text className="text-profit">{wins}W</Text> : null}
       {wins > 0 && losses > 0 ? ' ' : null}
-      {losses > 0 ? <Text style={{ color: theme.colors.loss }}>{losses}L</Text> : null}
+      {losses > 0 ? <Text className="text-loss">{losses}L</Text> : null}
     </Text>
   );
 }
@@ -717,49 +894,48 @@ function DayCell({
   onSelect: (date: string) => void;
   currency: string;
 }) {
-  const { theme } = useUnistyles();
+  // The cell wash is a computed rgba, so the hues come from the tokens as
+  // values rather than as classes.
+  const palette = usePnlPalette();
   const { formatPnlCompact } = useFormatters();
   const hasPnl = pnl != null;
   const isToday = date === todayKey;
-  const count = stats?.count ?? 0;
 
   return (
     <Pressable
       disabled={!hasPnl}
       onPress={() => onSelect(date)}
-      style={({ pressed }) => [
-        styles.cell,
-        hasPnl
-          ? { backgroundColor: pnlBgTint(theme.colors, pnl!, maxAbs) }
-          : styles.emptyCell,
-        pressed && styles.pressed,
-      ]}
+      className={cn(CELL, !hasPnl && 'bg-muted', hasPnl && 'active:opacity-60')}
+      style={hasPnl ? { backgroundColor: pnlBgTint(palette, pnl, maxAbs) } : undefined}
     >
       <Text
-        style={[
-          styles.dayNum,
-          hasPnl && !isToday && styles.dayNumOnTint,
-          isToday && { color: theme.colors.accent, fontWeight: '700' },
-        ]}
+        className={cn(
+          DAY_NUM,
+          isToday
+            ? 'font-bold text-heading'
+            : hasPnl
+              ? ON_TINT
+              : 'text-muted-foreground',
+        )}
       >
         {Number(date.slice(8, 10))}
       </Text>
       {hasPnl ? (
-        <View style={styles.cellBody}>
-          <Text
-            style={[styles.cellPnl, { color: pnlColor(theme.colors, pnl) }]}
+        <View className={CELL_BODY}>
+          {/* Figure + W/L only — the trade count lives in the day sheet.
+              minimumFontScale everywhere adjustsFontSizeToFit appears in a
+              tile: first-row tiles measure near-zero while the month pager
+              settles, and an uncapped shrink latches microscopic (same iOS
+              quirk as the Net P&L summary above). */}
+          <FitText
+            className={cn('text-[13px] font-bold leading-[15px] tabular-nums', pnlClass(pnl))}
             numberOfLines={1}
             adjustsFontSizeToFit
+            minimumFontScale={0.75}
           >
             {formatPnlCompact(pnl, currency)}
-          </Text>
-          {count > 0 ? (
-            <Text style={styles.cellSub} numberOfLines={1} adjustsFontSizeToFit>
-              {/* Hermes has no Intl.PluralRules, so lingui's plural() crashes — branch by hand. */}
-              {count === 1 ? t`1 trade` : t`${count} trades`}
-            </Text>
-          ) : null}
-          <WinLoss wins={stats?.wins ?? 0} losses={stats?.losses ?? 0} />
+          </FitText>
+          <WinLoss wins={stats?.wins ?? 0} losses={stats?.losses ?? 0} className="leading-[12px]" />
         </View>
       ) : null}
     </Pressable>
@@ -790,8 +966,13 @@ function MonthView({
   equityLoaded: boolean;
   balanceAtPeriodStart: (dayKey: string) => number | null;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const { formatPnl, formatPnlCompact } = useFormatters();
+  // Tiles flex to split the board height; when a six-week month (or a short
+  // screen) squeezes them under what the full stack of figures needs, the
+  // tiles drop their count lines instead of overflowing.
+  const [rowHeight, setRowHeight] = useState<number | null>(null);
+  const compact = rowHeight != null && rowHeight < 66;
   const grid = monthGrid(year, month, data);
   const traded = Object.keys(data).filter((k) => k.startsWith(`${year}-${pad(month)}`));
   const green = traded.filter((k) => data[k] > 0).length;
@@ -807,36 +988,41 @@ function MonthView({
   );
 
   return (
-    <View style={styles.fill}>
-      <View style={styles.summaryRow}>
-        <View>
-          <Text style={styles.summaryLabel}>{t`Net P&L`}</Text>
-          <Text
-            style={[styles.summaryValue, { color: pnlColor(theme.colors, grid.monthTotal) }]}
+    <View className="flex-1">
+      <View className={SUMMARY_ROW}>
+        {/* min-w-0 flex-1 gives the shrinking Text a stable bounded width —
+            without it iOS's adjustsFontSizeToFit can latch onto a transient
+            near-zero measure and stay microscopic. minimumFontScale caps the
+            damage either way. */}
+        <View className="min-w-0 flex-1">
+          <Text className={SUMMARY_LABEL}>{t`Net P&L`}</Text>
+          <FitText
+            className={cn(SUMMARY_VALUE, pnlClass(grid.monthTotal))}
             numberOfLines={1}
             adjustsFontSizeToFit
+            minimumFontScale={0.75}
           >
             {formatPnl(grid.monthTotal, currency)}
-          </Text>
+          </FitText>
         </View>
-        <View style={styles.summaryRight}>
-          <Text style={styles.summarySub}>
+        <View className="items-end gap-[3px] pb-0.5">
+          <Text className={SUMMARY_SUB}>
             {traded.length === 1 ? t`1 day` : t`${traded.length} days`}
           </Text>
-          <Text style={styles.summarySub}>
-            <Text style={{ color: theme.colors.profit, fontWeight: '600' }}>{green}</Text>
+          <Text className={SUMMARY_SUB}>
+            <Text className="font-semibold text-profit">{green}</Text>
             {' / '}
-            <Text style={{ color: theme.colors.loss, fontWeight: '600' }}>{red}</Text>
+            <Text className="font-semibold text-loss">{red}</Text>
           </Text>
         </View>
       </View>
-      <View style={styles.gridHeader}>
+      <View className="mb-1 flex-row gap-1.5">
         {dayIdx.map((i) => (
-          <Text key={i} style={styles.dowLabel} numberOfLines={1}>
+          <Text key={i} className={DOW_LABEL} numberOfLines={1}>
             {DOW[i]}
           </Text>
         ))}
-        <Text style={styles.dowLabel} numberOfLines={1}>
+        <Text className={DOW_LABEL} numberOfLines={1}>
           {t`Week`}
         </Text>
       </View>
@@ -859,48 +1045,60 @@ function MonthView({
           daysTraded > 0
             ? t`Week ${wi + 1}, ${formatPnlCompact(weekPnl, currency)}`
             : t`Week ${wi + 1}, No trades`;
-        const tileStyle = [
-          styles.cell,
+        const tileClass = cn(CELL, daysTraded === 0 && 'bg-muted');
+        const tileTint =
           daysTraded > 0
-            ? { backgroundColor: pnlBgTint(theme.colors, weekPnl, maxWeekAbs) }
-            : styles.emptyCell,
-        ];
+            ? { backgroundColor: pnlBgTint(palette, weekPnl, maxWeekAbs) }
+            : undefined;
         const tileBody = (
           <>
-            <Text style={[styles.dayNum, daysTraded > 0 && styles.dayNumOnTint]}>W{wi + 1}</Text>
+            <Text className={cn(DAY_NUM, daysTraded > 0 ? ON_TINT : 'text-muted-foreground')}>
+              W{wi + 1}
+            </Text>
             {daysTraded > 0 ? (
-              <View style={styles.cellBody}>
-                <Text
-                  style={[styles.cellPnl, { color: pnlColor(theme.colors, weekPnl) }]}
+              <View className={CELL_BODY}>
+                <FitText
+                  className={cn('text-[13px] font-bold leading-[15px] tabular-nums', pnlClass(weekPnl))}
                   numberOfLines={1}
                   adjustsFontSizeToFit
+                  minimumFontScale={0.75}
                 >
                   {formatPnlCompact(weekPnl, currency)}
-                </Text>
-                {weekReturnPct != null ? (
-                  <Text
-                    style={[
-                      styles.cellSub,
-                      { color: pnlColor(theme.colors, weekPnl), fontWeight: '600' },
-                    ]}
+                </FitText>
+                {weekReturnPct != null && !compact ? (
+                  <FitText
+                    className={cn(
+                      'text-[10px] font-semibold leading-[12px] tabular-nums',
+                      pnlClass(weekPnl),
+                    )}
                     numberOfLines={1}
                     adjustsFontSizeToFit
+                    minimumFontScale={0.75}
                   >
                     {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
-                  </Text>
+                  </FitText>
                 ) : null}
-                <WinLoss wins={weekWins} losses={weekLosses} />
-                <Text style={styles.cellSub} numberOfLines={1} adjustsFontSizeToFit>
-                  {daysTraded === 1 ? t`1 day` : t`${daysTraded} days`}
-                </Text>
+                <WinLoss wins={weekWins} losses={weekLosses} className="leading-[12px]" />
               </View>
             ) : (
-              <Text style={styles.cellSubIdle}>{t`No trades`}</Text>
+              // Idle (untinted) tiles keep the quiet muted text, centered in
+              // the space the W-number row leaves.
+              <View className="flex-1 items-center justify-center">
+                <Text className="text-[10px] tabular-nums text-muted-foreground">{t`No trades`}</Text>
+              </View>
             )}
           </>
         );
         return (
-          <View key={wi} style={[styles.gridRow, styles.gridRowFlex]}>
+          <View
+            key={wi}
+            className={GRID_ROW}
+            onLayout={
+              wi === 0
+                ? (e) => setRowHeight(e.nativeEvent.layout.height)
+                : undefined
+            }
+          >
             {dayIdx.map((ci) => {
               const cell = week[ci];
               return cell ? (
@@ -915,7 +1113,7 @@ function MonthView({
                   currency={currency}
                 />
               ) : (
-                <View key={`e-${ci}`} style={styles.cell} />
+                <View key={`e-${ci}`} className={CELL} />
               );
             })}
             {/* Weekly summary tile, same footprint as a day. */}
@@ -924,12 +1122,15 @@ function MonthView({
                 onPress={() => onSelectWeek(weekAnchor)}
                 accessibilityRole="button"
                 accessibilityLabel={weekLabel}
-                style={({ pressed }) => [...tileStyle, pressed && styles.pressed]}
+                className={cn(tileClass, 'active:opacity-60')}
+                style={tileTint}
               >
                 {tileBody}
               </Pressable>
             ) : (
-              <View style={tileStyle}>{tileBody}</View>
+              <View className={tileClass} style={tileTint}>
+                {tileBody}
+              </View>
             )}
           </View>
         );
@@ -960,7 +1161,7 @@ function WeekView({
   equityLoaded: boolean;
   balanceAtPeriodStart: (dayKey: string) => number | null;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const { formatPnl } = useFormatters();
   const start = weekStart(anchor);
   const allDays = Array.from({ length: 7 }, (_, i) => {
@@ -982,7 +1183,7 @@ function WeekView({
     equityLoaded && weekStartBal != null ? weekPnl / weekStartBal : null;
 
   return (
-    <View style={styles.fill}>
+    <View className="flex-1">
       <WeekBento
         weekPnl={weekPnl}
         weekReturnPct={weekReturnPct}
@@ -995,7 +1196,9 @@ function WeekView({
         endBalance={weekEndBal}
         showBalance={equityLoaded}
       />
-      <View style={styles.weekChart}>
+      {/* Absorbs slack between bento and day list; centres strip + labels as
+          one block. */}
+      <View className="mt-2 shrink-0 grow justify-center">
         <WeekPnlStrip
           days={days}
           data={data}
@@ -1003,7 +1206,9 @@ function WeekView({
           currency={currency}
         />
       </View>
-      <View style={styles.weekDays}>
+      {/* Content-sized rows anchored to the bottom; the chart block above
+          takes the leftover height. */}
+      <View className="mt-4 shrink-0 gap-2 pb-2">
       {days.map((key) => {
         const pnl = data[key] ?? null;
         const stats = dayStats.get(key);
@@ -1018,23 +1223,31 @@ function WeekView({
             key={key}
             disabled={pnl == null}
             onPress={() => onSelect(key)}
-            style={({ pressed }) => [
-              styles.weekRow,
-              pnl != null && { backgroundColor: pnlBgTint(theme.colors, pnl, weekMax) },
-              pressed && styles.pressed,
-            ]}
+            className={cn(
+              'min-h-[48px] flex-row items-center justify-between gap-3 rounded-md bg-muted px-3 py-1',
+              pnl != null && 'active:opacity-60',
+            )}
+            style={pnl != null ? { backgroundColor: pnlBgTint(palette, pnl, weekMax) } : undefined}
           >
-            <View style={styles.weekRowLeft}>
-              <Text style={[styles.weekRowDay, isToday && { color: theme.colors.accent }]}>
+            <View className="gap-px">
+              <Text
+                className={cn(
+                  'text-sm font-semibold',
+                  isToday ? 'text-heading' : 'text-foreground',
+                )}
+              >
                 {d.toLocaleDateString(locale, { weekday: 'short', timeZone: 'UTC' })}
               </Text>
-              <Text style={styles.weekRowDate}>
+              <Text className="text-[11px] tabular-nums text-muted-foreground">
                 {d.toLocaleDateString(locale, { month: 'short', day: 'numeric', timeZone: 'UTC' })}
               </Text>
             </View>
-            <View style={styles.weekRowRight}>
+            <View className="items-end gap-px">
               {count > 0 ? (
-                <Text style={styles.weekRowCount}>
+                // Renders only on tinted (traded) cards, where
+                // `muted-foreground` fails contrast — foreground dimmed via
+                // opacity keeps the nested W/L hues legible.
+                <Text className={cn('text-[10px] tabular-nums', ON_TINT)}>
                   {count === 1 ? t`1 trade` : t`${count} trades`}
                   {'  '}
                   <WinLoss wins={wins} losses={losses} />
@@ -1042,11 +1255,16 @@ function WeekView({
                 </Text>
               ) : null}
               {pnl != null ? (
-                <Text style={[styles.weekRowPnl, { color: pnlColor(theme.colors, pnl) }]}>
+                <Text
+                  className={cn(
+                    'text-[17px] font-bold tracking-[-0.3px] tabular-nums',
+                    pnlClass(pnl),
+                  )}
+                >
                   {formatPnl(pnl, currency)}
                 </Text>
               ) : (
-                <Text style={styles.weekRowEmpty}>{t`No trades`}</Text>
+                <Text className="text-xs font-medium text-muted-foreground">{t`No trades`}</Text>
               )}
             </View>
           </Pressable>
@@ -1075,7 +1293,7 @@ function YearView({
   yearStartBalance: number | null;
   onSelectMonth: (month: number) => void;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const { formatPnl, formatPnlCompact } = useFormatters();
   const yearTotal = Object.entries(data)
     .filter(([k]) => k.startsWith(`${year}-`))
@@ -1091,24 +1309,26 @@ function YearView({
   );
 
   return (
-    <View style={styles.fill}>
-      <View style={styles.summaryRow}>
-        <View>
-          <Text style={styles.summaryLabel}>{t`Net P&L`}</Text>
-          <Text
-            style={[styles.summaryValue, { color: pnlColor(theme.colors, yearTotal) }]}
+    <View className="flex-1">
+      <View className={SUMMARY_ROW}>
+        {/* Same bounded-width guard as the month summary. */}
+        <View className="min-w-0 flex-1">
+          <Text className={SUMMARY_LABEL}>{t`Net P&L`}</Text>
+          <FitText
+            className={cn(SUMMARY_VALUE, pnlClass(yearTotal))}
             numberOfLines={1}
             adjustsFontSizeToFit
+            minimumFontScale={0.75}
           >
             {formatPnl(yearTotal, currency)}
-          </Text>
+          </FitText>
         </View>
-        <View style={styles.summaryRight}>
-          <Text style={styles.summarySub}>
+        <View className="items-end gap-[3px] pb-0.5">
+          <Text className={SUMMARY_SUB}>
             {yearCount === 1 ? t`1 trade` : t`${yearCount} trades`}
           </Text>
           {equityLoaded && yearStartBalance != null ? (
-            <Text style={[styles.summarySub, { color: pnlColor(theme.colors, yearTotal) }]}>
+            <Text className={cn('text-xs tabular-nums', pnlClass(yearTotal))}>
               {`${yearTotal > 0 ? '+' : ''}${formatPercentPoints((yearTotal / yearStartBalance) * 100, 1)}`}
             </Text>
           ) : null}
@@ -1116,9 +1336,9 @@ function YearView({
       </View>
       {/* Explicit 4×3 flex grid: rows, tiles, and dot rows all flex so the
           board divides the safe area exactly — no overflow, no dead space. */}
-      <View style={styles.yearGrid}>
+      <View className="flex-1 gap-2">
         {Array.from({ length: 4 }, (_, r) => (
-          <View key={r} style={styles.yearRow}>
+          <View key={r} className="flex-1 flex-row gap-2">
             {Array.from({ length: 3 }, (_, c) => {
               const m = r * 3 + c + 1;
               const grid = monthGrid(year, m, data);
@@ -1138,46 +1358,57 @@ function YearView({
                   key={m}
                   onPress={() => onSelectMonth(m)}
                   accessibilityRole="button"
-                  style={({ pressed }) => [styles.yearMonth, pressed && styles.pressed]}
+                  className="flex-1 rounded-lg bg-muted p-2 active:opacity-60"
                 >
-                  <Text style={[styles.yearMonthLabel, count === 0 && styles.yearMonthIdleText]}>
+                  <Text
+                    className={cn(
+                      'text-center text-xs font-semibold',
+                      count === 0 ? 'text-muted-foreground' : 'text-foreground',
+                    )}
+                  >
                     {label}
                   </Text>
-                  <View style={styles.yearWeeks}>
+                  {/* Dots flex in both axes (no aspect ratio) so six week rows
+                      always divide the tile's remaining height exactly. */}
+                  <View className="mt-1.5 flex-1 gap-[3px]">
                     {weeks.map((week, wi) => (
-                      <View key={wi} style={styles.yearWeek}>
+                      <View key={wi} className="flex-1 flex-row gap-[3px]">
                         {week.map((cell, ci) => (
                           <View
                             key={cell?.date ?? `e-${ci}`}
-                            style={[
-                              styles.yearDot,
-                              // Out-of-month slots vanish; traded days run vivid.
-                              cell == null && styles.yearDotVoid,
-                              cell?.pnl != null && {
-                                backgroundColor: pnlDotTint(theme.colors, cell.pnl, maxAbs),
-                              },
-                            ]}
+                            // Out-of-month slots vanish; traded days run vivid.
+                            className={cn(
+                              'flex-1 rounded',
+                              cell == null ? 'bg-transparent' : 'bg-card',
+                            )}
+                            style={
+                              cell?.pnl != null
+                                ? { backgroundColor: pnlDotTint(palette, cell.pnl, maxAbs) }
+                                : undefined
+                            }
                           />
                         ))}
                       </View>
                     ))}
                   </View>
                   {grid.monthTotal !== 0 ? (
-                    <Text
-                      style={[
-                        styles.yearMonthTotal,
-                        { color: pnlColor(theme.colors, grid.monthTotal) },
-                      ]}
+                    <FitText
+                      className={cn(
+                        'mt-1.5 text-center text-[13px] font-bold tabular-nums',
+                        pnlClass(grid.monthTotal),
+                      )}
                       numberOfLines={1}
                       adjustsFontSizeToFit
                     >
                       {formatPnlCompact(grid.monthTotal, currency)}
-                    </Text>
+                    </FitText>
                   ) : (
-                    <Text style={styles.yearMonthEmpty}>{formatPnlCompact(0, currency)}</Text>
+                    <Text className="mt-1.5 text-center text-[13px] font-semibold tabular-nums text-muted-foreground">
+                      {formatPnlCompact(0, currency)}
+                    </Text>
                   )}
                   <Text
-                    style={[styles.yearMonthCount, count === 0 && styles.yearMonthIdleText]}
+                    className="mt-px text-center text-[10px] tabular-nums text-muted-foreground"
                     numberOfLines={1}
                   >
                     {count === 0 ? t`No trades` : count === 1 ? t`1 trade` : t`${count} trades`}
@@ -1191,299 +1422,3 @@ function YearView({
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  // flexGrow + flexed rows make each mode fill the safe area exactly — no scrolling
-  // in normal use; small screens can still overflow into a scroll.
-  content: {
-    flexGrow: 1,
-    paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.xs,
-    paddingBottom: theme.spacing.xs,
-  },
-  fill: { flex: 1 },
-  // The host keeps the viewport-filling layout slot; boards stack inside it
-  // absolutely so an exiting one overlaps the entering one during transitions.
-  boardHost: { flex: 1 },
-  boardLayer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-  // Opaque so the pager settling its first layout stays hidden underneath.
-  skeletonOverlay: { backgroundColor: theme.colors.background },
-  // Nav-bar-title weight, sized down and width-capped: the compact segmented
-  // control and pager chevrons leave the title only the bar's middle sliver.
-  headerTitle: {
-    maxWidth: 118,
-    fontSize: 11,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-  },
-  headerTitleButton: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  // Sits under the transparent header; light enough that the live board —
-  // which pages as the wheels spin — still reads through.
-  pickerScrim: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: theme.colors.background,
-    opacity: 0.4,
-  },
-  pickerCard: {
-    position: 'absolute',
-    top: theme.spacing.xs,
-    left: theme.spacing.lg,
-    right: theme.spacing.lg,
-    flexDirection: 'row',
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.radius.lg + 4,
-    borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
-    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3)',
-  },
-  // Year mode spins a single wheel — a slim centered card, not a full-width one.
-  pickerCardNarrow: { left: undefined, right: undefined, alignSelf: 'center', width: 180 },
-  pagerButtons: { flexDirection: 'row', gap: theme.spacing.sm },
-  pagerButton: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.radius.full,
-  },
-  pressed: { opacity: 0.6 },
-  skeletonSummary: { gap: 6 },
-  skeletonLabel: { width: 56, height: 12 },
-  skeletonValue: { width: 150, height: 26 },
-  skeletonSide: { width: 84, height: 34 },
-  skeletonCell: { flex: 1, borderRadius: theme.radius.lg },
-  gridHeader: { flexDirection: 'row', gap: 6, marginBottom: theme.spacing.xs },
-  gridRow: { flexDirection: 'row', gap: 6, marginBottom: 6 },
-  // Rows split the viewport height evenly so the month board fills the screen
-  // down to the tab bar without scrolling; the floor keeps tiles tappable.
-  gridRowFlex: { flex: 1, minHeight: 52 },
-  dowLabel: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 12,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-    paddingVertical: theme.spacing.xs,
-  },
-  cell: {
-    flex: 1,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 3,
-    paddingVertical: theme.spacing.xs,
-  },
-  emptyCell: { backgroundColor: theme.colors.muted },
-  cellBody: { alignItems: 'center', gap: 3, paddingTop: theme.spacing.sm, maxWidth: '100%' },
-  dayNum: {
-    position: 'absolute',
-    top: 6,
-    right: 7,
-    fontSize: 11,
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  // On tinted cells mutedForeground fails contrast — dimmed foreground instead.
-  dayNumOnTint: { color: theme.colors.foreground, opacity: 0.72 },
-  cellPnl: { fontSize: 13, fontWeight: '700', ...theme.numeric },
-  cellSub: { fontSize: 10, color: theme.colors.foreground, opacity: 0.72, ...theme.numeric },
-  // Idle (untinted) tiles keep the quiet muted text.
-  cellSubIdle: { fontSize: 10, color: theme.colors.mutedForeground, ...theme.numeric },
-  wl: { fontSize: 10, fontWeight: '600', ...theme.numeric },
-  // Summary header above the grid: big net figure left, period facts right.
-  summaryRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
-    paddingHorizontal: 2,
-    paddingTop: theme.spacing.xs,
-    paddingBottom: theme.spacing.md,
-  },
-  summaryLabel: { fontSize: 11, color: theme.colors.mutedForeground, marginBottom: 2 },
-  summaryValueRow: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.sm },
-  summaryValue: { fontSize: 24, fontWeight: '700', letterSpacing: -0.4, ...theme.numeric },
-  summaryReturnPct: { fontSize: 15, fontWeight: '600', ...theme.numeric },
-  summaryRight: { alignItems: 'flex-end', gap: 3, paddingBottom: 2 },
-  summarySub: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  weekBento: { gap: theme.spacing.xs },
-  weekBentoRow: { flexDirection: 'row', gap: theme.spacing.xs, alignItems: 'flex-start' },
-  weekBentoTile: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    gap: 2,
-  },
-  weekBentoHero: { flex: 1.5, minWidth: 0, gap: 2, paddingHorizontal: theme.spacing.sm },
-  weekBentoSide: {
-    flex: 1,
-    minWidth: 0,
-    justifyContent: 'center',
-    gap: 2,
-    paddingHorizontal: theme.spacing.sm,
-  },
-  weekBentoStat: { flex: 1, minWidth: 0, alignItems: 'center' },
-  weekBentoBalance: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    gap: 2,
-  },
-  weekBentoBalanceRow: {
-    position: 'relative',
-    minHeight: 21,
-    justifyContent: 'center',
-  },
-  weekBentoBalanceValueOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  weekBentoBalanceEnd: {
-    fontSize: 17,
-    fontWeight: '700',
-    lineHeight: 21,
-    letterSpacing: -0.2,
-    color: theme.colors.foreground,
-    textAlign: 'center',
-    ...theme.numeric,
-  },
-  weekBentoBalanceFrom: {
-    maxWidth: '38%',
-    fontSize: 9,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  // Absorbs slack between bento and day list; centres strip + labels as one block.
-  weekChart: {
-    flexGrow: 1,
-    flexShrink: 0,
-    justifyContent: 'center',
-    marginTop: theme.spacing.sm,
-  },
-  weekBentoLabel: { fontSize: 10, color: theme.colors.mutedForeground },
-  weekBentoBalanceLabel: {
-    fontSize: 10,
-    color: theme.colors.mutedForeground,
-    textAlign: 'center',
-  },
-  weekBentoHeroValueRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: theme.spacing.xs,
-    flexWrap: 'wrap',
-  },
-  weekBentoHeroValue: {
-    fontSize: 22,
-    fontWeight: '700',
-    letterSpacing: -0.3,
-    ...theme.numeric,
-  },
-  weekBentoHeroReturn: { fontSize: 14, fontWeight: '600', ...theme.numeric },
-  weekBentoSideValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-    ...theme.numeric,
-  },
-  weekBentoSideSub: { fontSize: 11, color: theme.colors.mutedForeground, ...theme.numeric },
-  weekBentoStatValue: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-    ...theme.numeric,
-  },
-  // Content-sized rows anchored to the bottom; chart block above takes leftover height.
-  weekDays: {
-    flexShrink: 0,
-    gap: theme.spacing.sm,
-    marginTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.sm,
-  },
-  weekRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
-    minHeight: 48,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  weekRowLeft: { gap: 1 },
-  weekRowDay: { fontSize: 14, fontWeight: '600', color: theme.colors.foreground },
-  weekRowDate: { fontSize: 11, color: theme.colors.mutedForeground, ...theme.numeric },
-  weekRowRight: { alignItems: 'flex-end', gap: 1 },
-  weekRowPnl: { fontSize: 17, fontWeight: '700', letterSpacing: -0.3, ...theme.numeric },
-  weekRowEmpty: { fontSize: 12, fontWeight: '500', color: theme.colors.mutedForeground },
-  // Renders only on tinted (traded) cards, where mutedForeground fails
-  // contrast — foreground dimmed via opacity keeps the nested W/L hues legible.
-  weekRowCount: { fontSize: 10, color: theme.colors.foreground, opacity: 0.72, ...theme.numeric },
-  yearGrid: { flex: 1, gap: theme.spacing.sm },
-  yearRow: { flex: 1, flexDirection: 'row', gap: theme.spacing.sm },
-  yearMonth: {
-    flex: 1,
-    padding: theme.spacing.sm,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  yearMonthLabel: {
-    textAlign: 'center',
-    fontSize: 12,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-  },
-  yearMonthIdleText: { color: theme.colors.mutedForeground },
-  // Dots flex in both axes (no aspect ratio) so six week rows always divide
-  // the tile's remaining height exactly.
-  yearWeeks: { flex: 1, gap: 3, marginTop: 6 },
-  yearWeek: { flex: 1, flexDirection: 'row', gap: 3 },
-  yearDot: {
-    flex: 1,
-    borderRadius: 4,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-  },
-  yearDotVoid: { backgroundColor: 'transparent' },
-  yearMonthTotal: {
-    marginTop: 6,
-    textAlign: 'center',
-    fontSize: 13,
-    fontWeight: '700',
-    ...theme.numeric,
-  },
-  yearMonthEmpty: {
-    marginTop: 6,
-    textAlign: 'center',
-    fontSize: 13,
-    fontWeight: '600',
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  yearMonthCount: {
-    marginTop: 1,
-    textAlign: 'center',
-    fontSize: 10,
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-}));

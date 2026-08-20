@@ -2,17 +2,33 @@
  * event rows (behavior/compliance lists), and ranked magnitude rows (the
  * phone stand-in for web's horizontal bar charts and the symbol treemap). */
 
+import { cn, Meter } from 'panelui-native';
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { Pill, type PillTone } from '@/components/pill';
 import { locale } from '@/i18n';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass } from '@/styles/pnl';
+
+/**
+ * One row of a signed P&L bar chart.
+ *
+ * A P&L bar has to be green above zero and red below it, and a PanelUI series
+ * carries one colour — so the values are split across two stacked series, only
+ * one of which is non-zero in any row. Stacking makes the other contribute
+ * nothing to the baseline, so each category still draws exactly one bar.
+ */
+export function signedBars(name: string, value: number) {
+  return { name, gain: value >= 0 ? value : 0, loss: value < 0 ? value : 0 };
+}
 
 /** Uppercase list caption, matching the settings-section eyebrow style. */
 export function MicroHeading({ children }: { children: ReactNode }) {
-  return <Text style={styles.micro}>{children}</Text>;
+  return (
+    <Text className="text-[10px] font-semibold uppercase tracking-[1px] text-muted-foreground">
+      {children}
+    </Text>
+  );
 }
 
 export function fmtEventDay(date: string): string {
@@ -41,21 +57,23 @@ export function EventRow({
   valueTint?: string;
   onPress?: () => void;
 }) {
-  const { theme } = useUnistyles();
   return (
     <Pressable
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : undefined}
-      style={({ pressed }) => [styles.eventRow, pressed && styles.pressed]}
+      className="flex-row items-center gap-2 py-1.5 active:opacity-60"
     >
-      <Text style={styles.eventDate}>{fmtEventDay(date)}</Text>
-      <Text style={styles.eventTitle} numberOfLines={1}>
+      <Text className="text-[13px] tabular-nums text-muted-foreground">{fmtEventDay(date)}</Text>
+      <Text className="shrink text-sm font-medium text-foreground" numberOfLines={1}>
         {title}
       </Text>
       {pill ? <Pill tone={pillTone}>{pill}</Pill> : null}
-      <View style={styles.spacer} />
-      <Text style={[styles.eventValue, { color: valueTint ?? theme.colors.foreground }]}>
+      <View className="flex-1" />
+      <Text
+        className={cn('text-sm font-semibold tabular-nums', valueTint == null && 'text-foreground')}
+        style={valueTint != null ? { color: valueTint } : undefined}
+      >
         {value}
       </Text>
     </Pressable>
@@ -77,61 +95,27 @@ export function MagnitudeRow({
   rawValue: number;
   maxAbs: number;
 }) {
-  const { theme } = useUnistyles();
+  const max = Math.max(maxAbs, 1);
   return (
-    <View style={styles.magRow}>
-      <View style={styles.magHead}>
-        <Text style={styles.magLabel} numberOfLines={1}>
+    <View className="gap-1">
+      <View className="flex-row items-baseline gap-2">
+        <Text className="shrink text-sm font-medium text-foreground" numberOfLines={1}>
           {label}
         </Text>
-        {meta ? <Text style={styles.magMeta}>{meta}</Text> : null}
-        <View style={styles.spacer} />
-        <Text style={[styles.magValue, { color: pnlColor(theme.colors, rawValue) }]}>{value}</Text>
+        {meta ? <Text className="text-xs tabular-nums text-muted-foreground">{meta}</Text> : null}
+        <View className="flex-1" />
+        <Text className={cn('text-sm font-semibold tabular-nums', pnlClass(rawValue))}>{value}</Text>
       </View>
-      <View style={styles.magTrack}>
-        <View
-          style={[
-            styles.magFill,
-            {
-              width: `${Math.max(3, (Math.abs(rawValue) / Math.max(maxAbs, 1)) * 100)}%`,
-              backgroundColor: pnlColor(theme.colors, rawValue),
-            },
-          ]}
-        />
-      </View>
+      {/* The 3% floor keeps the smallest rank visible as more than a fleck.
+          The header row above already carries the reading for VoiceOver, so
+          the bar stays unlabeled rather than announcing it twice. */}
+      <Meter
+        value={Math.max(Math.abs(rawValue), max * 0.03)}
+        maxValue={max}
+        size="sm"
+        color="muted"
+        indicatorClassName={rawValue === 0 ? 'bg-flat' : rawValue > 0 ? 'bg-profit' : 'bg-loss'}
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  micro: {
-    fontSize: 10,
-    fontWeight: '600',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-  },
-  spacer: { flex: 1 },
-  eventRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs + 2,
-  },
-  pressed: { opacity: 0.6 },
-  eventDate: { fontSize: 13, color: theme.colors.mutedForeground, ...theme.numeric },
-  eventTitle: { flexShrink: 1, fontSize: 14, fontWeight: '500', color: theme.colors.foreground },
-  eventValue: { fontSize: 14, fontWeight: '600', ...theme.numeric },
-  magRow: { gap: theme.spacing.xs },
-  magHead: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.sm },
-  magLabel: { flexShrink: 1, fontSize: 14, fontWeight: '500', color: theme.colors.foreground },
-  magMeta: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  magValue: { fontSize: 14, fontWeight: '600', ...theme.numeric },
-  magTrack: {
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: theme.colors.muted,
-    overflow: 'hidden',
-  },
-  magFill: { height: '100%', borderRadius: 3 },
-}));

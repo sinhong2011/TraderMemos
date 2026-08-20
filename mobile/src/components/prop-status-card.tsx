@@ -1,48 +1,85 @@
 import { useRouter } from 'expo-router';
+import { RingChart, Skeleton, cn } from 'panelui-native';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { usePropStatus } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
 import { Pill } from '@/components/pill';
-import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { formatPercent, useFormatters } from '@/lib/format';
 import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
-import { pnlColor } from '@/styles/unistyles';
+import { usePnlPalette } from '@/styles/pnl';
 
-function RuleBar({
-  label,
-  progress,
-  note,
-  danger,
-}: {
+/** Diameter of the evaluation rings; two arcs plus a center readout fit here. */
+const RING_SIZE = 96;
+
+/** One evaluation rule drawn as a ring: its arc, and the legend row beside. */
+type RuleRing = {
+  key: string;
   label: string;
-  /** 0–1 fill. */
+  /** 0–1 fill of the arc. */
   progress: number;
+  color: string;
   note: string;
   danger?: boolean;
-}) {
-  const { theme } = useUnistyles();
-  const clamped = Math.min(1, Math.max(0, progress));
+};
+
+/**
+ * The two evaluation rules as concentric rings — progress towards several
+ * targets is RingChart's literal shape. The green arc closes on the profit
+ * target; the red one is drawdown allowance being consumed, so a full red
+ * ring is the failure state. The notes the old bars carried move into a
+ * legend column beside the dial.
+ */
+function RuleRings({ rings }: { rings: RuleRing[] }) {
+  const center = rings[0];
   return (
-    <View style={styles.rule}>
-      <View style={styles.ruleHead}>
-        <Text style={styles.ruleLabel}>{label}</Text>
-        <Text style={[styles.ruleNote, danger ? { color: theme.colors.loss } : null]}>{note}</Text>
-      </View>
-      <View style={styles.track}>
-        <View
-          style={[
-            styles.fill,
-            {
-              width: `${Math.max(3, clamped * 100)}%`,
-              backgroundColor: danger ? theme.colors.loss : theme.colors.profit,
-            },
-          ]}
-        />
+    <View className="flex-row items-center gap-4">
+      <RingChart
+        data={rings.map((ring) => ({
+          label: ring.label,
+          value: Math.min(1, Math.max(0, ring.progress)),
+          maxValue: 1,
+          color: ring.color,
+        }))}
+        size={RING_SIZE}
+        strokeWidth={9}
+      >
+        {rings.map((ring, index) => (
+          <RingChart.Ring key={ring.key} index={index} />
+        ))}
+        <RingChart.Center>
+          {() => (
+            <Text className="text-[13px] font-semibold tabular-nums text-foreground">
+              {formatPercent(Math.min(1, Math.max(0, center.progress)), 0)}
+            </Text>
+          )}
+        </RingChart.Center>
+      </RingChart>
+      <View className="flex-1 gap-2.5">
+        {rings.map((ring) => (
+          <View
+            key={ring.key}
+            className="gap-0.5"
+            accessible
+            accessibilityLabel={`${ring.label}, ${ring.note}`}
+          >
+            <View className="flex-row items-center gap-1.5">
+              <View className="h-2 w-2 rounded-full" style={{ backgroundColor: ring.color }} />
+              <Text className="text-[13px] font-medium text-foreground">{ring.label}</Text>
+            </View>
+            <Text
+              className={cn(
+                'text-xs tabular-nums',
+                ring.danger ? 'text-loss' : 'text-muted-foreground',
+              )}
+            >
+              {ring.note}
+            </Text>
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -63,13 +100,13 @@ export function PropStatusCard({
   /** Base→display conversion applied before formatting (1 = account currency). */
   fxRate?: number;
 }) {
-  const { theme } = useUnistyles();
   const router = useRouter();
   const prefs = useDisplayPrefs();
+  const palette = usePnlPalette();
   const { formatCurrency, formatPnl } = useFormatters();
   const status = usePropStatus(accountId, { tz: resolveMarketTimezone(prefs.marketTimezone) });
 
-  if (status.isLoading) return <Skeleton style={styles.skeleton} />;
+  if (status.isLoading) return <Skeleton className="h-[200px] rounded-[18px]" />;
   // Vanishing was defensible while it was the only blank card on screen; with
   // the server down every card beside it is blank too, and a trader on an
   // evaluation is owed a reason rather than a missing drawdown floor. A cached
@@ -95,7 +132,7 @@ export function PropStatusCard({
             router.push({ pathname: '/prop-settings', params: { accountId } }),
         }}
       >
-        <Text style={styles.empty}>
+        <Text className="text-[13px] text-muted-foreground">
           {t`Define the profit target, drawdown, and daily-loss rules to track this evaluation.`}
         </Text>
       </DashboardCard>
@@ -118,6 +155,34 @@ export function PropStatusCard({
         ? t`static`
         : t`trailing`;
 
+  const rings: RuleRing[] = [];
+  if (s.profit_target != null && s.profit_target > 0) {
+    rings.push({
+      key: 'target',
+      label: t`Profit target`,
+      progress: s.target_pct ?? 0,
+      color: palette.profit,
+      note: s.target_reached
+        ? t`reached`
+        : t`${formatPercent(s.target_pct ?? 0, 0)} of ${formatCurrency(fx(s.profit_target), currency)}`,
+    });
+  }
+  if (s.max_drawdown != null && s.max_drawdown > 0) {
+    rings.push({
+      key: 'drawdown',
+      label: t`Drawdown (${drawdownModeLabel})`,
+      progress:
+        s.floor_distance != null ? 1 - s.floor_distance / s.max_drawdown : s.drawdown_hit ? 1 : 0,
+      color: palette.loss,
+      note: s.drawdown_hit
+        ? t`floor hit`
+        : s.floor_distance != null
+          ? t`${formatCurrency(fx(s.floor_distance), currency)} above the floor`
+          : '',
+      danger: floorDanger,
+    });
+  }
+
   return (
     <DashboardCard
       title={t`Prop evaluation`}
@@ -127,7 +192,7 @@ export function PropStatusCard({
       }}
       flush
     >
-      <View style={styles.grid}>
+      <View className="flex-row flex-wrap gap-2">
         <StatBar label={t`Equity`} value={formatCurrency(fx(s.equity), currency)} tone="accent" />
         <StatBar
           label={t`Realized P&L`}
@@ -139,40 +204,13 @@ export function PropStatusCard({
           label={t`Best day`}
           value={formatPnl(fx(s.best_day_pnl), currency)}
           sub={s.best_day_share != null ? t`${formatPercent(s.best_day_share, 0)} of profit` : undefined}
-          tone={pnlColor(theme.colors, s.best_day_pnl) === theme.colors.profit ? 'pos' : 'muted'}
+          tone={s.best_day_pnl > 0 ? 'pos' : 'muted'}
         />
       </View>
 
-      {s.profit_target != null && s.profit_target > 0 ? (
-        <RuleBar
-          label={t`Profit target`}
-          progress={s.target_pct ?? 0}
-          note={
-            s.target_reached
-              ? t`reached`
-              : t`${formatPercent(s.target_pct ?? 0, 0)} of ${formatCurrency(fx(s.profit_target), currency)}`
-          }
-        />
-      ) : null}
+      {rings.length > 0 ? <RuleRings rings={rings} /> : null}
 
-      {s.max_drawdown != null && s.max_drawdown > 0 ? (
-        <RuleBar
-          label={t`Drawdown (${drawdownModeLabel})`}
-          progress={
-            s.floor_distance != null ? 1 - s.floor_distance / s.max_drawdown : s.drawdown_hit ? 1 : 0
-          }
-          note={
-            s.drawdown_hit
-              ? t`floor hit`
-              : s.floor_distance != null
-                ? t`${formatCurrency(fx(s.floor_distance), currency)} above the floor`
-                : ''
-          }
-          danger={floorDanger}
-        />
-      ) : null}
-
-      <View style={styles.pills}>
+      <View className="flex-row flex-wrap gap-1.5">
         {s.target_reached ? <Pill tone="pos">{t`target reached`}</Pill> : null}
         {s.drawdown_hit ? <Pill tone="neg">{t`drawdown floor hit`}</Pill> : null}
         {s.daily_loss_hits > 0 ? <Pill tone="neg">{t`daily loss ×${s.daily_loss_hits}`}</Pill> : null}
@@ -185,21 +223,3 @@ export function PropStatusCard({
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  rule: { gap: theme.spacing.xs },
-  ruleHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  ruleLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground },
-  ruleNote: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  track: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: theme.colors.muted,
-    overflow: 'hidden',
-  },
-  fill: { height: '100%', borderRadius: 3 },
-  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs + 2 },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground },
-  skeleton: { height: 200, borderRadius: theme.radius.lg + 4 },
-}));

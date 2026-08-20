@@ -1,38 +1,51 @@
-import { Form } from '@expo/ui/swift-ui';
-import {
-  background,
-  listSectionSpacing,
-  scrollContentBackground,
-} from '@expo/ui/swift-ui/modifiers';
-import type { ComponentProps } from 'react';
-import { useUnistyles } from 'react-native-unistyles';
+import { cn } from 'panelui-native';
+import type { ReactNode } from 'react';
+import { ScrollView, type ScrollViewProps } from 'react-native';
 
-import { scrollEdgeEffectStyle } from '@/lib/scroll-edge-effect';
+export interface SettingsFormProps extends ScrollViewProps {
+  /**
+   * Accepted and ignored — the SwiftUI `modifiers` array the settings screens
+   * used to hand the native `Form` (`scrollDismissesKeyboard`, and before that
+   * the background/section-spacing/scroll-edge set). The form is drawn in JS
+   * now, so keyboard dismissal and the background are props on the scroller
+   * below; the prop stays in the signature so the screens that still pass one
+   * keep compiling.
+   */
+  modifiers?: unknown;
+  children?: ReactNode;
+}
 
 /**
- * `Form` with the app's settings styling: the system grouped background is
- * replaced by the app background token and the default iOS section gaps are
- * tightened. Row labels keep the native neutral color — no form-wide tint,
- * which would repaint every navigation label brand-blue. Extra `modifiers`
- * append after the shared set.
+ * The settings-screen container: one scroller on the app background holding a
+ * column of `SettingsSection` blocks.
  *
- * `soft` matches the app-wide scroll edge choice (every Stack layout pins
- * `top: 'soft'`) — but the screen prop can't reach a SwiftUI Form's scroll
- * view, so it has to be re-stated here as a SwiftUI modifier or iOS 26+
- * paints the `hard` slab + hairline under the header.
+ * It replaces the SwiftUI `Form` / Compose `FieldGroup` pair with the same
+ * shape drawn in JS, so both platforms get the identical grouped-list layout
+ * and the 25 settings screens never branch. Section gaps, the grouped
+ * background and the card surfaces all come from the theme tokens rather than
+ * from platform list styling.
+ *
+ * `contentInsetAdjustmentBehavior="automatic"` keeps the app-wide rule for
+ * scrollables under a large-title header; the keyboard settings are the ones
+ * the three form screens used to ask for with `scrollDismissesKeyboard`.
  */
-export function SettingsForm({ modifiers = [], ...props }: ComponentProps<typeof Form>) {
-  const { theme } = useUnistyles();
+export function SettingsForm({
+  modifiers: _modifiers,
+  className,
+  contentContainerClassName,
+  children,
+  ...props
+}: SettingsFormProps) {
   return (
-    <Form
-      modifiers={[
-        scrollContentBackground('hidden'),
-        background(theme.colors.background),
-        listSectionSpacing('compact'),
-        scrollEdgeEffectStyle('soft'),
-        ...modifiers,
-      ]}
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
+      className={cn('flex-1 bg-background', className)}
+      contentContainerClassName={cn('gap-6 px-4 py-4', contentContainerClassName)}
       {...props}
-    />
+    >
+      {children}
+    </ScrollView>
   );
 }

@@ -1,28 +1,17 @@
-import {
-  Button as UIButton,
-  Image as UIImage,
-  Menu,
-} from '@expo/ui/swift-ui';
-import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { File as FsFile } from 'expo-file-system';
-import { SymbolView, type SFSymbol } from 'expo-symbols';
+import { type SFSymbol } from 'expo-symbols';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import * as Sharing from 'expo-sharing';
+import { cn, LineChart, Menu, Spinner } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  Text,
-  View,
-  type LayoutChangeEvent,
-} from 'react-native';
+import { Alert, Pressable, Text, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
+import { Icon } from '@/components/icon';
 import { queryKeys, useAccounts, useApiRaw, useApiRequest, useTrade } from '@/api/hooks';
 import type { Account, BarInterval, MediaFile, TradeDetail } from '@/api/types';
 import { ChartCanvas, type ChartBand, type ChartMarker } from '@/components/chart-canvas';
@@ -49,8 +38,7 @@ import {
 } from '@/lib/replay';
 import { BAR_INTERVALS, useTradeBars } from '@/lib/trade-bars';
 import { storage } from '@/storage/mmkv';
-import { PnlFill, pnlColor } from '@/styles/unistyles';
-import { AppHost } from '@/components/app-host';
+import { PnlFill, pnlClass } from '@/styles/pnl';
 
 /**
  * Floor for the plot. The chart takes whatever the readout and transport leave
@@ -59,6 +47,23 @@ import { AppHost } from '@/components/app-host';
  * readable, so it overflows the slot rather than shrinking further.
  */
 const MIN_CHART_HEIGHT = 160;
+
+/*
+ * Shared surfaces. Uniwind compiles class strings ahead of time, so
+ * `min-h-[160px]` has to spell out MIN_CHART_HEIGHT rather than build the class
+ * from it — the two are kept in step by hand.
+ */
+const PAGE = 'flex-1 bg-background';
+/** minHeight, not height: the slot reports the space actually left over, and
+ *  only refuses to go below the floor. */
+const CHART_SLOT = 'min-h-[160px] flex-1';
+const CHART_BOX = 'flex-1 rounded-lg';
+const CENTERED = 'items-center justify-center';
+const MUTED = 'text-center text-[13px] text-muted-foreground';
+const BACK_BUTTON = 'active:opacity-60';
+/** Backtest order pad: direction and size on one line, the actions under it —
+ *  the two rows a broker's ticket uses, and the only way both fit a phone. */
+const PAD_ROW = 'flex-row items-center gap-3';
 
 /** Stable identity for the fill-less symbol mode, so the run memo doesn't churn. */
 const EMPTY_FILLS: TradeDetail['fills'] = [];
@@ -131,10 +136,10 @@ function TradeReplay({ id }: { id: string }) {
 
   if (trade.isLoading) {
     return (
-      <View style={styles.page}>
+      <View className={PAGE}>
         <Stack.Screen options={{ headerShown: true, title: '' }} />
-        <View style={styles.content}>
-          <Skeleton style={styles.chartSkeleton} />
+        <View className="flex-1 gap-3 p-4">
+          <Skeleton className={CHART_BOX} />
         </View>
       </View>
     );
@@ -143,7 +148,7 @@ function TradeReplay({ id }: { id: string }) {
   // still holds the trade the user just tapped, and a stale replay beats none.
   if (trade.error && !trade.data) {
     return (
-      <View style={styles.page}>
+      <View className={PAGE}>
         <Stack.Screen options={{ headerShown: true, title: '' }} />
         <ErrorState
           error={trade.error}
@@ -226,9 +231,9 @@ function BacktestReplay({
 /** Nothing to replay — an empty stage, not a failure, so it stays plain copy. */
 function Failure({ message }: { message: string }) {
   return (
-    <View style={[styles.page, styles.centered]}>
+    <View className={cn(PAGE, CENTERED)}>
       <Stack.Screen options={{ headerShown: true, title: '' }} />
-      <Text style={styles.muted}>{message}</Text>
+      <Text className={MUTED}>{message}</Text>
     </View>
   );
 }
@@ -254,7 +259,16 @@ function Stage({
   toMs: number;
   initialInterval?: BarInterval;
 }) {
-  const { theme } = useUnistyles();
+  // Chart series, band fills and icon tints are JS values, not classes — they
+  // have to re-resolve when the scheme flips.
+  const [foreground, background, primary, profit, loss, flat] = useCSSVariable([
+    '--color-foreground',
+    '--color-background',
+    '--color-primary',
+    '--color-profit',
+    '--color-loss',
+    '--color-flat',
+  ]) as [string, string, string, string, string, string];
   const router = useRouter();
   const apiRaw = useApiRaw();
   // Formatters bound to the display prefs (see lib/format.ts).
@@ -292,13 +306,9 @@ function Stage({
 
   const priceLines = trade
     ? [
-        { value: trade.avg_entry_price, color: theme.colors.primary },
-        ...(trade.target_price != null
-          ? [{ value: trade.target_price, color: theme.colors.profit }]
-          : []),
-        ...(trade.stop_price != null
-          ? [{ value: trade.stop_price, color: theme.colors.loss }]
-          : []),
+        { value: trade.avg_entry_price, color: primary },
+        ...(trade.target_price != null ? [{ value: trade.target_price, color: profit }] : []),
+        ...(trade.stop_price != null ? [{ value: trade.stop_price, color: loss }] : []),
       ]
     : [];
 
@@ -308,20 +318,12 @@ function Stage({
     ? [
         ...(trade.stop_price != null
           ? [
-              {
-                from: trade.avg_entry_price,
-                to: trade.stop_price,
-                color: theme.colors.loss,
-              },
+              { from: trade.avg_entry_price, to: trade.stop_price, color: loss },
             ]
           : []),
         ...(trade.target_price != null
           ? [
-              {
-                from: trade.avg_entry_price,
-                to: trade.target_price,
-                color: theme.colors.profit,
-              },
+              { from: trade.avg_entry_price, to: trade.target_price, color: profit },
             ]
           : []),
       ]
@@ -399,123 +401,135 @@ function Stage({
   const isLong = trade ? trade.direction === 'long' : null;
 
   return (
-    <View style={styles.page}>
+    <View className={PAGE}>
       <Stack.Screen
         options={{
           headerShown: true,
           title: symbol,
-          // A full-screen modal gets no back chevron of its own, so it has to
-          // carry its own — replay is a place you came *into* from a trade, not
-          // a form you complete, so it reads as back rather than Done.
+          // Painted to the page token: the stock header surface is a slightly
+          // different shade, which reads as a bar across the top. Opaque, not
+          // headerTransparent — the content is a plain View, so nothing would
+          // re-inset it out from under a floating bar.
+          headerStyle: { backgroundColor: background },
+          headerTitleStyle: { color: foreground },
+          headerShadowVisible: false,
+          // Custom rather than the stock back button so the chevron matches
+          // the app's header icons on both platforms.
           headerLeft: () => (
             <Pressable
               onPress={() => router.back()}
               hitSlop={12}
               accessibilityRole="button"
               accessibilityLabel={t`Back`}
-              style={({ pressed }) => pressed && styles.pressed}
+              className={BACK_BUTTON}
             >
-              <SymbolView name="chevron.left" size={20} tintColor={theme.colors.foreground} />
+              <Icon name="chevron.left" size={20} tintColor={foreground} />
             </Pressable>
           ),
           headerRight: () =>
             busy ? (
-              <ActivityIndicator />
+              <Spinner />
             ) : (
-              <View style={styles.headerActions}>
+              <View className="flex-row items-center gap-2">
                 {/* The interval was a full-bleed segmented row above the chart —
                     46pt of chrome, on a screen whose whole point is the plot.
                     As a nav-bar pull-down it costs nothing and the candles get
                     the height back. */}
                 <Segmented
                   variant="menu"
+                  title={t`Interval`}
                   options={BAR_INTERVALS}
                   value={bars.interval}
                   onChange={bars.pickInterval}
                 />
-                <AppHost matchContents>
-                  <Menu
-                    label={<UIImage systemName="ellipsis.circle" size={17} />}
-                    modifiers={[
-                      buttonStyle('plain'),
-                      tintModifier(theme.colors.foreground),
-                      accessibilityLabel(t`Replay actions`),
-                    ]}
-                  >
-                    <UIButton
-                      label={t`Save frame to note`}
-                      systemImage="note.text.badge.plus"
-                      onPress={() => void saveFrameToNote()}
-                    />
-                    <UIButton
-                      label={t`Share frame`}
-                      systemImage="square.and.arrow.up"
-                      onPress={() => void shareFrame()}
-                    />
-                  </Menu>
-                </AppHost>
+                <Menu presentation="bottom-sheet">
+                  <Menu.Trigger>
+                    <Pressable
+                      hitSlop={10}
+                      accessibilityRole="button"
+                      accessibilityLabel={t`Replay actions`}
+                      className="h-8 w-8 items-center justify-center active:opacity-60"
+                    >
+                      <Icon name="ellipsis.circle" size={17} tintColor={foreground} />
+                    </Pressable>
+                  </Menu.Trigger>
+                  <Menu.Content width="full" className="shadow-none rounded-none">
+                    <Menu.Item
+                      icon={<Icon name="note.text.badge.plus" size={16} tintColor={foreground} />}
+                      onSelect={() => void saveFrameToNote()}
+                    >
+                      {t`Save frame to note`}
+                    </Menu.Item>
+                    <Menu.Item
+                      icon={<Icon name="square.and.arrow.up" size={16} tintColor={foreground} />}
+                      onSelect={() => void shareFrame()}
+                    >
+                      {t`Share frame`}
+                    </Menu.Item>
+                  </Menu.Content>
+                </Menu>
               </View>
             ),
         }}
       />
 
-      <View style={[styles.content, { paddingBottom: theme.spacing.lg + insets.bottom }]}>
+      <View className="flex-1 gap-3 p-4" style={{ paddingBottom: 16 + insets.bottom }}>
         {bars.isLoading ? (
-          <Skeleton style={styles.chartSkeleton} />
+          <Skeleton className={CHART_BOX} />
         ) : bars.error && bars.bars.length === 0 ? (
           // Only when the feed left nothing behind — cached candles still draw,
           // and a dead feed costs the chart rather than the screen either way.
-          <View style={[styles.chartSkeleton, styles.centered]}>
+          <View className={cn(CHART_BOX, CENTERED)}>
             <InlineError error={bars.error} />
           </View>
         ) : bars.bars.length === 0 ? (
-          <View style={[styles.chartSkeleton, styles.centered]}>
-            <Text style={styles.muted}>{t`No chart data for this window.`}</Text>
+          <View className={cn(CHART_BOX, CENTERED)}>
+            <Text className={MUTED}>{t`No chart data for this window.`}</Text>
           </View>
         ) : (
           <>
             {/* Everything inside this View is what a shared frame contains. */}
-            <View ref={frameRef} collapsable={false} style={styles.frame}>
-              <View style={styles.caption}>
-                <View style={styles.captionIdentity}>
-                  <Text style={styles.captionSymbol}>{symbol}</Text>
+            {/* The capture target paints the app background so the shared PNG
+                isn't transparent where the screen was showing through. */}
+            <View ref={frameRef} collapsable={false} className="flex-1 gap-2 bg-background">
+              <View className="flex-row items-start gap-3">
+                <View className="flex-1 gap-[2px]">
+                  <Text className="text-[17px] font-bold text-foreground">{symbol}</Text>
                   {isLong != null ? (
                     <Text
-                      style={[
-                        styles.captionSide,
-                        { color: isLong ? theme.colors.profit : theme.colors.loss },
-                      ]}
+                      className={cn(
+                        'text-[11px] font-bold tracking-[0.4px]',
+                        isLong ? 'text-profit' : 'text-loss',
+                      )}
                     >
                       {isLong ? t`LONG` : t`SHORT`}
                     </Text>
                   ) : null}
                 </View>
-                <View style={styles.captionFigures}>
+                <View className="items-end gap-[2px]">
                   <Text
-                    style={[
-                      styles.captionValue,
-                      trade
-                        ? { color: pnlColor(theme.colors, frame?.net) }
-                        : styles.captionNeutral,
-                    ]}
+                    className={cn(
+                      'text-[17px] font-bold tabular-nums',
+                      trade ? pnlClass(frame?.net) : 'text-foreground',
+                    )}
                   >
                     {trade
                       ? formatPnl(frame?.net ?? 0, currency)
                       : formatCurrency(frame?.close ?? 0, currency)}
                   </Text>
-                  <Text style={styles.captionClock}>{barClock}</Text>
+                  <Text className="text-[11px] text-muted-foreground tabular-nums">{barClock}</Text>
                 </View>
               </View>
 
               {/* The slot flexes; the canvas inside it is drawn to the height
                   that slot reported, since it lays candles out absolutely. */}
-              <View style={styles.chartSlot} onLayout={onChartSlotLayout}>
+              <View className={CHART_SLOT} onLayout={onChartSlotLayout}>
                 {chartSlot > 0 ? (
                   <ChartCanvas
                     bars={bars.bars}
                     interval={bars.interval}
                     height={chartHeight}
-                    surface={theme.colors.background}
+                    surface={background}
                     priceLines={priceLines}
                     bands={bands}
                     markers={markers}
@@ -524,6 +538,33 @@ function Stage({
                   />
                 ) : null}
               </View>
+
+              {/* The trade's heartbeat: running net P&L up to the cursor,
+                  growing as the tape plays. A plain LineChart over bar index —
+                  not LiveLineChart, whose wall-clock window can't pause or
+                  scrub backwards the way the replay cursor can. The dashed
+                  zero series doubles as a baseline and pins 0 into the
+                  domain, so sign never has to be read off an axis. */}
+              {trade && replay.cursor > 0 ? (
+                <LineChart
+                  data={run.frames
+                    .slice(0, replay.cursor + 1)
+                    .map((f, i) => ({ i, net: f.net, zero: 0 }))}
+                  xDataKey="i"
+                  aspectRatio={4.6}
+                >
+                  <LineChart.Line dataKey="zero" color={flat} strokeWidth={1} dashArray="3 4" />
+                  <LineChart.Area
+                    dataKey="net"
+                    color={(frame?.net ?? 0) >= 0 ? profit : loss}
+                  />
+                  <LineChart.Line
+                    dataKey="net"
+                    color={(frame?.net ?? 0) >= 0 ? profit : loss}
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              ) : null}
             </View>
 
             <ReplayControls
@@ -599,7 +640,13 @@ function BacktestStage({
   toMs: number;
   interval: BarInterval;
 }) {
-  const { theme } = useUnistyles();
+  // Icon tints, the average-cost line and the canvas ground are JS values —
+  // they re-resolve with the scheme, which a class would do on its own.
+  const [foreground, background, primary] = useCSSVariable([
+    '--color-foreground',
+    '--color-background',
+    '--color-primary',
+  ]) as [string, string, string];
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const api = useApiRequest();
@@ -848,7 +895,7 @@ function BacktestStage({
   // The open position's average cost, so the tape shows what has to hold.
   const priceLines =
     position !== 0 && headFrame != null && headFrame.avgCost > 0
-      ? [{ value: headFrame.avgCost, color: theme.colors.primary }]
+      ? [{ value: headFrame.avgCost, color: primary }]
       : [];
 
   const sides = [
@@ -856,8 +903,9 @@ function BacktestStage({
     { value: 'sell' as const, label: t`Sell`, fill: PnlFill.neg },
   ] as const;
 
-  // Built as a list rather than as conditional children: the menu is a hosted
-  // SwiftUI view, and an empty branch inside it is still a child.
+  // Built as a list rather than as conditional children: an empty branch inside
+  // the menu is still a child, and the count is what decides whether the
+  // pull-down is offered at all (see the header below).
   const sessionActions: { label: string; systemImage: SFSymbol; onPress: () => void }[] = [
     ...(fills.length > 0 && position === 0
       ? [
@@ -885,66 +933,74 @@ function BacktestStage({
   ];
 
   return (
-    <View style={styles.page}>
+    <View className={PAGE}>
       <Stack.Screen
         options={{
           headerShown: true,
           title: symbol,
+          // Same seamless header as the trade replay above.
+          headerStyle: { backgroundColor: background },
+          headerTitleStyle: { color: foreground },
+          headerShadowVisible: false,
           headerLeft: () => (
             <Pressable
               onPress={leave}
               hitSlop={12}
               accessibilityRole="button"
               accessibilityLabel={t`Back`}
-              style={({ pressed }) => pressed && styles.pressed}
+              className={BACK_BUTTON}
             >
-              <SymbolView name="chevron.left" size={20} tintColor={theme.colors.foreground} />
+              <Icon name="chevron.left" size={20} tintColor={foreground} />
             </Pressable>
           ),
           headerRight: () =>
             save.isPending ? (
-              <ActivityIndicator />
+              <Spinner />
             ) : // Nothing traded yet, nothing to save or throw away — an empty
             // pull-down would be a dead affordance in the nav bar.
             sessionActions.length === 0 ? null : (
-              <AppHost matchContents>
-                <Menu
-                  label={<UIImage systemName="ellipsis.circle" size={17} />}
-                  modifiers={[
-                    buttonStyle('plain'),
-                    tintModifier(theme.colors.foreground),
-                    accessibilityLabel(t`Session actions`),
-                  ]}
-                >
+              <Menu presentation="bottom-sheet">
+                <Menu.Trigger>
+                  <Pressable
+                    hitSlop={10}
+                    accessibilityRole="button"
+                    accessibilityLabel={t`Session actions`}
+                    className="h-8 w-8 items-center justify-center active:opacity-60"
+                  >
+                    <Icon name="ellipsis.circle" size={17} tintColor={foreground} />
+                  </Pressable>
+                </Menu.Trigger>
+                <Menu.Content width="full" className="shadow-none rounded-none">
                   {sessionActions.map((action) => (
-                    <UIButton
+                    <Menu.Item
                       key={action.label}
-                      label={action.label}
-                      systemImage={action.systemImage}
-                      onPress={action.onPress}
-                    />
+                      icon={<Icon name={action.systemImage} size={16} tintColor={foreground} />}
+                      onSelect={action.onPress}
+                    >
+                      {action.label}
+                    </Menu.Item>
                   ))}
-                </Menu>
-              </AppHost>
+                </Menu.Content>
+              </Menu>
             ),
         }}
       />
 
-      <View style={[styles.content, { paddingBottom: theme.spacing.lg + insets.bottom }]}>
+      <View className="flex-1 gap-3 p-4" style={{ paddingBottom: 16 + insets.bottom }}>
         {bars.isLoading ? (
-          <Skeleton style={styles.chartSkeleton} />
+          <Skeleton className={CHART_BOX} />
         ) : bars.error && bars.bars.length === 0 ? (
-          <View style={[styles.chartSkeleton, styles.centered]}>
+          <View className={cn(CHART_BOX, CENTERED)}>
             <InlineError error={bars.error} />
           </View>
         ) : bars.bars.length === 0 ? (
-          <View style={[styles.chartSkeleton, styles.centered]}>
-            <Text style={styles.muted}>{t`No chart data for this window.`}</Text>
+          <View className={cn(CHART_BOX, CENTERED)}>
+            <Text className={MUTED}>{t`No chart data for this window.`}</Text>
           </View>
         ) : (
           <>
             <View
-              style={styles.chartSlot}
+              className={CHART_SLOT}
               onLayout={(e: LayoutChangeEvent) => setChartSlot(e.nativeEvent.layout.height)}
             >
               {chartSlot > 0 ? (
@@ -953,7 +1009,7 @@ function BacktestStage({
                   bars={bars.bars}
                   interval={bars.interval}
                   height={chartHeight}
-                  surface={theme.colors.background}
+                  surface={background}
                   priceLines={priceLines}
                   markers={markers}
                   cursor={replay.cursor}
@@ -969,10 +1025,10 @@ function BacktestStage({
               mode={fills.length > 0 ? 'pnl' : 'price'}
             />
 
-            <View style={styles.orderRow}>
+            <View className={PAD_ROW}>
               <ValueToggle options={sides} value={side} onChange={setSide} />
-              <View style={styles.qtyBox}>
-                <Text style={styles.qtyLabel}>{t`Qty`}</Text>
+              <View className="min-h-[34px] flex-1 flex-row items-center gap-2 rounded-full bg-fill px-3">
+                <Text className="text-xs text-muted-foreground">{t`Qty`}</Text>
                 <NumericField
                   value={qty}
                   onChangeText={changeQty}
@@ -984,8 +1040,8 @@ function BacktestStage({
               </View>
             </View>
 
-            <View style={styles.actionRow}>
-              <View style={styles.actionCell}>
+            <View className={PAD_ROW}>
+              <View className="flex-1">
                 <GlassButton
                   fill
                   prominent
@@ -996,7 +1052,7 @@ function BacktestStage({
                 />
               </View>
               {position !== 0 ? (
-                <View style={styles.actionCell}>
+                <View className="flex-1">
                   <GlassButton
                     fill
                     label={t`Close`}
@@ -1009,7 +1065,7 @@ function BacktestStage({
             </View>
 
             {!atHead ? (
-              <Text style={styles.muted}>{t`Reviewing an earlier bar — step forward to trade.`}</Text>
+              <Text className={MUTED}>{t`Reviewing an earlier bar — step forward to trade.`}</Text>
             ) : null}
           </>
         )}
@@ -1018,43 +1074,3 @@ function BacktestStage({
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  headerActions: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  pressed: { opacity: 0.6 },
-  content: { flex: 1, padding: theme.spacing.lg, gap: theme.spacing.md },
-  centered: { alignItems: 'center', justifyContent: 'center' },
-  muted: { fontSize: 13, color: theme.colors.mutedForeground, textAlign: 'center' },
-  chartSkeleton: { flex: 1, borderRadius: theme.radius.lg },
-  // The capture target paints the app background so the shared PNG isn't
-  // transparent where the screen was showing through.
-  frame: { flex: 1, gap: theme.spacing.sm, backgroundColor: theme.colors.background },
-  // minHeight, not height: the slot reports the space actually left over, and
-  // only refuses to go below the floor.
-  chartSlot: { flex: 1, minHeight: MIN_CHART_HEIGHT },
-  caption: { flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.md },
-  captionIdentity: { flex: 1, gap: 2 },
-  captionSymbol: { fontSize: 17, fontWeight: '700', color: theme.colors.foreground },
-  captionSide: { fontSize: 11, fontWeight: '700', letterSpacing: 0.4 },
-  captionFigures: { alignItems: 'flex-end', gap: 2 },
-  captionValue: { fontSize: 17, fontWeight: '700', ...theme.numeric },
-  captionNeutral: { color: theme.colors.foreground },
-  captionClock: { fontSize: 11, color: theme.colors.mutedForeground, ...theme.numeric },
-  // Backtest order pad: direction and size on one line, the actions under it —
-  // the two rows a broker's ticket uses, and the only way both fit a phone.
-  orderRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-  qtyBox: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    minHeight: 34,
-    paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.fill,
-  },
-  qtyLabel: { fontSize: 12, color: theme.colors.mutedForeground },
-  actionRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-  actionCell: { flex: 1 },
-}));

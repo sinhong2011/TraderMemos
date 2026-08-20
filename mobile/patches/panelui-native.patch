@@ -1,0 +1,173 @@
+diff --git a/src/components/area-chart/index.tsx b/src/components/area-chart/index.tsx
+index c1155017077073e408404809e3c152c0f6232115..69380e4b90006fd5d4b83f626cba0a5476ee9ea8 100644
+--- a/src/components/area-chart/index.tsx
++++ b/src/components/area-chart/index.tsx
+@@ -43,7 +43,7 @@ import {
+   useState,
+   type ReactNode,
+ } from 'react';
+-import { StyleSheet, View, type LayoutChangeEvent, type ViewProps } from 'react-native';
++import { Platform, StyleSheet, View, type LayoutChangeEvent, type ViewProps } from 'react-native';
+ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+ import Animated, {
+   Easing,
+@@ -492,12 +492,16 @@ const AreaChartRoot = forwardRef<AreaChartHandle, AreaChartProps>(function AreaC
+                    * several bands animating in at once.
+                    */}
+                   <ClipPath id={clipId}>
+-                    <AnimatedRect
+-                      x={plot.left}
+-                      y={0}
+-                      height={size.height}
+-                      animatedProps={clipProps}
+-                    />
++                    {Platform.OS === 'android' ? (
++                      <Rect x={plot.left} y={0} height={size.height} width={plot.width} />
++                    ) : (
++                      <AnimatedRect
++                        x={plot.left}
++                        y={0}
++                        height={size.height}
++                        animatedProps={clipProps}
++                      />
++                    )}
+                   </ClipPath>
+                 </Defs>
+                 {svg}
+diff --git a/src/components/heatmap-chart/index.tsx b/src/components/heatmap-chart/index.tsx
+index 81203f5dbc4404d212f20b2e13a221d1ac9e2544..0c61a0ddcc878af7683b9468cf379be633059b4f 100644
+--- a/src/components/heatmap-chart/index.tsx
++++ b/src/components/heatmap-chart/index.tsx
+@@ -48,7 +48,7 @@ import {
+   useState,
+   type ReactNode,
+ } from 'react';
+-import { StyleSheet, View, type LayoutChangeEvent, type ViewProps } from 'react-native';
++import { Platform, StyleSheet, View, type LayoutChangeEvent, type ViewProps } from 'react-native';
+ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+ import Animated, {
+   Easing,
+@@ -628,7 +628,11 @@ const HeatmapChartRoot = forwardRef<View, HeatmapChartProps>(function HeatmapCha
+                 <Svg width={grid.width} height={grid.height} style={StyleSheet.absoluteFill}>
+                   <Defs>
+                     <ClipPath id={clipId}>
+-                      <AnimatedRect x={0} y={0} height={grid.height} animatedProps={clipProps} />
++                      {Platform.OS === 'android' ? (
++                        <Rect x={0} y={0} height={grid.height} width={grid.width} />
++                      ) : (
++                        <AnimatedRect x={0} y={0} height={grid.height} animatedProps={clipProps} />
++                      )}
+                     </ClipPath>
+                   </Defs>
+                   <G clipPath={`url(#${clipId})`}>
+diff --git a/src/components/hex-chart/index.tsx b/src/components/hex-chart/index.tsx
+index dd049cc9b8e3b335eebb0b24d314cf913fe28122..2e380e24a1bfc9304c4b2ecdb44b7a5a82638bcc 100644
+--- a/src/components/hex-chart/index.tsx
++++ b/src/components/hex-chart/index.tsx
+@@ -80,7 +80,7 @@ import {
+   useState,
+   type ReactNode,
+ } from 'react';
+-import {
++import { Platform,
+   Pressable,
+   View,
+   type LayoutChangeEvent,
+@@ -528,11 +528,22 @@ const HexChartRoot = forwardRef<HexChartHandle, HexChartProps>(function HexChart
+                 <Defs>
+                   <ClipPath id={clipId}>
+                     {shape === 'blob' ? (
++                      Platform.OS === 'android' ? (
++                        <Ellipse
++                          cx={left + fieldWidth / 2}
++                          cy={top + fieldHeight / 2}
++                          rx={(fieldWidth / 2) * CORNER_REACH}
++                          ry={(fieldHeight / 2) * CORNER_REACH}
++                        />
++                      ) : (
+                       <AnimatedEllipse
+                         cx={left + fieldWidth / 2}
+                         cy={top + fieldHeight / 2}
+                         animatedProps={ellipseProps}
+                       />
++                      )
++                    ) : Platform.OS === 'android' ? (
++                      <Rect x={0} y={0} height={height} width={width} />
+                     ) : (
+                       <AnimatedRect x={0} y={0} height={height} animatedProps={rectProps} />
+                     )}
+diff --git a/src/components/line-chart/index.tsx b/src/components/line-chart/index.tsx
+index 191a21fe16ac8f6fd5428e8700b3a53450c79be4..6018d07aef8308cc93aac8bce9a80fe66cd8b452 100644
+--- a/src/components/line-chart/index.tsx
++++ b/src/components/line-chart/index.tsx
+@@ -55,7 +55,7 @@ import {
+   useState,
+   type ReactNode,
+ } from 'react';
+-import { StyleSheet, View, type LayoutChangeEvent, type ViewProps } from 'react-native';
++import { Platform, StyleSheet, View, type LayoutChangeEvent, type ViewProps } from 'react-native';
+ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+ import Animated, {
+   cancelAnimation,
+@@ -479,12 +479,19 @@ const LineChartRoot = forwardRef<LineChartHandle, LineChartProps>(function LineC
+                    * three separate things animating in at once.
+                    */}
+                   <ClipPath id={clipId}>
+-                    <AnimatedRect
+-                      x={plot.left}
+-                      y={0}
+-                      height={size.height}
+-                      animatedProps={clipProps}
+-                    />
++                    {/* Android: animated props never reach a Rect inside <Defs>,
++                        so the reveal clip stays at width 0 and every series is
++                        invisible — clip statically to the full plot instead. */}
++                    {Platform.OS === 'android' ? (
++                      <Rect x={plot.left} y={0} height={size.height} width={plot.width} />
++                    ) : (
++                      <AnimatedRect
++                        x={plot.left}
++                        y={0}
++                        height={size.height}
++                        animatedProps={clipProps}
++                      />
++                    )}
+                   </ClipPath>
+                 </Defs>
+                 {svg}
+diff --git a/src/components/plot/index.tsx b/src/components/plot/index.tsx
+index 520ee8341aaae196e251fa8659acb256719a7528..f17f409e111f0bba9122a66af2ae9c3101045a76 100644
+--- a/src/components/plot/index.tsx
++++ b/src/components/plot/index.tsx
+@@ -75,7 +75,7 @@ import {
+   useState,
+   type ReactNode,
+ } from 'react';
+-import { StyleSheet, View, type LayoutChangeEvent, type ViewProps } from 'react-native';
++import { Platform, StyleSheet, View, type LayoutChangeEvent, type ViewProps } from 'react-native';
+ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+ import Animated, {
+   Easing,
+@@ -605,12 +605,16 @@ const PlotRoot = forwardRef<PlotHandle, PlotProps>(function PlotRoot(
+                    * chart is most at risk of looking like.
+                    */}
+                   <ClipPath id={clipId}>
+-                    <AnimatedRect
+-                      x={plot.left}
+-                      y={0}
+-                      height={size.height}
+-                      animatedProps={clipProps}
+-                    />
++                    {Platform.OS === 'android' ? (
++                      <Rect x={plot.left} y={0} height={size.height} width={plot.width} />
++                    ) : (
++                      <AnimatedRect
++                        x={plot.left}
++                        y={0}
++                        height={size.height}
++                        animatedProps={clipProps}
++                      />
++                    )}
+                   </ClipPath>
+                 </Defs>
+                 {svg}

@@ -23,8 +23,29 @@ vi.mock("../../lib/hooks/useTrades", () => ({
   useTrades: () => ({ data: [], isLoading: false, isError: false }),
 }));
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, className }: { children?: unknown; className?: string }) => (
+    <a href="#mock" className={className}>
+      {children as never}
+    </a>
+  ),
+  useNavigate: () => () => {},
+}));
+
+vi.mock("../../lib/hooks/useImports", () => ({
+  useImports: () => ({ data: [], isLoading: false, isError: false }),
+  useDeleteImport: () => ({ mutate: () => {}, isPending: false }),
+}));
+
+// RulesTab reads YTD net P&L for the annual-goal progress readout.
+vi.mock("../../lib/hooks/useAnalytics", () => ({
+  useSummary: () => ({ data: undefined, isLoading: false, isError: false }),
+}));
+
 vi.mock("../../lib/hooks/useFlexSync", () => ({
   useFlexSync: () => ({ data: undefined, isLoading: false, isError: false }),
+  useFlexSyncConnections: () => ({ data: [], isLoading: false, isError: false }),
+  useFlexSyncAttention: () => false,
   useSaveFlexSync: () => ({ mutate: () => {}, isPending: false }),
   useDeleteFlexSync: () => ({ mutate: () => {}, isPending: false }),
   useRunFlexSync: () => ({ mutate: () => {}, isPending: false }),
@@ -209,6 +230,8 @@ const baseProps = {
     max_daily_loss: null,
     max_open_risk: null,
     default_account_risk_pct: null,
+    max_trades_per_day: null,
+    max_consecutive_losses: null,
   },
   riskRulesLoading: false,
   riskRulesError: false,
@@ -236,14 +259,16 @@ describe("SettingsView", () => {
     window.location.hash = "#accounts";
   });
 
-  it("marks the only account as primary and disables delete", async () => {
+  it("marks the only account as primary and links to its detail page", async () => {
     renderSettings({ ...baseProps });
     expect(await screen.findByText("Primary")).toBeInTheDocument();
     expect(screen.getAllByText("$10,000.00").length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /delete main/i })).toBeDisabled();
+    // Manage/delete now live on the account detail page the row links to.
+    expect(screen.getByRole("link", { name: /main/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /delete main/i })).not.toBeInTheDocument();
   });
 
-  it("allows deleting a secondary account when two exist", () => {
+  it("lists every account as a row linking to its detail page", () => {
     const second: Account = {
       ...accounts[0],
       id: "a2",
@@ -252,7 +277,7 @@ describe("SettingsView", () => {
     };
     renderSettings({ ...baseProps, accounts: [...accounts, second] });
     expect(screen.getByText("Primary")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /delete paper/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /paper/i })).toBeInTheDocument();
   });
 
   it("opens the rules tab from the URL hash", () => {
@@ -330,18 +355,23 @@ describe("SettingsView", () => {
     expect(screen.getByText("No tags yet")).toBeInTheDocument();
   });
 
-  it("renders risk rules section on the rules tab", async () => {
+  it("renders the full risk-rule catalog on the rules tab", async () => {
     const user = userEvent.setup();
     renderSettings({ ...baseProps });
     await user.click(screen.getByRole("link", { name: /^Rules$/i }));
     expect(screen.getByText("Risk Rules")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /add rule/i })).toBeInTheDocument();
-    expect(screen.getByText("No risk rules yet")).toBeInTheDocument();
+    // Every rule from the catalog shows as a row with a Set affordance.
+    expect(screen.getByText("Max risk / trade")).toBeInTheDocument();
+    expect(screen.getByText("Max daily loss")).toBeInTheDocument();
+    expect(screen.getByText("Max open risk")).toBeInTheDocument();
+    expect(screen.getByText("Default account risk %")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Set Max risk / trade" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Set Default account risk %" })).toBeInTheDocument();
     expect(screen.getByText("Annual P&L Goal")).toBeInTheDocument();
     expect(screen.getByText("No annual goal yet")).toBeInTheDocument();
   });
 
-  it("lists configured risk rules and opens add modal", async () => {
+  it("shows configured rule values and opens the set modal from a row", async () => {
     const user = userEvent.setup();
     renderSettings({
       ...baseProps,
@@ -350,14 +380,16 @@ describe("SettingsView", () => {
         max_daily_loss: null,
         max_open_risk: null,
         default_account_risk_pct: null,
+        max_trades_per_day: null,
+        max_consecutive_losses: null,
       },
     });
     await user.click(screen.getByRole("link", { name: /^Rules$/i }));
-    expect(screen.getByText("Max risk / trade")).toBeInTheDocument();
     expect(screen.getByText("$100")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /add rule/i }));
-    expect(screen.getByRole("heading", { name: /add risk rule/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/rule type/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit Max risk / trade" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Set Max daily loss" }));
+    expect(screen.getByRole("heading", { name: /set max daily loss/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("Max daily loss")).toBeInTheDocument();
   });
 
   it("opens checklist editor in a modal on rules tab", async () => {

@@ -1,5 +1,6 @@
+import { cn } from 'panelui-native';
+import { FitText } from '@/components/fit-text';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import type { DailyPnl } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
@@ -7,7 +8,7 @@ import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { monthGrid } from '@/lib/calendar';
 import { useFormatters } from '@/lib/format';
-import { pnlBgTint, pnlColor } from '@/styles/unistyles';
+import { pnlBgTint, pnlClass, usePnlPalette } from '@/styles/pnl';
 
 /** Sun-first narrow weekday letters in the app locale (avoids S/T msgid collisions). */
 const DOW = (() => {
@@ -15,6 +16,9 @@ const DOW = (() => {
   // 2023-01-01 was a Sunday.
   return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(Date.UTC(2023, 0, 1 + i))));
 })();
+
+/** One day of the grid — shared by the filled cells and the leading blanks. */
+const CELL = 'min-h-[42px] flex-1 items-center justify-center gap-px rounded-sm px-px';
 
 /** This-month P&L heatmap, ported from the web dashboard's mini calendar. */
 export function MiniCalendarCard({
@@ -34,7 +38,9 @@ export function MiniCalendarCard({
   fxRate?: number;
   onOpenCalendar?: () => void;
 }) {
-  const { theme } = useUnistyles();
+  // The cell wash is a computed rgba, so the hues come from the tokens as
+  // values rather than as classes.
+  const palette = usePnlPalette();
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatPnlCompact } = useFormatters();
   const grid = monthGrid(year, month, dailyPnl);
@@ -51,49 +57,55 @@ export function MiniCalendarCard({
       title={t`Month`}
       action={onOpenCalendar ? { label: t`Full calendar`, onPress: onOpenCalendar } : undefined}
     >
-      <Text style={styles.monthLabel}>{monthLabel}</Text>
+      <Text className="text-[15px] font-medium text-foreground">{monthLabel}</Text>
 
       <View>
-        <View style={styles.week}>
+        <View className="mb-0.5 flex-row gap-0.5">
           {DOW.map((d, i) => (
-            <Text key={`${d}-${i}`} style={styles.dowLabel}>
+            <Text
+              key={`${d}-${i}`}
+              className="flex-1 py-0.5 text-center text-[10px] font-medium text-muted-foreground"
+            >
               {d}
             </Text>
           ))}
         </View>
         {grid.weeks.map((week, wi) => (
-          <View key={wi} style={styles.week}>
+          <View key={wi} className="mb-0.5 flex-row gap-0.5">
             {week.map((cell, ci) => {
-              if (!cell) return <View key={`empty-${ci}`} style={styles.cell} />;
+              if (!cell) return <View key={`empty-${ci}`} className={CELL} />;
               const isToday = cell.date === today;
               const hasPnl = cell.pnl != null;
               return (
                 <View
                   key={cell.date}
-                  style={[
-                    styles.cell,
-                    hasPnl && {
-                      backgroundColor: pnlBgTint(theme.colors, cell.pnl!, grid.maxAbs),
-                    },
-                    isToday && !hasPnl && styles.todayCell,
-                  ]}
+                  className={cn(CELL, isToday && !hasPnl && 'bg-muted')}
+                  style={
+                    hasPnl
+                      ? { backgroundColor: pnlBgTint(palette, cell.pnl!, grid.maxAbs) }
+                      : undefined
+                  }
                 >
                   <Text
-                    style={[
-                      styles.dayNum,
-                      isToday && { color: theme.colors.accent, fontWeight: '600' },
-                    ]}
+                    className={cn(
+                      'text-[11px] text-muted-foreground tabular-nums',
+                      isToday && 'font-semibold text-heading',
+                    )}
                   >
                     {Number(cell.date.slice(8, 10))}
                   </Text>
                   {hasPnl ? (
-                    <Text
-                      style={[styles.dayPnl, { color: pnlColor(theme.colors, cell.pnl) }]}
+                    <FitText
+                      className={cn(
+                        'text-[9px] font-medium tabular-nums',
+                        pnlClass(cell.pnl),
+                      )}
                       numberOfLines={1}
                       adjustsFontSizeToFit
+                      minimumFontScale={0.75}
                     >
                       {formatPnlCompact(cell.pnl! * fxRate, currency)}
-                    </Text>
+                    </FitText>
                   ) : null}
                 </View>
               );
@@ -102,40 +114,12 @@ export function MiniCalendarCard({
         ))}
       </View>
 
-      <Text style={styles.total}>
+      <Text className="text-center text-xs text-muted-foreground">
         {t`Total`}{' '}
-        <Text style={[styles.totalValue, { color: pnlColor(theme.colors, grid.monthTotal) }]}>
+        <Text className={cn('font-semibold tabular-nums', pnlClass(grid.monthTotal))}>
           {formatPnlCompact(grid.monthTotal * fxRate, currency)}
         </Text>
       </Text>
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  monthLabel: { fontSize: 15, fontWeight: '500', color: theme.colors.foreground },
-  week: { flexDirection: 'row', gap: 2, marginBottom: 2 },
-  dowLabel: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 10,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-    paddingVertical: 2,
-  },
-  cell: {
-    flex: 1,
-    minHeight: 42,
-    borderRadius: theme.radius.sm,
-    borderCurve: 'continuous',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 1,
-    paddingHorizontal: 1,
-  },
-  todayCell: { backgroundColor: theme.colors.muted },
-  dayNum: { fontSize: 11, color: theme.colors.mutedForeground, ...theme.numeric },
-  dayPnl: { fontSize: 9, fontWeight: '500', ...theme.numeric },
-  total: { textAlign: 'center', fontSize: 12, color: theme.colors.mutedForeground },
-  totalValue: { fontWeight: '600', ...theme.numeric },
-}));

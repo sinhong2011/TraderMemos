@@ -1,34 +1,39 @@
-import { Chart } from '@expo/ui/swift-ui';
+import { LineChart, Skeleton } from 'panelui-native';
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { useTrades } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
 import { ErrorState } from '@/components/error-state';
 import { Segmented } from '@/components/segmented';
-import { Skeleton } from '@/components/skeleton';
 import {
   SectionScaffold,
   useReportsFilters,
   useReportsMoney,
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
-import { formatPercent, formatRatio } from '@/lib/format';
+import { formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import {
   metricEvolution,
   rollingWinRate,
   type EvolutionGranularity,
 } from '@/lib/reports-analytics';
-import { AppHost } from '@/components/app-host';
 
 /** Rolling-window sizes offered by the web SegmentedControl. */
 const WINDOWS = ['10', '20', '50', '100'] as const;
 
 type RightMetric = 'cumulativePnl' | 'profitFactor' | 'expectancy';
 
-/** Downsampling cap — Swift Charts doesn't need 1k marks at phone width. */
+/** Downsampling cap — a phone-width plot doesn't need 1k marks. */
 const MAX_POINTS = 120;
+
+/**
+ * The coin-flip line, carried as a flat second series: PanelUI's charts have no
+ * reference-line part, and a dashed constant is the same picture — it also
+ * pins 50% inside the y-domain, which a bare annotation would not.
+ */
+const EVEN = 50;
 
 function sample<T>(points: T[]): T[] {
   if (points.length <= MAX_POINTS) return points;
@@ -44,7 +49,13 @@ export function WinLossSection({
 }: {
   onScrolledChange?: (scrolled: boolean) => void;
 }) {
-  const { theme } = useUnistyles();
+  const [primary, heading, mutedForeground] = useCSSVariable([
+    '--color-primary',
+    '--color-heading',
+    '--color-muted-foreground',
+  ]) as [string, string, string];
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatPnl } = useFormatters();
   const filters = useReportsFilters();
   const ctx = useReportsMoney();
   const trades = useTrades(filters);
@@ -76,10 +87,18 @@ export function WinLossSection({
     { value: 'expectancy' as const, label: t`Expect` },
   ];
 
-  const rollingData = rolling.map((point) => ({ x: point.index, y: point.rate * 100 }));
+  const rollingData = rolling.map((point) => ({
+    i: point.index,
+    rate: point.rate * 100,
+    even: EVEN,
+  }));
   const latestRate = rolling.length > 0 ? rolling[rolling.length - 1].rate : null;
 
-  const winRateData = evolution.map((point, index) => ({ x: index, y: point.winRate * 100 }));
+  const winRateData = evolution.map((point, index) => ({
+    i: index,
+    rate: point.winRate * 100,
+    even: EVEN,
+  }));
   const metricData = evolution.map((point, index) => {
     const value =
       rightMetric === 'profitFactor'
@@ -87,21 +106,27 @@ export function WinLossSection({
         : rightMetric === 'expectancy'
           ? ctx.money.display(point.expectancy)
           : ctx.money.display(point.cumulativePnl);
-    return { x: index, y: value };
+    return { i: index, value };
   });
   const latest = evolution.length > 0 ? evolution[evolution.length - 1] : null;
+
+  // The metric series is plotted *already converted* by `money.display`, so the
+  // readout formats it directly — `money.format` would apply the FX rate (or
+  // the %-of-deposits divisor) a second time.
+  const formatPlotted = (value: number) =>
+    ctx.money.unitMode === 'pct' ? formatPercent(value) : formatPnl(value, ctx.currency);
 
   return (
     <SectionScaffold refreshing={trades.isRefetching} onScrolledChange={onScrolledChange}>
       {trades.isLoading ? (
         <>
-          <Skeleton style={styles.skeletonCard} />
-          <Skeleton style={styles.skeletonCard} />
+          <Skeleton className="h-[260px] rounded-[18px]" label={t`Loading win/loss report`} />
+          <Skeleton className="h-[260px] rounded-[18px]" />
         </>
       ) : trades.error && trades.data == null ? (
         // Boxed rather than flexed: the scaffold's scroll content has no height
         // of its own, so a `flex: 1` failure state would collapse to nothing.
-        <View style={styles.errorHost}>
+        <View className="min-h-[320px]">
           <ErrorState
             error={trades.error}
             onRetry={() => void trades.refetch()}
@@ -112,29 +137,40 @@ export function WinLossSection({
         <>
           <DashboardCard
             title={t`Rolling win rate`}
-            control={<Segmented compact options={windows} value={windowSize} onChange={setWindowSize} />}
+            control={
+              <Segmented compact options={windows} value={windowSize} onChange={setWindowSize} />
+            }
           >
             {rolling.length === 0 ? (
-              <Text style={styles.empty}>
+              <Text className="py-4 text-[13px] text-muted-foreground">
                 {t`Need at least ${windowSize} closed trades to fill the window.`}
               </Text>
             ) : (
               <>
-                <Text style={styles.headline}>
+                <Text className="text-[22px] font-semibold tabular-nums text-foreground">
                   {formatPercent(latestRate ?? 0)}
-                  <Text style={styles.headlineSub}> {t`over the last ${windowSize} trades`}</Text>
+                  <Text className="text-[13px] font-normal text-muted-foreground">
+                    {' '}
+                    {t`over the last ${windowSize} trades`}
+                  </Text>
                 </Text>
-                <AppHost style={styles.chart}>
-                  <Chart
-                    data={rollingData}
-                    type="line"
-                    animate
-                    lineStyle={{ color: theme.colors.primary, width: 2 }}
-                    referenceLines={[{ x: 'start', y: 50 }]}
-                    ruleStyle={{ color: '#80808055', lineWidth: 1, dashArray: [4, 4] }}
+                <LineChart data={rollingData} xDataKey="i" aspectRatio={1.9}>
+                  <LineChart.Grid />
+                  <LineChart.Area dataKey="rate" color={primary} />
+                  <LineChart.Line dataKey="rate" color={primary} />
+                  <LineChart.Line
+                    dataKey="even"
+                    color={mutedForeground}
+                    strokeWidth={1}
+                    dashArray="4,4"
                   />
-                </AppHost>
-                <Text style={styles.footnote}>
+                  <LineChart.Tooltip
+                    color={primary}
+                    formatValue={(v) => formatPercent(v / 100)}
+                    formatX={(datum) => t`Trade ${String(datum.i)}`}
+                  />
+                </LineChart>
+                <Text className="text-xs text-muted-foreground">
                   {t`Each point is the win rate across the trailing ${windowSize} closed trades.`}
                 </Text>
               </>
@@ -144,28 +180,38 @@ export function WinLossSection({
           <DashboardCard
             title={t`Metric evolution`}
             control={
-              <Segmented compact options={granularities} value={granularity} onChange={setGranularity} />
+              <Segmented
+                compact
+                options={granularities}
+                value={granularity}
+                onChange={setGranularity}
+              />
             }
           >
             {evolution.length === 0 ? (
-              <Text style={styles.empty}>{t`No closed trades in this range.`}</Text>
+              <Text className="py-4 text-[13px] text-muted-foreground">{t`No closed trades in this range.`}</Text>
             ) : (
               <>
-                <Text style={styles.chartLabel}>{t`Win rate (%)`}</Text>
-                <AppHost style={styles.chartShort}>
-                  <Chart
-                    data={winRateData}
-                    type="line"
-                    animate
-                    lineStyle={{ color: theme.colors.primary, width: 2 }}
-                    referenceLines={[{ x: 'start', y: 50 }]}
-                    ruleStyle={{ color: '#80808055', lineWidth: 1, dashArray: [4, 4] }}
+                <Text className="text-xs font-medium text-muted-foreground">{t`Win rate (%)`}</Text>
+                <LineChart data={winRateData} xDataKey="i" aspectRatio={2.4}>
+                  <LineChart.Grid />
+                  <LineChart.Line dataKey="rate" color={primary} />
+                  <LineChart.Line
+                    dataKey="even"
+                    color={mutedForeground}
+                    strokeWidth={1}
+                    dashArray="4,4"
                   />
-                </AppHost>
+                  <LineChart.Tooltip color={primary} formatValue={(v) => formatPercent(v / 100)} />
+                </LineChart>
 
-                {/* Swift Charts draws one series per host — the second metric
-                    gets its own panel instead of a shared dual axis. */}
-                <View style={styles.metricSwitcherRow}>
+                {/* One metric per panel rather than a shared dual axis: two
+                    series on one y-scale would put a profit factor of 1.4 and a
+                    five-figure cumulative P&L on the same axis. */}
+                {/* justify-end on a row, not items-end on a column: Segmented
+                    carries self-start, which overrides a parent's cross-axis
+                    alignment and drags it back to the left edge. */}
+                <View className="flex-row justify-end">
                   <Segmented
                     compact
                     options={rightMetrics}
@@ -173,16 +219,21 @@ export function WinLossSection({
                     onChange={setRightMetric}
                   />
                 </View>
-                <AppHost style={styles.chartShort}>
-                  <Chart
-                    data={metricData}
-                    type={rightMetric === 'profitFactor' ? 'line' : 'area'}
-                    animate
-                    lineStyle={{ color: theme.colors.accent, width: 2 }}
+                <LineChart data={metricData} xDataKey="i" aspectRatio={2.4}>
+                  <LineChart.Grid />
+                  {rightMetric === 'profitFactor' ? null : (
+                    <LineChart.Area dataKey="value" color={heading} />
+                  )}
+                  <LineChart.Line dataKey="value" color={heading} />
+                  <LineChart.Tooltip
+                    color={heading}
+                    formatValue={(v) =>
+                      rightMetric === 'profitFactor' ? formatRatio(v) : formatPlotted(v)
+                    }
                   />
-                </AppHost>
+                </LineChart>
                 {latest ? (
-                  <Text style={styles.footnote}>
+                  <Text className="text-xs text-muted-foreground">
                     {t`To date: ${formatPercent(latest.winRate)} win rate · PF ${formatRatio(latest.profitFactor)} · ${ctx.money.format(latest.cumulativePnl)} cumulative`}
                   </Text>
                 ) : null}
@@ -194,16 +245,3 @@ export function WinLossSection({
     </SectionScaffold>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  headline: { fontSize: 22, fontWeight: '600', color: theme.colors.foreground, ...theme.numeric },
-  headlineSub: { fontSize: 13, fontWeight: '400', color: theme.colors.mutedForeground },
-  chart: { height: 190 },
-  chartShort: { height: 150 },
-  chartLabel: { fontSize: 12, fontWeight: '500', color: theme.colors.mutedForeground },
-  metricSwitcherRow: { alignItems: 'flex-end' },
-  footnote: { fontSize: 12, color: theme.colors.mutedForeground },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.lg },
-  skeletonCard: { height: 260, borderRadius: theme.radius.lg + 4 },
-  errorHost: { minHeight: 320 },
-}));

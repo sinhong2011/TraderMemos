@@ -69,3 +69,38 @@ func TestFlexSyncIsolatedPerUser(t *testing.T) {
 		`{"query_id":"q9","enabled":true,"token":"tok-bbbb"}`, tokB)
 	require.Equal(t, http.StatusNotFound, rec.Code)
 }
+
+func TestFlexSyncList(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "flexlist@x.com")
+	acc := accountID(t, s, tok)
+
+	// Empty until something is configured.
+	rec := do(s, http.MethodGet, "/api/v1/flex-sync", "", tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+	var list []map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &list))
+	require.Empty(t, list)
+
+	rec = do(s, http.MethodPut, "/api/v1/accounts/"+acc+"/flex-sync",
+		`{"query_id":"q77","enabled":true,"token":"list-token-9876"}`, tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+
+	rec = do(s, http.MethodGet, "/api/v1/flex-sync", "", tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &list))
+	require.Len(t, list, 1)
+	require.Equal(t, acc, list[0]["account_id"])
+	require.NotEmpty(t, list[0]["account_name"])
+	require.Equal(t, "q77", list[0]["query_id"])
+	require.Equal(t, true, list[0]["configured"])
+	require.Equal(t, "…9876", list[0]["token_hint"])
+	require.Nil(t, list[0]["token"], "raw token must never be returned")
+
+	// Another user sees nothing.
+	tokB := registerAndLogin(t, s, "flexlist-b@x.com")
+	rec = do(s, http.MethodGet, "/api/v1/flex-sync", "", tokB)
+	require.Equal(t, http.StatusOK, rec.Code)
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &list))
+	require.Empty(t, list)
+}

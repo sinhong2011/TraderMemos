@@ -39,9 +39,6 @@ export interface SettingsViewProps {
     base_currency: string;
     starting_balance: number;
   }) => Promise<void>;
-  onDeleteAccount: (id: string) => Promise<void>;
-  onUpdateAccount: (id: string, body: { name: string; broker: string }) => Promise<void>;
-  onClearAccountTrades: (id: string) => Promise<void>;
 
   cashTransactions: CashTransaction[];
   cashLoading: boolean;
@@ -136,9 +133,6 @@ export function SettingsView(props: SettingsViewProps) {
             accountsLoading={props.accountsLoading}
             accountsError={props.accountsError}
             onCreateAccount={props.onCreateAccount}
-            onDeleteAccount={props.onDeleteAccount}
-            onUpdateAccount={props.onUpdateAccount}
-            onClearAccountTrades={props.onClearAccountTrades}
             cashTransactions={props.cashTransactions}
             cashLoading={props.cashLoading}
             cashError={props.cashError}

@@ -1,15 +1,10 @@
-import { Button, LabeledContent, Section, Text as UIText } from '@expo/ui/swift-ui';
-import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
-import { useUnistyles } from 'react-native-unistyles';
 
 import { useMe } from '@/api/hooks';
-import { useSession } from '@/api/session';
-import { AppHost } from '@/components/app-host';
 import { ErrorState } from '@/components/error-state';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
-import { serverHost, useChangeServer } from '@/lib/change-server';
+import { SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
 import { useFormatters } from '@/lib/format';
 import { t } from '@lingui/core/macro';
 
@@ -21,14 +16,9 @@ import { t } from '@lingui/core/macro';
  * reaches the server's other accounts from here.
  */
 export default function ProfileScreen() {
-  const { theme } = useUnistyles();
   const { formatDate } = useFormatters();
   const router = useRouter();
-  const { session } = useSession();
-  const changeServer = useChangeServer();
   const me = useMe();
-
-  const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' as const });
 
   // The whole screen is /me, so a failure has nothing to sit beside — it gets
   // the full-screen treatment with the retry the old one-liner never offered.
@@ -40,85 +30,68 @@ export default function ProfileScreen() {
 
   if (!me.data) {
     return (
-      <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <SettingsForm>
-          <Section>
-            <UIText modifiers={[secondary]}>{t`Loading…`}</UIText>
-          </Section>
-        </SettingsForm>
-      </AppHost>
+      <SettingsForm>
+        <SettingsSection>
+          <SettingsRow label={t`Your account`}>
+            <ValueText>{t`Loading…`}</ValueText>
+          </SettingsRow>
+        </SettingsSection>
+      </SettingsForm>
     );
   }
 
   return (
-    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <SettingsForm>
-        <Section
-          title={t`Signed in as`}
-          footer={
-            me.data.is_admin ? (
-              <UIText>{t`The owner account — the first user created on this server.`}</UIText>
-            ) : undefined
-          }
-        >
-          {/* "Username", not "Email": the wire field is `email`, but nothing
-              validates it as one and the sign-in screen asks for a username,
-              so that is what this account actually has. */}
-          <LabeledContent label={t`Username`}>
-            <UIText>{me.data.email}</UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Role`}>
-            <UIText>{me.data.is_admin ? t`Owner` : t`Member`}</UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Member since`}>
-            <UIText>{formatDate(me.data.created_at)}</UIText>
-          </LabeledContent>
-        </Section>
+    <SettingsForm>
+      <SettingsSection
+        title={t`Signed in as`}
+        footer={
+          me.data.is_admin
+            ? t`The owner account — the first user created on this server.`
+            : undefined
+        }
+      >
+        {/* "Username", not "Email": the wire field is `email`, but nothing
+            validates it as one and the sign-in screen asks for a username,
+            so that is what this account actually has. */}
+        <SettingsRow label={t`Username`}>
+          <ValueText>{me.data.email}</ValueText>
+        </SettingsRow>
+        <SettingsRow label={t`Role`}>
+          <ValueText>{me.data.is_admin ? t`Owner` : t`Member`}</ValueText>
+        </SettingsRow>
+        <SettingsRow label={t`Member since`}>
+          <ValueText>{formatDate(me.data.created_at)}</ValueText>
+        </SettingsRow>
+      </SettingsSection>
 
-        <Section
-          title={t`Server`}
-          footer={<UIText>{t`Self-hosted — your journal never leaves this server.`}</UIText>}
-        >
-          <LabeledContent label={t`Host`}>
-            <UIText>{serverHost(session?.serverUrl ?? '')}</UIText>
-          </LabeledContent>
-          {/* Plain Button, no chevron — it opens a prompt, not a push (NavRow
-              doc). The hub carries the same action for the server-unreachable
-              case, where this screen is a full-screen error. */}
-          <Button label={t`Change server`} systemImage="arrow.left.arrow.right" onPress={changeServer} />
-          {/* Owner-only: managing other people's accounts is a property of the
-              server, not of your profile, but this is the only screen that
-              already knows which one you are signed in to. */}
-          {me.data.is_admin ? (
-            <NavRow
-              systemImage="person.2"
-              label={t`Users`}
-              onPress={() => router.push('/users')}
-            />
-          ) : null}
-        </Section>
+      {/* No Host / Change server here — the hub's Server row is the one place
+          that edits the connection (it must stay reachable when the server
+          isn't, which is exactly when this screen is a full-screen error).
+          Owner-only: managing other people's accounts is a property of the
+          server, not of your profile, but this is the only screen that
+          already knows which one you are signed in to. */}
+      {me.data.is_admin ? (
+        <SettingsSection title={t`Server`}>
+          <NavRow systemImage="person.2" label={t`Users`} onPress={() => router.push('/users')} />
+        </SettingsSection>
+      ) : null}
 
-        <Section
-          title={t`Security`}
-          footer={
-            <UIText>
-              {t`Changing your password signs out your other devices.`}
-            </UIText>
-          }
-        >
-          <NavRow
-            systemImage="lock.rotation"
-            label={t`Change password`}
-            onPress={() => router.push('/change-password')}
-          />
-          <NavRow
-            systemImage="lock.shield"
-            label={t`Two-factor authentication`}
-            value={me.data.totp_enabled ? t`On` : t`Off`}
-            onPress={() => router.push('/two-factor')}
-          />
-        </Section>
-      </SettingsForm>
-    </AppHost>
+      <SettingsSection
+        title={t`Security`}
+        footer={t`Changing your password signs out your other devices.`}
+      >
+        <NavRow
+          systemImage="lock.rotation"
+          label={t`Change password`}
+          onPress={() => router.push('/change-password')}
+        />
+        <NavRow
+          systemImage="lock.shield"
+          label={t`Two-factor authentication`}
+          value={me.data.totp_enabled ? t`On` : t`Off`}
+          onPress={() => router.push('/two-factor')}
+        />
+      </SettingsSection>
+    </SettingsForm>
   );
 }

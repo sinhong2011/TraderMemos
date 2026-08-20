@@ -1,0 +1,68 @@
+diff --git a/lib/commonjs/components/ReanimatedSwipeable/ReanimatedSwipeable.js b/lib/commonjs/components/ReanimatedSwipeable/ReanimatedSwipeable.js
+index 551ab92bf58db0b79d428dcd2f2df898ef686493..06363b54b44ecdff848981e1cf4a4d3b5fca1f6a 100644
+--- a/lib/commonjs/components/ReanimatedSwipeable/ReanimatedSwipeable.js
++++ b/lib/commonjs/components/ReanimatedSwipeable/ReanimatedSwipeable.js
+@@ -199,7 +199,8 @@ const Swipeable = props => {
+ 
+   const leftActionAnimation = (0, _reactNativeReanimated.useAnimatedStyle)(() => {
+     return {
+-      opacity: showLeftProgress.value === 0 ? 0 : 1
++      opacity: showLeftProgress.value === 0 ? 0 : 1,
++      pointerEvents: showLeftProgress.value === 0 ? 'none' : 'auto'
+     };
+   });
+   const leftElement = (0, _react.useCallback)(() => /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNativeReanimated.default.View, {
+@@ -211,7 +212,8 @@ const Swipeable = props => {
+   }), [appliedTranslation, leftActionAnimation, leftLayoutRef, leftWrapperLayoutRef, renderLeftActions, showLeftProgress, swipeableMethods]);
+   const rightActionAnimation = (0, _reactNativeReanimated.useAnimatedStyle)(() => {
+     return {
+-      opacity: showRightProgress.value === 0 ? 0 : 1
++      opacity: showRightProgress.value === 0 ? 0 : 1,
++      pointerEvents: showRightProgress.value === 0 ? 'none' : 'auto'
+     };
+   });
+   const rightElement = (0, _react.useCallback)(() => /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNativeReanimated.default.View, {
+diff --git a/lib/module/components/ReanimatedSwipeable/ReanimatedSwipeable.js b/lib/module/components/ReanimatedSwipeable/ReanimatedSwipeable.js
+index a2835d5416ffd5cf9a04e98774516b9e6569691e..b078ca0e97ae71e9bd74c131c7a299f7c8c2122d 100644
+--- a/lib/module/components/ReanimatedSwipeable/ReanimatedSwipeable.js
++++ b/lib/module/components/ReanimatedSwipeable/ReanimatedSwipeable.js
+@@ -194,7 +194,8 @@ const Swipeable = props => {
+ 
+   const leftActionAnimation = useAnimatedStyle(() => {
+     return {
+-      opacity: showLeftProgress.value === 0 ? 0 : 1
++      opacity: showLeftProgress.value === 0 ? 0 : 1,
++      pointerEvents: showLeftProgress.value === 0 ? 'none' : 'auto'
+     };
+   });
+   const leftElement = useCallback(() => /*#__PURE__*/_jsxs(Animated.View, {
+@@ -206,7 +207,8 @@ const Swipeable = props => {
+   }), [appliedTranslation, leftActionAnimation, leftLayoutRef, leftWrapperLayoutRef, renderLeftActions, showLeftProgress, swipeableMethods]);
+   const rightActionAnimation = useAnimatedStyle(() => {
+     return {
+-      opacity: showRightProgress.value === 0 ? 0 : 1
++      opacity: showRightProgress.value === 0 ? 0 : 1,
++      pointerEvents: showRightProgress.value === 0 ? 'none' : 'auto'
+     };
+   });
+   const rightElement = useCallback(() => /*#__PURE__*/_jsxs(Animated.View, {
+diff --git a/src/components/ReanimatedSwipeable/ReanimatedSwipeable.tsx b/src/components/ReanimatedSwipeable/ReanimatedSwipeable.tsx
+index b6134c908624adc590ebd264e90e558b88e235d5..09f459d071567f3ee8e3e5c9777469d4640c357d 100644
+--- a/src/components/ReanimatedSwipeable/ReanimatedSwipeable.tsx
++++ b/src/components/ReanimatedSwipeable/ReanimatedSwipeable.tsx
+@@ -372,6 +372,7 @@ const Swipeable = (props: SwipeableProps) => {
+   const leftActionAnimation = useAnimatedStyle(() => {
+     return {
+       opacity: showLeftProgress.value === 0 ? 0 : 1,
++      pointerEvents: showLeftProgress.value === 0 ? ('none' as const) : ('auto' as const),
+     };
+   });
+ 
+@@ -402,6 +403,7 @@ const Swipeable = (props: SwipeableProps) => {
+   const rightActionAnimation = useAnimatedStyle(() => {
+     return {
+       opacity: showRightProgress.value === 0 ? 0 : 1,
++      pointerEvents: showRightProgress.value === 0 ? ('none' as const) : ('auto' as const),
+     };
+   });
+ 

@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
+import { Button, cn } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import Animated, {
@@ -17,16 +17,16 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
+import { Icon } from '@/components/icon';
 import { useApiRaw } from '@/api/hooks';
 import type { TradeExtract } from '@/api/types';
-import { AppHost } from '@/components/app-host';
-import { CenteredButton } from '@/components/centered-button';
 import { GlassButton, GlassIconButton } from '@/components/glass-button';
 import { BlockSummary } from '@/components/trade-summary';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
+import { usePnlPalette } from '@/styles/pnl';
 import type { TradeFormValues } from '@/lib/trade-form';
 import {
   capScanSources,
@@ -45,6 +45,9 @@ const springUp = (delay = 0) =>
 const LAYOUT = LinearTransition.springify()
   .duration(SCAN_SPRING.duration)
   .dampingRatio(SCAN_SPRING.dampingRatio);
+
+/** Squircle corners on the panels — no Tailwind utility maps to this. */
+const CONTINUOUS = { borderCurve: 'continuous' } as const;
 
 type FileStatus = 'pending' | 'parsing' | 'done' | 'error';
 
@@ -83,47 +86,66 @@ function ScanBeam({ travel }: { travel: number }) {
   const style = useAnimatedStyle(() => ({
     transform: [{ translateY: sweep.value * travel }],
   }));
-  return <Animated.View style={[styles.beam, style]} />;
+  return (
+    <Animated.View
+      className="absolute inset-x-0 top-0 h-1 rounded-[2px] bg-primary opacity-90"
+      style={style}
+    />
+  );
 }
 
 function StatusGlyph({ status }: { status: FileStatus }) {
-  const { theme } = useUnistyles();
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
+  const { profit, loss } = usePnlPalette();
   switch (status) {
     case 'pending':
-      return <SymbolView name="clock" size={16} tintColor={theme.colors.mutedForeground} />;
+      return <Icon name="clock" size={16} tintColor={mutedForeground} />;
     case 'parsing':
-      return <ActivityIndicator size="small" color={theme.colors.mutedForeground} />;
+      return <ActivityIndicator size="small" color={mutedForeground} />;
     case 'done':
-      return <SymbolView name="checkmark.circle.fill" size={18} tintColor={theme.colors.profit} />;
+      return <Icon name="checkmark.circle.fill" size={18} tintColor={profit} />;
     case 'error':
-      return (
-        <SymbolView name="exclamationmark.circle.fill" size={18} tintColor={theme.colors.loss} />
-      );
+      return <Icon name="exclamationmark.circle.fill" size={18} tintColor={loss} />;
   }
 }
 
 /** One picked file: thumbnail (beam while scanning), name, live status. */
 function FileRow({ state, index }: { state: FileState; index: number }) {
-  const { theme } = useUnistyles();
+  // expo-image is not one of the components Uniwind extends with `className`,
+  // so its surface color comes from the token as a value.
+  const [mutedForeground, muted] = useCSSVariable([
+    '--color-muted-foreground',
+    '--color-muted',
+  ]) as [string, string];
   const failed = state.status === 'error';
   const scanning = state.status === 'parsing';
   return (
-    <Animated.View entering={springIn(index * 70)} style={styles.fileRow}>
-      <View style={styles.thumbWrap}>
+    <Animated.View
+      entering={springIn(index * 70)}
+      className="flex-row items-center gap-3 px-4 py-[10px]"
+    >
+      <View className="overflow-hidden rounded-md" style={CONTINUOUS}>
         {isImageSource(state.source) ? (
-          <Image source={{ uri: state.source.uri }} style={styles.fileThumb} contentFit="cover" />
+          <Image
+            source={{ uri: state.source.uri }}
+            style={{ width: 44, height: 44, backgroundColor: muted }}
+            contentFit="cover"
+          />
         ) : (
-          <View style={styles.fileDoc}>
-            <SymbolView name="doc.text" size={20} tintColor={theme.colors.mutedForeground} />
+          <View className="h-11 w-11 items-center justify-center bg-muted">
+            <Icon name="doc.text" size={20} tintColor={mutedForeground} />
           </View>
         )}
         {scanning ? <ScanBeam travel={40} /> : null}
       </View>
-      <View style={styles.fileMeta}>
-        <Text style={styles.fileName} numberOfLines={1}>
+      <View className="flex-1 gap-0.5">
+        <Text className="text-[15px] text-foreground" numberOfLines={1}>
           {state.source.name}
         </Text>
-        <Text style={[styles.fileStatus, failed && styles.fileStatusError]} numberOfLines={2}>
+        <Text
+          className={cn('text-xs', failed ? 'text-loss' : 'text-muted-foreground')}
+          numberOfLines={2}
+        >
           {statusCaption(state)}
         </Text>
       </View>
@@ -144,10 +166,10 @@ function ProgressTrack({ fraction }: { fraction: number }) {
   );
   return (
     <View
-      style={styles.progressTrack}
+      className="mx-4 h-[3px] overflow-hidden rounded-[2px] bg-muted"
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
     >
-      <Animated.View style={[styles.progressFill, fill]} />
+      <Animated.View className="h-[3px] rounded-[2px] bg-primary" style={fill} />
     </View>
   );
 }
@@ -175,7 +197,23 @@ export function TradeScanOverlay({
 }) {
   const api = useApiRaw();
   const insets = useSafeAreaInsets();
-  const { theme } = useUnistyles();
+  const [mutedForeground, muted, card] = useCSSVariable([
+    '--color-muted-foreground',
+    '--color-muted',
+    '--color-card',
+  ]) as [string, string, string];
+  const { profit, flat } = usePnlPalette();
+  // Overlapping receipt thumbnails: expo-image takes no `className`, and the
+  // document tile has to match it exactly, so both wear the same style.
+  const receiptThumb = {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    borderCurve: 'continuous',
+    backgroundColor: muted,
+    borderWidth: 1.5,
+    borderColor: card,
+  } as const;
   const [files, setFiles] = useState<FileState[]>(() =>
     capScanSources(sources).map((source) => ({ source, status: 'pending' as const })),
   );
@@ -236,60 +274,60 @@ export function TradeScanOverlay({
     <Animated.View
       entering={SlideInDown.springify().duration(SCAN_SPRING.duration).dampingRatio(SCAN_SPRING.dampingRatio)}
       exiting={SlideOutDown.duration(240)}
-      style={[styles.overlay, { paddingTop: insets.top + 8 }]}
+      className="absolute inset-0 bg-background"
+      style={{ paddingTop: insets.top + 8 }}
     >
-      <View style={styles.header}>
+      <View className="flex-row items-center gap-3 px-4 pb-3">
         <GlassIconButton systemImage="xmark" label={t`Cancel`} onPress={onClose} />
-        <Text style={styles.title}>{prefill ? t`Review import` : t`Scan to fill`}</Text>
+        <Text className="flex-1 text-center text-[17px] font-semibold text-foreground">
+          {prefill ? t`Review import` : t`Scan to fill`}
+        </Text>
         {/* Spacer mirroring the close button keeps the title centred. */}
-        <View style={styles.headerSpacer} />
+        <View className="w-[38px]" />
       </View>
       <ProgressTrack fraction={files.length > 0 ? settled / files.length : 0} />
 
       <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
+        className="flex-1"
+        contentContainerClassName="w-full max-w-[560px] self-center gap-4 p-4"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
       >
-        <Animated.View layout={LAYOUT} style={styles.card}>
+        <Animated.View
+          layout={LAYOUT}
+          className="overflow-hidden rounded-[20px] bg-card py-1"
+          style={CONTINUOUS}
+        >
           {prefill ? (
             // The scan is done — the list folds into a one-line receipt so
             // the review cards own the screen.
-            <Animated.View entering={springIn()} style={styles.receiptRow}>
-              <View style={styles.receiptThumbs}>
+            <Animated.View
+              entering={springIn()}
+              className="flex-row items-center gap-3 px-4 py-[10px]"
+            >
+              <View className="flex-row">
                 {files.slice(0, 3).map((state, index) =>
                   isImageSource(state.source) ? (
                     <Image
                       key={state.source.uri}
                       source={{ uri: state.source.uri }}
-                      style={[styles.receiptThumb, index > 0 && styles.receiptThumbStacked]}
+                      style={[receiptThumb, index > 0 && { marginLeft: -10 }]}
                       contentFit="cover"
                     />
                   ) : (
                     <View
                       key={state.source.uri}
-                      style={[
-                        styles.receiptThumb,
-                        styles.fileDocFill,
-                        index > 0 && styles.receiptThumbStacked,
-                      ]}
+                      className="items-center justify-center"
+                      style={[receiptThumb, index > 0 && { marginLeft: -10 }]}
                     >
-                      <SymbolView
-                        name="doc.text"
-                        size={14}
-                        tintColor={theme.colors.mutedForeground}
-                      />
+                      <Icon name="doc.text" size={14} tintColor={mutedForeground} />
                     </View>
                   ),
                 )}
               </View>
-              <Text style={styles.receiptLabel}>
+              <Text className="flex-1 text-sm font-medium text-foreground">
                 {parsedCount === 1 ? t`1 file scanned` : t`${parsedCount} files scanned`}
               </Text>
-              <SymbolView
-                name="checkmark.circle.fill"
-                size={18}
-                tintColor={theme.colors.profit}
-              />
+              <Icon name="checkmark.circle.fill" size={18} tintColor={profit} />
             </Animated.View>
           ) : (
             files.map((state, index) => (
@@ -300,7 +338,7 @@ export function TradeScanOverlay({
 
         {parsing ? (
           <Animated.View entering={springIn(200)}>
-            <Text style={styles.footnote}>
+            <Text className="px-1 text-[13px] leading-[18px] text-muted-foreground">
               {t`Reading ${settled} of ${files.length}… Screenshots are parsed by your vision endpoint; CSV and JSON parse on this device.`}
             </Text>
           </Animated.View>
@@ -308,7 +346,7 @@ export function TradeScanOverlay({
 
         {nothingParsed ? (
           <Animated.View entering={springIn()}>
-            <Text style={styles.footnote}>
+            <Text className="px-1 text-[13px] leading-[18px] text-muted-foreground">
               {t`Nothing could be read from these files. Check your AI endpoint under Settings → AI, or try clearer screenshots.`}
             </Text>
           </Animated.View>
@@ -316,7 +354,10 @@ export function TradeScanOverlay({
 
         {prefill ? (
           <>
-            <Animated.Text entering={springUp(80)} style={styles.sectionTitle}>
+            <Animated.Text
+              entering={springUp(80)}
+              className="pl-4 text-xs font-semibold uppercase tracking-[0.6px] text-muted-foreground"
+            >
               {prefill.blocks.length === 1
                 ? t`1 symbol found`
                 : t`${prefill.blocks.length} symbols found`}
@@ -329,23 +370,20 @@ export function TradeScanOverlay({
             {prefill.warnings.length > 0 ? (
               <Animated.View
                 entering={springUp(140 + prefill.blocks.length * 90)}
-                style={styles.warningsCard}
+                className="gap-2 rounded-[20px] bg-card p-4"
+                style={CONTINUOUS}
               >
                 {prefill.warnings.map((warning, index) => (
-                  <View key={index} style={styles.warningRow}>
-                    <SymbolView
-                      name="exclamationmark.triangle.fill"
-                      size={13}
-                      tintColor={theme.colors.flat}
-                    />
-                    <Text style={styles.warningText}>{warning}</Text>
+                  <View key={index} className="flex-row items-start gap-2">
+                    <Icon name="exclamationmark.triangle.fill" size={13} tintColor={flat} />
+                    <Text className="flex-1 text-[13px] leading-[18px] text-flat">{warning}</Text>
                   </View>
                 ))}
               </Animated.View>
             ) : null}
             <Animated.Text
               entering={springUp(220 + prefill.blocks.length * 90)}
-              style={styles.footnote}
+              className="px-1 text-[13px] leading-[18px] text-muted-foreground"
             >
               {t`Every field stays editable in the form — check quantities and times against your broker before saving.`}
             </Animated.Text>
@@ -353,14 +391,12 @@ export function TradeScanOverlay({
         ) : null}
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
+      <View className="px-4 pt-2" style={{ paddingBottom: insets.bottom + 12 }}>
         {prefill ? (
           <Animated.View entering={springUp(260)}>
-            {/* The settings-form action idiom; hosted here since the footer
-                is an RN view, not a Form (width from the stretched host). */}
-            <AppHost matchContents={{ vertical: true }} style={styles.actionHost}>
-              <CenteredButton label={t`Fill form`} onPress={() => onApply(prefill.blocks)} />
-            </AppHost>
+            <Button size="md" className="rounded-3xl" fullWidth onPress={() => onApply(prefill.blocks)}>
+              {t`Fill form`}
+            </Button>
           </Animated.View>
         ) : nothingParsed ? (
           <GlassButton label={t`Close`} fill onPress={onClose} />
@@ -369,142 +405,3 @@ export function TradeScanOverlay({
     </Animated.View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: theme.colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.md,
-    gap: theme.spacing.md,
-  },
-  headerSpacer: { width: 38 },
-  title: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 17,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-  },
-  progressTrack: {
-    height: 3,
-    marginHorizontal: theme.spacing.lg,
-    borderRadius: 2,
-    backgroundColor: theme.colors.muted,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: theme.colors.primary,
-  },
-  scroll: { flex: 1 },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.lg,
-    maxWidth: theme.measure.form,
-    width: '100%',
-    alignSelf: 'center',
-  },
-  card: {
-    borderRadius: theme.radius.lg + 6,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    paddingVertical: theme.spacing.xs,
-    overflow: 'hidden',
-  },
-  fileRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm + 2,
-  },
-  thumbWrap: {
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    overflow: 'hidden',
-  },
-  fileThumb: {
-    width: 44,
-    height: 44,
-    backgroundColor: theme.colors.muted,
-  },
-  fileDoc: {
-    width: 44,
-    height: 44,
-    backgroundColor: theme.colors.muted,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fileDocFill: {
-    backgroundColor: theme.colors.muted,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  beam: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: theme.colors.primary,
-    opacity: 0.9,
-  },
-  fileMeta: { flex: 1, gap: 2 },
-  fileName: { fontSize: 15, color: theme.colors.foreground },
-  fileStatus: { fontSize: 12, color: theme.colors.mutedForeground },
-  fileStatusError: { color: theme.colors.loss },
-  receiptRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm + 2,
-  },
-  receiptThumbs: { flexDirection: 'row' },
-  receiptThumb: {
-    width: 28,
-    height: 28,
-    borderRadius: theme.radius.sm + 2,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-    borderWidth: 1.5,
-    borderColor: theme.colors.card,
-  },
-  receiptThumbStacked: { marginLeft: -10 },
-  receiptLabel: { flex: 1, fontSize: 14, fontWeight: '500', color: theme.colors.foreground },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-    paddingLeft: theme.spacing.lg,
-  },
-  warningsCard: {
-    borderRadius: theme.radius.lg + 6,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    padding: theme.spacing.lg,
-    gap: theme.spacing.sm,
-  },
-  warningRow: { flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.sm },
-  warningText: { flex: 1, fontSize: 13, lineHeight: 18, color: theme.colors.flat },
-  footnote: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: theme.colors.mutedForeground,
-    paddingHorizontal: theme.spacing.xs,
-  },
-  footer: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-  },
-  actionHost: { alignSelf: 'stretch' },
-}));

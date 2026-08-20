@@ -1,40 +1,47 @@
-import {
-  Button,
-  HStack,
-  Image,
-  Picker,
-  Section,
-  Spacer,
-  Text as UIText,
-  VStack,
-} from '@expo/ui/swift-ui';
-import { font, foregroundStyle, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { useQueryClient } from '@tanstack/react-query';
 import { Stack, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
+import type { SFSymbol } from 'expo-symbols';
 import { Alert, Linking } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
-import type { SFSymbol } from 'sf-symbols-typescript';
 
-import { useAccounts, useApiRequest, useCash, useMe, useTrades } from '@/api/hooks';
+import {
+  flexSyncFailed,
+  useAccounts,
+  useApiRequest,
+  useCash,
+  useFlexSyncConnections,
+  useMe,
+  useTrades,
+} from '@/api/hooks';
+import { Pill } from '@/components/pill';
+import { AccountRow } from '@/components/account-row';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { SettingsForm } from '@/components/settings-form';
+import {
+  SettingsButton,
+  SettingsPicker,
+  SettingsSection,
+  ValueText,
+} from '@/components/settings-rows';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 import { ledgerBalance } from '@/lib/cash';
-import { serverHost, useChangeServer } from '@/lib/change-server';
+import { serverHost } from '@/lib/change-server';
 import { describeError } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { clearOutbox, usePendingCount } from '@/lib/outbox';
 import { setAppearance, useDisplayPrefs, type AppearancePref } from '@/lib/prefs';
 import { usePushAlertStore } from '@/lib/push-alerts';
 import { clearPersistedQueryCache } from '@/storage/mmkv';
-import { AppHost } from '@/components/app-host';
+import { pnlColor, usePnlPalette } from '@/styles/pnl';
+import { useCSSVariable } from 'uniwind';
 
 /**
- * Native SwiftUI settings hub — one screen, no scrolling.
+ * The settings hub — one screen, no scrolling. Built entirely on the shared
+ * settings vocabulary (SettingsForm/SettingsSection/NavRow/…), so the same
+ * tree draws identically on both platforms.
  *
  * Settings are folded one row per topic (Trading & journal, Integrations,
  * General); flat, they ran ~16 rows over four group headers. Two things stay
@@ -53,9 +60,10 @@ export default function SettingsScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const { theme } = useUnistyles();
+  // Live P&L hues for the account rows' figures (see styles/pnl.ts).
+  const palette = usePnlPalette();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const { session, signOut } = useSession();
-  const changeServer = useChangeServer();
   // Offline writes still waiting to sync — signing out would discard them.
   const pendingSyncs = usePendingCount();
   const accountsQuery = useAccounts();
@@ -66,6 +74,12 @@ export default function SettingsScreen() {
   // blank out the rows you aren't currently scoped to).
   const cash = useCash();
   const trades = useTrades();
+  // One request for every account's sync state — drives the per-row health pill.
+  const flexConnections = useFlexSyncConnections();
+  const connByAccount = useMemo(
+    () => new Map((flexConnections.data ?? []).map((conn) => [conn.account_id, conn])),
+    [flexConnections.data],
+  );
   const displayPrefs = useDisplayPrefs();
   // Formatters bound to those prefs — a privacy flip re-formats the rows
   // (see lib/format.ts).
@@ -178,7 +192,7 @@ export default function SettingsScreen() {
       icon: 'externaldrive.badge.wifi',
       label: t`Server`,
       terms: t`change server url instance host address self-hosted connect`,
-      onPress: changeServer,
+      onPress: () => router.push('/change-server'),
     },
     {
       icon: 'lock.rotation',
@@ -199,10 +213,22 @@ export default function SettingsScreen() {
       onPress: () => router.push('/funding'),
     },
     {
-      icon: 'plus.circle.fill',
+      icon: 'building.columns',
+      label: t`Connect a broker`,
+      terms: t`connect broker sync ibkr import`,
+      onPress: () => router.push('/connect-broker'),
+    },
+    {
+      icon: 'plus.circle',
       label: t`Add account`,
       terms: t`broker new account`,
       onPress: () => router.push('/account-form'),
+    },
+    {
+      icon: 'clock.arrow.circlepath',
+      label: t`Sync & import history`,
+      terms: t`imports batches rollback flex sync history`,
+      onPress: () => router.push('/import-history'),
     },
     {
       icon: 'target',
@@ -215,6 +241,12 @@ export default function SettingsScreen() {
       label: t`Risk rules`,
       terms: t`limits daily loss compliance position size`,
       onPress: () => router.push('/risk-rules'),
+    },
+    {
+      icon: 'checkmark.circle',
+      label: t`Daily checklist`,
+      terms: t`routine morning pre-market process rules`,
+      onPress: () => router.push('/daily-checklist'),
     },
     {
       icon: 'bell.badge',
@@ -324,38 +356,31 @@ export default function SettingsScreen() {
           ),
         }}
       />
-      <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        {needle !== '' ? (
-          <SettingsForm>
-            <Section title={t`Results`}>
-              {matches.map((entry) => (
-                <NavRow
-                  key={entry.label}
-                  systemImage={entry.icon}
-                  label={entry.label}
-                  onPress={entry.onPress}
-                />
-              ))}
-              {matches.length === 0 ? (
-                <UIText
-                  modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}
-                >
-                  {t`No settings match “${query.trim()}”.`}
-                </UIText>
-              ) : null}
-            </Section>
-          </SettingsForm>
-        ) : (
-          <SettingsForm>
+      {needle !== '' ? (
+        <SettingsForm>
+          <SettingsSection title={t`Results`}>
+            {matches.map((entry) => (
+              <NavRow
+                key={entry.label}
+                systemImage={entry.icon}
+                label={entry.label}
+                onPress={entry.onPress}
+              />
+            ))}
+            {matches.length === 0 ? (
+              <ValueText>{t`No settings match “${query.trim()}”.`}</ValueText>
+            ) : null}
+          </SettingsSection>
+        </SettingsForm>
+      ) : (
+        <SettingsForm>
           {/* Who is signed in and where from — the two facts that qualify
               every number below. Nothing showed either before /me existed.
               The server row is stated rather than tucked behind Profile: this
               app is a client for a machine the user runs, and which one it is
               talking to is not a detail to hide. */}
-          <Section
-            footer={
-              <UIText>{t`Every screen in the app is served by this instance. Tap Server to point the app at a different one — that signs you out.`}</UIText>
-            }
+          <SettingsSection
+            footer={t`Every screen is served by this instance. Switching servers signs you out.`}
           >
             <NavRow
               systemImage="person.crop.circle"
@@ -363,20 +388,18 @@ export default function SettingsScreen() {
               value={me.data?.is_admin ? t`Owner` : undefined}
               onPress={() => router.push('/profile')}
             />
-            {/* No chevron — it opens a prompt, not a push (NavRow doc). It
-                lives on the hub because the hub stays navigable when the
+            {/* It lives on the hub because the hub stays navigable when the
                 server is unreachable, which is exactly when this is needed;
                 Profile is a full-screen error state by then. */}
             <NavRow
               systemImage="externaldrive.badge.wifi"
               label={t`Server`}
               value={serverHost(session?.serverUrl ?? '')}
-              accessory="none"
-              onPress={changeServer}
+              onPress={() => router.push('/change-server')}
             />
-          </Section>
+          </SettingsSection>
 
-          <Section title={t`Accounts`}>
+          <SettingsSection title={t`Accounts`}>
             {(accounts ?? []).map((account) => {
               // Equity is the funded base (cash ledger) plus realized P&L, the
               // same figure the account form and web's AccountRow show.
@@ -396,67 +419,40 @@ export default function SettingsScreen() {
               ]
                 .filter(Boolean)
                 .join(' · ');
+              const conn = connByAccount.get(account.id);
               return (
-                <Button
+                <AccountRow
                   key={account.id}
+                  name={account.name}
+                  meta={meta}
+                  badge={
+                    conn ? (
+                      <Pill tone={flexSyncFailed(conn) ? 'neg' : conn.enabled ? 'pos' : 'muted'}>
+                        {flexSyncFailed(conn) ? t`Sync failing` : conn.enabled ? t`Sync on` : t`Sync off`}
+                      </Pill>
+                    ) : undefined
+                  }
+                  equity={formatCurrency(deposited + netPnl, account.base_currency)}
+                  pnl={formatPnl(netPnl, account.base_currency)}
+                  pnlColor={pnlColor(palette, netPnl)}
                   onPress={() =>
                     router.push({ pathname: '/account-form', params: { id: account.id } })
                   }
-                >
-                  <HStack spacing={8}>
-                    <VStack alignment="leading" spacing={2}>
-                      <UIText
-                        modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}
-                      >
-                        {account.name}
-                      </UIText>
-                      {/* Single string child — the SwiftUI Text bridge can't mount an
-                          array of interpolations (RawText crash). */}
-                      <UIText
-                        modifiers={[
-                          font({ size: 13 }),
-                          foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
-                        ]}
-                      >
-                        {meta}
-                      </UIText>
-                    </VStack>
-                    <Spacer />
-                    <VStack alignment="trailing" spacing={2}>
-                      <UIText
-                        modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}
-                      >
-                        {formatCurrency(deposited + netPnl, account.base_currency)}
-                      </UIText>
-                      <UIText
-                        modifiers={[
-                          font({ size: 13 }),
-                          foregroundStyle(
-                            netPnl > 0
-                              ? theme.colors.profit
-                              : netPnl < 0
-                                ? theme.colors.loss
-                                : theme.colors.mutedForeground,
-                          ),
-                        ]}
-                      >
-                        {formatPnl(netPnl, account.base_currency)}
-                      </UIText>
-                    </VStack>
-                    <Image systemName="chevron.right" size={12} color={theme.colors.mutedForeground} />
-                  </HStack>
-                </Button>
+                />
               );
             })}
             {accountsFailure ? (
-              <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
-                {accountsFailure.title}
-              </UIText>
+              <ValueText>{accountsFailure.title}</ValueText>
             ) : accounts?.length === 0 ? (
-              <UIText>{t`No accounts yet`}</UIText>
+              <ValueText color={foreground}>{t`No accounts yet`}</ValueText>
             ) : null}
-            <Button
-              systemImage="plus.circle.fill"
+            <SettingsButton
+              systemImage="building.columns"
+              label={t`Connect a broker`}
+              onPress={() => router.push('/connect-broker')}
+            />
+            <SettingsButton
+              systemImage="plus.circle"
               label={t`Add account`}
               onPress={() => router.push('/account-form')}
             />
@@ -465,7 +461,12 @@ export default function SettingsScreen() {
               label={t`Deposits & withdrawals`}
               onPress={() => router.push('/funding')}
             />
-          </Section>
+            <NavRow
+              systemImage="clock.arrow.circlepath"
+              label={t`Sync & import history`}
+              onPress={() => router.push('/import-history')}
+            />
+          </SettingsSection>
 
           {/* One row per topic. Accounts above stays expanded because it is
               live data — equity and P&L per account — not settings; folding it
@@ -473,27 +474,18 @@ export default function SettingsScreen() {
               Theme stays inline for the same reason it was hoisted out of
               Display: it is the most-reached control here and it changes the
               screen you are looking at. */}
-          <Section
-            footer={
-              <UIText>{t`Search finds any setting directly, without opening its page.`}</UIText>
-            }
-          >
-            <Picker
+          <SettingsSection>
+            <SettingsPicker
+              systemImage="circle.lefthalf.filled"
               label={t`Theme`}
-              modifiers={[pickerStyle('menu')]}
-              selection={displayPrefs.appearance}
-              onSelectionChange={(value) => setAppearance(value as AppearancePref)}
-            >
-              <UIText key="system" modifiers={[tag('system')]}>
-                {t`System`}
-              </UIText>
-              <UIText key="light" modifiers={[tag('light')]}>
-                {t`Light`}
-              </UIText>
-              <UIText key="dark" modifiers={[tag('dark')]}>
-                {t`Dark`}
-              </UIText>
-            </Picker>
+              selectedValue={displayPrefs.appearance}
+              onValueChange={(value: AppearancePref) => setAppearance(value)}
+              items={[
+                { value: 'system', label: t`System` },
+                { value: 'light', label: t`Light` },
+                { value: 'dark', label: t`Dark` },
+              ]}
+            />
             <NavRow
               systemImage="chart.line.uptrend.xyaxis"
               label={t`Trading & journal`}
@@ -509,24 +501,23 @@ export default function SettingsScreen() {
               label={t`General`}
               onPress={() => router.push('/general')}
             />
-          </Section>
+          </SettingsSection>
 
           {/* Last row on the page, directly above Sign out — the iOS place for
               an About entry, and it keeps the destructive action isolated. */}
-          <Section>
+          <SettingsSection>
             <NavRow
               systemImage="info.circle"
               label={t`About TraderMemos`}
               onPress={() => router.push('/about')}
             />
-          </Section>
+          </SettingsSection>
 
-          <Section>
-            <CenteredButton role="destructive" label={t`Sign out`} onPress={handleSignOut} />
-          </Section>
-          </SettingsForm>
-        )}
-      </AppHost>
+          {/* Standalone action, not a row: a filled button inside a section
+              card would fill the card edge to edge and read as a red panel. */}
+          <CenteredButton role="destructive" label={t`Sign out`} onPress={handleSignOut} />
+        </SettingsForm>
+      )}
       <FloatingSearchBar
         open={searching}
         value={query}

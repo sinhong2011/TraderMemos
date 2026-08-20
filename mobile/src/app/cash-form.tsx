@@ -1,19 +1,15 @@
-import { DatePicker } from '@expo/ui/swift-ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { Alert, Text, View } from 'react-native';
 
 import { useAccounts, useApiRequest, useCash } from '@/api/hooks';
 import type { Account, CashTransaction } from '@/api/types';
-import { ControlPill } from '@/components/control-pill';
 import {
   FormControl,
   FormField,
   FormFootnote,
   FormInput,
-  FormRow,
   FormSheet,
 } from '@/components/form-sheet';
 import { Segmented } from '@/components/segmented';
@@ -22,7 +18,7 @@ import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
 import { CASH_TYPES, signedCashAmount } from '@/lib/cash';
 import { errorMessage } from '@/lib/errors';
-import { AppHost } from '@/components/app-host';
+import { DateField } from '@/components/date-field';
 
 /** Noon-UTC anchor keeps the calendar day stable across timezones. */
 function toOccurredAt(date: Date): string {
@@ -37,11 +33,11 @@ function toOccurredAt(date: Date): string {
 /**
  * Create/edit one cash-ledger entry (web "Add/Edit transaction" modals).
  *
- * Built on `FormSheet` in the creation-sheet idiom the token and tag sheets
- * use: glass chrome, one commit in the header, quiet captions over full-width
- * controls. It wore the inset-grouped rows (label left, value right) until
- * 2026-08-06 — that vocabulary stays with the multi-section forms (trade,
- * setup), while the short sheets all read the same way.
+ * Built on `FormSheet` as a pushed card (the new-trade shape): glass chrome,
+ * one commit in the header, quiet captions over full-width controls — one
+ * anatomy for every field, pickers included. Pushed, not a native formSheet:
+ * the account/type/date pickers are PanelUI bottom sheets, which portal to
+ * the root host and draw *under* a natively presented sheet.
  *
  * Edit mode (`?id=`) pins the account — the API's PUT does not move entries
  * between accounts — and adds the destructive action.
@@ -56,7 +52,7 @@ export default function CashFormScreen() {
   // the entry is in cache (no prefill effects).
   if ((id != null && !transaction) || !accounts) {
     return (
-      <FormSheet inSheet title={t`Transaction`} onSave={() => {}}>
+      <FormSheet pushed title={t`Transaction`} onSave={() => {}}>
         <FormSkeleton fields={5} />
       </FormSheet>
     );
@@ -112,15 +108,6 @@ function CashForm({
     onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
-  const remove = useMutation({
-    mutationFn: () => api(`/cash-transactions/${transaction!.id}`, { method: 'DELETE' }),
-    onSuccess: () => {
-      invalidateCash();
-      router.back();
-    },
-    onError: (err) => Alert.alert(t`Could not remove transaction`, errorMessage(err)),
-  });
-
   const account = accounts.find((candidate) => candidate.id === accountId);
   const parsedAmount = parseAmount(amount);
   // Nothing to save without a positive figure, or without an account to book it
@@ -139,13 +126,6 @@ function CashForm({
     save.mutate(isEdit ? body : { ...body, account_id: accountId });
   }
 
-  function confirmDelete() {
-    Alert.alert(t`Remove transaction?`, t`This permanently deletes the ledger entry.`, [
-      { text: t`Cancel`, style: 'cancel' },
-      { text: t`Remove`, style: 'destructive', onPress: () => remove.mutate() },
-    ]);
-  }
-
   const typeOptions = CASH_TYPES.map((option) => ({
     value: option.value as string,
     label: option.label(),
@@ -153,7 +133,7 @@ function CashForm({
 
   return (
     <FormSheet
-      inSheet
+      pushed
       title={isEdit ? t`Edit transaction` : t`Add transaction`}
       saving={save.isPending}
       // Commit is the glass checkmark, like every other creation sheet — the
@@ -169,12 +149,11 @@ function CashForm({
       {!isEdit && accounts.length > 1 ? (
         <FormField quiet label={t`Account`}>
           <FormControl>
-            {/* Hugging, not `fill`: a stretched Host gives the SwiftUI menu a
-                frame it lays its label out against on its own, and the label
-                lands outside the shell (half off-screen). */}
             <Segmented
               flush
+              fill
               variant="menu"
+              title={t`Account`}
               value={accountId}
               onChange={setAccountId}
               options={accounts.map((candidate) => ({
@@ -187,41 +166,36 @@ function CashForm({
       ) : account ? (
         <FormField quiet label={t`Account`}>
           <FormControl>
-            <Text style={styles.staticValue}>{account.name}</Text>
+            <Text className="text-base text-muted-foreground">{account.name}</Text>
           </FormControl>
         </FormField>
       ) : null}
-      {/* Six types — a pull-down menu, not a segmented control. The menu
-          carries its own value, so it rides a row instead of a caption. */}
-      <FormRow label={t`Type`}>
-        {/* Filled pill so the value reads as a control, matching the date
-            picker's own pill in the row below. No `flush` here — the menu's
-            built-in label padding is what fills the pill. */}
-        <ControlPill>
-          <Segmented variant="menu" value={type} onChange={setType} options={typeOptions} />
-        </ControlPill>
-      </FormRow>
-      {/* Amount is the only thing a new entry can't default — open on it,
-          keyboard up. Editing starts read-first, so no grab there. */}
-      <FormField quiet label={t`Amount`}>
-        <FormInput
-          value={amount}
-          onChangeText={setAmount}
-          placeholder="0.00"
-          numeric
-          autoFocus={!isEdit}
-        />
+      {/* Six types — a picker sheet, not a segmented control. Same anatomy as
+          Account above: quiet caption over a field-shaped trigger, so the
+          column reads as one vocabulary. */}
+      <FormField quiet label={t`Type`}>
+        <FormControl>
+          <Segmented
+            flush
+            fill
+            variant="menu"
+            title={t`Type`}
+            value={type}
+            onChange={setType}
+            options={typeOptions}
+          />
+        </FormControl>
       </FormField>
-      <FormRow label={t`Date`}>
-        {/*
-          `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
-          its content by the container safe area, so a picker near the
-          home-indicator band draws its pill above its own frame.
-        */}
-        <AppHost matchContents ignoreSafeArea="all">
-          <DatePicker selection={date} displayedComponents={['date']} onDateChange={setDate} />
-        </AppHost>
-      </FormRow>
+      <FormField quiet label={t`Amount`}>
+        <FormInput value={amount} onChangeText={setAmount} placeholder="0.00" numeric />
+      </FormField>
+      <FormField quiet label={t`Date`}>
+        {/* The pill is DateField's own trigger; a row keeps it hugging the
+            leading edge instead of stretching into a second field box. */}
+        <View className="flex-row">
+          <DateField selection={date} displayedComponents={['date']} onDateChange={setDate} />
+        </View>
+      </FormField>
       {/* A note is prose — "wire from broker, settles Monday" — so it gets a
           writing box, not a one-line field. */}
       <FormField quiet label={t`Note`}>
@@ -235,31 +209,6 @@ function CashForm({
       {/* A disabled commit needs a reason: with no accounts there is nothing
           to book the entry against. */}
       {!isEdit && account == null ? <FormFootnote>{t`Add an account first.`}</FormFootnote> : null}
-
-      {/* Remove sits in the body, away from the header's commit — destructive
-          actions shouldn't be a thumb-slip from Save. */}
-      {isEdit ? (
-        <View style={styles.dangerZone}>
-          <Pressable
-            onPress={confirmDelete}
-            disabled={remove.isPending}
-            accessibilityRole="button"
-            style={({ pressed }) => [styles.deleteButton, pressed && styles.pressed]}
-          >
-            <Text style={styles.deleteLabel}>
-              {remove.isPending ? t`Removing…` : t`Remove transaction`}
-            </Text>
-          </Pressable>
-        </View>
-      ) : null}
     </FormSheet>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  staticValue: { fontSize: 16, color: theme.colors.mutedForeground },
-  dangerZone: { paddingTop: theme.spacing.xl, alignItems: 'center' },
-  deleteButton: { paddingVertical: theme.spacing.sm, paddingHorizontal: theme.spacing.lg },
-  pressed: { opacity: 0.6 },
-  deleteLabel: { fontSize: 15, fontWeight: '500', color: theme.colors.destructive },
-}));

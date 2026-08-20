@@ -135,8 +135,8 @@
         "description": "MCP／スクリプト向けのパーソナルアクセストークン（tm_pat_…）。OpenAPI ドキュメントは /docs にあります。"
       },
       "mobile": {
-        "title": "iOS アプリ（ベータ）",
-        "description": "SwiftUI ネイティブのコンパニオンアプリ — オフライン記帳、ウィジェット、Live Activities、Siri / アクションボタンでのクイック記録。TestFlight で配信中。"
+        "title": "モバイルアプリ（ベータ）",
+        "description": "iOS / Android 両対応のネイティブコンパニオンアプリ — 両プラットフォームでオフライン記帳、iOS ではさらにウィジェット、Live Activities、Siri / アクションボタンでのクイック記録に対応。iOS は TestFlight、Android は GitHub Releases の APK で配信。"
       }
     },
     "lookInsideHeading": "中を見てみる",
@@ -159,7 +159,7 @@
       },
       {
         "layer": "モバイル",
-        "value": "Expo · @expo/ui（SwiftUI）· TestFlight"
+        "value": "Expo · PanelUI + Uniwind · TestFlight / APK"
       },
       {
         "layer": "デザイン",
@@ -190,7 +190,10 @@
     "heading": "数分でデプロイ",
     "sub": "ワンクリックで Web UI を自分の Vercel・Cloudflare・Netlify アカウントへ — または Docker でスタック全体を任意のマシンで実行できます。",
     "note": "ワンクリックボタンがデプロイするのは Web UI のみです。API は Railway または Docker で運用してください。",
-    "star": "GitHub でスターする"
+    "star": "GitHub でスターする",
+    "appLead": "モバイルアプリを入手",
+    "appIos": "iOS · TestFlight",
+    "appAndroid": "Android · APK"
   },
   "Changelog": {
     "title": "更新履歴",
@@ -649,7 +652,7 @@
           {
             "row": "UI",
             "them": "機能的だが年季が見える",
-            "tm": "モダンなターミナル風デザイン、ダークモード、ネイティブ iOS アプリ"
+            "tm": "モダンなターミナル風デザイン、ダークモード、ネイティブ iOS / Android アプリ"
           }
         ],
         "theyWin": [

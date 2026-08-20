@@ -1,5 +1,4 @@
 import { t } from '@lingui/core/macro';
-import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -8,20 +7,22 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
+import { Icon } from '@/components/icon';
 import { tick } from '@/lib/haptics';
 
 /**
  * Rating indicator — a row of stars standing in for a rank (HIG "Rating
  * indicators").
  *
- * Apple only ships the control on macOS (`NSLevelIndicator`, rating style), so
- * there is no SwiftUI equivalent for `@expo/ui` to host: this is plain RN over
- * SF Symbols, which is also what the rest of this form is (see form-rows.tsx).
- * The HIG rules it does follow are the ones that survive the port — whole
- * symbols only (no halves), a fixed gap that never stretches to fill the row,
- * and the star itself, because a custom glyph would stop reading as a rank.
+ * Kept hand-built rather than mapped onto PanelUI's `Rating`: that one renders
+ * its `label` as a visible caption above the stars (here the label is the form
+ * row's, and repeating it would read as a duplicate) and has no slot for the
+ * trailing letter grade this control carries. The HIG rules it does follow are
+ * the ones that survive the port — whole symbols only (no halves), a fixed gap
+ * that never stretches to fill the row, and the star itself, because a custom
+ * glyph would stop reading as a rank.
  */
 
 const STAR_SIZE = 24;
@@ -43,7 +44,7 @@ function Star({ filled, tint }: { filled: boolean; tint: string }) {
   const pop = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   return (
     <Animated.View style={pop}>
-      <SymbolView name={filled ? 'star.fill' : 'star'} size={STAR_SIZE} tintColor={tint} />
+      <Icon name={filled ? 'star.fill' : 'star'} size={STAR_SIZE} tintColor={tint} />
     </Animated.View>
   );
 }
@@ -64,7 +65,11 @@ export function RatingIndicator({
   caption?: string;
   count?: number;
 }) {
-  const { theme } = useUnistyles();
+  // `expo-symbols` takes a resolved color, not a class.
+  const [primary, mutedForeground] = useCSSVariable([
+    '--color-primary',
+    '--color-muted-foreground',
+  ]) as [string, string];
 
   // Per-gesture bookkeeping: the rank the finger landed on, and the last rank
   // emitted. Shared values, not refs — a ref read inside a handler built during
@@ -124,31 +129,25 @@ export function RatingIndicator({
       onAccessibilityAction={(event) =>
         adjust(event.nativeEvent.actionName === 'increment' ? 1 : -1)
       }
-      style={styles.wrap}
+      className="flex-row items-center gap-3"
     >
       <GestureDetector gesture={scrub}>
         {/* The stars are 24pt tall; the padding brings the touch track to 44. */}
-        <View style={styles.track}>
+        <View className="flex-row gap-3 py-[10px]">
           {Array.from({ length: count }, (_, index) => (
             <Star
               key={index}
               filled={index < value}
-              tint={index < value ? theme.colors.primary : theme.colors.mutedForeground}
+              tint={index < value ? primary : mutedForeground}
             />
           ))}
         </View>
       </GestureDetector>
       {caption ? (
-        <Text style={styles.caption} numberOfLines={1}>
+        <Text className="text-[15px] font-semibold text-muted-foreground" numberOfLines={1}>
           {caption}
         </Text>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  wrap: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-  track: { flexDirection: 'row', gap: STAR_GAP, paddingVertical: (44 - STAR_SIZE) / 2 },
-  caption: { fontSize: 15, fontWeight: '600', color: theme.colors.mutedForeground },
-}));

@@ -1,25 +1,18 @@
-import {
-  LabeledContent,
-  Section,
-  Text as UIText,
-  TextField,
-  Toggle,
-  useNativeState,
-} from '@expo/ui/swift-ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
+import { Stack } from 'expo-router/stack';
+import { Button, Field, Frame, Spinner, Switch, Text } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { Alert, View } from 'react-native';
 
-import { queryKeys, useAccounts, useApiRequest, useFlexSync } from '@/api/hooks';
+import { flexSyncFailed, queryKeys, useAccounts, useApiRequest, useFlexSync } from '@/api/hooks';
 import type { FlexSyncPut, FlexSyncResult } from '@/api/types';
-import { CenteredButton } from '@/components/centered-button';
-import { SettingsForm } from '@/components/settings-form';
+import { FormField, FormInput, FormScreen } from '@/components/form-kit';
+import { Pill } from '@/components/pill';
+import { SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
-import { AppHost } from '@/components/app-host';
 
 /**
  * IBKR Flex Web Service sync for one account: query ID + token + scheduled
@@ -37,20 +30,22 @@ export default function FlexSyncScreen() {
   const account = accounts.data?.find((candidate) => candidate.id === accountId);
   const settings = flex.data;
 
-  const queryIdState = useNativeState<string>('');
   const queryIdText = useRef('');
-  const tokenState = useNativeState<string>('');
   const tokenText = useRef('');
   const [enabled, setEnabled] = useState(false);
-  // Adopt the loaded settings once — the native fields keep their own state after.
+  // Adopt the loaded settings once — the fields keep their own text after.
+  // `seed` remounts them, which is the only way an uncontrolled field takes a
+  // value it did not start with (the hydration, and the token clear on save).
+  const [seed, setSeed] = useState(0);
+  const [queryIdSeed, setQueryIdSeed] = useState('');
   const hydrated = useRef(false);
   useEffect(() => {
     if (hydrated.current || settings == null) return;
     hydrated.current = true;
-    queryIdState.set(settings.query_id ?? '');
     queryIdText.current = settings.query_id ?? '';
+    setQueryIdSeed(settings.query_id ?? '');
     setEnabled(settings.enabled);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setSeed((n) => n + 1);
   }, [settings]);
 
   const save = useMutation({
@@ -58,8 +53,10 @@ export default function FlexSyncScreen() {
       api(`/accounts/${accountId}/flex-sync`, { method: 'PUT', body }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.flexSync(accountId!) });
-      tokenState.set('');
+      void queryClient.invalidateQueries({ queryKey: queryKeys.flexSyncConnections() });
+      // The token is stored server-side now — drop the local copy.
       tokenText.current = '';
+      setSeed((n) => n + 1);
     },
     onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
@@ -69,6 +66,7 @@ export default function FlexSyncScreen() {
     onSuccess: () => {
       hydrated.current = false;
       void queryClient.invalidateQueries({ queryKey: queryKeys.flexSync(accountId!) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.flexSyncConnections() });
     },
     onError: (err) => Alert.alert(t`Could not remove`, errorMessage(err)),
   });
@@ -109,99 +107,116 @@ export default function FlexSyncScreen() {
   }
 
   return (
-    <View style={styles.page}>
-      <AppHost style={{ flex: 1 }}>
-        <SettingsForm>
-        <Section
-          title={account ? account.name : t`IBKR Flex sync`}
-          footer={
-            <UIText>
-              {t`From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only.`}
-            </UIText>
-          }
-        >
-          <LabeledContent label={t`Query ID`}>
-            <TextField
-              placeholder="123456"
-              text={queryIdState}
-              onTextChange={(text) => {
-                queryIdText.current = text;
-              }}
-            />
-          </LabeledContent>
-          <LabeledContent label={t`Token`}>
-            <TextField
-              placeholder={settings?.token_set ? '••••••••' : t`Web Service token`}
-              text={tokenState}
-              onTextChange={(text) => {
-                tokenText.current = text;
-              }}
-            />
-          </LabeledContent>
-          <Toggle
-            label={t`Scheduled sync`}
-            isOn={enabled}
-            onIsOnChange={(value) => setEnabled(value)}
+    <View className="flex-1">
+      {/* The account being configured names the page, not a section strip. */}
+      <Stack.Screen options={{ title: account?.name ?? t`IBKR Flex sync` }} />
+      <FormScreen>
+        <FormField label={t`Query ID`}>
+          <FormInput
+            key={`query-${seed}`}
+            placeholder="123456"
+            defaultValue={queryIdSeed}
+            keyboardType="number-pad"
+            onChangeText={(text) => {
+              queryIdText.current = text;
+            }}
           />
-          <CenteredButton
-            label={save.isPending ? t`Saving…` : t`Save`}
-            onPress={handleSave}
+        </FormField>
+        <FormField label={t`Token`}>
+          <FormInput
+            key={`token-${seed}`}
+            placeholder={settings?.token_set ? '••••••••' : t`Web Service token`}
+            description={t`From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only.`}
+            autoCapitalize="none"
+            autoCorrect={false}
+            onChangeText={(text) => {
+              tokenText.current = text;
+            }}
           />
-        </Section>
+        </FormField>
+        <Field orientation="horizontal">
+          <Field.Content>
+            <Field.Title>{t`Scheduled sync`}</Field.Title>
+          </Field.Content>
+          <Switch
+            value={enabled}
+            onValueChange={setEnabled}
+            accessibilityLabel={t`Scheduled sync`}
+          />
+        </Field>
+
+        <Button className="rounded-3xl" fullWidth loading={save.isPending} onPress={handleSave}>
+          {save.isPending ? t`Saving…` : t`Save`}
+        </Button>
 
         {settings?.configured ? (
-          <Section
-            title={t`Status`}
-            footer={
-              settings.last_error ? <UIText>{settings.last_error}</UIText> : undefined
-            }
-          >
-            {settings.last_synced_at ? (
-              <LabeledContent label={t`Last synced`}>
-                <UIText>
-                  {`${formatDate(settings.last_synced_at)} ${formatTime(settings.last_synced_at)}`}
-                </UIText>
-              </LabeledContent>
-            ) : null}
-            {settings.last_status ? (
-              <LabeledContent label={t`Last status`}>
-                <UIText>{settings.last_status}</UIText>
-              </LabeledContent>
-            ) : null}
-            <CenteredButton
-              label={run.isPending ? t`Syncing…` : t`Sync now`}
+          <>
+            <SettingsSection title={t`Status`}>
+              <SettingsRow label={t`Health`}>
+                <Pill tone={flexSyncFailed(settings) ? 'neg' : settings.enabled ? 'pos' : 'muted'}>
+                  {flexSyncFailed(settings)
+                    ? t`Sync failing`
+                    : settings.enabled
+                      ? t`Healthy`
+                      : t`Manual only`}
+                </Pill>
+              </SettingsRow>
+              {settings.last_synced_at ? (
+                <SettingsRow label={t`Last synced`}>
+                  <ValueText>
+                    {`${formatDate(settings.last_synced_at)} ${formatTime(settings.last_synced_at)}`}
+                  </ValueText>
+                </SettingsRow>
+              ) : (
+                <SettingsRow label={t`Last synced`}>
+                  <ValueText>{t`Never`}</ValueText>
+                </SettingsRow>
+              )}
+              {settings.last_status && settings.last_status !== 'error' ? (
+                <SettingsRow label={t`Last status`}>
+                  <ValueText>{settings.last_status}</ValueText>
+                </SettingsRow>
+              ) : null}
+              {settings.last_error ? (
+                <Frame.Row>
+                  <Text size="sm" className="flex-1 text-destructive">
+                    {settings.last_error}
+                  </Text>
+                </Frame.Row>
+              ) : null}
+            </SettingsSection>
+
+            <Button
+              variant="secondary"
+              className="rounded-3xl"
+              fullWidth
+              loading={run.isPending}
               onPress={() => {
                 if (!run.isPending) run.mutate();
               }}
-            />
-          </Section>
-        ) : null}
+            >
+              {run.isPending ? t`Syncing…` : t`Sync now`}
+            </Button>
 
-          {settings?.configured ? (
-            <Section>
-              <CenteredButton
-                role="destructive"
-                label={remove.isPending ? t`Removing…` : t`Remove Flex sync`}
-                onPress={confirmDelete}
-              />
-            </Section>
-          ) : null}
-        </SettingsForm>
-      </AppHost>
+            <Button
+              variant="ghost"
+              fullWidth
+              labelClassName="text-destructive"
+              loading={remove.isPending}
+              onPress={confirmDelete}
+            >
+              {remove.isPending ? t`Removing…` : t`Remove Flex sync`}
+            </Button>
+          </>
+        ) : null}
+      </FormScreen>
+      {/* The run takes tens of seconds and the button is far up the page by
+          then — a corner spinner is the standing proof it is still going. */}
       {run.isPending ? (
-        <View style={styles.syncOverlay} pointerEvents="none">
-          <ActivityIndicator />
+        <View className="absolute right-6 top-6" pointerEvents="none">
+          <Spinner />
         </View>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1 },
-  syncOverlay: {
-    position: 'absolute',
-    top: theme.spacing.xl,
-    right: theme.spacing.xl,
-  },
-}));

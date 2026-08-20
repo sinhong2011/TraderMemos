@@ -3,11 +3,10 @@ import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Share, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
 import { queryKeys, useApiRequest } from '@/api/hooks';
 import type { CreatedAccessToken } from '@/api/types';
-import { FormInput, FormSheet } from '@/components/form-sheet';
+import { FormField, FormFootnote, FormInput, FormSheet } from '@/components/form-sheet';
 import { GlassButton } from '@/components/glass-button';
 import { Segmented } from '@/components/segmented';
 import { t } from '@lingui/core/macro';
@@ -77,17 +76,22 @@ export default function NewTokenScreen() {
       <FormSheet
         inSheet
         title={t`Token created`}
-        saveLabel={t`Done`}
+        saveIcon="xmark"
+        saveLabel={t`Close`}
         hideClose
         onSave={() => router.back()}
       >
-        <Text style={styles.footnote}>
+        <FormFootnote>
           {t`Copy it now — the secret is shown only once and cannot be recovered.`}
-        </Text>
-        <Text selectable style={styles.secret}>
+        </FormFootnote>
+        <Text
+          selectable
+          className="rounded-md bg-muted p-3 text-[14px] text-foreground tabular-nums"
+          style={{ borderCurve: 'continuous' }}
+        >
           {created.token}
         </Text>
-        <View style={styles.actions}>
+        <View className="gap-2">
           <GlassButton
             fill
             prominent
@@ -118,23 +122,21 @@ export default function NewTokenScreen() {
       saveDisabled={!trimmedName}
       onSave={handleCreate}
     >
-      <Text style={styles.footnote}>
+      <FormFootnote>
         {t`Tokens authenticate scripts and integrations against your server's API.`}
-      </Text>
-      <View style={styles.field}>
-        <Text style={styles.fieldLabel}>{t`Name`}</Text>
+      </FormFootnote>
+      {/* Quiet field labels — the sheet title is the only shout. */}
+      <FormField quiet label={t`Name`}>
         <FormInput
           value={name}
           onChangeText={setName}
           placeholder={t`e.g. CLI import`}
           autoCorrect={false}
-          autoFocus
           returnKeyType="done"
           onSubmitEditing={handleCreate}
         />
-      </View>
-      <View style={styles.field}>
-        <Text style={styles.fieldLabel}>{t`Expiry`}</Text>
+      </FormField>
+      <FormField quiet label={t`Expiry`}>
         <Segmented
           fill
           options={EXPIRY_OPTIONS.map((option) => ({
@@ -144,29 +146,7 @@ export default function NewTokenScreen() {
           value={expiry}
           onChange={setExpiry}
         />
-      </View>
+      </FormField>
     </FormSheet>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  footnote: { fontSize: 13, lineHeight: 18, color: theme.colors.mutedForeground },
-  field: { gap: theme.spacing.xs + 2 },
-  // Quiet field labels — the sheet title is the only shout.
-  fieldLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-    letterSpacing: 0.3,
-    color: theme.colors.mutedForeground,
-  },
-  actions: { gap: theme.spacing.sm },
-  secret: {
-    fontSize: 14,
-    color: theme.colors.foreground,
-    backgroundColor: theme.colors.muted,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    padding: theme.spacing.md,
-    ...theme.numeric,
-  },
-}));

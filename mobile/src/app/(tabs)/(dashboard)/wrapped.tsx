@@ -1,37 +1,63 @@
 // See the note in trade-form.tsx / reports.tsx: @expo/ui's SwiftUI pager
 // swallows taps on RN views inside its pages, so year paging rides
 // react-native-pager-view.
-import PagerView from 'react-native-pager-view';
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+import PagerView, { type PagerViewProps } from 'react-native-pager-view';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  interpolate,
+  LinearTransition,
+  ReduceMotion,
+  useAnimatedStyle,
+  useEvent,
+  useHandler,
+  useSharedValue,
+  type SharedValue,
+} from 'react-native-reanimated';
+
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { useHeaderHeight } from 'expo-router/react-navigation';
+import { Card, Skeleton, cn } from 'panelui-native';
 import { useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { EmptyState } from '@/components/empty-state';
 import { useAccounts, useTrades } from '@/api/hooks';
-import { AppHost } from '@/components/app-host';
+import type { Trade } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { ErrorState } from '@/components/error-state';
 import { HeaderIconButton } from '@/components/header-icon-button';
-import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
+import { useCSSVariable } from 'uniwind';
+
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useSelectedAccountId } from '@/lib/account-store';
 import { formatDuration, formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
 import { usePagerBottomInset } from '@/lib/pager-insets';
+import { useSoftTopEdge } from '@/lib/soft-scroll-edge';
 import { accountBaseCurrency } from '@/lib/prefs';
 import { computeYearWrapped } from '@/lib/wrapped';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
 
-const MIN_YEAR = 2000;
+/** Card-shaped stand-ins while a year's trades are still out. */
+const SKELETON_TALL = 'h-[180px] rounded-[18px]';
+const SKELETON_CARD = 'h-[200px] rounded-[18px]';
 
-function yearsRange(currentYear: number): number[] {
-  const years: number[] = [];
-  for (let y = MIN_YEAR; y <= currentYear; y++) years.push(y);
-  return years;
+/**
+ * Only years the trader actually closed something in. Paging through two
+ * decades of empty recaps to reach the one year with data was the range
+ * talking about itself rather than about the journal.
+ */
+function yearsWithTrades(trades: Trade[]): number[] {
+  const years = new Set<number>();
+  for (const trade of trades) {
+    const day = trade.closed_at ?? trade.opened_at;
+    if (day) years.add(Number(day.slice(0, 4)));
+  }
+  return [...years].sort((a, b) => a - b);
 }
 
 function monthShort(month: number): string {
@@ -41,102 +67,152 @@ function monthShort(month: number): string {
   });
 }
 
+/** Dots stay 6pt tall; the page you are on stretches into a capsule. */
+const DOT = 6;
+const DOT_ACTIVE_W = 18;
+
+/** Window dots slide in and out rather than cutting as the range re-centres. */
+const DOT_MOTION = LinearTransition.springify()
+  .damping(20)
+  .stiffness(220)
+  .reduceMotion(ReduceMotion.System);
+
 /**
- * Compact year chrome above the pager — centered year with carousel peeks for
- * neighbors and a sliding window of page dots. No boxed bar; swipe is primary.
+ * One dot: a quiet 6pt circle that stretches into a capsule as its page
+ * arrives and rounds back off as it leaves. Width and colour ride the pager's
+ * *live* position rather than the settled page, so the strip tracks the finger
+ * through the swipe instead of jumping once the page lands.
+ */
+function YearDot({
+  pageIndex,
+  progress,
+  selected,
+  label,
+  onPress,
+  palette,
+}: {
+  pageIndex: number;
+  progress: SharedValue<number>;
+  selected: boolean;
+  label: string;
+  onPress: () => void;
+  palette: { foreground: string };
+}) {
+  const style = useAnimatedStyle(() => {
+    // 0 when this page fills the screen, 1 once it is a full page away.
+    const distance = Math.min(Math.abs(pageIndex - progress.value), 1);
+    return {
+      width: interpolate(distance, [0, 1], [DOT_ACTIVE_W, DOT]),
+      height: DOT,
+      borderRadius: DOT / 2,
+      backgroundColor: palette.foreground,
+      // One colour at two strengths, not two colours: `muted` is nearly the
+      // page itself on dark, which left the inactive dots invisible and the
+      // centred group reading as a lone capsule sitting off to one side.
+      opacity: interpolate(distance, [0, 1], [1, 0.32]),
+    };
+  });
+
+  return (
+    <Pressable
+      onPress={onPress}
+      hitSlop={8}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected }}
+      // A fixed box so a growing dot never shoves its neighbours around.
+      style={CELL}
+    >
+      <Animated.View style={style} />
+    </Pressable>
+  );
+}
+
+/** A tap target the dot can grow inside without shoving its neighbours. */
+const CELL = {
+  minWidth: DOT,
+  height: DOT_ACTIVE_W,
+  alignItems: 'center',
+  justifyContent: 'center',
+} as const;
+
+/**
+ * Page dots, pinned under the bar rather than riding the scroll content: it is
+ * the screen's switcher, so it has to stay put like a tab strip while a year
+ * scrolls beneath it. The year itself is the recap card's own heading.
  */
 function YearIndicator({
   years,
   index,
-  currentYear,
+  progress,
   onSelect,
 }: {
   years: number[];
   index: number;
-  currentYear: number;
+  progress: SharedValue<number>;
   onSelect: (index: number) => void;
 }) {
-  const year = years[index]!;
-  const prev = index > 0 ? years[index - 1] : null;
-  const next = index < years.length - 1 ? years[index + 1] : null;
-  const inProgress = year === currentYear;
-
+  // Colour has to reach a worklet as a value, not a class.
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   // Sliding window of at most 7 dots so a 2000→now range doesn't paint a grid.
   const windowSize = Math.min(7, years.length);
   const windowStart = Math.max(
     0,
     Math.min(index - Math.floor(windowSize / 2), years.length - windowSize),
   );
+  if (years.length < 2) return null;
 
   return (
-    <View style={styles.indicator}>
-      <View style={styles.indicatorRow}>
-        <Pressable
-          onPress={() => prev != null && onSelect(index - 1)}
-          disabled={prev == null}
-          hitSlop={10}
-          accessibilityRole="button"
-          accessibilityLabel={t`Previous year`}
-          style={({ pressed }) => [
-            styles.sideYear,
-            prev == null && styles.sideYearHidden,
-            pressed && styles.pressed,
-          ]}
-        >
-          <Text style={styles.sideYearLabel}>{prev ?? ' '}</Text>
-        </Pressable>
-        <Text style={styles.yearLabel} accessibilityRole="header">
-          {year}
-          {inProgress ? <Text style={styles.inProgress}> · {t`in progress`}</Text> : null}
-        </Text>
-        <Pressable
-          onPress={() => next != null && onSelect(index + 1)}
-          disabled={next == null}
-          hitSlop={10}
-          accessibilityRole="button"
-          accessibilityLabel={t`Next year`}
-          style={({ pressed }) => [
-            styles.sideYear,
-            next == null && styles.sideYearHidden,
-            pressed && styles.pressed,
-          ]}
-        >
-          <Text style={styles.sideYearLabel}>{next ?? ' '}</Text>
-        </Pressable>
-      </View>
-      {years.length > 1 ? (
-        <View style={styles.dots} accessibilityElementsHidden>
-          {Array.from({ length: windowSize }, (_, i) => {
-            const pageIndex = windowStart + i;
-            const active = pageIndex === index;
-            return (
-              <Pressable
-                key={years[pageIndex]}
-                onPress={() => onSelect(pageIndex)}
-                hitSlop={6}
-                style={[styles.dot, active && styles.dotActive]}
-              />
-            );
-          })}
-        </View>
-      ) : null}
+    <View
+      // Top padding, not a top offset: the strip's own height is what the
+      // pages inset by, so padding keeps the two in step. `useHeaderHeight`
+      // under-reports the bar by the scroll-edge boundary's own height, which
+      // is why an even `py` left the dots hugging the hairline.
+      className="flex-row items-center justify-center gap-2 px-4 pb-3 pt-7"
+    >
+      {Array.from({ length: windowSize }, (_, i) => {
+        const pageIndex = windowStart + i;
+        return (
+          <Animated.View
+            key={years[pageIndex]}
+            layout={DOT_MOTION}
+            entering={FadeIn.duration(140).reduceMotion(ReduceMotion.System)}
+            exiting={FadeOut.duration(110).reduceMotion(ReduceMotion.System)}
+          >
+            <YearDot
+              pageIndex={pageIndex}
+              progress={progress}
+              selected={pageIndex === index}
+              label={String(years[pageIndex])}
+              onPress={() => onSelect(pageIndex)}
+              palette={{ foreground }}
+            />
+          </Animated.View>
+        );
+      })}
     </View>
   );
 }
 
-/** One year's recap — own query + scroll so the pager can keep pages independent. */
-function WrappedYear({ year, active }: { year: number; active: boolean }) {
-  const { theme } = useUnistyles();
+/** One year's recap — its own scroll, so pages keep independent positions. */
+function WrappedYear({
+  year,
+  trades,
+  topInset,
+  refreshing,
+  onRefresh,
+}: {
+  year: number;
+  /** Every trade in scope; the recap picks its own year out of it. */
+  trades: Trade[];
+  /** Header + pinned dot strip: what this page's content has to clear. */
+  topInset: number;
+  refreshing: boolean;
+  onRefresh: () => void;
+}) {
+  // The month bars are drawn views, so their fills are token values.
+  const palette = usePnlPalette();
   const selectedAccountId = useSelectedAccountId();
-  // Far pages stay mounted for swipe physics but skip the network until nearby.
-  const trades = useTrades(
-    {
-      ...(selectedAccountId ? { account_id: selectedAccountId } : {}),
-      from: `${year}-01-01T00:00:00Z`,
-      to: `${year + 1}-01-01T00:00:00Z`,
-    },
-    { enabled: active },
-  );
   const accounts = useAccounts();
   const fx = useMoneyFx(accountBaseCurrency(accounts.data, selectedAccountId));
   const currency = fx.currency;
@@ -145,69 +221,55 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
   // Nested in the pager, `automatic` never gets the tab-bar bottom inset
   // (see lib/pager-insets.ts) — the last card needs explicit clearance.
   const bottomInset = usePagerBottomInset();
+  const softTopEdge = useSoftTopEdge();
 
-  const wrapped = useMemo(() => computeYearWrapped(trades.data ?? [], year), [trades.data, year]);
+  const wrapped = useMemo(() => computeYearWrapped(trades, year), [trades, year]);
   const money = (v: number) => formatPnl(v * rate, currency);
   const moneyCompact = (v: number) => formatPnlCompact(v * rate, currency);
   const maxMonthTrades = Math.max(...wrapped.months.map((m) => m.trades), 1);
 
   return (
     <ScrollView
-      style={styles.page}
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={[
-        styles.content,
-        { paddingBottom: theme.spacing.xl * 2 + bottomInset },
-      ]}
-      refreshControl={
-        <RefreshControl
-          refreshing={trades.isRefetching}
-          onRefresh={() => void trades.refetch()}
-        />
-      }
+      className="bg-background"
+      // Nominated so UIKit drives the (transparent, blurred) bar from the page
+      // being read: neither its nor screens' own discovery reaches a scroll
+      // view nested in a pager. See lib/soft-scroll-edge.
+      ref={softTopEdge}
+      // Both insets manual for the same reason — `automatic` never reaches in
+      // here (lib/pager-insets.ts), so it would leave the content under the bar.
+      contentInsetAdjustmentBehavior="never"
+      contentContainerClassName="gap-4 p-4"
+      contentContainerStyle={{ paddingTop: topInset, paddingBottom: 48 + bottomInset }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-      {trades.isLoading || (!active && trades.data == null) ? (
-        <>
-          <Skeleton style={styles.skeletonTall} />
-          <Skeleton style={styles.skeletonCard} />
-        </>
-      ) : trades.error && trades.data == null ? (
-        // The recap is computed from the trades, so a failed fetch with no
-        // cache produces a zeroed wrapped — indistinguishable from a year you
-        // didn't trade. Cached trades still recap fine.
-        <View style={styles.emptyHost}>
-          <ErrorState
-            error={trades.error}
-            onRetry={() => void trades.refetch()}
-            retrying={trades.isRefetching}
-          />
-        </View>
-      ) : wrapped.totalTrades === 0 ? (
-        <AppHost style={styles.emptyHost}>
-          <ContentUnavailableView
-            title={t`No closed trades in ${year}`}
-            systemImage="sparkles"
-            description={t`The recap appears once the year has closed trades.`}
-          />
-        </AppHost>
-      ) : (
-        <>
-          <DashboardCard title={t`${year} in one number`}>
-            <View style={styles.hero}>
+          {/* The hero card wears the year as its own title — centred and at
+              heading scale rather than in the small grey caps every other card
+              uses, because on this screen the year *is* the subject. */}
+          <Card className="items-center gap-1 rounded-lg border-0 p-4 pt-3">
+            <Text
+              className="text-[22px] font-semibold tracking-tight tabular-nums text-foreground"
+              accessibilityRole="header"
+            >
+              {year}
+            </Text>
+            <View className="items-center gap-1 pb-1">
               <Text
                 selectable
-                style={[styles.heroValue, { color: pnlColor(theme.colors, wrapped.netPnl) }]}
+                className={cn(
+                  'text-[34px] font-semibold tracking-tight tabular-nums',
+                  pnlClass(wrapped.netPnl),
+                )}
               >
                 {money(wrapped.netPnl)}
               </Text>
-              <Text style={styles.heroCaption}>
+              <Text className="text-xs text-muted-foreground tabular-nums">
                 {t`${wrapped.totalTrades} closed trades · ${formatPercent(wrapped.winRate, 0)} win rate · ${wrapped.tradingDays} trading days`}
               </Text>
             </View>
-          </DashboardCard>
+          </Card>
 
           <DashboardCard title={t`Your highs`} flush>
-            <View style={styles.grid}>
+            <View className="flex-row flex-wrap gap-2">
               <StatBar
                 label={t`Best day`}
                 value={wrapped.bestDay ? moneyCompact(wrapped.bestDay.pnl) : moneyCompact(0)}
@@ -236,7 +298,7 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
           </DashboardCard>
 
           <DashboardCard title={t`Your lows`} flush>
-            <View style={styles.grid}>
+            <View className="flex-row flex-wrap gap-2">
               <StatBar
                 label={t`Worst day`}
                 value={wrapped.worstDay ? moneyCompact(wrapped.worstDay.pnl) : moneyCompact(0)}
@@ -272,36 +334,38 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
           </DashboardCard>
 
           <DashboardCard title={t`Your rhythm`}>
-            <View style={styles.months}>
+            <View className="h-24 flex-row items-end gap-1">
               {wrapped.months.map((month) => (
-                <View key={month.month} style={styles.monthCol}>
-                  <View style={styles.monthTrack}>
+                <View key={month.month} className="h-full flex-1 items-center gap-[3px]">
+                  <View className="w-full flex-1 justify-end">
                     <View
-                      style={[
-                        styles.monthFill,
-                        {
-                          height: `${Math.max(4, (month.trades / maxMonthTrades) * 100)}%`,
-                          backgroundColor:
-                            month.trades === 0
-                              ? theme.colors.muted
-                              : pnlColor(theme.colors, month.pnl),
-                        },
-                      ]}
+                      className={cn(
+                        'w-full rounded-[3px]',
+                        month.trades === 0 && 'bg-muted',
+                      )}
+                      style={{
+                        height: `${Math.max(4, (month.trades / maxMonthTrades) * 100)}%`,
+                        ...(month.trades === 0
+                          ? null
+                          : { backgroundColor: pnlColor(palette, month.pnl) }),
+                      }}
                     />
                   </View>
-                  <Text style={styles.monthLabel}>{monthShort(month.month)}</Text>
+                  <Text className="text-[8px] text-muted-foreground">
+                    {monthShort(month.month)}
+                  </Text>
                 </View>
               ))}
             </View>
             {wrapped.busiestMonth ? (
-              <Text style={styles.caption}>
+              <Text className="text-xs text-muted-foreground">
                 {t`Busiest month: ${monthShort(wrapped.busiestMonth.month)} with ${wrapped.busiestMonth.trades} trades.`}
               </Text>
             ) : null}
           </DashboardCard>
 
           <DashboardCard title={t`Your habits`} flush>
-            <View style={styles.grid}>
+            <View className="flex-row flex-wrap gap-2">
               {wrapped.topSymbols.map((symbol, index) => (
                 <StatBar
                   key={symbol.symbol}
@@ -320,7 +384,7 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
           </DashboardCard>
 
           <DashboardCard title={t`Bottom line`} flush>
-            <View style={styles.grid}>
+            <View className="flex-row flex-wrap gap-2">
               <StatBar
                 label={t`Profit factor`}
                 value={formatRatio(wrapped.profitFactor)}
@@ -339,8 +403,6 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
               />
             </View>
           </DashboardCard>
-        </>
-      )}
     </ScrollView>
   );
 }
@@ -348,11 +410,33 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
 /** Annual recap — swipeable years, one page each from MIN_YEAR to now. */
 export default function WrappedScreen() {
   const router = useRouter();
-  const currentYear = new Date().getFullYear();
-  const years = useMemo(() => yearsRange(currentYear), [currentYear]);
-  const initialIndex = years.length - 1;
-  const [index, setIndex] = useState(initialIndex);
+  const selectedAccountId = useSelectedAccountId();
+  // One fetch for the whole screen: the recap is computed client-side anyway,
+  // and the year list itself has to come from the trades.
+  const trades = useTrades(selectedAccountId ? { account_id: selectedAccountId } : {});
+  const years = useMemo(() => yearsWithTrades(trades.data ?? []), [trades.data]);
+  const initialIndex = Math.max(0, years.length - 1);
+  // Null until the trader pages: the list arrives after the first render, and
+  // the newest year is where the recap should open.
+  const [index, setIndex] = useState<number | null>(null);
+  const activeIndex = index != null && index < years.length ? index : initialIndex;
   const pagerRef = useRef<PagerView>(null);
+  // Measured here, once, and handed to every page. UIKit's automatic inset
+  // adjustment does not reach a scroll view nested in a pager (the same gap
+  // `usePagerBottomInset` covers at the bottom), so the pages pad by hand —
+  // but a page measuring on its own clock reads whatever bar happened to be
+  // on top when the pager got round to mounting it, and a year mounted while
+  // a large-title screen was still up padded itself 68pt too far.
+  const [headerHeight] = useState(useHeaderHeight());
+  // Measured rather than assumed: the strip's height is the rest of the pages'
+  // top inset, and it moves with the text size.
+  const [stripHeight, setStripHeight] = useState(0);
+  // Live pager position (page + drag offset) — what the dots animate against.
+  const progress = useSharedValue(0);
+  const onPageScroll = usePagerScrollHandler((event) => {
+    'worklet';
+    progress.value = event.position + event.offset;
+  });
 
   const selectIndex = (next: number) => {
     const clamped = Math.max(0, Math.min(years.length - 1, next));
@@ -360,7 +444,7 @@ export default function WrappedScreen() {
     pagerRef.current?.setPage(clamped);
   };
 
-  const shareYear = years[index]!;
+  const shareYear = years[activeIndex];
   return (
     <>
       <Stack.Screen
@@ -375,109 +459,103 @@ export default function WrappedScreen() {
               onPress={() =>
                 router.push({
                   pathname: '/share-wrapped',
-                  params: { year: String(shareYear) },
+                  params: { year: String(shareYear ?? new Date().getFullYear()) },
                 })
               }
             />
           ),
         }}
       />
-      <View style={styles.root}>
-        <YearIndicator
-          years={years}
-          index={index}
-          currentYear={currentYear}
-          onSelect={selectIndex}
-        />
-        <PagerView
-          ref={pagerRef}
-          initialPage={initialIndex}
-          style={styles.pager}
-          onPageSelected={(event) => setIndex(event.nativeEvent.position)}
+      <View className="flex-1 bg-background">
+        {trades.isLoading && trades.data == null ? (
+          <View className="gap-4 p-4" style={{ paddingTop: headerHeight + 24 }}>
+            <Skeleton className={SKELETON_TALL} label={t`Loading your recap`} />
+            <Skeleton className={SKELETON_CARD} />
+          </View>
+        ) : trades.error && trades.data == null ? (
+          <View className="flex-1 justify-center p-4">
+            <ErrorState
+              error={trades.error}
+              onRetry={() => void trades.refetch()}
+              retrying={trades.isRefetching}
+            />
+          </View>
+        ) : years.length === 0 ? (
+          <View className="flex-1 justify-center p-4">
+            <EmptyState
+              title={t`No closed trades yet`}
+              systemImage="sparkles"
+              description={t`The recap appears once a year has closed trades.`}
+            />
+          </View>
+        ) : (
+          // Remounts when the set of years changes, so `initialPage` still
+          // lands on the newest one after the first fetch resolves.
+          <AnimatedPagerView
+            key={years.length}
+            ref={pagerRef}
+            initialPage={initialIndex}
+            style={FILL}
+            // The Reanimated event handler is a worklet id, not the JS callback
+            // the prop is typed for.
+            onPageScroll={onPageScroll as unknown as PagerViewProps['onPageScroll']}
+            onPageSelected={(event) => setIndex(event.nativeEvent.position)}
+          >
+            {years.map((year) => (
+              <View key={year} className="flex-1" collapsable={false}>
+                <WrappedYear
+                  year={year}
+                  trades={trades.data ?? []}
+                  topInset={headerHeight + stripHeight}
+                  refreshing={trades.isRefetching}
+                  onRefresh={() => void trades.refetch()}
+                />
+              </View>
+            ))}
+          </AnimatedPagerView>
+        )}
+        {/* Pinned over the pages, below the bar: one switcher for every page,
+            and it stays put while a year scrolls under it. No surface of its
+            own — a filled strip reads as a slab cutting the card behind it,
+            and these are small enough to sit straight on the content. */}
+        <View
+          className="absolute inset-x-0 z-10"
+          style={{ top: headerHeight }}
+          onLayout={(e) => setStripHeight(e.nativeEvent.layout.height)}
         >
-          {years.map((year, pageIndex) => (
-            <View key={year} style={styles.fill} collapsable={false}>
-              <WrappedYear year={year} active={Math.abs(pageIndex - index) <= 1} />
-            </View>
-          ))}
-        </PagerView>
+          <YearIndicator
+            years={years}
+            index={activeIndex}
+            progress={progress}
+            onSelect={selectIndex}
+          />
+        </View>
       </View>
     </>
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
-  root: { flex: 1, backgroundColor: theme.colors.background },
-  pager: { flex: 1 },
-  fill: { flex: 1 },
-  page: { backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  indicator: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.sm,
-    gap: theme.spacing.sm,
-    backgroundColor: theme.colors.background,
-  },
-  indicatorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  sideYear: {
-    minWidth: 56,
-    alignItems: 'center',
-    paddingVertical: theme.spacing.xs,
-  },
-  sideYearHidden: { opacity: 0 },
-  sideYearLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  yearLabel: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-    textAlign: 'center',
-    ...theme.numeric,
-  },
-  inProgress: { fontSize: 13, fontWeight: '400', color: theme.colors.mutedForeground },
-  dots: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  // Capsule chip dots — trade-form pager language, without a bordered track.
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  dotActive: {
-    width: 14,
-    backgroundColor: theme.colors.foreground,
-  },
-  pressed: { opacity: 0.6 },
-  hero: { alignItems: 'center', gap: theme.spacing.xs, paddingVertical: theme.spacing.sm },
-  heroValue: { fontSize: 34, fontWeight: '600', letterSpacing: -1, ...theme.numeric },
-  heroCaption: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  months: { flexDirection: 'row', gap: theme.spacing.xs, height: 96, alignItems: 'flex-end' },
-  monthCol: { flex: 1, alignItems: 'center', gap: 3, height: '100%' },
-  monthTrack: { flex: 1, width: '100%', justifyContent: 'flex-end' },
-  monthFill: { width: '100%', borderRadius: 3, borderCurve: 'continuous' },
-  monthLabel: { fontSize: 8, color: theme.colors.mutedForeground },
-  caption: { fontSize: 12, color: theme.colors.mutedForeground },
-  skeletonTall: { height: 180, borderRadius: theme.radius.lg + 4 },
-  skeletonCard: { height: 200, borderRadius: theme.radius.lg + 4 },
-  emptyHost: { minHeight: 320 },
-}));
+/**
+ * `onPageScroll` on the UI thread: the strip has to track the finger, and a JS
+ * callback firing at event rate would drive it a frame or two behind the page
+ * it is describing. (react-native-pager-view ships no Reanimated handler, so
+ * this is the documented useHandler/useEvent bridge.)
+ */
+function usePagerScrollHandler(handler: (event: PagerScrollEvent) => void) {
+  const { context, doDependenciesDiffer } = useHandler({ onPageScroll: handler }, []);
+  return useEvent<PagerScrollEvent>(
+    (event) => {
+      'worklet';
+      if (event.eventName.endsWith('onPageScroll')) handler(event);
+    },
+    ['onPageScroll'],
+    doDependenciesDiffer || context == null,
+  );
+}
+
+type PagerScrollEvent = { eventName: string; position: number; offset: number };
+
+const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
+
+/** `PagerView` is a native component, not one Uniwind styles by class. */
+const FILL = { flex: 1 } as const;

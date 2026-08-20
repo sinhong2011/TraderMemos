@@ -1,24 +1,37 @@
 import { useForm } from "@tanstack/react-form";
+import { Link } from "@tanstack/react-router";
+import type { LucideIcon } from "lucide-react";
 import {
   Building2,
+  ChevronRight,
   Check,
+  Crosshair,
   Download,
+  Hash,
+  Layers,
   LogOut,
   Pencil,
+  Percent,
   Plus,
-  Shield,
+  Repeat,
   Target,
   Tag,
+  TrendingDown,
   Upload,
   Wallet,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
+import { GoalProgressBar } from "@/components/GoalProgressBar";
+import { paceLabel, paceTone } from "@/components/AnnualGoalCard";
 import { LlmApiSettingsForm } from "@/components/LlmApiSettingsForm";
 import { ModeToggle } from "@/components/ModeToggle";
-import { FlexSyncButton } from "@/components/FlexSyncModal";
-import { PropRulesButton } from "@/components/PropRulesModal";
+import { Badge } from "@/components/reui/badge";
+import { flexSyncFailed } from "@/lib/api/flexSync";
+import { useFlexSyncConnections } from "@/lib/hooks/useFlexSync";
+import { ImportHistorySection } from "./import-history";
+import { Pill } from "@/components/Pill";
 import { Modal } from "@/components/Modal";
 import { AmountInput } from "@/components/AmountInput";
 import { DatePicker } from "@/components/DatePicker";
@@ -32,6 +45,9 @@ import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { ApiError, editableApiBaseUrl, getCustomApiBaseUrl, setBaseUrl } from "@/lib/api/client";
 import { applyParsedAppConfig, buildAppConfigExport, parseAppConfig } from "@/lib/appConfig";
+import { computeAnnualGoalProgress, ytdFiltersForYear } from "@/lib/annualGoal";
+import { cn } from "@/lib/cn";
+import { useSummary } from "@/lib/hooks/useAnalytics";
 import type { AnnualGoal, RiskRules } from "@/lib/api/settings";
 import {
   useCoachSettings,
@@ -69,8 +85,7 @@ import {
   useDisplayPrefs,
 } from "@/lib/displayPrefs";
 import {
-  activeRiskRuleEntries,
-  availableRiskRuleKeys,
+  RISK_RULE_DEFS,
   defaultAccountFormValues,
   defaultCashFormValues,
   defaultTagFormValues,
@@ -86,13 +101,13 @@ import {
   type RiskRuleKey,
 } from "@/lib/settingsFormSchema";
 import {
-  AccountRow,
   BtnGhost,
   BtnPrimary,
-  ClearTradesButton,
-  DeleteAccountButton,
   DeleteButton,
   FormError,
+  SettingsCard,
+  SettingsCardNote,
+  SettingsCardRow,
   SettingsInsetForm,
   SettingsPanelBody,
   SettingsGroup,
@@ -101,24 +116,12 @@ import {
   SettingsSection,
 } from "./settings-ui";
 
-function primaryAccountId(accounts: Account[]): string | undefined {
+export function primaryAccountId(accounts: Account[]): string | undefined {
   if (accounts.length === 0) return undefined;
   return [...accounts].sort((a, b) => a.created_at.localeCompare(b.created_at))[0]?.id;
 }
 
-function accountRecordDetail(tradeCount: number, cashCount: number): string {
-  const parts: string[] = [];
-  if (tradeCount > 0) {
-    parts.push(`${tradeCount} trade${tradeCount === 1 ? "" : "s"}`);
-  }
-  if (cashCount > 0) {
-    parts.push(`${cashCount} cash transaction${cashCount === 1 ? "" : "s"}`);
-  }
-  if (parts.length === 0) return "No trades or cash records on this account.";
-  return `Permanently deletes ${parts.join(" and ")}.`;
-}
-
-function ledgerBalance(account: Account, transactions: CashTransaction[]) {
+export function ledgerBalance(account: Account, transactions: CashTransaction[]) {
   // Funded equity base is the cash ledger only. Opening balance is seeded as the
   // first deposit when the account is created, so starting_balance is metadata.
   return transactions
@@ -126,7 +129,7 @@ function ledgerBalance(account: Account, transactions: CashTransaction[]) {
     .reduce((sum, t) => sum + t.amount, 0);
 }
 
-const POPULAR_BROKERS = [
+export const POPULAR_BROKERS = [
   "IBKR",
   "Webull",
   "Robinhood",
@@ -137,7 +140,7 @@ const POPULAR_BROKERS = [
   "Moomoo",
   "FUTU NIU NIU",
 ] as const;
-const OTHER_BROKER_VALUE = "__other__";
+export const OTHER_BROKER_VALUE = "__other__";
 
 const CASH_TYPE_OPTIONS = [
   { value: "deposit", label: "Deposit" },
@@ -163,9 +166,6 @@ export interface AccountsTabProps {
     base_currency: string;
     starting_balance: number;
   }) => Promise<void>;
-  onDeleteAccount: (id: string) => Promise<void>;
-  onUpdateAccount: (id: string, body: { name: string; broker: string }) => Promise<void>;
-  onClearAccountTrades: (id: string) => Promise<void>;
   cashTransactions: CashTransaction[];
   cashLoading: boolean;
   cashError: boolean;
@@ -195,9 +195,6 @@ export function AccountsTab({
   accountsLoading,
   accountsError,
   onCreateAccount,
-  onDeleteAccount,
-  onUpdateAccount,
-  onClearAccountTrades,
   cashTransactions,
   cashLoading,
   cashError,
@@ -207,19 +204,17 @@ export function AccountsTab({
 }: AccountsTabProps) {
   usePrivacyMode();
   const toast = useToastManager();
+  // One request for all accounts' sync state: drives the per-row status pill
+  // and keeps the IBKR-sync affordance off accounts that have no connection.
+  const flexConnections = useFlexSyncConnections();
+  const connByAccount = new Map(
+    (flexConnections.data ?? []).map((conn) => [conn.account_id, conn]),
+  );
   const [showAccountForm, setShowAccountForm] = useState(false);
   const [showCashForm, setShowCashForm] = useState(false);
   const [filterAccountId, setFilterAccountId] = useState<string | null>(null);
   const [accountFormError, setAccountFormError] = useState<string | null>(null);
-  const [accountDeleteError, setAccountDeleteError] = useState<string | null>(null);
-  const [accountEditError, setAccountEditError] = useState<string | null>(null);
-  const [clearTradesError, setClearTradesError] = useState<string | null>(null);
   const [cashFormError, setCashFormError] = useState<string | null>(null);
-  const [editAccountId, setEditAccountId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editBrokerChoice, setEditBrokerChoice] = useState<string>(POPULAR_BROKERS[0]);
-  const [editBrokerCustom, setEditBrokerCustom] = useState("");
-  const [editingAccount, setEditingAccount] = useState(false);
   const [editCashId, setEditCashId] = useState<string | null>(null);
   const [editCashType, setEditCashType] = useState("deposit");
   const [editCashAmount, setEditCashAmount] = useState("");
@@ -247,92 +242,6 @@ export function AccountsTab({
     }
     return totals;
   }, [trades]);
-  const cashCountByAccount = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const tx of cashTransactions) {
-      counts.set(tx.account_id, (counts.get(tx.account_id) ?? 0) + 1);
-    }
-    return counts;
-  }, [cashTransactions]);
-
-  async function handleClearAccountTrades(id: string) {
-    const name = accounts.find((account) => account.id === id)?.name ?? "Account";
-    setClearTradesError(null);
-    try {
-      await onClearAccountTrades(id);
-      toast.add({
-        title: "Trade history cleared",
-        description: `${name} — trades and executions removed.`,
-      });
-    } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Failed to clear trade history.";
-      setClearTradesError(message);
-      toast.add({ title: "Could not clear trades", description: message });
-    }
-  }
-
-  async function handleDeleteAccount(id: string) {
-    const name = accounts.find((account) => account.id === id)?.name ?? "Account";
-    setAccountDeleteError(null);
-    try {
-      await onDeleteAccount(id);
-      toast.add({ title: "Account deleted", description: name });
-    } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Failed to delete account.";
-      setAccountDeleteError(message);
-      toast.add({ title: "Could not delete account", description: message });
-    }
-  }
-
-  function startEditAccount(account: Account) {
-    setAccountEditError(null);
-    setEditAccountId(account.id);
-    setEditName(account.name);
-    const broker = account.broker.trim();
-    if (POPULAR_BROKERS.includes(broker as (typeof POPULAR_BROKERS)[number])) {
-      setEditBrokerChoice(broker);
-      setEditBrokerCustom("");
-    } else {
-      setEditBrokerChoice(OTHER_BROKER_VALUE);
-      setEditBrokerCustom(broker);
-    }
-  }
-
-  function cancelEditAccount() {
-    setAccountEditError(null);
-    setEditAccountId(null);
-    setEditName("");
-    setEditBrokerChoice(POPULAR_BROKERS[0]);
-    setEditBrokerCustom("");
-    setEditingAccount(false);
-  }
-
-  async function handleSaveAccount(id: string) {
-    const name = editName.trim();
-    const broker =
-      editBrokerChoice === OTHER_BROKER_VALUE ? editBrokerCustom.trim() : editBrokerChoice.trim();
-    if (!name) {
-      setAccountEditError("Account name is required.");
-      return;
-    }
-    if (!broker) {
-      setAccountEditError("Broker is required.");
-      return;
-    }
-    setEditingAccount(true);
-    setAccountEditError(null);
-    try {
-      await onUpdateAccount(id, { name, broker });
-      toast.add({ title: "Account updated", description: name });
-      cancelEditAccount();
-    } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Failed to update account.";
-      setAccountEditError(message);
-      toast.add({ title: "Could not update account", description: message });
-      setEditingAccount(false);
-    }
-  }
-
   async function handleDeleteCash(id: string) {
     try {
       await onDeleteCash(id);
@@ -478,30 +387,19 @@ export function AccountsTab({
         title="Accounts"
         description="Broker accounts used for trade grouping and filters."
         action={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              render={<a href="/connect" className="no-underline" />}
-            >
-              <Building2 size={13} strokeWidth={1.5} />
-              Connect broker
-            </Button>
-            <BtnGhost
-              onClick={() => {
-                setAccountFormError(null);
-                accountForm.reset({
-                  ...defaultAccountFormValues(),
-                  broker: POPULAR_BROKERS[0],
-                });
-                setShowAccountForm(true);
-              }}
-            >
-              <Plus size={13} strokeWidth={1.5} />
-              Add account
-            </BtnGhost>
-          </div>
+          <BtnGhost
+            onClick={() => {
+              setAccountFormError(null);
+              accountForm.reset({
+                ...defaultAccountFormValues(),
+                broker: POPULAR_BROKERS[0],
+              });
+              setShowAccountForm(true);
+            }}
+          >
+            <Plus size={13} strokeWidth={1.5} />
+            Add account
+          </BtnGhost>
         }
       >
         <Modal
@@ -710,7 +608,7 @@ export function AccountsTab({
                 <Button
                   type="button"
                   size="sm"
-                  render={<a href="/connect" className="no-underline" />}
+                  render={<Link to="/connect" className="no-underline" />}
                 >
                   <Building2 size={13} strokeWidth={1.5} />
                   Connect broker
@@ -721,158 +619,84 @@ export function AccountsTab({
         ) : (
           <>
             <div className="flex flex-col gap-3">
-              {accountDeleteError ? (
-                <p className="text-[11px] text-destructive">{accountDeleteError}</p>
-              ) : null}
-              {accountEditError ? (
-                <p className="text-[11px] text-destructive">{accountEditError}</p>
-              ) : null}
-              {clearTradesError ? (
-                <p className="text-[11px] text-destructive">{clearTradesError}</p>
-              ) : null}
               <div className="flex flex-col gap-2">
                 {accounts.map((acc) => {
                   const balance = ledgerBalance(acc, cashTransactions);
                   const isPrimary = acc.id === primaryId;
-                  const isOnlyAccount = accounts.length === 1;
                   const tradeCount = tradeCountByAccount.get(acc.id) ?? 0;
                   const netPnl = netPnlByAccount.get(acc.id) ?? 0;
-                  const cashCount = cashCountByAccount.get(acc.id) ?? 0;
                   const locale = intlLocale();
-                  const depositedLabel = fmtMoney(balance, acc.base_currency, locale);
                   const equity = balance + netPnl;
-                  const equityLabel = fmtMoney(equity, acc.base_currency, locale);
-                  const realizedPnlLabel = fmtSignedMoney(netPnl, acc.base_currency, locale);
-                  const pnlPctLabel =
-                    balance !== 0
-                      ? (netPnl / balance).toLocaleString(locale, {
-                          style: "percent",
-                          maximumFractionDigits: 2,
-                          signDisplay: "exceptZero",
-                        })
-                      : "—";
+                  const conn = connByAccount.get(acc.id);
+                  const metaParts = [
+                    acc.broker || null,
+                    acc.base_currency || null,
+                    tradeCount > 0
+                      ? `${tradeCount} ${tradeCount === 1 ? "trade" : "trades"}`
+                      : null,
+                  ].filter(Boolean);
                   return (
-                    <AccountRow
+                    <Link
                       key={acc.id}
-                      name={acc.name}
-                      broker={acc.broker}
-                      accountType={acc.account_type}
-                      currency={acc.base_currency}
-                      depositedLabel={depositedLabel}
-                      equityLabel={equityLabel}
-                      realizedPnlLabel={realizedPnlLabel}
-                      pnlPctLabel={pnlPctLabel}
-                      tradeCount={tradeCount}
-                      netPnl={netPnl}
-                      isPrimary={isPrimary}
-                      headerAction={
-                        <div className="flex flex-wrap items-center justify-end gap-1.5">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon-sm"
-                            aria-label={`Edit ${acc.name}`}
-                            title="Edit account"
-                            onClick={() => startEditAccount(acc)}
-                            disabled={editingAccount}
-                            className="border-border bg-transparent text-foreground hover:bg-accent"
-                          >
-                            <Pencil size={14} strokeWidth={1.5} />
-                          </Button>
-                          <DeleteAccountButton
-                            accountName={acc.name}
-                            detail={accountRecordDetail(tradeCount, cashCount)}
-                            onDelete={() => void handleDeleteAccount(acc.id)}
-                            disabled={isOnlyAccount}
-                            disabledReason="Add another account before deleting this one"
-                          />
-                        </div>
-                      }
-                      footerActions={
-                        <>
-                          {acc.account_type === "prop" ? (
-                            <PropRulesButton accountId={acc.id} accountName={acc.name} />
+                      to="/accounts/$accountId"
+                      params={{ accountId: acc.id }}
+                      className="group flex items-center gap-3 rounded-lg border border-border px-4 py-3 no-underline transition-colors duration-150 hover:bg-accent/40 motion-reduce:transition-none"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="truncate text-[14px] font-semibold tracking-tight text-foreground">
+                            {acc.name}
+                          </span>
+                          {isPrimary ? <Pill tone="amber">Primary</Pill> : null}
+                          {conn ? (
+                            <Badge
+                              variant={
+                                flexSyncFailed(conn)
+                                  ? "destructive-light"
+                                  : conn.enabled
+                                    ? "success-light"
+                                    : "secondary"
+                              }
+                            >
+                              {flexSyncFailed(conn)
+                                ? "Sync failing"
+                                : conn.enabled
+                                  ? "Sync on"
+                                  : "Sync off"}
+                            </Badge>
                           ) : null}
-                          <FlexSyncButton accountId={acc.id} accountName={acc.name} />
-
-                          <ClearTradesButton
-                            accountName={acc.name}
-                            tradeCount={tradeCount}
-                            onClear={() => void handleClearAccountTrades(acc.id)}
-                          />
-                        </>
-                      }
-                    />
+                        </div>
+                        <p className="m-0 mt-0.5 text-[12px] text-muted-foreground">
+                          {metaParts.join(" · ")}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="m-0 text-[14px] font-semibold tabular-nums tracking-tight text-foreground">
+                          {fmtMoney(equity, acc.base_currency, locale)}
+                        </p>
+                        <p
+                          className={cn(
+                            "m-0 text-[12px] font-medium tabular-nums",
+                            netPnl > 0
+                              ? "text-profit"
+                              : netPnl < 0
+                                ? "text-destructive"
+                                : "text-muted-foreground",
+                          )}
+                        >
+                          {fmtSignedMoney(netPnl, acc.base_currency, locale)}
+                        </p>
+                      </div>
+                      <ChevronRight
+                        size={16}
+                        strokeWidth={1.75}
+                        className="shrink-0 text-muted-foreground transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none"
+                      />
+                    </Link>
                   );
                 })}
               </div>
             </div>
-            <Modal
-              open={Boolean(editAccountId)}
-              onOpenChange={(open) => {
-                if (!open) cancelEditAccount();
-              }}
-              title="Edit account"
-              className="max-w-[min(500px,94vw)]"
-              footer={
-                <>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={cancelEditAccount}
-                    disabled={editingAccount}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      if (editAccountId) void handleSaveAccount(editAccountId);
-                    }}
-                    disabled={editingAccount}
-                  >
-                    {editingAccount ? "Saving…" : "Save"}
-                  </Button>
-                </>
-              }
-            >
-              <div className="flex flex-col gap-3">
-                <Field label="Account name" htmlFor="edit-account-name">
-                  <FormInput
-                    id="edit-account-name"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    placeholder="e.g. Main Account"
-                  />
-                </Field>
-                <Field label="Broker">
-                  <NativeSelect
-                    value={editBrokerChoice}
-                    onChange={(e) => setEditBrokerChoice(e.target.value)}
-                    aria-label="Broker"
-                    wrapperClassName="w-full"
-                  >
-                    {POPULAR_BROKERS.map((broker) => (
-                      <NativeSelectOption key={broker} value={broker}>
-                        {broker}
-                      </NativeSelectOption>
-                    ))}
-                    <NativeSelectOption value={OTHER_BROKER_VALUE}>Other</NativeSelectOption>
-                  </NativeSelect>
-                </Field>
-                {editBrokerChoice === OTHER_BROKER_VALUE ? (
-                  <Field label="Custom broker" htmlFor="edit-account-broker">
-                    <FormInput
-                      id="edit-account-broker"
-                      value={editBrokerCustom}
-                      onChange={(e) => setEditBrokerCustom(e.target.value)}
-                      placeholder="Type broker name"
-                    />
-                  </Field>
-                ) : null}
-              </div>
-              {accountEditError ? <FormError message={accountEditError} /> : null}
-            </Modal>
           </>
         )}
       </SettingsSection>
@@ -1166,6 +990,7 @@ export function AccountsTab({
           <FormError message={editCashError} />
         </div>
       </Modal>
+      <ImportHistorySection accounts={accounts} />
     </>
   );
 }
@@ -1194,10 +1019,22 @@ export interface RulesTabProps {
   onSaveChecklist: (body: { items?: string[]; content: string }) => Promise<void>;
 }
 
-type RuleModalState =
-  | { open: false }
-  | { open: true; mode: "add" }
-  | { open: true; mode: "edit"; key: RiskRuleKey };
+type RuleModalState = { open: false } | { open: true; mode: "set" | "edit"; key: RiskRuleKey };
+
+const RISK_RULE_ICONS: Record<RiskRuleKey, LucideIcon> = {
+  max_risk_per_trade: Crosshair,
+  max_daily_loss: TrendingDown,
+  max_open_risk: Layers,
+  max_trades_per_day: Hash,
+  max_consecutive_losses: Repeat,
+  default_account_risk_pct: Percent,
+};
+
+/** Bare counts read as orphans ("3") — count rules carry their unit word. */
+const RISK_RULE_COUNT_UNITS: Partial<Record<RiskRuleKey, string>> = {
+  max_trades_per_day: "trades",
+  max_consecutive_losses: "losses",
+};
 
 export function RulesTab({
   riskRules,
@@ -1218,14 +1055,16 @@ export function RulesTab({
   checklistSaving,
   onSaveChecklist,
 }: RulesTabProps) {
+  usePrivacyMode();
   const toast = useToastManager();
   const locale = intlLocale();
   const goalYear = annualGoal?.year ?? new Date().getFullYear();
+  const ytdFilters = useMemo(() => ytdFiltersForYear({}, goalYear), [goalYear]);
+  const ytdSummaryQ = useSummary(ytdFilters);
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [goalDraft, setGoalDraft] = useState("");
   const [goalError, setGoalError] = useState<string | null>(null);
   const [ruleModal, setRuleModal] = useState<RuleModalState>({ open: false });
-  const [ruleKey, setRuleKey] = useState<RiskRuleKey>("max_risk_per_trade");
   const [ruleValue, setRuleValue] = useState("");
   const [ruleError, setRuleError] = useState<string | null>(null);
 
@@ -1239,9 +1078,10 @@ export function RulesTab({
     setChecklistEditorKey((k) => k + 1);
   }, [checklistContent, checklistModalOpen]);
 
-  const activeRules = useMemo(() => activeRiskRuleEntries(riskRules), [riskRules]);
-  const availableKeys = useMemo(() => availableRiskRuleKeys(riskRules), [riskRules]);
-  const canAddRule = availableKeys.length > 0;
+  const goalProgress =
+    annualGoal?.amount != null && annualGoal.amount > 0 && ytdSummaryQ.data != null
+      ? computeAnnualGoalProgress(annualGoal.amount, ytdSummaryQ.data.net_pnl, goalYear)
+      : null;
 
   function closeRuleModal() {
     setRuleModal({ open: false });
@@ -1262,17 +1102,13 @@ export function RulesTab({
     setChecklistEditorKey((k) => k + 1);
   }
 
-  function openAddRule() {
-    const first = availableKeys[0];
-    if (!first) return;
-    setRuleKey(first);
+  function openSetRule(key: RiskRuleKey) {
     setRuleValue("");
     setRuleError(null);
-    setRuleModal({ open: true, mode: "add" });
+    setRuleModal({ open: true, mode: "set", key });
   }
 
   function openEditRule(key: RiskRuleKey, value: number) {
-    setRuleKey(key);
     setRuleValue(String(value));
     setRuleError(null);
     setRuleModal({ open: true, mode: "edit", key });
@@ -1291,7 +1127,8 @@ export function RulesTab({
   }
 
   async function handleSaveRule() {
-    const key = ruleModal.open && ruleModal.mode === "edit" ? ruleModal.key : ruleKey;
+    if (!ruleModal.open) return;
+    const key = ruleModal.key;
     const validation = validateRiskRuleValue(key, ruleValue);
     if (validation) {
       setRuleError(validation);
@@ -1305,7 +1142,7 @@ export function RulesTab({
     setRuleError(null);
     await persistRules(
       setRiskRuleValue(riskRules, key, parsed),
-      ruleModal.open && ruleModal.mode === "edit" ? "Rule updated" : "Rule added",
+      ruleModal.mode === "edit" ? "Rule updated" : "Rule set",
     );
   }
 
@@ -1377,189 +1214,232 @@ export function RulesTab({
     }
   }
 
-  const modalDef = riskRuleDef(ruleKey);
-  const modalTitle =
-    ruleModal.open && ruleModal.mode === "edit" ? "Edit risk rule" : "Add risk rule";
+  const modalDef = ruleModal.open ? riskRuleDef(ruleModal.key) : null;
+  const modalTitle = modalDef
+    ? `${ruleModal.open && ruleModal.mode === "edit" ? "Edit" : "Set"} ${modalDef.label}`
+    : "";
 
   return (
     <>
-      <SettingsSection
+      <SettingsCard
         title="Risk Rules"
-        description="Used by Check compliance on New Trade. Add only the limits you want enforced."
-        action={
-          <BtnGhost
-            onClick={openAddRule}
-            disabled={!canAddRule || riskRulesLoading || riskRulesSaving}
-          >
-            <Plus size={13} strokeWidth={1.5} />
-            Add rule
-          </BtnGhost>
-        }
+        description="Checked by Check compliance on New Trade. Only the limits you set are enforced."
       >
         {riskRulesLoading ? (
-          <SettingsPanelBody>
-            <ListSkeleton rows={3} />
-          </SettingsPanelBody>
+          <div className="px-5 py-3">
+            <ListSkeleton rows={4} />
+          </div>
         ) : riskRulesError ? (
-          <SettingsPanelBody>
-            <p className="text-[12px] text-destructive">Failed to load risk rules.</p>
-          </SettingsPanelBody>
-        ) : activeRules.length === 0 ? (
-          <SettingsPanelBody className="py-8">
-            <EmptyState
-              title="No risk rules yet"
-              hint="Add a limit — max risk per trade, daily loss, open risk, or account risk %."
-              icon={<Shield size={28} strokeWidth={1.5} />}
-            />
-          </SettingsPanelBody>
+          <SettingsCardNote tone="destructive">Failed to load risk rules.</SettingsCardNote>
         ) : (
-          <SettingsGroup>
-            {activeRules.map(({ key, value, def }, index) => (
-              <SettingsRow
-                key={key}
-                last={index === activeRules.length - 1}
-                primary={def.label}
-                secondary={def.detail}
-                actions={
+          RISK_RULE_DEFS.map((def) => {
+            const value = riskRules?.[def.key];
+            return (
+              <SettingsCardRow
+                key={def.key}
+                icon={RISK_RULE_ICONS[def.key]}
+                active={value != null}
+                label={def.label}
+                detail={def.detail}
+              >
+                {value != null ? (
                   <>
-                    <span className="text-[13px] font-medium tabular-nums text-foreground">
-                      {formatRiskRuleValue(key, value, locale)}
-                    </span>
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="soft"
                       size="sm"
                       aria-label={`Edit ${def.label}`}
                       disabled={riskRulesSaving}
-                      onClick={() => openEditRule(key, value)}
+                      onClick={() => openEditRule(def.key, value)}
+                      className="gap-1.5"
                     >
-                      Edit
+                      <span className="font-semibold tabular-nums text-foreground">
+                        {formatRiskRuleValue(def.key, value, locale)}
+                        {RISK_RULE_COUNT_UNITS[def.key] ? (
+                          <span className="ml-1 font-normal text-muted-foreground">
+                            {RISK_RULE_COUNT_UNITS[def.key]}
+                          </span>
+                        ) : null}
+                      </span>
+                      <Pencil
+                        size={12}
+                        strokeWidth={1.5}
+                        aria-hidden
+                        className="text-muted-foreground"
+                      />
                     </Button>
                     <DeleteButton
                       label={def.label}
                       disabled={riskRulesSaving}
-                      onDelete={() => void handleDeleteRule(key)}
+                      onDelete={() => void handleDeleteRule(def.key)}
                     />
                   </>
-                }
-              />
-            ))}
-          </SettingsGroup>
+                ) : (
+                  <>
+                    <span className="text-[12px] text-muted-foreground/70">Off</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      aria-label={`Set ${def.label}`}
+                      disabled={riskRulesSaving}
+                      onClick={() => openSetRule(def.key)}
+                    >
+                      Set
+                    </Button>
+                  </>
+                )}
+              </SettingsCardRow>
+            );
+          })
         )}
-      </SettingsSection>
+      </SettingsCard>
 
-      <SettingsSection
+      <SettingsCard
         title="Annual P&L Goal"
-        description={`Net P&L target for ${goalYear}. Shown on Home and Reports with YTD progress.`}
-        action={
-          <BtnGhost
-            onClick={openGoalModal}
-            disabled={annualGoalLoading || annualGoalSaving}
-            aria-label={annualGoal?.amount != null ? "Edit annual goal" : "Set annual goal"}
-          >
-            <Pencil size={13} strokeWidth={1.5} />
-            {annualGoal?.amount != null ? "Edit" : "Set goal"}
-          </BtnGhost>
-        }
+        description={`Net P&L target for ${goalYear}. Progress shows here and on Home and Reports.`}
       >
         {annualGoalLoading ? (
-          <SettingsPanelBody>
+          <div className="px-5 py-3">
             <ListSkeleton rows={1} />
-          </SettingsPanelBody>
+          </div>
         ) : annualGoalError ? (
-          <SettingsPanelBody>
-            <p className="text-[12px] text-destructive">Failed to load annual goal.</p>
-          </SettingsPanelBody>
+          <SettingsCardNote tone="destructive">Failed to load annual goal.</SettingsCardNote>
         ) : annualGoal?.amount == null ? (
-          <SettingsPanelBody className="py-8">
-            <EmptyState
-              title="No annual goal yet"
-              hint="Set a net P&L target for the year — progress appears on Home and Reports."
-              icon={<Target size={28} strokeWidth={1.5} />}
-            />
-          </SettingsPanelBody>
-        ) : (
-          <SettingsGroup>
-            <SettingsRow
-              last
-              primary={`${goalYear} target`}
-              secondary="User-level net P&L goal (respects account filter on Home/Reports)"
-              actions={
-                <>
-                  <span className="text-[13px] font-medium tabular-nums text-foreground">
-                    ${annualGoal.amount.toLocaleString(locale, { maximumFractionDigits: 2 })}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    aria-label="Edit annual goal"
-                    disabled={annualGoalSaving}
-                    onClick={openGoalModal}
-                  >
-                    Edit
-                  </Button>
-                  <DeleteButton
-                    label="annual goal"
-                    disabled={annualGoalSaving}
-                    onDelete={() => void handleClearGoal()}
-                  />
-                </>
-              }
-            />
-          </SettingsGroup>
-        )}
-      </SettingsSection>
-
-      <SettingsSection
-        title="Daily Checklist"
-        description="Trading rules and checklist items for New Note. Edit in a modal — task items appear when you create a daily log."
-        action={
-          <BtnGhost
-            onClick={openChecklistModal}
-            disabled={checklistLoading || checklistError}
-            aria-label="Edit checklist"
+          <SettingsCardRow
+            icon={Target}
+            label="No annual goal yet"
+            detail="Set a net P&L target for the year — progress appears on Home and Reports."
           >
-            <Pencil size={13} strokeWidth={1.5} />
-            Edit
-          </BtnGhost>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-label="Set annual goal"
+              disabled={annualGoalSaving}
+              onClick={openGoalModal}
+            >
+              Set goal
+            </Button>
+          </SettingsCardRow>
+        ) : (
+          <>
+            <SettingsCardRow
+              icon={Target}
+              active
+              label={`${goalYear} target`}
+              detail="User-level net P&L goal — respects the account filter on Home and Reports."
+            >
+              <Button
+                type="button"
+                variant="soft"
+                size="sm"
+                aria-label="Edit annual goal"
+                disabled={annualGoalSaving}
+                onClick={openGoalModal}
+                className="gap-1.5"
+              >
+                <span className="font-semibold tabular-nums text-foreground">
+                  {fmtMoney(annualGoal.amount, "USD", locale)}
+                </span>
+                <Pencil size={12} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />
+              </Button>
+              <DeleteButton
+                label="annual goal"
+                disabled={annualGoalSaving}
+                onDelete={() => void handleClearGoal()}
+              />
+            </SettingsCardRow>
+            {goalProgress ? (
+              <div className="flex flex-col gap-2 px-5 pb-2 pt-1 sm:pl-[70px]">
+                <GoalProgressBar
+                  progress={goalProgress.progress}
+                  className="h-3"
+                  aria-label="Annual goal progress"
+                />
+                <p className="m-0 text-[12px] text-muted-foreground">
+                  <span
+                    className={cn(
+                      "font-medium tabular-nums",
+                      goalProgress.ytdNetPnl > 0
+                        ? "text-profit"
+                        : goalProgress.ytdNetPnl < 0
+                          ? "text-destructive"
+                          : "text-muted-foreground",
+                    )}
+                  >
+                    {fmtSignedMoney(goalProgress.ytdNetPnl, "USD", locale)}
+                  </span>{" "}
+                  YTD ·{" "}
+                  <span className="tabular-nums">{Math.round(goalProgress.progressPct)}%</span> of
+                  goal ·{" "}
+                  <span className={paceTone(goalProgress.paceStatus)}>
+                    {paceLabel(goalProgress.paceStatus)}
+                  </span>
+                </p>
+              </div>
+            ) : null}
+          </>
+        )}
+      </SettingsCard>
+
+      <SettingsCard
+        title="Daily Checklist"
+        description="Trading rules for New Note — task items appear when you create a daily log."
+        action={
+          checklistItems.length > 0 || checklistContent.trim() ? (
+            <BtnGhost
+              onClick={openChecklistModal}
+              disabled={checklistLoading || checklistError}
+              aria-label="Edit checklist"
+            >
+              <Pencil size={13} strokeWidth={1.5} />
+              Edit
+            </BtnGhost>
+          ) : undefined
         }
       >
         {checklistLoading ? (
-          <SettingsPanelBody>
+          <div className="px-5 py-3">
             <ListSkeleton rows={3} />
-          </SettingsPanelBody>
+          </div>
         ) : checklistError ? (
-          <SettingsPanelBody>
-            <p className="text-[12px] text-destructive">Failed to load checklist template.</p>
-          </SettingsPanelBody>
+          <SettingsCardNote tone="destructive">Failed to load checklist template.</SettingsCardNote>
         ) : checklistItems.length === 0 && !checklistContent.trim() ? (
-          <SettingsPanelBody className="py-8">
-            <EmptyState
-              title="No checklist yet"
-              hint="Add rules and - [ ] items. They show up on New Note."
-              icon={<Check size={28} strokeWidth={1.5} />}
-            />
-          </SettingsPanelBody>
+          <SettingsCardRow
+            icon={Check}
+            label="No checklist yet"
+            detail="Add rules and - [ ] items — they show up on New Note."
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-label="Edit checklist"
+              onClick={openChecklistModal}
+            >
+              Create checklist
+            </Button>
+          </SettingsCardRow>
         ) : checklistItems.length > 0 ? (
-          <SettingsGroup>
+          <div className="flex flex-col px-5 py-1">
             {checklistItems.map((item, index) => (
-              <SettingsRow
-                key={`${item}-${index}`}
-                last={index === checklistItems.length - 1}
-                primary={item}
-              />
+              <div key={`${item}-${index}`} className="flex items-center gap-3 py-1.5">
+                <span
+                  aria-hidden
+                  className="size-4 shrink-0 rounded-[4px] border-[1.5px] border-muted-foreground/35"
+                />
+                <span className="min-w-0 text-[13px] text-foreground">{item}</span>
+              </div>
             ))}
-          </SettingsGroup>
+          </div>
         ) : (
-          <SettingsPanelBody>
-            <p className="text-[12px] text-muted-foreground">
-              Checklist text saved — add <code className="text-primary">- [ ]</code> items so they
-              appear on New Note.
-            </p>
-          </SettingsPanelBody>
+          <SettingsCardNote>
+            Checklist text saved — add <code className="text-primary">- [ ]</code> items so they
+            appear on New Note.
+          </SettingsCardNote>
         )}
-      </SettingsSection>
+      </SettingsCard>
 
       <Modal
         open={checklistModalOpen}
@@ -1622,70 +1502,47 @@ export function RulesTab({
             >
               Cancel
             </Button>
-            <Button
-              type="button"
-              disabled={
-                riskRulesSaving || (ruleModal.open && ruleModal.mode === "add" && !canAddRule)
-              }
-              onClick={() => void handleSaveRule()}
-            >
+            <Button type="button" disabled={riskRulesSaving} onClick={() => void handleSaveRule()}>
               {riskRulesSaving
                 ? "Saving…"
                 : ruleModal.open && ruleModal.mode === "edit"
                   ? "Save"
-                  : "Add rule"}
+                  : "Set rule"}
             </Button>
           </>
         }
       >
-        <div className="flex flex-col gap-3">
-          {ruleModal.open && ruleModal.mode === "add" ? (
-            <Field label="Rule type">
-              <NativeSelect
-                size="sm"
-                value={ruleKey}
-                onChange={(e) => setRuleKey(e.target.value as RiskRuleKey)}
-                aria-label="Rule type"
-                className="h-8 w-full text-[12px]"
-                wrapperClassName="w-full"
-              >
-                {availableKeys.map((key) => {
-                  const def = riskRuleDef(key);
-                  return (
-                    <NativeSelectOption key={key} value={key}>
-                      {def.label}
-                    </NativeSelectOption>
-                  );
-                })}
-              </NativeSelect>
+        {modalDef ? (
+          <div className="flex flex-col gap-3">
+            <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
+              {modalDef.detail}
+            </p>
+            <Field
+              label={
+                modalDef.unit === "%"
+                  ? "Value (%)"
+                  : modalDef.unit === "count"
+                    ? "Value (trades)"
+                    : "Value ($)"
+              }
+              htmlFor="risk-rule-value"
+              error={ruleError ?? undefined}
+            >
+              <AmountInput
+                id="risk-rule-value"
+                value={ruleValue}
+                onValueChange={(v) => {
+                  setRuleValue(v);
+                  if (ruleError) setRuleError(null);
+                }}
+                placeholder={modalDef.placeholder}
+                aria-label={modalDef.label}
+                className="w-full"
+                autoFocus
+              />
             </Field>
-          ) : (
-            <div className="flex flex-col gap-1">
-              <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
-                Rule type
-              </span>
-              <p className="m-0 text-[13px] font-medium text-foreground">{modalDef.label}</p>
-              <p className="m-0 text-[12px] text-muted-foreground">{modalDef.detail}</p>
-            </div>
-          )}
-          <Field
-            label={modalDef.unit === "%" ? "Value (%)" : "Value ($)"}
-            htmlFor="risk-rule-value"
-            error={ruleError ?? undefined}
-          >
-            <AmountInput
-              id="risk-rule-value"
-              value={ruleValue}
-              onValueChange={(v) => {
-                setRuleValue(v);
-                if (ruleError) setRuleError(null);
-              }}
-              placeholder={modalDef.placeholder}
-              aria-label={modalDef.label}
-              className="w-full"
-            />
-          </Field>
-        </div>
+          </div>
+        ) : null}
       </Modal>
 
       <Modal

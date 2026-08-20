@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
+import { cn } from 'panelui-native';
 import { useMemo } from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useTrades } from '@/api/hooks';
 import { InlineError } from '@/components/error-state';
@@ -12,7 +12,7 @@ import { t } from '@lingui/core/macro';
 import { formatPercent, useFormatters } from '@/lib/format';
 import { computePnlHeatmap } from '@/lib/pnl-heatmap';
 import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass } from '@/styles/pnl';
 
 /**
  * Heatmap cell-details form sheet: the cell's numbers over its trades.
@@ -20,7 +20,6 @@ import { pnlColor } from '@/styles/unistyles';
  * the sheet stays consistent with the grid (and the query is already cached).
  */
 export default function HeatmapCellScreen() {
-  const { theme } = useUnistyles();
   const params = useLocalSearchParams<{ day: string; hour: string }>();
   const day = Number(params.day);
   const hour = Number(params.hour);
@@ -58,17 +57,17 @@ export default function HeatmapCellScreen() {
     : '';
 
   return (
-    <ScrollView style={styles.page} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-2 p-4 pb-12">
+      <View className="flex-row items-baseline justify-between gap-3 px-1 pt-3">
+        <Text className="text-[17px] font-semibold text-foreground">{title}</Text>
         {cell ? (
-          <Text style={[styles.net, { color: pnlColor(theme.colors, cell.pnl) }]}>
+          <Text className={cn('text-[17px] font-semibold tabular-nums', pnlClass(cell.pnl))}>
             {money.format(cell.pnl)}
           </Text>
         ) : null}
       </View>
       {cell && cell.trades > 0 ? (
-        <Text style={styles.meta}>
+        <Text className="px-1 pb-2 text-xs text-muted-foreground tabular-nums">
           {t`${wins} wins · ${losses} losses`} ·{' '}
           {formatPercent(cell.trades > 0 ? wins / cell.trades : 0, 0)} ·{' '}
           {t`entries on the market clock`}
@@ -79,37 +78,10 @@ export default function HeatmapCellScreen() {
         // with nothing cached would otherwise claim the tapped cell is empty.
         <InlineError error={trades.error} onRetry={() => void trades.refetch()} />
       ) : items.length === 0 ? (
-        <Text style={styles.empty}>{t`No closed trades in this hour.`}</Text>
+        <Text className="px-1 text-[13px] text-muted-foreground">{t`No closed trades in this hour.`}</Text>
       ) : (
         items.map((trade) => <SwipeableTradeRow key={trade.id} trade={trade} />)
       )}
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.sm,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
-    paddingHorizontal: theme.spacing.xs,
-    paddingTop: theme.spacing.md,
-  },
-  title: { fontSize: 17, fontWeight: '600', color: theme.colors.foreground },
-  net: { fontSize: 17, fontWeight: '600', ...theme.numeric },
-  meta: {
-    fontSize: 12,
-    color: theme.colors.mutedForeground,
-    paddingHorizontal: theme.spacing.xs,
-    paddingBottom: theme.spacing.sm,
-    ...theme.numeric,
-  },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingHorizontal: theme.spacing.xs },
-}));

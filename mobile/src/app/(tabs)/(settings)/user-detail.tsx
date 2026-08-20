@@ -1,24 +1,19 @@
-import { LabeledContent, Section, Text as UIText, Toggle } from '@expo/ui/swift-ui';
-import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { Frame, Text } from 'panelui-native';
 import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
 
 import { queryKeys, useAdminUsers, useApiRequest, useMe } from '@/api/hooks';
 import type { AdminUser } from '@/api/types';
-import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsRow, SettingsSection, SettingsToggle, ValueText } from '@/components/settings-rows';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
-
-/** Matches the server's `auth.MinPasswordLen`. */
-const MIN_LENGTH = 10;
 
 /**
  * One account, from an owner's side: role, a password reset, and deletion.
@@ -27,7 +22,6 @@ const MIN_LENGTH = 10;
  * per-user GET, and coming here always means coming through the list.
  */
 export default function UserDetailScreen() {
-  const { theme } = useUnistyles();
   const { formatDate } = useFormatters();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -38,8 +32,6 @@ export default function UserDetailScreen() {
   const users = useAdminUsers(me.data?.is_admin ?? false);
   const user = (users.data ?? []).find((u) => u.id === id);
   const isSelf = user?.id === me.data?.id;
-
-  const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' as const });
 
   function refreshUsers() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers() });
@@ -64,25 +56,6 @@ export default function UserDetailScreen() {
     },
   });
 
-  const resetPassword = useMutation({
-    mutationFn: (next: string) =>
-      api<void>(`/admin/users/${id}/password`, {
-        method: 'POST',
-        body: { new_password: next },
-      }),
-    onSuccess: () => {
-      notify('success');
-      Alert.alert(
-        t`Password reset`,
-        t`${user?.email ?? ''} signs in with the new password. Their other devices are signed out.`,
-      );
-    },
-    onError: (err) => {
-      notify('error');
-      Alert.alert(t`Could not reset password`, errorMessage(err));
-    },
-  });
-
   const remove = useMutation({
     mutationFn: () => api<void>(`/admin/users/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
@@ -95,32 +68,6 @@ export default function UserDetailScreen() {
       Alert.alert(t`Could not delete user`, errorMessage(err));
     },
   });
-
-  function promptReset() {
-    // One value, so `Alert.prompt` rather than a pushed form — the settings
-    // idiom this app already uses for single-field edits. Plain text, not
-    // secure: an owner has to read the temporary password back to whoever
-    // they are resetting it for.
-    Alert.prompt(
-      t`Reset password`,
-      t`Sets a new password for ${user?.email ?? ''} without their current one.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Reset`,
-          onPress: (value?: string) => {
-            const next = value ?? '';
-            if (next.length < MIN_LENGTH) {
-              Alert.alert(t`Could not reset password`, t`Use at least ${MIN_LENGTH} characters.`);
-              return;
-            }
-            resetPassword.mutate(next);
-          },
-        },
-      ],
-      'plain-text',
-    );
-  }
 
   function confirmDelete() {
     // Deleting cascades their accounts, trades, notes and screenshots away.
@@ -138,75 +85,68 @@ export default function UserDetailScreen() {
 
   if (!user) {
     return (
-      <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <SettingsForm>
-          <Section>
-            <UIText modifiers={[secondary]}>
+      <SettingsForm>
+        <SettingsSection>
+          <Frame.Row>
+            <Text size="sm" muted className="flex-1">
               {users.isLoading ? t`Loading…` : t`This account no longer exists.`}
-            </UIText>
-          </Section>
-        </SettingsForm>
-      </AppHost>
+            </Text>
+          </Frame.Row>
+        </SettingsSection>
+      </SettingsForm>
     );
   }
 
   return (
-    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
+    <>
       <Stack.Screen options={{ title: user.email }} />
       <SettingsForm>
-        <Section title={t`Account`}>
-          <LabeledContent label={t`Username`}>
-            <UIText>{user.email}</UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Member since`}>
-            <UIText>{formatDate(user.created_at)}</UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Two-factor`}>
-            <UIText>{user.totp_enabled ? t`On` : t`Off`}</UIText>
-          </LabeledContent>
-        </Section>
+        <SettingsSection title={t`Account`}>
+          <SettingsRow label={t`Username`}>
+            <ValueText>{user.email}</ValueText>
+          </SettingsRow>
+          <SettingsRow label={t`Member since`}>
+            <ValueText>{formatDate(user.created_at)}</ValueText>
+          </SettingsRow>
+          <SettingsRow label={t`Two-factor`}>
+            <ValueText>{user.totp_enabled ? t`On` : t`Off`}</ValueText>
+          </SettingsRow>
+        </SettingsSection>
 
-        <Section
-          footer={
-            <UIText>
-              {isSelf
+        <SettingsSection
+          footer={isSelf
                 ? t`You are an owner. The last owner cannot be demoted — promote someone else first.`
                 : t`Owners can add, remove and reset every account on this server, including yours.`}
-            </UIText>
-          }
         >
-          <Toggle
+          <SettingsToggle
             label={t`Owner`}
-            isOn={user.is_admin}
-            onIsOnChange={(value) => setRole.mutate(value)}
+            value={user.is_admin}
+            onValueChange={(value) => setRole.mutate(value)}
           />
-        </Section>
+        </SettingsSection>
 
-        <Section
+        <SettingsSection
           title={t`Security`}
-          footer={<UIText>{t`A reset signs out that user's other devices.`}</UIText>}
+          footer={t`A reset signs out that user's other devices.`}
         >
           <NavRow
             systemImage="lock.rotation"
             label={t`Reset password`}
-            accessory="none"
-            onPress={promptReset}
+            onPress={() => router.push({ pathname: '/reset-password', params: { id } })}
           />
-        </Section>
+        </SettingsSection>
 
         {/* Your own account is deleted from nowhere — the server refuses it
             here, and the account screen owns the choices that are yours. */}
         {isSelf ? null : (
-          <Section>
-            <CenteredButton
-              role="destructive"
-              label={t`Delete user`}
-              disabled={remove.isPending}
-              onPress={confirmDelete}
-            />
-          </Section>
+          <CenteredButton
+            role="destructive"
+            label={t`Delete user`}
+            disabled={remove.isPending}
+            onPress={confirmDelete}
+          />
         )}
       </SettingsForm>
-    </AppHost>
+    </>
   );
 }

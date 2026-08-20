@@ -1,17 +1,15 @@
-import {
-  LabeledContent,
-  Picker,
-  Section,
-  Text as UIText,
-  Toggle,
-} from '@expo/ui/swift-ui';
-import { monospacedDigit, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts } from '@/api/hooks';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
+import {
+  NumericText,
+  SettingsPicker,
+  SettingsRow,
+  SettingsSection,
+  SettingsToggle,
+} from '@/components/settings-rows';
 import { t } from '@lingui/core/macro';
 import { useFormatters } from '@/lib/format';
 import {
@@ -35,7 +33,6 @@ import {
   type MarketTimezonePref,
   type TimezonePref,
 } from '@/lib/prefs';
-import { AppHost } from '@/components/app-host';
 
 /** Sentinel for the "follow account base currency" picker row. */
 const CURRENCY_BASE = '__base__';
@@ -69,7 +66,6 @@ export default function DisplaySettingsScreen() {
   // The preview reformats on every pref below — including privacy mode, which
   // only reaches it through these bound formatters (see lib/format.ts).
   const { formatCurrency, formatDate, formatTime } = useFormatters();
-  const { theme } = useUnistyles();
   const { data: accounts } = useAccounts();
 
   const baseCurrency = accountBaseCurrency(accounts);
@@ -96,149 +92,107 @@ export default function DisplaySettingsScreen() {
   }
 
   return (
-    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <SettingsForm>
-        {/* Live consequence of every setting below — amounts mask under privacy
-            mode, and the trading day drifts off the timestamp when the two
-            timezones disagree. */}
-        <Section
-          title={t`Preview`}
-          footer={
-            <UIText>{t`A sample amount and a late-session timestamp, rendered with the settings below.`}</UIText>
-          }
-        >
-          <LabeledContent label={t`Amount`}>
-            <UIText modifiers={[monospacedDigit()]}>
-              {formatCurrency(SAMPLE_AMOUNT, previewCurrency)}
-            </UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Timestamp`}>
-            <UIText modifiers={[monospacedDigit()]}>{`${formatDate(at)} · ${formatTime(at)}`}</UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Trading day`}>
-            <UIText modifiers={[monospacedDigit()]}>{marketDay}</UIText>
-          </LabeledContent>
-        </Section>
+    <SettingsForm>
+      {/* Live consequence of every setting below — amounts mask under privacy
+          mode, and the trading day drifts off the timestamp when the two
+          timezones disagree. */}
+      <SettingsSection
+        title={t`Preview`}
+        footer={t`A sample amount and a late-session timestamp, rendered with the settings below.`}
+      >
+        <SettingsRow label={t`Amount`}>
+          <NumericText>{formatCurrency(SAMPLE_AMOUNT, previewCurrency)}</NumericText>
+        </SettingsRow>
+        <SettingsRow label={t`Timestamp`}>
+          <NumericText>{`${formatDate(at)} · ${formatTime(at)}`}</NumericText>
+        </SettingsRow>
+        <SettingsRow label={t`Trading day`}>
+          <NumericText>{marketDay}</NumericText>
+        </SettingsRow>
+      </SettingsSection>
 
-        {/* Privacy and currency both answer "what does money look like", so they
-            share a section instead of each orphaning one row. */}
-        <Section
-          title={t`Amounts`}
-          footer={
-            <UIText>
-              {prefs.displayCurrency
-                ? t`Privacy mode hides amounts everywhere — stats and ratios stay visible. Read-only amounts convert with the latest FX rate; forms keep the account currency (${baseCurrency}).`
-                : t`Privacy mode hides amounts everywhere — stats and ratios stay visible. Amounts show in each account's own currency.`}
-            </UIText>
+      {/* Privacy and currency both answer "what does money look like", so they
+          share a section instead of each orphaning one row. */}
+      <SettingsSection
+        title={t`Amounts`}
+        footer={
+          prefs.displayCurrency
+            ? t`Privacy mode hides amounts everywhere — stats and ratios stay visible. Read-only amounts convert with the latest FX rate; forms keep the account currency (${baseCurrency}).`
+            : t`Privacy mode hides amounts everywhere — stats and ratios stay visible. Amounts show in each account's own currency.`
+        }
+      >
+        <SettingsToggle
+          label={t`Privacy mode`}
+          value={prefs.privacyMode}
+          onValueChange={(value) => setPrivacyMode(value)}
+        />
+        <SettingsPicker
+          label={t`Display currency`}
+          selectedValue={prefs.displayCurrency ?? CURRENCY_BASE}
+          onValueChange={(value) =>
+            setDisplayCurrency(value === CURRENCY_BASE ? null : (value as DisplayCurrencyCode))
           }
-        >
-          <Toggle
-            label={t`Privacy mode`}
-            isOn={prefs.privacyMode}
-            onIsOnChange={(value) => setPrivacyMode(value)}
-          />
-          <Picker
-            label={t`Display currency`}
-            modifiers={[pickerStyle('menu')]}
-            selection={prefs.displayCurrency ?? CURRENCY_BASE}
-            onSelectionChange={(value) =>
-              setDisplayCurrency(value === CURRENCY_BASE ? null : (value as DisplayCurrencyCode))
-            }
-          >
-            <UIText key={CURRENCY_BASE} modifiers={[tag(CURRENCY_BASE)]}>
-              {t`Account currency`}
-            </UIText>
-            {DISPLAY_CURRENCIES.map((code) => (
-              <UIText key={code} modifiers={[tag(code)]}>
-                {code}
-              </UIText>
-            ))}
-          </Picker>
-        </Section>
+          items={[
+            { label: t`Account currency`, value: CURRENCY_BASE },
+            ...DISPLAY_CURRENCIES.map((code) => ({ label: code, value: code })),
+          ]}
+        />
+      </SettingsSection>
 
-        {/* Both rows decide which calendar day a trade lands on. */}
-        <Section
-          title={t`Trading day`}
-          footer={
-            <UIText>{t`The market timezone defines the day — calendar cells, date filters, and hourly stats all follow it. Close date (last activity) matches realized P&L; open date groups by entry.`}</UIText>
-          }
-        >
-          <Picker
-            label={t`Market timezone`}
-            modifiers={[pickerStyle('menu')]}
-            selection={prefs.marketTimezone}
-            onSelectionChange={(value) => setMarketTimezone(value as MarketTimezonePref)}
-          >
-            {marketTimezoneOptions().map((option) => (
-              <UIText key={option.value} modifiers={[tag(option.value)]}>
-                {option.label}
-              </UIText>
-            ))}
-          </Picker>
-          <Picker
-            label={t`Trade lands on`}
-            modifiers={[pickerStyle('menu')]}
-            selection={prefs.tradeDateBasis}
-            onSelectionChange={(value) => setTradeDateBasis(value === 'open' ? 'open' : 'close')}
-          >
-            <UIText key="close" modifiers={[tag('close')]}>
-              {t`Close date`}
-            </UIText>
-            <UIText key="open" modifiers={[tag('open')]}>
-              {t`Open date`}
-            </UIText>
-          </Picker>
-        </Section>
+      {/* Both rows decide which calendar day a trade lands on. */}
+      <SettingsSection
+        title={t`Trading day`}
+        footer={t`The market timezone defines the day — calendar cells, date filters, and hourly stats all follow it. Close date (last activity) matches realized P&L; open date groups by entry.`}
+      >
+        <SettingsPicker
+          label={t`Market timezone`}
+          selectedValue={prefs.marketTimezone}
+          onValueChange={(value) => setMarketTimezone(value as MarketTimezonePref)}
+          items={marketTimezoneOptions()}
+        />
+        <SettingsPicker
+          label={t`Trade lands on`}
+          selectedValue={prefs.tradeDateBasis}
+          onValueChange={(value) => setTradeDateBasis(value === 'open' ? 'open' : 'close')}
+          items={[
+            { label: t`Close date`, value: 'close' },
+            { label: t`Open date`, value: 'open' },
+          ]}
+        />
+      </SettingsSection>
 
-        <Section
-          title={t`Clock`}
-          footer={
-            // Last section on the screen, so its footer also says which of the
-            // rows above travel with the account — this screen mixes both kinds.
-            <UIText>
-              {prefs.timezone === TIMEZONE_LOCAL
-                ? t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on ${resolveDisplayTimezone(TIMEZONE_LOCAL)}. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone.`
-                : t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone.`}
-            </UIText>
-          }
-        >
-          <Picker
-            label={t`Display timezone`}
-            modifiers={[pickerStyle('menu')]}
-            selection={prefs.timezone}
-            onSelectionChange={(value) => setTimezone(value as TimezonePref)}
-          >
-            {timezoneOptions().map((option) => (
-              <UIText key={option.value} modifiers={[tag(option.value)]}>
-                {option.label}
-              </UIText>
-            ))}
-          </Picker>
-          <Picker
-            label={t`Time format`}
-            modifiers={[pickerStyle('menu')]}
-            selection={prefs.timeFormat}
-            onSelectionChange={(value) => setTimeFormat(value === 'h23' ? 'h23' : 'h12')}
-          >
-            <UIText key="h12" modifiers={[tag('h12')]}>
-              {t`12-hour`}
-            </UIText>
-            <UIText key="h23" modifiers={[tag('h23')]}>
-              {t`24-hour`}
-            </UIText>
-          </Picker>
-        </Section>
+      <SettingsSection
+        title={t`Clock`}
+        footer={
+          // Last section on the screen, so its footer also says which of the
+          // rows above travel with the account — this screen mixes both kinds.
+          prefs.timezone === TIMEZONE_LOCAL
+            ? t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on ${resolveDisplayTimezone(TIMEZONE_LOCAL)}. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone.`
+            : t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone.`
+        }
+      >
+        <SettingsPicker
+          label={t`Display timezone`}
+          selectedValue={prefs.timezone}
+          onValueChange={(value) => setTimezone(value as TimezonePref)}
+          items={timezoneOptions()}
+        />
+        <SettingsPicker
+          label={t`Time format`}
+          selectedValue={prefs.timeFormat}
+          onValueChange={(value) => setTimeFormat(value === 'h23' ? 'h23' : 'h12')}
+          items={[
+            { label: t`12-hour`, value: 'h12' },
+            { label: t`24-hour`, value: 'h23' },
+          ]}
+        />
+      </SettingsSection>
 
-        {isDefaultDisplayPrefs(prefs) ? null : (
-          <Section>
-            <CenteredButton
-              role="destructive"
-              label={t`Reset to defaults`}
-              onPress={confirmReset}
-            />
-          </Section>
-        )}
-      </SettingsForm>
-    </AppHost>
+      {/* Standalone action, not a row: a filled button inside a section card
+          would fill the card edge to edge and read as a red panel. */}
+      {isDefaultDisplayPrefs(prefs) ? null : (
+        <CenteredButton role="destructive" label={t`Reset to defaults`} onPress={confirmReset} />
+      )}
+    </SettingsForm>
   );
 }

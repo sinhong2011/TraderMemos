@@ -256,6 +256,8 @@ type RiskRule struct {
 	MaxOpenRisk           sql.NullFloat64 `json:"max_open_risk"`
 	DefaultAccountRiskPct sql.NullFloat64 `json:"default_account_risk_pct"`
 	UpdatedAt             time.Time       `json:"updated_at"`
+	MaxTradesPerDay       sql.NullInt64   `json:"max_trades_per_day"`
+	MaxConsecutiveLosses  sql.NullInt64   `json:"max_consecutive_losses"`
 }
 
 type Setup struct {

@@ -1,7 +1,7 @@
 import { useForm } from '@tanstack/react-form';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
+import { Alert, Button, Card, Input, OtpInput } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -11,13 +11,15 @@ import {
   Pressable,
   ScrollView,
   StyleSheet as RNStyleSheet,
-  Text,
   TextInput,
+  Text,
   useWindowDimensions,
   View,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCSSVariable } from 'uniwind';
 
+import { Icon } from '@/components/icon';
 import { ApiError, login, ping } from '@/api/client';
 import { PasswordInput } from '@/components/password-input';
 import { loadServerUrl, normalizeServerUrl, useSession } from '@/api/session';
@@ -38,10 +40,18 @@ function AuthGridPattern() {
   return (
     <View style={RNStyleSheet.absoluteFill}>
       {Array.from({ length: cols }, (_, i) => (
-        <View key={`v${i}`} style={[styles.gridLineV, { left: (i + 1) * GRID_CELL }]} />
+        <View
+          key={`v${i}`}
+          className="absolute bottom-0 top-0 bg-border opacity-40"
+          style={{ left: (i + 1) * GRID_CELL, width: RNStyleSheet.hairlineWidth }}
+        />
       ))}
       {Array.from({ length: rows }, (_, i) => (
-        <View key={`h${i}`} style={[styles.gridLineH, { top: (i + 1) * GRID_CELL }]} />
+        <View
+          key={`h${i}`}
+          className="absolute left-0 right-0 bg-border opacity-40"
+          style={{ top: (i + 1) * GRID_CELL, height: RNStyleSheet.hairlineWidth }}
+        />
       ))}
     </View>
   );
@@ -51,12 +61,17 @@ function AuthGridPattern() {
 type Probe = { url: string; state: 'checking' | 'reachable' | 'unreachable' };
 
 export default function LoginScreen() {
-  const { theme } = useUnistyles();
   const router = useRouter();
+  const [primary] = useCSSVariable(['--color-primary']) as [string];
   // iPad (and landscape phones) get a centered column instead of an edge-to-edge
   // form — a 1024pt-wide input row reads as a broken layout, not a sign-in card.
   const { width: windowWidth } = useWindowDimensions();
   const wide = windowWidth >= 600;
+  // `contentInsetAdjustmentBehavior` is UIKit-only, and this screen carries no
+  // header to inset against. Android draws edge-to-edge, so without an explicit
+  // pad the app icon renders at y=0 — behind the status bar, and on a Pixel
+  // behind the camera cutout itself.
+  const insets = useSafeAreaInsets();
   const { signIn } = useSession();
   const [error, setError] = useState<string | null>(null);
 
@@ -164,205 +179,196 @@ export default function LoginScreen() {
   }, []);
 
   return (
-    <View style={styles.page}>
+    <View className="flex-1 bg-background">
       <View pointerEvents="none" style={RNStyleSheet.absoluteFill}>
         <AuthGridPattern />
-        <View style={styles.glow} />
+        <View
+          style={[
+            RNStyleSheet.absoluteFill,
+            {
+              experimental_backgroundImage:
+                'radial-gradient(circle at 50% 18%, rgba(4, 144, 200, 0.10) 0%, rgba(4, 144, 200, 0) 45%)',
+            },
+          ]}
+        />
       </View>
 
       <KeyboardAvoidingView
-        style={styles.flex}
+        className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={[styles.content, wide && styles.contentWide]}
+          contentContainerClassName={wide ? 'p-4 grow justify-center py-6' : 'p-4'}
+          contentContainerStyle={
+            Platform.OS === 'android'
+              ? { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }
+              : undefined
+          }
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.column}>
-            <View style={styles.identity}>
+          {/* Fields track the reading measure, not the screen — an iPad-wide
+              input row is unusable and reads as a layout bug. */}
+          <View className="w-full max-w-[420px] self-center gap-4">
+            <View className="items-center gap-2 pt-6">
               <Image
                 source={require('../../assets/images/icon.png')}
-                style={styles.appIcon}
+                // iOS icon corner ratio (~22.4%) so the mark reads as an app
+                // icon, not a photo.
+                style={{ width: 56, height: 56, borderRadius: 12.5 }}
                 accessibilityIgnoresInvertColors
               />
-              <Text style={styles.wordmark}>TraderMemos</Text>
+              <Text className="text-base font-semibold text-foreground">TraderMemos</Text>
             </View>
 
             {/* Title block stays left-aligned with the form column. */}
-            <View style={styles.intro}>
-              <Text style={styles.title}>{t`Sign in`}</Text>
-              <Text style={styles.subtitle}>{t`Connect to your TraderMemos server.`}</Text>
+            <View className="gap-1 pt-2">
+              <Text className="text-[28px] font-bold text-foreground">{t`Sign in`}</Text>
+              <Text className="text-[15px] text-muted-foreground">{t`Connect to your TraderMemos server.`}</Text>
             </View>
 
             {/* There is no TraderMemos cloud to sign up for, and nothing below
                 makes sense until that is said. First-run reads this before it
-                reaches a field it cannot fill. */}
-            <View style={styles.notice}>
-              <View style={styles.noticeIcon}>
-                <SymbolView
-                  name="externaldrive.badge.wifi"
-                  size={17}
-                  tintColor={theme.colors.primary}
-                />
-              </View>
-              <View style={styles.noticeBody}>
-                <Text style={styles.noticeTitle}>{t`You bring the server`}</Text>
-                <Text style={styles.noticeText}>
-                  {t`TraderMemos is self-hosted: this app is the client for a server you run, and every screen in it comes from that server.`}
-                </Text>
-                <Pressable
-                  onPress={() => void Linking.openURL(DOCS_URL)}
-                  accessibilityRole="link"
-                  style={({ pressed }) => [styles.noticeLinkRow, pressed && styles.pressed]}
-                >
-                  <Text style={styles.noticeLink}>{t`How to set one up`}</Text>
-                  <SymbolView
-                    name="arrow.up.forward"
-                    size={11}
-                    tintColor={theme.colors.primary}
-                  />
-                </Pressable>
-              </View>
-            </View>
+                reaches a field it cannot fill. Explainer, not an alert: card
+                surface with a brand-tinted glyph well, no warning color. */}
+            <Card>
+              <Card.Content className="flex-row gap-3 p-4">
+                <View className="h-[34px] w-[34px] items-center justify-center rounded-md bg-fill">
+                  <Icon name="externaldrive.badge.wifi" size={17} tintColor={primary} />
+                </View>
+                <View className="flex-1 gap-1">
+                  <Text className="text-[15px] font-semibold text-foreground">{t`You bring the server`}</Text>
+                  <Text className="text-[13px] leading-[18px] text-muted-foreground">
+                    {t`TraderMemos is self-hosted: this app is the client for a server you run, and every screen in it comes from that server.`}
+                  </Text>
+                  <Pressable
+                    onPress={() => void Linking.openURL(DOCS_URL)}
+                    accessibilityRole="link"
+                    className="flex-row items-center gap-1 pt-1 active:opacity-60"
+                  >
+                    <Text className="text-[13px] font-semibold text-primary">{t`How to set one up`}</Text>
+                    <Icon name="arrow.up.forward" size={11} tintColor={primary} />
+                  </Pressable>
+                </View>
+              </Card.Content>
+            </Card>
 
-            <View style={styles.fields}>
-              <View style={styles.field}>
-                <View style={styles.labelRow}>
-                  <Text style={styles.label}>{t`Server address`}</Text>
+            <View className="gap-4">
+              <View className="gap-2">
+                {/* The label and its verdict share a baseline — the status
+                    belongs to the field, not the page, so it never becomes
+                    another banner. */}
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-base font-semibold text-foreground">{t`Server address`}</Text>
                   <ProbeChip probe={probe} />
                 </View>
                 <form.Field name="serverUrl">
                   {(field) => (
-                    <View style={styles.inputShell}>
-                      <TextInput
-                        value={field.state.value}
-                        onChangeText={field.handleChange}
-                        onBlur={() => void checkServer(field.state.value)}
-                        placeholder="https://trades.example.com"
-                        placeholderTextColor={theme.colors.mutedForeground}
-                        keyboardType="url"
-                        textContentType="URL"
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        returnKeyType="next"
-                        onSubmitEditing={() => {
-                          void checkServer(field.state.value);
-                          usernameRef.current?.focus();
-                        }}
-                        style={styles.input}
-                      />
-                    </View>
+                    <Input
+                      variant="filled"
+                      value={field.state.value}
+                      onChangeText={field.handleChange}
+                      onBlur={() => void checkServer(field.state.value)}
+                      placeholder="https://trades.example.com"
+                      description={t`Origin only — the app adds /api/v1 itself.`}
+                      keyboardType="url"
+                      textContentType="URL"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      returnKeyType="next"
+                      onSubmitEditing={() => {
+                        void checkServer(field.state.value);
+                        usernameRef.current?.focus();
+                      }}
+                      className="min-h-[52px] rounded-3xl border-0 text-[17px]"
+                    />
                   )}
                 </form.Field>
-                <Text style={styles.hint}>
-                  {t`Origin only — the app adds /api/v1 itself.`}
-                </Text>
               </View>
 
-              <View style={styles.field}>
-                <Text style={styles.label}>{t`Username`}</Text>
+              <View className="gap-2">
+                <Text className="text-base font-semibold text-foreground">{t`Username`}</Text>
                 <form.Field name="username">
                   {(field) => (
-                    <View style={styles.inputShell}>
-                      <TextInput
-                        ref={usernameRef}
-                        value={field.state.value}
-                        onChangeText={field.handleChange}
-                        placeholder={t`Enter your username`}
-                        placeholderTextColor={theme.colors.mutedForeground}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        textContentType="username"
-                        returnKeyType="next"
-                        onSubmitEditing={() => passwordRef.current?.focus()}
-                        style={styles.input}
-                      />
-                    </View>
+                    <Input
+                      ref={usernameRef}
+                      variant="filled"
+                      value={field.state.value}
+                      onChangeText={field.handleChange}
+                      placeholder={t`Enter your username`}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      textContentType="username"
+                      returnKeyType="next"
+                      onSubmitEditing={() => passwordRef.current?.focus()}
+                      className="min-h-[52px] rounded-3xl border-0 text-[17px]"
+                    />
                   )}
                 </form.Field>
               </View>
-              <View style={styles.field}>
-                <Text style={styles.label}>{t`Password`}</Text>
+              <View className="gap-2">
+                <Text className="text-base font-semibold text-foreground">{t`Password`}</Text>
                 <form.Field name="password">
                   {(field) => (
-                    <View style={styles.inputShell}>
-                      <PasswordInput
-                        ref={passwordRef}
-                        value={field.state.value}
-                        onChangeText={field.handleChange}
-                        placeholder={t`Enter your password`}
-                        onSubmitEditing={() => void form.handleSubmit()}
-                        returnKeyType="go"
-                      />
-                    </View>
+                    <PasswordInput
+                      ref={passwordRef}
+                      value={field.state.value}
+                      onChangeText={field.handleChange}
+                      placeholder={t`Enter your password`}
+                      onSubmitEditing={() => void form.handleSubmit()}
+                      returnKeyType="go"
+                    />
                   )}
                 </form.Field>
               </View>
             </View>
 
             {needsTotp ? (
-              <View style={styles.card}>
-                <View style={styles.field}>
-                  <Text style={styles.label}>{t`Authenticator code`}</Text>
-                  <form.Field name="totpCode">
-                    {(field) => (
-                      <View style={styles.inputShell}>
-                        <TextInput
-                          ref={totpRef}
-                          value={field.state.value}
-                          onChangeText={field.handleChange}
-                          placeholder={t`6-digit code`}
-                          placeholderTextColor={theme.colors.mutedForeground}
-                          keyboardType="number-pad"
-                          // iOS fills this straight from the Passwords app.
-                          textContentType="oneTimeCode"
-                          autoComplete="one-time-code"
-                          maxLength={6}
-                          onSubmitEditing={() => void form.handleSubmit()}
-                          returnKeyType="go"
-                          style={styles.input}
-                        />
-                      </View>
-                    )}
-                  </form.Field>
-                </View>
+              <View className="gap-2">
+                <Text className="text-base font-semibold text-foreground">{t`Authenticator code`}</Text>
+                <form.Field name="totpCode">
+                  {(field) => (
+                    // One cell per digit; the hidden field carries the
+                    // one-time-code autofill, so iOS still fills it straight
+                    // from the Passwords app.
+                    <OtpInput
+                      ref={totpRef}
+                      className="items-center"
+                      value={field.state.value}
+                      onChangeText={field.handleChange}
+                      onComplete={() => void form.handleSubmit()}
+                      accessibilityLabel={t`Authenticator code`}
+                    />
+                  )}
+                </form.Field>
               </View>
             ) : null}
 
             {error ? (
-              <View style={[styles.card, styles.alert]}>
-                <SymbolView
-                  name="exclamationmark.circle"
-                  size={18}
-                  tintColor={theme.colors.destructive}
-                />
-                <Text selectable style={styles.alertText}>
-                  {error}
-                </Text>
-              </View>
+              <Alert variant="destructive">
+                <Alert.Indicator />
+                <Alert.Content>
+                  <Alert.Description selectable>{error}</Alert.Description>
+                </Alert.Content>
+              </Alert>
             ) : null}
 
             <form.Subscribe selector={(state) => state.isSubmitting}>
               {(submitting) => (
-                <Pressable
+                <Button
+                  size="md"
+                  className="rounded-3xl"
+                  fullWidth
+                  loading={submitting}
                   onPress={() => void form.handleSubmit()}
-                  disabled={submitting}
-                  accessibilityRole="button"
-                  accessibilityState={{ busy: submitting }}
-                  style={({ pressed }) => [styles.submit, pressed && styles.submitPressed]}
                 >
-                  {submitting ? (
-                    <ActivityIndicator color={theme.colors.background} />
-                  ) : (
-                    <Text style={styles.submitText}>{t`Sign in`}</Text>
-                  )}
-                </Pressable>
+                  {t`Sign in`}
+                </Button>
               )}
             </form.Subscribe>
 
-            <Text style={styles.selfHostedNote}>{t`Self-hosted — your trade data stays on your stack.`}</Text>
+            <Text className="pb-6 pt-2 text-center text-xs text-muted-foreground">{t`Self-hosted — your trade data stays on your stack.`}</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -375,165 +381,35 @@ export default function LoginScreen() {
  * label row stays quiet on a first, empty run.
  */
 function ProbeChip({ probe }: { probe: Probe | null }) {
-  const { theme } = useUnistyles();
+  const [mutedForeground, profit, destructive] = useCSSVariable([
+    '--color-muted-foreground',
+    '--color-profit',
+    '--color-destructive',
+  ]) as [string, string, string];
   if (!probe) return null;
   if (probe.state === 'checking') {
     return (
-      <View style={styles.probe}>
-        <ActivityIndicator size="small" color={theme.colors.mutedForeground} />
-        <Text style={styles.probeMuted}>{t`Checking…`}</Text>
+      <View className="flex-row items-center gap-1">
+        <ActivityIndicator size="small" color={mutedForeground} />
+        <Text className="text-[13px] text-muted-foreground">{t`Checking…`}</Text>
       </View>
     );
   }
   const reachable = probe.state === 'reachable';
   return (
-    <View style={styles.probe}>
-      <SymbolView
+    <View className="flex-row items-center gap-1">
+      <Icon
         name={reachable ? 'checkmark.circle.fill' : 'exclamationmark.circle.fill'}
         size={13}
-        tintColor={reachable ? theme.colors.profit : theme.colors.destructive}
+        tintColor={reachable ? profit : destructive}
       />
-      <Text style={reachable ? styles.probeOk : styles.probeBad}>
+      <Text
+        className={
+          reachable ? 'text-[13px] font-semibold text-profit' : 'text-[13px] font-semibold text-destructive'
+        }
+      >
         {reachable ? t`Reachable` : t`No answer`}
       </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  flex: { flex: 1 },
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  gridLineV: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: RNStyleSheet.hairlineWidth,
-    backgroundColor: theme.colors.border,
-    opacity: 0.4,
-  },
-  gridLineH: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: RNStyleSheet.hairlineWidth,
-    backgroundColor: theme.colors.border,
-    opacity: 0.4,
-  },
-  glow: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    experimental_backgroundImage:
-      'radial-gradient(circle at 50% 18%, rgba(4, 144, 200, 0.10) 0%, rgba(4, 144, 200, 0) 45%)',
-  },
-  content: { padding: theme.spacing.lg },
-  // On a regular-width canvas the form floats as a centered block instead of
-  // sitting in the top-left corner of a mostly empty page.
-  contentWide: { flexGrow: 1, justifyContent: 'center', paddingVertical: theme.spacing.xl },
-  // Fields track the reading measure, not the screen — an iPad-wide input row
-  // is unusable and reads as a layout bug.
-  column: {
-    width: '100%',
-    maxWidth: theme.measure.auth,
-    alignSelf: 'center',
-    gap: theme.spacing.lg,
-  },
-  identity: { alignItems: 'center', gap: theme.spacing.sm, paddingTop: theme.spacing.xl },
-  wordmark: { fontSize: 16, fontWeight: '600', color: theme.colors.foreground },
-  appIcon: {
-    width: 56,
-    height: 56,
-    // iOS icon corner ratio (~22.4%) so the mark reads as an app icon, not a photo.
-    borderRadius: 12.5,
-    borderCurve: 'continuous',
-  },
-  intro: { gap: theme.spacing.xs, paddingTop: theme.spacing.sm },
-  title: { fontSize: 28, fontWeight: '700', color: theme.colors.foreground },
-  subtitle: { fontSize: 15, color: theme.colors.mutedForeground },
-  // Explainer, not an alert: the card surface with a brand-tinted glyph well,
-  // no destructive or warning color anywhere.
-  notice: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-    padding: theme.spacing.lg,
-    borderRadius: theme.radius.lg + 2,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-  },
-  noticeIcon: {
-    width: 34,
-    height: 34,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.fill,
-  },
-  noticeBody: { flex: 1, gap: theme.spacing.xs },
-  noticeTitle: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  noticeText: { fontSize: 13, lineHeight: 18, color: theme.colors.mutedForeground },
-  noticeLinkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-    paddingTop: theme.spacing.xs,
-  },
-  noticeLink: { fontSize: 13, fontWeight: '600', color: theme.colors.primary },
-  pressed: { opacity: 0.6 },
-  fields: { gap: theme.spacing.lg },
-  field: { gap: theme.spacing.sm },
-  // The label and its verdict share a baseline — the status belongs to the
-  // field, not to the page, so it never becomes another banner.
-  labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  // Reference auth form: prominent label above a large, standalone filled field.
-  label: { fontSize: 16, fontWeight: '600', color: theme.colors.foreground },
-  probe: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
-  probeMuted: { fontSize: 13, color: theme.colors.mutedForeground },
-  probeOk: { fontSize: 13, fontWeight: '600', color: theme.colors.profit },
-  probeBad: { fontSize: 13, fontWeight: '600', color: theme.colors.destructive },
-  hint: { fontSize: 12, color: theme.colors.mutedForeground },
-  inputShell: {
-    minHeight: 52,
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.lg,
-    borderRadius: theme.radius.lg + 2,
-    borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: theme.colors.input,
-    backgroundColor: theme.colors.card,
-  },
-  input: { fontSize: 17, paddingVertical: theme.spacing.sm, color: theme.colors.foreground },
-  card: {
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-  },
-  alert: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-  },
-  alertText: { flex: 1, fontSize: 14, color: theme.colors.destructive },
-  // High-contrast pill CTA per the reference (white on black in dark mode).
-  submit: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 52,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.foreground,
-  },
-  submitPressed: { opacity: 0.8 },
-  submitText: { fontSize: 17, fontWeight: '600', color: theme.colors.background },
-  selfHostedNote: {
-    fontSize: 12,
-    color: theme.colors.mutedForeground,
-    textAlign: 'center',
-    paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.xl,
-  },
-}));

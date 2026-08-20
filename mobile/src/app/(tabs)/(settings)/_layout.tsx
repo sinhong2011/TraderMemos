@@ -1,26 +1,32 @@
 import { Stack } from 'expo-router/stack';
-import { useUnistyles } from 'react-native-unistyles';
+import { Platform } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
 
 export default function SettingsLayout() {
-  const { theme } = useUnistyles();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   return (
     <Stack
       screenOptions={{
-        headerTransparent: true,
+        // iOS only. A transparent bar relies on UIKit's automatic content-inset
+        // adjustment to push the scroll view clear of it; react-native-screens
+        // has no such pass on Android, so a transparent header there simply
+        // floats over the first card. Opaque takes layout space, which is the
+        // Material bar anyway.
+        headerTransparent: Platform.OS === 'ios',
         headerShadowVisible: false,
+        // Android left-aligns headerTitle by default; iOS centres. Keep both centred.
+        headerTitleAlign: 'center',
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: 'transparent' },
-        headerTitleStyle: { color: theme.colors.foreground },
+        headerTitleStyle: { color: foreground },
         headerLargeTitle: true,
         headerBlurEffect: 'none',
-        // `soft`, the app-wide choice — but this prop only reaches the RN-scrollable
-        // screens (funding, tags, api-tokens, token-uses). The SwiftUI `Form` screens
-        // keep their scroll view where react-native-screens' first-descendant-chain
-        // search can never find it, so they re-state `soft` themselves via the
-        // `scrollEdgeEffectStyle` SwiftUI modifier in `SettingsForm`
-        // (registered by `modules/scroll-edge-style`).
+        // `soft`, the app-wide choice. It reaches every screen under this stack
+        // now that `SettingsForm` is an ordinary RN scroll view — the SwiftUI
+        // `Form` used to hide its scroll view from react-native-screens'
+        // first-descendant search and had to re-state the effect itself.
         scrollEdgeEffects: { top: 'soft' },
         headerBackButtonDisplayMode: 'minimal',
       }}
@@ -42,6 +48,14 @@ export default function SettingsLayout() {
         options={{ title: t`Two-factor`, headerLargeTitle: false }}
       />
       <Stack.Screen
+        name="change-server"
+        options={{ title: t`Change server`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
+        name="reset-password"
+        options={{ title: t`Reset password`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
         name="change-password"
         options={{ title: t`Change password`, headerLargeTitle: false }}
       />
@@ -59,10 +73,20 @@ export default function SettingsLayout() {
       />
       <Stack.Screen
         name="web-address"
-        options={{ title: t`Web app address`, headerLargeTitle: false }}
+        options={{ title: t`Share links`, headerLargeTitle: false }}
       />
       <Stack.Screen name="general" options={{ title: t`General`, headerLargeTitle: false }} />
       <Stack.Screen name="risk-rules" options={{ title: t`Risk rules` }} />
+      {/* Title comes from the rule being edited, set by the screen itself. */}
+      <Stack.Screen name="risk-rule-form" options={{ headerLargeTitle: false }} />
+      <Stack.Screen
+        name="daily-checklist"
+        options={{ title: t`Daily checklist`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
+        name="checklist"
+        options={{ title: t`Edit checklist`, headerLargeTitle: false }}
+      />
       <Stack.Screen name="alerts" options={{ title: t`Alerts`, headerLargeTitle: false }} />
       <Stack.Screen
         name="display"
@@ -75,6 +99,14 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="flex-sync"
         options={{ title: t`IBKR Flex sync`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
+        name="import-history"
+        options={{ title: t`Sync & import history`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
+        name="connect-broker"
+        options={{ title: t`Connect a broker`, headerLargeTitle: false }}
       />
       <Stack.Screen name="ai" options={{ title: t`AI` }} />
       {/* Title comes from the screen — it names the integration being edited. */}

@@ -1,52 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { SymbolView, type SFSymbol } from 'expo-symbols';
-import { useEffect, useRef } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
-import ReanimatedSwipeable, {
-  type SwipeableMethods,
-} from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Alert } from 'react-native';
 
+import { Icon } from '@/components/icon';
 import { useApiRequest } from '@/api/hooks';
 import type { Trade } from '@/api/types';
+import { Swipe } from '@/components/swipe';
 import { TradeRow } from '@/components/trade-row';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { armRollingNumbers } from '@/lib/rolling-numbers';
-
-function SwipeAction({
-  icon,
-  label,
-  color,
-  leading = false,
-  onPress,
-}: {
-  icon: SFSymbol;
-  label: string;
-  color: string;
-  leading?: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      style={({ pressed }) => [
-        styles.swipeAction,
-        leading && styles.swipeActionLeading,
-        { backgroundColor: color },
-        pressed && styles.pressed,
-      ]}
-    >
-      <SymbolView name={icon} size={17} tintColor="#FFFFFF" />
-      <Text style={styles.swipeLabel} numberOfLines={1}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
 
 /**
  * Trade row with the standard swipe actions: trailing Edit + Delete
@@ -61,15 +24,9 @@ export function SwipeableTradeRow({
   trade: Trade;
   showDate?: boolean;
 }) {
-  const { theme } = useUnistyles();
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const swipeable = useRef<SwipeableMethods>(null);
-
-  useEffect(() => {
-    swipeable.current?.close();
-  }, [trade.id]);
 
   const deleteTrade = useMutation({
     mutationFn: (id: string) => api<void>(`/trades/${id}`, { method: 'DELETE' }),
@@ -92,76 +49,46 @@ export function SwipeableTradeRow({
     );
   }
 
-  const go = (action: () => void) => () => {
-    swipeable.current?.close();
-    action();
-  };
   const isOpen = trade.status === 'open';
 
   return (
-    <ReanimatedSwipeable
-      ref={swipeable}
-      friction={2}
-      leftThreshold={36}
-      rightThreshold={36}
-      overshootLeft={false}
-      overshootRight={false}
-      renderLeftActions={() =>
-        isOpen ? (
-          <SwipeAction
-            icon="flag.checkered"
+    // List-recycling safe: `resetKey` snaps an open swipe shut when the
+    // instance is handed a different trade.
+    <Swipe resetKey={trade.id}>
+      <Swipe.Start>
+        {isOpen ? (
+          <Swipe.Action
+            color="success"
+            icon={<Icon name="flag.checkered" />}
             label={t`Close`}
-            color={theme.colors.profit}
-            leading
-            onPress={go(() =>
-              router.push({ pathname: '/edit-trade', params: { id: trade.id, addExit: '1' } }),
-            )}
+            onPress={() =>
+              router.push({ pathname: '/edit-trade', params: { id: trade.id, addExit: '1' } })
+            }
           />
         ) : (
-          <SwipeAction
-            icon="square.and.pencil"
+          <Swipe.Action
+            color="primary"
+            icon={<Icon name="square.and.pencil" />}
             label={t`Journal`}
-            color={theme.colors.primary}
-            leading
-            onPress={go(() =>
-              router.push({ pathname: '/quick-journal', params: { id: trade.id } }),
-            )}
+            onPress={() => router.push({ pathname: '/quick-journal', params: { id: trade.id } })}
           />
-        )
-      }
-      renderRightActions={() => (
-        <View style={styles.swipeActionsRow}>
-          <SwipeAction
-            icon="pencil"
-            label={t`Edit`}
-            color={theme.colors.flat}
-            onPress={go(() => router.push({ pathname: '/edit-trade', params: { id: trade.id } }))}
-          />
-          <SwipeAction
-            icon="trash.fill"
-            label={t`Remove`}
-            color={theme.colors.destructive}
-            onPress={go(confirmDelete)}
-          />
-        </View>
-      )}
-    >
+        )}
+      </Swipe.Start>
+      <Swipe.End>
+        <Swipe.Action
+          color="info"
+          icon={<Icon name="pencil" />}
+          label={t`Edit`}
+          onPress={() => router.push({ pathname: '/edit-trade', params: { id: trade.id } })}
+        />
+        <Swipe.Action
+          color="destructive"
+          icon={<Icon name="trash.fill" />}
+          label={t`Remove`}
+          onPress={confirmDelete}
+        />
+      </Swipe.End>
       <TradeRow trade={trade} showDate={showDate} />
-    </ReanimatedSwipeable>
+    </Swipe>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  swipeActionsRow: { flexDirection: 'row', gap: theme.spacing.sm, marginLeft: theme.spacing.sm },
-  swipeAction: {
-    width: 72,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-  },
-  swipeActionLeading: { marginRight: theme.spacing.sm },
-  pressed: { opacity: 0.7 },
-  swipeLabel: { fontSize: 11, fontWeight: '600', color: '#FFFFFF' },
-}));

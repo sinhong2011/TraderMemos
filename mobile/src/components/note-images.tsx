@@ -1,29 +1,19 @@
-import {
-  Button as UIButton,
-  Menu,
-} from '@expo/ui/swift-ui';
-import {
-  buttonBorderShape,
-  buttonStyle,
-  controlSize,
-  tint,
-} from '@expo/ui/swift-ui/modifiers';
 import * as DocumentPicker from 'expo-document-picker';
 import { File as FsFile } from 'expo-file-system';
 import { Image, type ImageSource } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { SymbolView } from 'expo-symbols';
+import { Button, Menu, Spinner } from 'panelui-native';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
+import { Icon } from '@/components/icon';
 import { useApiRaw, useApiRequest } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import type { MediaFile } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { appendNoteImage, noteMediaIds, removeNoteImage } from '@/lib/note-media';
-import { AppHost } from '@/components/app-host';
 
 /** The server only accepts these (content-sniffed); Photos picks re-encode to jpeg. */
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const;
@@ -165,13 +155,16 @@ export function useNoteImages(
  * grid would eat the writing surface as soon as a note carried four charts.
  */
 export function NoteImageStrip({ images }: { images: NoteImagesController }) {
+  // expo-image is not a core RN component, so its box is styled with a value
+  // read off the theme rather than with classes.
+  const [muted] = useCSSVariable(['--color-muted']) as [string];
   if (!images.ready || images.ids.length === 0) return null;
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.thumbs}
-      style={styles.strip}
+      contentContainerClassName="flex-row gap-2 px-4"
+      className="grow-0"
       keyboardShouldPersistTaps="handled"
     >
       {images.ids.map((id) => (
@@ -180,16 +173,16 @@ export function NoteImageStrip({ images }: { images: NoteImagesController }) {
           onPress={() => images.confirmRemove(id)}
           accessibilityRole="button"
           accessibilityLabel={t`Remove image`}
-          style={({ pressed }) => pressed && styles.pressed}
+          className="active:opacity-70"
         >
           <Image
             source={images.sourceFor(id)}
-            style={styles.thumb}
+            style={{ width: 64, height: 64, borderRadius: 10, backgroundColor: muted }}
             contentFit="cover"
             transition={150}
           />
-          <View style={styles.removeBadge}>
-            <SymbolView name="xmark" size={9} weight="bold" tintColor="#FFFFFF" />
+          <View className="absolute -right-[5px] -top-[5px] h-[18px] w-[18px] items-center justify-center rounded-full bg-destructive">
+            <Icon name="xmark" size={9} weight="bold" tintColor="#FFFFFF" />
           </View>
         </Pressable>
       ))}
@@ -199,69 +192,41 @@ export function NoteImageStrip({ images }: { images: NoteImagesController }) {
 
 /** The toolbar's "Add chart" pull-down — Photos or Files. */
 export function NoteImageButton({ images }: { images: NoteImagesController }) {
-  const { theme } = useUnistyles();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   if (!images.ready) return null;
   if (images.uploading) {
+    // Holds the toolbar row's height while the picker's button is swapped out.
     return (
-      <View style={styles.spinner}>
-        <ActivityIndicator />
+      <View className="w-[88px] items-center">
+        <Spinner />
       </View>
     );
   }
   return (
-    <AppHost matchContents>
-      <Menu
-        label={t`Chart`}
-        systemImage="photo.badge.plus"
-        modifiers={[
-          buttonStyle('glass'),
-          buttonBorderShape('capsule'),
-          controlSize('regular'),
-          // Menu triggers default to the accent tint — keep it neutral.
-          tint(theme.colors.foreground),
-        ]}
-      >
-        <UIButton
-          label={t`Photo Library`}
-          systemImage="photo.on.rectangle"
-          onPress={() => void images.pickFromPhotos()}
-        />
-        <UIButton
-          label={t`Image files`}
-          systemImage="folder"
-          onPress={() => void images.pickFromFiles()}
-        />
-      </Menu>
-    </AppHost>
+    <Menu presentation="bottom-sheet">
+      <Menu.Trigger>
+        <Button
+          variant="outline"
+          size="sm"
+          startContent={<Icon name="photo.badge.plus" size={16} tintColor={foreground} />}
+        >
+          {t`Chart`}
+        </Button>
+      </Menu.Trigger>
+      <Menu.Content width="full" className="shadow-none rounded-none">
+        <Menu.Item
+          icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
+          onSelect={() => void images.pickFromPhotos()}
+        >
+          {t`Photo Library`}
+        </Menu.Item>
+        <Menu.Item
+          icon={<Icon name="folder" size={16} tintColor={foreground} />}
+          onSelect={() => void images.pickFromFiles()}
+        >
+          {t`Image files`}
+        </Menu.Item>
+      </Menu.Content>
+    </Menu>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  strip: { flexGrow: 0 },
-  thumbs: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  thumb: {
-    width: 64,
-    height: 64,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  pressed: { opacity: 0.7 },
-  removeBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.destructive,
-  },
-  // Holds the toolbar row's height while the picker's button is swapped out.
-  spinner: { width: 88, alignItems: 'center' },
-}));

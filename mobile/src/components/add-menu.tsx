@@ -1,25 +1,25 @@
-import {
-  Button as UIButton,
-  Image as UIImage,
-  Menu,
-} from '@expo/ui/swift-ui';
-import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
-import { Platform, Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Menu } from 'panelui-native';
+import { Pressable } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
+import { Icon } from '@/components/icon';
 
 /**
- * Header-right "+" — SwiftUI Menu (iOS 26 glass popover anchored to the bar
- * item) fanning out to the creation flows. The trigger stays a plain tinted
- * glyph: iOS 26 wraps every bar item in its own Liquid Glass circle, so any
- * custom chrome would render as a shape nested inside that capsule.
+ * Header-right "+" — a pull-down fanning out to the creation flows.
+ *
+ * PanelUI `Menu` rather than a SwiftUI one: the panel is JS-drawn, so iOS and
+ * Android get the same rows in the same order (Android has no `Menu` view
+ * manager at all, and used to fall back to pushing the first action blind).
+ * The trigger stays a plain tinted glyph — a bar item is already wrapped in
+ * the platform's own circle, so custom chrome would nest a shape inside it.
  */
 export function AddMenu() {
-  const { theme } = useUnistyles();
+  const [foreground, popoverForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-popover-foreground',
+  ]) as [string, string];
   const router = useRouter();
 
   const actions = [
@@ -28,45 +28,29 @@ export function AddMenu() {
     { label: t`New setup`, systemImage: 'checklist', href: '/new-setup' },
   ] as const;
 
-  if (Platform.OS !== 'ios') {
-    return (
-      <Pressable
-        onPress={() => router.push(actions[0].href)}
-        hitSlop={10}
-        accessibilityRole="button"
-        accessibilityLabel={t`Add`}
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-      >
-        <SymbolView name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
-      </Pressable>
-    );
-  }
-
   return (
-    <AppHost matchContents>
-      <Menu
-        label={<UIImage systemName="plus" size={17} />}
-        modifiers={[
-          buttonStyle('plain'),
-          // Menu triggers default to the accent tint — keep the glyph neutral.
-          tint(theme.colors.foreground),
-          accessibilityLabel(t`Add`),
-        ]}
-      >
+    <Menu presentation="bottom-sheet">
+      <Menu.Trigger>
+        <Pressable
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel={t`Add`}
+          className="h-8 w-8 items-center justify-center active:opacity-60"
+        >
+          <Icon name="plus" size={18} tintColor={foreground} weight="semibold" />
+        </Pressable>
+      </Menu.Trigger>
+      <Menu.Content width="full" className="shadow-none rounded-none">
         {actions.map((action) => (
-          <UIButton
+          <Menu.Item
             key={action.href}
-            label={action.label}
-            systemImage={action.systemImage}
-            onPress={() => router.push(action.href)}
-          />
+            icon={<Icon name={action.systemImage} size={16} tintColor={popoverForeground} />}
+            onSelect={() => router.push(action.href)}
+          >
+            {action.label}
+          </Menu.Item>
         ))}
-      </Menu>
-    </AppHost>
+      </Menu.Content>
+    </Menu>
   );
 }
-
-const styles = StyleSheet.create(() => ({
-  button: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  pressed: { opacity: 0.6 },
-}));

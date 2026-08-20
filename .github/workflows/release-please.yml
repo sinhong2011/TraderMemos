@@ -68,3 +68,18 @@ jobs:
       submit: true
       message: v${{ needs.release-please.outputs.version }}
     secrets: inherit
+
+  # Android has no store presence: the release-signed APK attached to the
+  # GitHub Release page IS the distribution channel (sideload / self-hosters),
+  # so this runs ungated like the tm-sync binaries.
+  build-android:
+    name: Build Android APK
+    needs: release-please
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    uses: ./.github/workflows/mobile-eas.yml
+    with:
+      profile: production-apk
+      platform: android
+      attach-to-release: ${{ needs.release-please.outputs.version }}
+      message: v${{ needs.release-please.outputs.version }}
+    secrets: inherit

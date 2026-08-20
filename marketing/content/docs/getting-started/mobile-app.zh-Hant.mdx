@@ -1,0 +1,40 @@
+---
+title: 行動應用
+description: 安裝 iOS / Android 隨身版，並連接到你自己的伺服器。
+---
+
+TraderMemos 隨身版（測試版）直接對接**你自己的伺服器** —— 與 Web 端共用同一套帳戶、
+交易與報表，外出時也能離線查閱。一套 Expo 程式碼同時涵蓋兩個平台。
+
+<div className="flex flex-wrap gap-3">
+  <img src="/screenshots/mobile-home.png" alt="行動應用主畫面 — 權益曲線與績效統計" className="w-52 rounded-xl" />
+  <img src="/screenshots/mobile-trades.png" alt="行動端交易日誌 — 單筆盈虧" className="w-52 rounded-xl" />
+  <img src="/screenshots/mobile-reports.png" alt="行動端報表總覽 — 獲利因子與勝率" className="w-52 rounded-xl" />
+</div>
+
+## iOS
+
+測試階段的 iOS 版本透過 **TestFlight** 發佈。小工具、即時動態與 Siri / 動作按鈕
+快速記帳為 iOS 專屬功能。
+
+## Android
+
+沒有 Play 商店上架 —— GitHub Release 頁面上的 APK 就是 Android 的發佈渠道：
+
+1. 開啟[最新版本](https://github.com/sinhong2011/TraderMemos/releases/latest)，
+   下載 `TraderMemos-<version>.apk`。
+2. 在手機上開啟該檔案，依 Android 提示為瀏覽器或檔案管理器允許**安裝不明應用程式**。
+3. 更新時，直接安裝新版本的 APK 覆蓋舊版即可 —— 原地升級，資料保留。
+
+如需校驗下載，每個版本的 APK 旁邊都附有 `.sha256` 檔案。
+
+## 連接你的伺服器
+
+首次啟動時，輸入你的實例網址（例如 `https://journal.example.com` 或
+`http://192.168.1.10:8080`）和登入憑證 —— 與 Web 端相同的「登入時指定伺服器」
+模式。應用會先探測 `/healthz`，因此伺服器無法連線時會明確回報連線問題，而不是
+誤報為憑證錯誤。
+
+手機需要能連到伺服器：同一區域網路、VPN / 隧道，或公開的 HTTPS 網域
+（參見[反向代理](/zh-Hant/docs/self-hosting/reverse-proxy)）。權杖保存在系統
+金鑰庫（iOS Keychain / Android Keystore）中，絕不明文儲存。

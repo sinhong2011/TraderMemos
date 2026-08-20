@@ -21,9 +21,13 @@ export const INTERVAL_SEC: Record<BarInterval, number> = {
   '1': 60,
   '5': 300,
   '15': 900,
+  '30': 1800,
   '60': 3600,
   '240': 14_400,
   D: 86_400,
+  W: 7 * 86_400,
+  // Nominal — months vary, but this only paces playback and sizes gaps.
+  M: 30 * 86_400,
 };
 
 /**

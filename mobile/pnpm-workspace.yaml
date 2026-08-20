@@ -27,3 +27,10 @@ minimumReleaseAgeExclude:
   - expo-image-picker@57.0.8
   - expo-sharing@57.0.10
   - expo-symbols@57.0.2
+  # PanelUI ships fixes daily while it stabilises on the 0.x line — track latest.
+  - panelui-native
+  - uniwind
+
+patchedDependencies:
+  panelui-native: patches/panelui-native.patch
+  react-native-gesture-handler: patches/react-native-gesture-handler.patch

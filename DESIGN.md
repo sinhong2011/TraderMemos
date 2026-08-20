@@ -89,6 +89,26 @@ Floating overlays (popover, select, menu, tooltip) use `bg-popover` / `text-popo
 - `<Page>` — route padding on `bg-background`
 - `<Card>` — `bg-card`, optional title/action; `flush` for tables
 
+## Mobile forms (Expo / PanelUI)
+
+Two contexts, one system — `mobile/src/components/form-kit.tsx` is the entry-form
+vocabulary, codified from the sign-in screen:
+
+- **Entry forms** (screens whose purpose is typing — sign-in, add user, account
+  form, sync credentials, addresses): `FormScreen` (max-w 420 column) →
+  `FormField` (bold label above the control) → `FormInput` (PanelUI `Input`,
+  **filled** variant, 52pt/17px) / `FormPicker` (field-shaped filled trigger +
+  picker bottom sheet) / `PasswordInput` (also filled). Fields are `bg-muted`
+  fill, not outline-on-dark wireframes. Helper text and errors ride the field (`description` /
+  `errorMessage`) — never `Alert.alert` for field validation. Commit = header
+  check or one primary `Button`; destructive escape hatches are `ghost` Buttons
+  with `text-destructive` labels, never filled red slabs.
+- **Settings lists** (`settings-rows.tsx`): grouped `Frame` rows of toggles,
+  pickers, values and nav. **No inline text inputs** — a single value edits in a
+  prompt (`usePrompt`), anything more pushes an entry form built from the kit.
+- Picker sheets everywhere share one anatomy: 52pt rows, hairline separators,
+  chosen row bold with trailing `checkmark.circle.fill` in primary.
+
 ## Anti-patterns
 
 - Signal Terminal leftovers: `bg-bg`, `text-text`, `rounded-control`, `signal-app`, grain/grid voids, hard offset shadows, acid signal yellow wayfinding.

@@ -1,19 +1,19 @@
-import { Button, HStack, Image, Spacer, Text as UIText } from '@expo/ui/swift-ui';
-import { font, foregroundStyle } from '@expo/ui/swift-ui/modifiers';
-import type { SFSymbol } from 'sf-symbols-typescript';
-import { useUnistyles } from 'react-native-unistyles';
+import type { SFSymbol } from 'expo-symbols';
+import { Frame, Text } from 'panelui-native';
+import { View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
+
+import { Icon } from '@/components/icon';
 
 /**
- * A settings row that pushes another screen — the NavigationLink look: leading
- * icon, label, optional trailing value, disclosure chevron. Icon and label
- * share the neutral label color; brand blue is reserved for the values and
- * states that carry meaning, not for row furniture.
+ * A settings row that pushes another screen — leading icon, label, optional
+ * trailing value, disclosure chevron. Icon and label share the neutral label
+ * color; brand blue is reserved for the values and states that carry meaning,
+ * not for row furniture.
  *
- * `Button label={…} systemImage={…}` can't carry a trailing chevron (label and
- * children are mutually exclusive), so the row is composed by hand, matching
- * the account and AI rows. Use it only where a tap pushes: a chevron on a row
- * that opens a sheet, an alert, or iOS Settings promises navigation that never
- * happens — those stay plain `Button`s.
+ * Use it only where a tap pushes: a chevron on a row that opens a sheet, an
+ * alert, or the system settings promises navigation that never happens — those
+ * rows take `accessory` instead.
  */
 export function NavRow({
   systemImage,
@@ -26,39 +26,49 @@ export function NavRow({
   label: string;
   value?: string;
   /**
-   * `external` for a row that leaves the app (iOS Settings, a browser) — the
+   * `external` for a row that leaves the app (system settings, a browser) — the
    * chevron promises an in-app push, so those rows get the leaving glyph
    * instead. `none` for an action that stays put.
    */
   accessory?: 'chevron' | 'external' | 'none';
   onPress: () => void;
 }) {
-  const { theme } = useUnistyles();
+  const [foreground, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-muted-foreground',
+  ]) as [string, string];
+
   return (
-    <Button onPress={onPress}>
-      <HStack spacing={12}>
-        {systemImage != null ? (
-          <Image systemName={systemImage} size={17} color={theme.colors.foreground} />
-        ) : null}
-        <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
-          {label}
-        </UIText>
-        <Spacer />
+    <Frame.Row onPress={onPress}>
+      {systemImage != null ? (
+        <Frame.Media>
+          <Icon name={systemImage} size={17} tintColor={foreground} />
+        </Frame.Media>
+      ) : null}
+      <Frame.Content>
+        <Frame.Title>{label}</Frame.Title>
+      </Frame.Content>
+      <Frame.Actions>
         {value != null ? (
-          <UIText
-            modifiers={[font({ size: 15 }), foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}
-          >
+          <Text size="sm" muted>
             {value}
-          </UIText>
+          </Text>
         ) : null}
-        {accessory === 'none' ? null : (
-          <Image
-            systemName={accessory === 'external' ? 'arrow.up.forward' : 'chevron.right'}
+        {/* `Frame.Row`'s own `chevron` prop draws only the pushing glyph, and
+            an external row needs the leaving one — so both come from the app's
+            icon layer instead. An accessory-less row keeps the glyph's width as
+            a spacer, so values right-align across a section's rows whether or
+            not they carry a chevron. */}
+        {accessory === 'none' ? (
+          <View className="w-3" />
+        ) : (
+          <Icon
+            name={accessory === 'external' ? 'arrow.up.forward' : 'chevron.right'}
             size={12}
-            color={theme.colors.mutedForeground}
+            tintColor={mutedForeground}
           />
         )}
-      </HStack>
-    </Button>
+      </Frame.Actions>
+    </Frame.Row>
   );
 }

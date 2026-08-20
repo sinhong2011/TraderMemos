@@ -1,0 +1,40 @@
+---
+title: 移动应用
+description: 安装 iOS / Android 随身版，并连接到你自己的服务器。
+---
+
+TraderMemos 随身版（测试版）直接对接**你自己的服务器** —— 与 Web 端共用同一套账户、
+交易与报表，外出时也能离线查阅。一套 Expo 代码库同时覆盖两个平台。
+
+<div className="flex flex-wrap gap-3">
+  <img src="/screenshots/mobile-home.png" alt="移动应用主屏 — 权益曲线与绩效统计" className="w-52 rounded-xl" />
+  <img src="/screenshots/mobile-trades.png" alt="移动端交易日志 — 单笔盈亏" className="w-52 rounded-xl" />
+  <img src="/screenshots/mobile-reports.png" alt="移动端报表概览 — 盈利因子与胜率" className="w-52 rounded-xl" />
+</div>
+
+## iOS
+
+测试阶段的 iOS 版本通过 **TestFlight** 分发。小组件、实时活动与 Siri / 操作按钮
+快速记账为 iOS 专属功能。
+
+## Android
+
+没有 Play 商店上架 —— GitHub Release 页面上的 APK 就是 Android 的分发渠道：
+
+1. 打开[最新版本](https://github.com/sinhong2011/TraderMemos/releases/latest)，
+   下载 `TraderMemos-<version>.apk`。
+2. 在手机上打开该文件，按 Android 提示为浏览器或文件管理器允许**安装未知应用**。
+3. 更新时，直接安装新版本的 APK 覆盖旧版即可 —— 原地升级，数据保留。
+
+如需校验下载，每个版本的 APK 旁边都附有 `.sha256` 文件。
+
+## 连接你的服务器
+
+首次启动时，输入你的实例地址（例如 `https://journal.example.com` 或
+`http://192.168.1.10:8080`）和登录凭据 —— 与 Web 端相同的"登录时指定服务器"
+模式。应用会先探测 `/healthz`，因此服务器不可达时会明确报告连接问题，而不是
+误报为凭据错误。
+
+手机需要能访问到服务器：同一局域网、VPN / 隧道，或公开的 HTTPS 域名
+（参见[反向代理](/zh-Hans/docs/self-hosting/reverse-proxy)）。令牌保存在系统
+密钥库（iOS Keychain / Android Keystore）中，绝不明文存储。

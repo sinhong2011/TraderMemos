@@ -1,24 +1,14 @@
-import {
-  Button as UIButton,
-  Menu,
-} from '@expo/ui/swift-ui';
-import {
-  buttonBorderShape,
-  buttonStyle,
-  controlSize,
-  tint,
-} from '@expo/ui/swift-ui/modifiers';
 import * as DocumentPicker from 'expo-document-picker';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { SymbolView } from 'expo-symbols';
+import { Button, Menu } from 'panelui-native';
 import { Alert, Pressable, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
+import { Icon } from '@/components/icon';
 import { getJournalPrefs } from '@/lib/journal-prefs';
 import type { QueuedScreenshot } from '@/lib/trade-form';
-import { AppHost } from '@/components/app-host';
 
 /** The server only accepts these (content-sniffed); Photos picks re-encode to jpeg. */
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const;
@@ -26,7 +16,7 @@ const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const;
 /**
  * Screenshot picker for the new-trade form: images queue locally per symbol
  * block and upload to that symbol's trade once it saves. Same Photos/Files
- * glass menu as the attachments card — only the timing differs.
+ * menu as the attachments card — only the timing differs.
  */
 export function ScreenshotQueue({
   screenshots,
@@ -35,7 +25,12 @@ export function ScreenshotQueue({
   screenshots: QueuedScreenshot[];
   onChange: (next: QueuedScreenshot[]) => void;
 }) {
-  const { theme } = useUnistyles();
+  // expo-image is not a core RN component, so its box is styled with values
+  // read off the theme rather than with classes.
+  const [foreground, muted] = useCSSVariable(['--color-foreground', '--color-muted']) as [
+    string,
+    string,
+  ];
 
   function remainingRoom(): number {
     const max = getJournalPrefs().maxScreenshotsPerTrade;
@@ -96,86 +91,56 @@ export function ScreenshotQueue({
   }
 
   return (
-    <View style={styles.wrap}>
+    // Standalone actions center (the CenteredButton idiom); thumbnails keep
+    // their left-aligned grid above.
+    <View className="items-center gap-2">
       {screenshots.length > 0 ? (
-        <View style={styles.thumbs}>
+        <View className="flex-row flex-wrap gap-2 self-stretch">
           {screenshots.map((shot, index) => (
             <Pressable
               key={`${shot.uri}-${index}`}
               onPress={() => onChange(screenshots.filter((_, i) => i !== index))}
               accessibilityRole="button"
               accessibilityLabel={t`Remove ${shot.name}`}
-              style={({ pressed }) => pressed && styles.pressed}
+              className="active:opacity-70"
             >
-              <Image source={{ uri: shot.uri }} style={styles.thumb} contentFit="cover" />
-              <View style={styles.removeBadge}>
-                <SymbolView name="xmark" size={9} weight="bold" tintColor="#FFFFFF" />
+              <Image
+                source={{ uri: shot.uri }}
+                style={{ width: 72, height: 72, borderRadius: 10, backgroundColor: muted }}
+                contentFit="cover"
+              />
+              <View className="absolute -right-[5px] -top-[5px] h-[18px] w-[18px] items-center justify-center rounded-full bg-destructive">
+                <Icon name="xmark" size={9} weight="bold" tintColor="#FFFFFF" />
               </View>
             </Pressable>
           ))}
         </View>
       ) : null}
-      {/*
-        `ignoreSafeArea` for the same reason as DateRow (see form-rows.tsx):
-        near the bottom of the sheet the hosted SwiftUI view insets its content
-        by the container safe area, drawing the button ~30pt above its frame —
-        up into the section header.
-      */}
-      <AppHost matchContents ignoreSafeArea="all">
-        <Menu
-          label={t`Add screenshot`}
-          systemImage="photo.badge.plus"
-          modifiers={[
-            buttonStyle('glass'),
-            buttonBorderShape('capsule'),
-            controlSize('regular'),
-            // Menu triggers default to the accent tint — keep it neutral.
-            tint(theme.colors.foreground),
-          ]}
-        >
-          <UIButton
-            label={t`Photo Library`}
-            systemImage="photo.on.rectangle"
-            onPress={() => void pickFromPhotos()}
-          />
-          <UIButton
-            label={t`Image files`}
-            systemImage="folder"
-            onPress={() => void pickFromFiles()}
-          />
-        </Menu>
-      </AppHost>
+      <Menu presentation="bottom-sheet">
+        <Menu.Trigger>
+          <Button
+            variant="outline"
+            size="sm"
+            startContent={<Icon name="photo.badge.plus" size={16} tintColor={foreground} />}
+          >
+            {t`Add screenshot`}
+          </Button>
+        </Menu.Trigger>
+        <Menu.Content width="full" className="shadow-none rounded-none">
+          <Menu.Item
+            icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
+            onSelect={() => void pickFromPhotos()}
+          >
+            {t`Photo Library`}
+          </Menu.Item>
+          <Menu.Item
+            icon={<Icon name="folder" size={16} tintColor={foreground} />}
+            onSelect={() => void pickFromFiles()}
+          >
+            {t`Image files`}
+          </Menu.Item>
+        </Menu.Content>
+      </Menu>
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  // Standalone actions center (the CenteredButton idiom); thumbnails keep
-  // their left-aligned grid above.
-  wrap: { gap: theme.spacing.sm, alignItems: 'center' },
-  thumbs: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.sm,
-    alignSelf: 'stretch',
-  },
-  thumb: {
-    width: 72,
-    height: 72,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  pressed: { opacity: 0.7 },
-  removeBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.destructive,
-  },
-}));

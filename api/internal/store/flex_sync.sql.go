@@ -8,6 +8,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const deleteFlexSyncSettings = `-- name: DeleteFlexSyncSettings :execrows
@@ -76,6 +77,61 @@ func (q *Queries) ListEnabledFlexSyncSettings(ctx context.Context) ([]FlexSyncSe
 			&i.LastStatus,
 			&i.LastError,
 			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listFlexSyncSettingsForUser = `-- name: ListFlexSyncSettingsForUser :many
+SELECT f.account_id, f.user_id, f.token, f.query_id, f.enabled, f.last_synced_at, f.last_status, f.last_error, f.updated_at, a.name AS account_name
+FROM flex_sync_settings f
+JOIN accounts a ON a.id = f.account_id
+WHERE f.user_id = ?
+ORDER BY a.name
+`
+
+type ListFlexSyncSettingsForUserRow struct {
+	AccountID    string       `json:"account_id"`
+	UserID       string       `json:"user_id"`
+	Token        string       `json:"token"`
+	QueryID      string       `json:"query_id"`
+	Enabled      int64        `json:"enabled"`
+	LastSyncedAt sql.NullTime `json:"last_synced_at"`
+	LastStatus   string       `json:"last_status"`
+	LastError    string       `json:"last_error"`
+	UpdatedAt    time.Time    `json:"updated_at"`
+	AccountName  string       `json:"account_name"`
+}
+
+func (q *Queries) ListFlexSyncSettingsForUser(ctx context.Context, userID string) ([]ListFlexSyncSettingsForUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, listFlexSyncSettingsForUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListFlexSyncSettingsForUserRow
+	for rows.Next() {
+		var i ListFlexSyncSettingsForUserRow
+		if err := rows.Scan(
+			&i.AccountID,
+			&i.UserID,
+			&i.Token,
+			&i.QueryID,
+			&i.Enabled,
+			&i.LastSyncedAt,
+			&i.LastStatus,
+			&i.LastError,
+			&i.UpdatedAt,
+			&i.AccountName,
 		); err != nil {
 			return nil, err
 		}

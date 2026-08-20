@@ -1,147 +1,106 @@
-import { BottomSheet, Button, Group, HStack, Picker, Text as UIText } from '@expo/ui/swift-ui';
-import {
-  buttonStyle,
-  foregroundStyle,
-  frame,
-  monospacedDigit,
-  padding,
-  pickerStyle,
-  presentationDragIndicator,
-  tag,
-  tint,
-} from '@expo/ui/swift-ui/modifiers';
-import { useState } from 'react';
-import { useUnistyles } from 'react-native-unistyles';
+import { t } from '@lingui/core/macro';
+import { Button, Popover } from 'panelui-native';
+import { useMemo } from 'react';
+import { Text, View } from 'react-native';
 
-import { AppHost } from '@/components/app-host';
+import { COLUMN_HEIGHT, ROW_HEIGHT, WheelColumn } from '@/components/wheel-column';
 
 /** Two digits, the way a clock writes them — 7 seconds past reads `07`. */
 const pad2 = (value: number) => String(value).padStart(2, '0');
 
-const column = (count: number) =>
-  Array.from({ length: count }, (_, n) => ({ value: String(n), label: pad2(n) }));
-
-const HOURS = column(24);
-/** Minutes and seconds run the same 00–59, so one list serves both wheels. */
-const SIXTY = column(60);
-
-/** Three columns sized like a date picker's own wheels, not the sheet's width. */
-const WHEEL_WIDTH = 76;
-const WHEEL_HEIGHT = 180;
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const SIXTY = Array.from({ length: 60 }, (_, i) => i);
 
 /**
- * Stands in for `.infinity` in a `maxWidth`: the modifier crosses the bridge as
- * a `CGFloat` and JSON has no infinity to send. Any value past the sheet's own
- * width behaves identically — SwiftUI hands the view the width it was offered.
- */
-const FILL_WIDTH = 10_000;
-
-/**
- * The gray UIKit fills its own controls with — `tertiarySystemFill`, which is
- * what backs the compact `DatePicker` pill this one sits beside. A `.bordered`
- * button paints its fill from the tint at low opacity, so tinting with this
- * hue lands on the same gray in both schemes. Tinting with the foreground (the
- * first attempt) gave white at a heavier opacity, which read visibly lighter
- * than the date pill; the accent default paints it blue.
- */
-const SYSTEM_FILL = '#767680';
-
-/**
- * A clock, to the second, as one native control: a bordered pill reading
- * `HH:MM:SS` that opens hour / minute / second wheels in a sheet.
+ * A clock to the second: a pill reading `HH:MM:SS` that opens hour, minute
+ * *and* second wheels in a sheet.
  *
- * This exists because SwiftUI's compact `DatePicker` cannot show seconds —
- * `displayedComponents` stops at `hourAndMinute` — so a to-the-second stamp
- * has to be assembled from parts. Everything here is still SwiftUI: the pill
- * is a `.bordered` `Button`, which is where its capsule and fill come from
- * rather than an imitation of the date picker's that has to be kept in sync.
- *
- * The wheels are a sheet and not a `.popover` because a popover always draws
- * an anchor arrow — SwiftUI exposes which edge it attaches to, never whether
- * it is drawn — and a wheel picker rising from the bottom is what iOS itself
- * does on a phone anyway.
+ * It exists as its own control because the row's `DateField` stops at the
+ * minute, and a to-the-second stamp (an imported fill) is sequenced by its
+ * seconds — the server replays a trade's executions in `executed_at, id`
+ * order. PanelUI's `TimePicker` cannot draw the third column (`TimeValue` is
+ * `{hour, minute}`), so this composes the same wheel — `WheelColumn`, the
+ * library's own column extracted — inside the same bottom-sheet shell the
+ * library uses (`Popover` presented from the bottom edge, `Popover.Close`
+ * around a full-width Done).
  *
  * 24-hour, ignoring the 12/24h display pref, for the reason `fmtTimestamp`
  * gives: a to-the-second stamp is a fixed-width pattern, and AM/PM would be a
- * fourth wheel to fit.
+ * fourth column to fit.
  */
 export function TimePicker({ value, onChange }: { value: Date; onChange: (next: Date) => void }) {
-  const { theme } = useUnistyles();
-  const [open, setOpen] = useState(false);
-
-  const setPart = (part: 'hours' | 'minutes' | 'seconds', n: number) => {
+  // Merge over `value`: each column's answer is its own field alone, and the
+  // day belongs to the caller, not to the clock.
+  const setPart = (part: 'hour' | 'minute' | 'second') => (index: number) => {
     const next = new Date(value);
-    if (part === 'hours') next.setHours(n);
-    else if (part === 'minutes') next.setMinutes(n);
-    // Milliseconds go with the seconds — a fill is stamped to the second, and
-    // leaving a stale remainder makes two edits of the same value unequal.
-    else next.setSeconds(n, 0);
+    if (part === 'hour') next.setHours(index);
+    if (part === 'minute') next.setMinutes(index);
+    if (part === 'second') next.setSeconds(index);
     onChange(next);
   };
 
-  const wheel = (
-    options: readonly { value: string; label: string }[],
-    selected: number,
-    part: 'hours' | 'minutes' | 'seconds',
-  ) => (
-    <Picker
-      selection={String(selected)}
-      onSelectionChange={(selection) => {
-        if (selection != null) setPart(part, Number(selection));
-      }}
-      modifiers={[pickerStyle('wheel'), frame({ width: WHEEL_WIDTH, height: WHEEL_HEIGHT })]}
-    >
-      {options.map((option) => (
-        <UIText key={option.value} modifiers={[tag(option.value)]}>
-          {option.label}
-        </UIText>
-      ))}
-    </Picker>
+  const columns = useMemo(
+    () =>
+      [
+        { part: 'hour', items: HOURS, index: value.getHours(), label: t`Hour` },
+        { part: 'minute', items: SIXTY, index: value.getMinutes(), label: t`Minute` },
+        { part: 'second', items: SIXTY, index: value.getSeconds(), label: t`Second` },
+      ] as const,
+    [value],
   );
 
   return (
-    <AppHost matchContents ignoreSafeArea="all">
-      <BottomSheet
-        isPresented={open}
-        onIsPresentedChange={setOpen}
-        // The detent follows the wheels' own height, so nothing here has to
-        // guess a sheet size that a taller wheel would then break.
-        fitToContents
-        anchor={
-          /* The label is a child rather than the `label` prop so it can carry
-             its own color: a bordered button takes fill *and* label from the
-             tint, and the two need different colors to match the date pill —
-             system gray behind, plain foreground on top. */
-          <Button
-            onPress={() => setOpen(true)}
-            modifiers={[buttonStyle('bordered'), tint(SYSTEM_FILL)]}
+    <Popover presentation="bottom-sheet">
+      <Popover.Trigger>
+        <Button variant="secondary" size="sm" labelClassName="tabular-nums">
+          {`${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`}
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content width="full">
+        <View className="gap-3">
+          {/* One caption per column, on the same flex grid as the wheels —
+              three bare number columns give no clue which is which. */}
+          <View className="flex-row">
+            {columns.map((column) => (
+              <Text
+                key={column.part}
+                className="flex-1 text-center text-xs font-semibold uppercase tracking-[0.6px] text-muted-foreground"
+              >
+                {column.label}
+              </Text>
+            ))}
+          </View>
+          <View
+            className="relative flex-row items-stretch justify-center"
+            style={{ height: COLUMN_HEIGHT }}
           >
-            <UIText modifiers={[foregroundStyle(theme.colors.foreground), monospacedDigit()]}>
-              {`${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`}
-            </UIText>
-          </Button>
-        }
-      >
-        {/* Presentation modifiers have to sit on a wrapper the sheet owns,
-            not on the wheels themselves. */}
-        <Group modifiers={[presentationDragIndicator('visible')]}>
-          {/* Three fixed columns are narrower than the sheet, so the stack has
-              to be told to take the full width and centre them inside it —
-              left to hug its content it sits wherever the sheet drops it. The
-              top inset clears the drag indicator. */}
-          <HStack
-            spacing={0}
-            modifiers={[
-              padding({ top: 12 }),
-              frame({ maxWidth: FILL_WIDTH, alignment: 'center' }),
-            ]}
-          >
-            {wheel(HOURS, value.getHours(), 'hours')}
-            {wheel(SIXTY, value.getMinutes(), 'minutes')}
-            {wheel(SIXTY, value.getSeconds(), 'seconds')}
-          </HStack>
-        </Group>
-      </BottomSheet>
-    </AppHost>
+            {/* Behind the columns, and the only thing marking the selection —
+                so it stays exactly one row tall however many columns there
+                happen to be. */}
+            <View
+              pointerEvents="none"
+              className="absolute inset-x-0 rounded-xl bg-muted"
+              style={{ top: (COLUMN_HEIGHT - ROW_HEIGHT) / 2, height: ROW_HEIGHT }}
+            />
+            {columns.map((column) => (
+              <WheelColumn
+                key={column.part}
+                items={column.items}
+                index={column.index}
+                onIndexChange={setPart(column.part)}
+                label={pad2}
+                accessibilityLabel={column.label}
+                className="flex-1"
+              />
+            ))}
+          </View>
+          {/* The sheet's outside is only the strip above it — a picker whose
+              wheels are under your thumb needs somewhere deliberate to finish. */}
+          <Popover.Close>
+            <Button className="w-full">{t`Done`}</Button>
+          </Popover.Close>
+        </View>
+      </Popover.Content>
+    </Popover>
   );
 }

@@ -27,6 +27,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as TradesRouteImport } from './routes/trades'
 import { Route as WrappedRouteImport } from './routes/wrapped'
+import { Route as AccountsAccountIdRouteImport } from './routes/accounts.$accountId'
 import { Route as DayDateRouteImport } from './routes/day.$date'
 import { Route as STokenRouteImport } from './routes/s.$token'
 import { Route as TradesIndexRouteImport } from './routes/trades.index'
@@ -122,6 +123,11 @@ const WrappedRoute = WrappedRouteImport.update({
   path: '/wrapped',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountsAccountIdRoute = AccountsAccountIdRouteImport.update({
+  id: '/accounts/$accountId',
+  path: '/accounts/$accountId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DayDateRoute = DayDateRouteImport.update({
   id: '/day/$date',
   path: '/day/$date',
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/setup': typeof SetupRoute
   '/trades': typeof TradesRouteWithChildren
   '/wrapped': typeof WrappedRoute
+  '/accounts/$accountId': typeof AccountsAccountIdRoute
   '/day/$date': typeof DayDateRoute
   '/s/$token': typeof STokenRoute
   '/trades/$id': typeof TradesIdRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/wrapped': typeof WrappedRoute
+  '/accounts/$accountId': typeof AccountsAccountIdRoute
   '/day/$date': typeof DayDateRoute
   '/s/$token': typeof STokenRoute
   '/trades/$id': typeof TradesIdRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/setup': typeof SetupRoute
   '/trades': typeof TradesRouteWithChildren
   '/wrapped': typeof WrappedRoute
+  '/accounts/$accountId': typeof AccountsAccountIdRoute
   '/day/$date': typeof DayDateRoute
   '/s/$token': typeof STokenRoute
   '/trades/$id': typeof TradesIdRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/trades'
     | '/wrapped'
+    | '/accounts/$accountId'
     | '/day/$date'
     | '/s/$token'
     | '/trades/$id'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/setup'
     | '/wrapped'
+    | '/accounts/$accountId'
     | '/day/$date'
     | '/s/$token'
     | '/trades/$id'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/trades'
     | '/wrapped'
+    | '/accounts/$accountId'
     | '/day/$date'
     | '/s/$token'
     | '/trades/$id'
@@ -308,6 +320,7 @@ export interface RootRouteChildren {
   SetupRoute: typeof SetupRoute
   TradesRoute: typeof TradesRouteWithChildren
   WrappedRoute: typeof WrappedRoute
+  AccountsAccountIdRoute: typeof AccountsAccountIdRoute
   DayDateRoute: typeof DayDateRoute
   STokenRoute: typeof STokenRoute
 }
@@ -440,6 +453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WrappedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accounts/$accountId': {
+      id: '/accounts/$accountId'
+      path: '/accounts/$accountId'
+      fullPath: '/accounts/$accountId'
+      preLoaderRoute: typeof AccountsAccountIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/day/$date': {
       id: '/day/$date'
       path: '/day/$date'
@@ -503,6 +523,7 @@ const rootRouteChildren: RootRouteChildren = {
   SetupRoute: SetupRoute,
   TradesRoute: TradesRouteWithChildren,
   WrappedRoute: WrappedRoute,
+  AccountsAccountIdRoute: AccountsAccountIdRoute,
   DayDateRoute: DayDateRoute,
   STokenRoute: STokenRoute,
 }

@@ -1,3 +1,5 @@
+import '../global.css';
+
 import { I18nProvider } from '@lingui/react';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
@@ -6,11 +8,11 @@ import * as Linking from 'expo-linking';
 import { DarkTheme, DefaultTheme, ThemeProvider, useRootNavigationState, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useRef } from 'react';
-import { Alert, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-import { useUnistyles } from 'react-native-unistyles';
+import { Alert, Platform, View } from 'react-native';
+import { PanelUIProvider } from 'panelui-native';
+import { useCSSVariable } from 'uniwind';
 
 import { ApiError, UnauthorizedError } from '@/api/client';
 import { useSession } from '@/api/session';
@@ -154,7 +156,14 @@ export default function RootLayout() {
   // phone in Dark Mode has to move the navigation chrome too, or the headers
   // and back buttons stay dark over light screens.
   const scheme = useResolvedScheme();
-  const { theme } = useUnistyles();
+  // Live tokens — useCSSVariable subscribes to Uniwind theme changes, so the
+  // chrome follows the pinned/system scheme exactly like the page surfaces.
+  const [foreground, background, card, border] = useCSSVariable([
+    '--color-foreground',
+    '--color-background',
+    '--color-card',
+    '--color-border',
+  ]) as [string, string, string, string];
   // Feed the design tokens into navigation so every screen background,
   // header, and tint matches the web app instead of the UIKit defaults.
   const navTheme = useMemo(() => {
@@ -165,14 +174,14 @@ export default function RootLayout() {
         ...base.colors,
         // Nav "primary" tints interactive text/icons (back button, header
         // actions) — brand blue is reserved for fills, so keep chrome neutral.
-        primary: theme.colors.foreground,
-        background: theme.colors.background,
-        card: theme.colors.card,
-        text: theme.colors.foreground,
-        border: theme.colors.border,
+        primary: foreground,
+        background,
+        card,
+        text: foreground,
+        border,
       },
     };
-  }, [scheme, theme]);
+  }, [scheme, foreground, background, card, border]);
   const queryClient = useMemo(
     () =>
       new QueryClient({
@@ -221,12 +230,22 @@ export default function RootLayout() {
   );
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <PanelUIProvider>
     <I18nProvider i18n={i18n}>
       <SessionProvider>
         <SplashGate />
         <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
         <ThemeProvider value={navTheme}>
+          {/* Android only: iOS status bar icons follow the window's trait
+              collection (which the Appearance override already moves), but
+              Android's edge-to-edge window leaves them light forever — in
+              light mode the clock and battery are white on white. Driven by
+              the resolved scheme, not `style="auto"`, for the same reason as
+              `useResolvedScheme`: the icons must match what the surfaces are
+              actually painted with. */}
+          {Platform.OS === 'android' ? (
+            <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+          ) : null}
           <ImportLinkGate />
           <PrefsSyncGate />
           <WidgetSnapshotGate />
@@ -235,18 +254,18 @@ export default function RootLayout() {
           <ReachabilityGate />
           <AppErrorBoundary>
           <View style={{ flex: 1 }}>
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack screenOptions={{ headerShown: false, headerTitleAlign: 'center' }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
-            {/* New trade is a destination, not an interruption: a real push
-                with the standard back gesture. Edit stays a page sheet (not
-                formSheet: react-native-screens' formSheet lays the ScrollView
-                out over the header with these full-height forms). */}
+            {/* New trade and edit trade are destinations, not interruptions:
+                real pushes with the standard back gesture (not formSheet:
+                react-native-screens' formSheet lays the ScrollView out over
+                the header with these full-height forms). */}
             <Stack.Screen name="new-trade" />
             {/* Review & save rides the same push stack as the form. */}
             <Stack.Screen name="trade-preview" />
 
-            <Stack.Screen name="edit-trade" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="edit-trade" />
             <Stack.Screen
               name="manage-tags"
               options={{
@@ -263,12 +282,10 @@ export default function RootLayout() {
             <Stack.Screen name="new-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="edit-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
-            {/* Replay is a thing you watch, not a form you fill: full screen so
-                the chart gets the height, with its own header for the actions. */}
-            <Stack.Screen
-              name="replay"
-              options={{ presentation: 'fullScreenModal', headerShown: true }}
-            />
+            {/* Replay is a thing you watch, not a form you fill: a pushed page
+                (not a modal) so it stacks under the trade you came from, with
+                its own header for the actions. */}
+            <Stack.Screen name="replay" options={{ headerShown: true }} />
             {/* One-shot calculators ride in half sheets; the R calculator is a
                 pushed screen under (dashboard). */}
             <Stack.Screen
@@ -327,18 +344,12 @@ export default function RootLayout() {
                 sheetCornerRadius: 24,
               }}
             />
-            {/* Add/edit cash transaction — a creation sheet like new-token,
-                launched from the Funding list's + button. Taller detent than
-                the token sheet: five stacked fields, not two. */}
-            <Stack.Screen
-              name="cash-form"
-              options={{
-                presentation: 'formSheet',
-                sheetAllowedDetents: [0.75, 1],
-                sheetGrabberVisible: true,
-                sheetCornerRadius: 24,
-              }}
-            />
+            {/* Add/edit cash transaction — a pushed card (the new-trade
+                shape), launched from the Funding list's + button. Not a
+                formSheet: its account/type/date pickers are PanelUI sheets,
+                which portal to the root host and draw *under* a natively
+                presented sheet. */}
+            <Stack.Screen name="cash-form" />
             <Stack.Screen
               name="new-token"
               options={{
@@ -348,17 +359,9 @@ export default function RootLayout() {
                 sheetCornerRadius: 24,
               }}
             />
-            {/* Add/edit tag — the Tags list's + button, same sheet as above;
-                the swatch row makes it one detent taller. */}
-            <Stack.Screen
-              name="tag-form"
-              options={{
-                presentation: 'formSheet',
-                sheetAllowedDetents: [0.6, 1],
-                sheetGrabberVisible: true,
-                sheetCornerRadius: 24,
-              }}
-            />
+            {/* Add/edit tag — a pushed card (the cash-form shape), so the
+                Tags list's rows can tap-to-edit and long-press-preview it. */}
+            <Stack.Screen name="tag-form" />
           </Stack>
           {/* Above the navigator, so it stays put across pushes and sheets. */}
           <OfflineBanner />
@@ -368,6 +371,6 @@ export default function RootLayout() {
         </PersistQueryClientProvider>
       </SessionProvider>
     </I18nProvider>
-    </GestureHandlerRootView>
+    </PanelUIProvider>
   );
 }

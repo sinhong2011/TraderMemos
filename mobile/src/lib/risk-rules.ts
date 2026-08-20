@@ -3,6 +3,8 @@
  * a fixed set of limits the compliance check understands. Only rules with a
  * value are "active"; null clears a rule on PUT /settings/risk-rules.
  */
+import type { SFSymbol } from 'expo-symbols';
+
 import { t } from '@lingui/core/macro';
 
 import type { RiskRules } from '@/api/types';
@@ -13,8 +15,10 @@ export type RiskRuleDef = {
   key: RiskRuleKey;
   label: () => string;
   detail: () => string;
-  unit: '$' | '%';
+  unit: '$' | '%' | 'count';
   placeholder: string;
+  /** Leading badge glyph in the rule pickers. */
+  icon: SFSymbol;
 };
 
 export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
@@ -24,6 +28,7 @@ export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
     detail: () => t`Cap planned risk on a single trade.`,
     unit: '$',
     placeholder: 'e.g. 100',
+    icon: 'exclamationmark.triangle.fill',
   },
   {
     key: 'max_daily_loss',
@@ -31,6 +36,7 @@ export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
     detail: () => t`Stop when today's realized loss hits this amount.`,
     unit: '$',
     placeholder: 'e.g. 300',
+    icon: 'chart.line.downtrend.xyaxis',
   },
   {
     key: 'max_open_risk',
@@ -38,6 +44,23 @@ export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
     detail: () => t`Limit total risk across open positions.`,
     unit: '$',
     placeholder: 'e.g. 500',
+    icon: 'square.stack.3d.up',
+  },
+  {
+    key: 'max_trades_per_day',
+    label: () => t`Max trades / day`,
+    detail: () => t`Cap how many trades close in a single day.`,
+    unit: 'count',
+    placeholder: 'e.g. 5',
+    icon: 'calendar.badge.clock',
+  },
+  {
+    key: 'max_consecutive_losses',
+    label: () => t`Max consecutive losses`,
+    detail: () => t`Stop after this many losing trades in a row.`,
+    unit: 'count',
+    placeholder: 'e.g. 3',
+    icon: 'stop.circle',
   },
   {
     key: 'default_account_risk_pct',
@@ -45,6 +68,7 @@ export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
     detail: () => t`Suggested size as a percent of account equity.`,
     unit: '%',
     placeholder: 'e.g. 1',
+    icon: 'slider.horizontal.3',
   },
 ];
 
@@ -54,6 +78,8 @@ export function emptyRiskRules(): RiskRules {
     max_daily_loss: null,
     max_open_risk: null,
     default_account_risk_pct: null,
+    max_trades_per_day: null,
+    max_consecutive_losses: null,
   };
 }
 
@@ -81,6 +107,9 @@ export function setRiskRuleValue(
 }
 
 export function formatRiskRuleValue(def: RiskRuleDef, value: number): string {
+  if (def.unit === 'count') {
+    return value.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
   const num = value.toLocaleString('en-US', { maximumFractionDigits: 2 });
   return def.unit === '%' ? `${num}%` : `$${num}`;
 }
@@ -92,6 +121,9 @@ export function validateRiskRuleValue(def: RiskRuleDef, raw: string): string | u
   const value = Number(trimmed);
   if (!Number.isFinite(value) || value < 0) return t`Enter a valid number.`;
   if (def.unit === '%' && value > 100) return t`Percent must be between 0 and 100.`;
+  if (def.unit === 'count' && !Number.isInteger(value)) {
+    return t`Enter a whole number of trades.`;
+  }
   return undefined;
 }
 

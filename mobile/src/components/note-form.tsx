@@ -1,20 +1,20 @@
-import { DatePicker } from '@expo/ui/swift-ui';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { TextInput, View } from 'react-native';
-// react-native-pager-view, not @expo/ui's SwiftUI drop-in — see trade-form.tsx:
+// react-native-pager-view, not @expo/ui's SwiftUI drop-in — see symbol-pager.tsx:
 // the hosted pager never wires RN's touch handler into its pages, so every
 // TextInput inside one silently ignores taps.
 import PagerView from 'react-native-pager-view';
 import Reanimated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { cn } from 'panelui-native';
+import { useCSSVariable } from 'uniwind';
 
 import type { NoteSymbol, NoteType } from '@/api/types';
 import { NoteImageButton, NoteImageStrip, useNoteImages } from '@/components/note-images';
 import { Segmented } from '@/components/segmented';
 import { SymbolPagerBar } from '@/components/symbol-pager-bar';
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
+import { DateField } from '@/components/date-field';
 
 /**
  * A symbol block being edited. `key` is local: two blank tickers still need
@@ -83,7 +83,7 @@ export function NoteTypeSwitch({
     { value: 'note' as const, label: t`Note` },
     { value: 'daily_log' as const, label: t`Daily log` },
   ];
-  return <Segmented variant="menu" options={types} value={value} onChange={onChange} />;
+  return <Segmented variant="menu" title={t`Type`} options={types} value={value} onChange={onChange} />;
 }
 
 /**
@@ -117,18 +117,23 @@ function WritingPage({
   onChangeHeadline: (next: string) => void;
   onChangeBody: (next: string) => void;
 }) {
-  const { theme } = useUnistyles();
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   const ownBodyRef = useRef<TextInput>(null);
   const bodyField = bodyRef ?? ownBodyRef;
 
   return (
-    <View style={styles.page}>
+    // Capped and centred: prose set across a full tablet width is unreadable,
+    // and the caret would be chasing 900pt lines.
+    <View className="w-full max-w-[560px] flex-1 self-center px-4">
       <TextInput
         value={headline}
         onChangeText={onChangeHeadline}
         placeholder={headlinePlaceholder}
-        placeholderTextColor={theme.colors.mutedForeground}
-        style={[styles.headline, ticker && styles.headlineTicker]}
+        placeholderTextColor={mutedForeground}
+        className={cn(
+          'py-2 text-[22px] font-semibold leading-7 text-foreground',
+          ticker && 'tracking-[0.5px]',
+        )}
         autoCapitalize={ticker ? 'characters' : 'sentences'}
         autoCorrect={!ticker}
         autoFocus={autoFocusHeadline}
@@ -144,8 +149,11 @@ function WritingPage({
         value={body}
         onChangeText={onChangeBody}
         placeholder={bodyPlaceholder}
-        placeholderTextColor={theme.colors.mutedForeground}
-        style={styles.body}
+        placeholderTextColor={mutedForeground}
+        className="flex-1 pt-1 text-[17px] leading-6 text-foreground"
+        // Android centres a multiline field's text otherwise, which would put
+        // the opening caret halfway down an empty page.
+        textAlignVertical="top"
         multiline
       />
     </View>
@@ -158,7 +166,7 @@ function WritingPage({
  *
  * Daily logs put their per-symbol recaps on swipeable pages beside the session
  * recap rather than below it, so a log with four symbols is still one screen
- * with one caret in it. The date lives in the toolbar as a compact native pill:
+ * with one caret in it. The date lives in the toolbar as a compact pill:
  * it is "today" nearly every time, and a labelled picker row was spending a
  * field's worth of the page on a value nobody edits.
  */
@@ -243,9 +251,9 @@ export function NoteEditor({
   }));
 
   return (
-    <Reanimated.View style={[styles.root, lift]}>
+    <Reanimated.View className="flex-1" style={lift}>
       {isLog ? (
-        <View style={styles.strip}>
+        <View className="px-4 pb-2">
           <SymbolPagerBar
             tabs={[
               { key: 'recap', label: t`Recap`, fixed: true },
@@ -272,7 +280,9 @@ export function NoteEditor({
       {isLog ? (
         <PagerView
           ref={pager}
-          style={styles.pager}
+          // A styled `View` prop, not a class: the pager is a native host,
+          // not one of the core components Uniwind styles.
+          style={{ flex: 1 }}
           // Remounting on page-count change is what keeps the pager's page list
           // in step with ours — it does not reconcile added or removed children.
           key={pageCount}
@@ -284,11 +294,11 @@ export function NoteEditor({
             setPendingFocus(null);
           }}
         >
-          <View key="recap" style={styles.pagerPage}>
+          <View key="recap" className="flex-1">
             {recap}
           </View>
           {values.symbols.map((symbol, index) => (
-            <View key={symbol.key} style={styles.pagerPage}>
+            <View key={symbol.key} className="flex-1">
               <WritingPage
                 headline={symbol.symbol}
                 headlinePlaceholder={t`Ticker`}
@@ -312,68 +322,20 @@ export function NoteEditor({
 
       {onRecap ? <NoteImageStrip images={images} /> : null}
 
-      <View style={styles.toolbar}>
-        {/*
-          `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
-          its content by the container safe area, so a picker sitting this close
-          to the home indicator draws its pill above its own frame.
-        */}
-        <AppHost matchContents ignoreSafeArea="all">
-          <DatePicker
-            // Noon-anchored so a UTC-shifted parse can never land on the
-            // previous day (the fmtDayShort rule).
-            selection={new Date(`${values.occurredAt}T12:00:00`)}
-            displayedComponents={['date']}
-            onDateChange={(date) => onChange({ occurredAt: dayString(new Date(date)) })}
-          />
-        </AppHost>
+      <View className="flex-row items-center gap-3 px-4 pb-2 pt-3">
+        <DateField
+          // Noon-anchored so a UTC-shifted parse can never land on the
+          // previous day (the fmtDayShort rule).
+          selection={new Date(`${values.occurredAt}T12:00:00`)}
+          displayedComponents={['date']}
+          onDateChange={(date) => onChange({ occurredAt: dayString(new Date(date)) })}
+        />
         {/* Charts attach to the note body, so the button only makes sense on
             the page that owns it. */}
         {onRecap ? <NoteImageButton images={images} /> : null}
-        <View style={styles.toolbarSpacer} />
+        <View className="flex-1" />
         {trailingAction}
       </View>
     </Reanimated.View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  root: { flex: 1 },
-  strip: { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.sm },
-  pager: { flex: 1 },
-  pagerPage: { flex: 1 },
-  // Capped and centred: prose set across a full iPad width is unreadable, and
-  // the caret would be chasing 900pt lines.
-  page: {
-    flex: 1,
-    width: '100%',
-    maxWidth: theme.measure.form,
-    alignSelf: 'center',
-    paddingHorizontal: theme.spacing.lg,
-  },
-  headline: {
-    fontSize: 22,
-    fontWeight: '600',
-    lineHeight: 28,
-    paddingVertical: theme.spacing.sm,
-    color: theme.colors.foreground,
-  },
-  headlineTicker: { letterSpacing: 0.5 },
-  body: {
-    flex: 1,
-    fontSize: 17,
-    lineHeight: 24,
-    paddingTop: theme.spacing.xs,
-    textAlignVertical: 'top',
-    color: theme.colors.foreground,
-  },
-  toolbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.sm,
-  },
-  toolbarSpacer: { flex: 1 },
-}));

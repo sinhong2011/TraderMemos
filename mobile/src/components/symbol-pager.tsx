@@ -5,9 +5,12 @@ import { View, type StyleProp, type ViewStyle } from 'react-native';
 // TextInput inside a page (chips, Add fill, the toggles, every amount field)
 // silently ignored taps. Same imperative API, so the swap is the import.
 import PagerView from 'react-native-pager-view';
-import { StyleSheet } from 'react-native-unistyles';
 
 import { SymbolPagerBar, type PagerTab } from '@/components/symbol-pager-bar';
+
+// Plain style rather than a class: `PagerView` is a third-party native view,
+// not one of the core components Uniwind extends with `className`.
+const PAGER_STYLE = { flex: 1 } as const;
 
 /**
  * A tab strip over a swipeable pager — the shape any form takes when it edits a
@@ -100,7 +103,7 @@ export function SymbolPager({
 
   return (
     <>
-      <View style={[styles.top, topStyle]}>
+      <View className="gap-3 px-4 pb-2 pt-1" style={topStyle}>
         {header}
         <SymbolPagerBar
           tabs={tabs}
@@ -116,7 +119,7 @@ export function SymbolPager({
       </View>
       <PagerView
         ref={pagerRef}
-        style={styles.pager}
+        style={PAGER_STYLE}
         initialPage={active}
         onPageSelected={(event) => onSelect(event.nativeEvent.position)}
       >
@@ -127,7 +130,7 @@ export function SymbolPager({
           // come from the pager itself.
           <View
             key={tab.key}
-            style={styles.page}
+            className="flex-1"
             onLayout={() => {
               laidOut.current.add(tab.key);
               if (pendingPage.current !== index) return;
@@ -142,14 +145,3 @@ export function SymbolPager({
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  top: {
-    gap: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.xs,
-    paddingBottom: theme.spacing.sm,
-  },
-  pager: { flex: 1 },
-  page: { flex: 1 },
-}));

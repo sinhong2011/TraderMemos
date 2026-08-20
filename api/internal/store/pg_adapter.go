@@ -655,6 +655,14 @@ func (p *PG) ListExecutionsForTrade(ctx context.Context, tradeID string) ([]Exec
 	return func() []Execution { in := v; out := make([]Execution, len(in)); for i := range in { out[i] = Execution(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListFlexSyncSettingsForUser(ctx context.Context, userID string) ([]ListFlexSyncSettingsForUserRow, error) {
+	v, err := p.q.ListFlexSyncSettingsForUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []ListFlexSyncSettingsForUserRow { in := v; out := make([]ListFlexSyncSettingsForUserRow, len(in)); for i := range in { out[i] = ListFlexSyncSettingsForUserRow(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListImportBatches(ctx context.Context, userID string) ([]ImportBatch, error) {
 	v, err := p.q.ListImportBatches(ctx, userID)
 	if err != nil {

@@ -16,7 +16,7 @@ import { usePrivacyMode } from "@/lib/displayPrefs";
 import { fmtMoney, fmtMoneyCompact, fmtPct, fmtSignedMoney } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 
-function paceLabel(status: GoalPaceStatus): string {
+export function paceLabel(status: GoalPaceStatus): string {
   switch (status) {
     case "over":
       return "Goal reached";
@@ -29,7 +29,7 @@ function paceLabel(status: GoalPaceStatus): string {
   }
 }
 
-function paceTone(status: GoalPaceStatus): string {
+export function paceTone(status: GoalPaceStatus): string {
   switch (status) {
     case "over":
     case "ahead":

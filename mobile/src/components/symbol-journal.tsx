@@ -1,21 +1,19 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { SymbolView } from 'expo-symbols';
+import { Chip, cn } from 'panelui-native';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
+import { EmptyState } from '@/components/empty-state';
+import { Icon } from '@/components/icon';
 import { useMarketBars, useTradeDetails, useTrades } from '@/api/hooks';
 import type { BarInterval } from '@/api/types';
-import {
-  AXIS_WIDTH,
-  ChartCanvas,
-  type ChartMarker,
-  type ChartPriceLine,
-} from '@/components/chart-canvas';
+import { ChartCanvas, type ChartMarker, type ChartPriceLine } from '@/components/chart-canvas';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
+import { IntervalPicker } from '@/components/interval-picker';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
@@ -24,8 +22,7 @@ import { t } from '@lingui/core/macro';
 import { formatDuration, formatPercent, useFormatters } from '@/lib/format';
 import { defaultInterval, snapToMinute } from '@/lib/trade-bars';
 import { storage } from '@/storage/mmkv';
-import { pnlColor } from '@/styles/unistyles';
-import { AppHost } from '@/components/app-host';
+import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
 
 type Market = 'stock' | 'crypto' | 'forex' | 'future';
 
@@ -62,11 +59,26 @@ function markerPrice(value: number): string {
   return value >= 1000 ? value.toFixed(0) : String(Number(value.toFixed(2)));
 }
 
-function StatRow({ label, value, tint }: { label: string; value: string; tint?: string }) {
+function StatRow({
+  label,
+  value,
+  valueClassName,
+}: {
+  label: string;
+  value: string;
+  /** Tints the figure — the P&L rows color themselves. */
+  valueClassName?: string;
+}) {
   return (
-    <View style={styles.statRow}>
-      <Text style={styles.statLabel}>{label}</Text>
-      <Text selectable style={[styles.statValue, tint ? { color: tint } : null]}>
+    <View className="flex-row items-center justify-between gap-3">
+      <Text className="text-[15px] text-muted-foreground">{label}</Text>
+      <Text
+        selectable
+        className={cn(
+          'text-[15px] font-medium text-foreground tabular-nums',
+          valueClassName,
+        )}
+      >
         {value}
       </Text>
     </View>
@@ -85,7 +97,13 @@ function StatRow({ label, value, tint }: { label: string; value: string; tint?: 
  * symbol chip on a trade) — both route files just re-export this screen.
  */
 export default function SymbolJournalScreen() {
-  const { theme } = useUnistyles();
+  // Chart series and marker tints are JS colors, so they come off the tokens
+  // rather than out of a class.
+  const palette = usePnlPalette();
+  const [primary, foreground] = useCSSVariable(['--color-primary', '--color-foreground']) as [
+    string,
+    string,
+  ];
   const router = useRouter();
   const { formatPnl } = useFormatters();
   const params = useLocalSearchParams<{ symbol?: string; market?: string }>();
@@ -212,8 +230,7 @@ export default function SymbolJournalScreen() {
   // a marker tap can open the trade.
   const markers = useMemo<ChartMarker[]>(() => {
     return history.flatMap((trade) => {
-      const outcome =
-        trade.status === 'closed' ? pnlColor(theme.colors, trade.net_pnl) : undefined;
+      const outcome = trade.status === 'closed' ? pnlColor(palette, trade.net_pnl) : undefined;
       const fills = details.get(trade.id)?.fills;
       if (fills && fills.length > 0) {
         return fills.map((fill) => ({
@@ -244,7 +261,7 @@ export default function SymbolJournalScreen() {
       }
       return marks;
     });
-  }, [history, details, theme.colors]);
+  }, [history, details, palette]);
 
   // Open positions draw their cost basis across the chart — "your level" is
   // the one line a broker chart can't know.
@@ -252,8 +269,8 @@ export default function SymbolJournalScreen() {
     () =>
       history
         .filter((trade) => trade.status === 'open')
-        .map((trade) => ({ value: trade.avg_entry_price, color: theme.colors.primary })),
-    [history, theme.colors],
+        .map((trade) => ({ value: trade.avg_entry_price, color: primary })),
+    [history, primary],
   );
 
   // Folded client-side from the rows already fetched for the list below —
@@ -298,14 +315,6 @@ export default function SymbolJournalScreen() {
     ...(hasHistory ? [{ value: 'auto' as const, label: t`Auto` }] : []),
     ...(Object.keys(RANGES) as RangeKey[]).map((key) => ({ value: key, label: key })),
   ];
-  const intervals: { value: BarInterval; label: string }[] = [
-    { value: '1', label: '1m' },
-    { value: '5', label: '5m' },
-    { value: '15', label: '15m' },
-    { value: '60', label: '1H' },
-    { value: '240', label: '4H' },
-    { value: 'D', label: '1D' },
-  ];
 
   return (
     <>
@@ -327,9 +336,9 @@ export default function SymbolJournalScreen() {
         }}
       />
       <ScrollView
-        style={styles.page}
+        className="bg-background"
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}
+        contentContainerClassName="gap-3 p-4 pb-12"
         keyboardDismissMode="on-drag"
         refreshControl={
           <RefreshControl
@@ -342,36 +351,29 @@ export default function SymbolJournalScreen() {
         }
       >
         {recents.length > 0 ? (
-          <View style={styles.recents}>
+          <View className="flex-row flex-wrap gap-2">
             {recents.map((recent) => (
-              <Pressable
+              <Chip
                 key={recent}
+                variant="outline"
+                size="sm"
+                selected={recent === symbol}
                 onPress={() => commitSymbol(recent)}
-                accessibilityRole="button"
-                style={({ pressed }) => [
-                  styles.recentChip,
-                  recent === symbol && styles.recentChipActive,
-                  pressed && styles.pressed,
-                ]}
               >
-                <Text
-                  style={[styles.recentLabel, recent === symbol && styles.recentLabelActive]}
-                >
-                  {recent}
-                </Text>
-              </Pressable>
+                {recent}
+              </Chip>
             ))}
           </View>
         ) : null}
 
         {symbol === '' ? (
-          <AppHost style={styles.emptyHost}>
-            <ContentUnavailableView
+          <View className="min-h-[320px]">
+            <EmptyState
               title={t`Pick a symbol`}
               systemImage="chart.xyaxis.line"
               description={t`Search a ticker to see its chart — with your own trades drawn on it.`}
             />
-          </AppHost>
+          </View>
         ) : (
           <>
             <DashboardCard
@@ -393,12 +395,12 @@ export default function SymbolJournalScreen() {
               ) : null}
 
               {framing || bars.isLoading ? (
-                <Skeleton style={styles.placeholder} />
+                <Skeleton style={{ height: 220 }} />
               ) : bars.error && bars.data == null ? (
                 <InlineError error={bars.error} onRetry={() => void bars.refetch()} />
               ) : data.length === 0 ? (
-                <View style={styles.placeholder}>
-                  <Text style={styles.empty}>
+                <View className="h-[220px] items-center justify-center">
+                  <Text className="text-[13px] text-muted-foreground">
                     {t`No bars for ${symbol} in this window — try a coarser interval.`}
                   </Text>
                 </View>
@@ -421,7 +423,7 @@ export default function SymbolJournalScreen() {
                   disabled={data.length <= 1}
                   accessibilityRole="button"
                   accessibilityLabel={t`Replay ${symbol}`}
-                  style={({ pressed }) => pressed && styles.pressed}
+                  className="active:opacity-60"
                 >
                   <ChartCanvas
                     bars={data}
@@ -438,13 +440,19 @@ export default function SymbolJournalScreen() {
                     }}
                   />
                   {data.length > 1 ? (
-                    <View style={styles.replayBadge}>
-                      <SymbolView
-                        name="play.fill"
-                        size={10}
-                        tintColor={theme.colors.background}
-                      />
-                      <Text style={styles.replayLabel}>{t`Replay`}</Text>
+                    // Watermark, not a button — same faint centred play glyph
+                    // as the trade chart card (see trade-chart.tsx).
+                    <View
+                      pointerEvents="none"
+                      style={StyleSheet.absoluteFill}
+                      className="items-center justify-center"
+                    >
+                      <View
+                        className="h-12 w-12 items-center justify-center rounded-full"
+                        style={{ backgroundColor: foreground + '14' }}
+                      >
+                        <Icon name="play.fill" size={18} tintColor={foreground + '8C'} />
+                      </View>
                     </View>
                   ) : null}
                 </Pressable>
@@ -453,8 +461,8 @@ export default function SymbolJournalScreen() {
               {/* Interval sits under the candles it re-cuts, matching the trade
                   chart card — and outside the branch above, since the empty state
                   tells you to reach for it. */}
-              <View style={styles.intervalRow}>
-                <Segmented options={intervals} value={interval} onChange={setIntervalChoice} />
+              <View className="items-center">
+                <IntervalPicker value={interval} onChange={setIntervalChoice} />
               </View>
             </DashboardCard>
 
@@ -465,7 +473,7 @@ export default function SymbolJournalScreen() {
                     key={currency}
                     label={record.net.length > 1 ? t`Net P&L (${currency})` : t`Net P&L`}
                     value={formatPnl(net, currency)}
-                    tint={pnlColor(theme.colors, net)}
+                    valueClassName={pnlClass(net)}
                   />
                 ))}
                 <StatRow
@@ -492,13 +500,13 @@ export default function SymbolJournalScreen() {
 
             {history.length > 0 ? (
               <DashboardCard title={t`Your trades`} flush>
-                <View style={styles.tradeRows}>
+                <View className="gap-2">
                   {history.slice(0, MAX_TRADE_ROWS).map((trade) => (
                     <TradeRow key={trade.id} trade={trade} />
                   ))}
                 </View>
                 {history.length > MAX_TRADE_ROWS ? (
-                  <Text style={styles.footnote}>
+                  <Text className="px-1 text-xs text-muted-foreground">
                     {t`The ${MAX_TRADE_ROWS} most recent of ${history.length} trades.`}
                   </Text>
                 ) : null}
@@ -528,63 +536,3 @@ export default function SymbolJournalScreen() {
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  recents: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  recentChip: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 6,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  recentChipActive: { backgroundColor: theme.colors.card, borderColor: theme.colors.input },
-  pressed: { opacity: 0.6 },
-  recentLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.mutedForeground },
-  recentLabelActive: { color: theme.colors.foreground, fontWeight: '600' },
-  placeholder: { height: 220, alignItems: 'center', justifyContent: 'center' },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground },
-  emptyHost: { minHeight: 320 },
-  intervalRow: { alignItems: 'center' },
-  replayBadge: {
-    position: 'absolute',
-    top: 0,
-    // Clear of the price gutter, so the badge never covers an axis label.
-    right: AXIS_WIDTH + 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.foreground,
-  },
-  replayLabel: { fontSize: 11, fontWeight: '600', color: theme.colors.background },
-  statRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
-  },
-  statLabel: { fontSize: 15, color: theme.colors.mutedForeground },
-  statValue: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: theme.colors.foreground,
-    ...theme.numeric,
-  },
-  tradeRows: { gap: theme.spacing.sm },
-  footnote: {
-    fontSize: 12,
-    color: theme.colors.mutedForeground,
-    paddingHorizontal: theme.spacing.xs,
-  },
-}));

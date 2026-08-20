@@ -1,27 +1,25 @@
-import {
-  Button,
-  HStack,
-  Image,
-  LabeledContent,
-  Picker,
-  Section,
-  Spacer,
-  Text as UIText,
-  VStack,
-} from '@expo/ui/swift-ui';
-import { font, foregroundStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { useQueryClient } from '@tanstack/react-query';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import { useRouter } from 'expo-router';
+import type { SFSymbol } from 'expo-symbols';
+import { Frame, Text } from 'panelui-native';
 import { useState } from 'react';
-import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { Alert, View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { useAccounts, useApiRaw } from '@/api/hooks';
 import type { ImportPreview, ImportResult } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
+import { Icon } from '@/components/icon';
 import { SettingsForm } from '@/components/settings-form';
+import {
+  SettingsButton,
+  SettingsPicker,
+  SettingsRow,
+  SettingsSection,
+  ValueText,
+} from '@/components/settings-rows';
 import { errorMessage } from '@/lib/errors';
 import { shareFile } from '@/lib/file-transfer';
 import { useFormatters } from '@/lib/format';
@@ -32,7 +30,7 @@ import {
   SAMPLE_JSON_NAME,
 } from '@/lib/import-samples';
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
+import { pnlClass } from '@/styles/pnl';
 
 /** Synthetic picker choice: let the JSON's embedded account metadata decide. */
 const ACCOUNT_FROM_FILE = '__from_file__';
@@ -61,7 +59,7 @@ const MAPPABLE_FIELDS = [
 ] as const;
 
 /** The formats the server parses, mirroring the web page's "Supported formats". */
-const IMPORT_FORMATS = [
+const IMPORT_FORMATS: { icon: SFSymbol; name: () => string; body: () => string }[] = [
   {
     icon: 'tablecells',
     name: () => t`Fill CSV`,
@@ -78,7 +76,7 @@ const IMPORT_FORMATS = [
     name: () => t`JSON backup`,
     body: () => t`Full account backup: trades, fills, tags, cash, and the playbook setups catalog.`,
   },
-] as const;
+];
 
 type PickedFile = { uri: string; name: string; size: number | null; mimeType: string };
 
@@ -100,6 +98,17 @@ async function readJsonAccountName(file: PickedFile): Promise<string | null> {
   }
 }
 
+/** A sentence inside a section card, on the grouped row metrics. */
+function NoteRow({ children }: { children: string }) {
+  return (
+    <Frame.Row>
+      <Text size="sm" muted className="flex-1">
+        {children}
+      </Text>
+    </Frame.Row>
+  );
+}
+
 /**
  * Trades import wizard — the web Import page on the phone. Same server
  * contract: POST /imports parses the upload for a preview (no writes), then
@@ -110,7 +119,10 @@ export default function ImportTradesScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRaw();
-  const { theme } = useUnistyles();
+  const [foreground, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-muted-foreground',
+  ]) as [string, string];
   const { data: accounts } = useAccounts();
 
   const [file, setFile] = useState<PickedFile | null>(null);
@@ -224,63 +236,60 @@ export default function ImportTradesScreen() {
     setResult(null);
   }
 
-  const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' as const });
-
   // ---- Step 3: result -------------------------------------------------------
   if (result != null) {
     const isJournal = result.format === 'journal_trades';
     return (
-      <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <SettingsForm>
-          <Section title={t`Import complete`}>
-            {isJournal ? (
-              <LabeledContent label={t`Trades created`}>
-                <UIText>{String(result.trades ?? 0)}</UIText>
-              </LabeledContent>
-            ) : null}
-            <LabeledContent label={isJournal ? t`Fills inserted` : t`Inserted`}>
-              <UIText>{String(result.inserted)}</UIText>
-            </LabeledContent>
-            <LabeledContent label={t`Skipped (duplicates)`}>
-              <UIText>{String(result.skipped)}</UIText>
-            </LabeledContent>
-            {(result.annotated ?? 0) > 0 ? (
-              <LabeledContent label={t`Journal annotated`}>
-                <UIText>{String(result.annotated)}</UIText>
-              </LabeledContent>
-            ) : null}
-            {(result.cash_inserted ?? 0) > 0 ? (
-              <LabeledContent label={t`Cash transactions`}>
-                <UIText>{String(result.cash_inserted)}</UIText>
-              </LabeledContent>
-            ) : null}
-            {(result.setups_upserted ?? 0) > 0 ? (
-              <LabeledContent label={t`Setups restored`}>
-                <UIText>{String(result.setups_upserted)}</UIText>
-              </LabeledContent>
-            ) : null}
-          </Section>
-          {result.errors.length > 0 ? (
-            <Section title={t`Errors (${result.errors.length})`}>
-              {result.errors.slice(0, 10).map((error, index) => (
-                <UIText
-                  key={`${error.row}-${index}`}
-                  modifiers={[font({ size: 13 }), foregroundStyle(theme.colors.destructive)]}
-                >
-                  {t`Row ${error.row}: ${error.message}`}
-                </UIText>
-              ))}
-              {result.errors.length > 10 ? (
-                <UIText modifiers={[secondary]}>{t`+${result.errors.length - 10} more`}</UIText>
-              ) : null}
-            </Section>
+      <SettingsForm>
+        <SettingsSection title={t`Import complete`}>
+          {isJournal ? (
+            <SettingsRow label={t`Trades created`}>
+              <ValueText>{String(result.trades ?? 0)}</ValueText>
+            </SettingsRow>
           ) : null}
-          <Section>
-            <CenteredButton label={t`Done`} onPress={() => router.back()} />
-            <CenteredButton label={t`Import another file`} onPress={reset} />
-          </Section>
-        </SettingsForm>
-      </AppHost>
+          <SettingsRow label={isJournal ? t`Fills inserted` : t`Inserted`}>
+            <ValueText>{String(result.inserted)}</ValueText>
+          </SettingsRow>
+          <SettingsRow label={t`Skipped (duplicates)`}>
+            <ValueText>{String(result.skipped)}</ValueText>
+          </SettingsRow>
+          {(result.annotated ?? 0) > 0 ? (
+            <SettingsRow label={t`Journal annotated`}>
+              <ValueText>{String(result.annotated)}</ValueText>
+            </SettingsRow>
+          ) : null}
+          {(result.cash_inserted ?? 0) > 0 ? (
+            <SettingsRow label={t`Cash transactions`}>
+              <ValueText>{String(result.cash_inserted)}</ValueText>
+            </SettingsRow>
+          ) : null}
+          {(result.setups_upserted ?? 0) > 0 ? (
+            <SettingsRow label={t`Setups restored`}>
+              <ValueText>{String(result.setups_upserted)}</ValueText>
+            </SettingsRow>
+          ) : null}
+        </SettingsSection>
+
+        {result.errors.length > 0 ? (
+          <SettingsSection title={t`Errors (${result.errors.length})`}>
+            {result.errors.slice(0, 10).map((error, index) => (
+              <Frame.Row key={`${error.row}-${index}`}>
+                <Text size="sm" className="flex-1 text-destructive">
+                  {t`Row ${error.row}: ${error.message}`}
+                </Text>
+              </Frame.Row>
+            ))}
+            {result.errors.length > 10 ? (
+              <NoteRow>{t`+${result.errors.length - 10} more`}</NoteRow>
+            ) : null}
+          </SettingsSection>
+        ) : null}
+
+        <View className="gap-2">
+          <CenteredButton label={t`Done`} onPress={() => router.back()} />
+          <CenteredButton role="cancel" label={t`Import another file`} onPress={reset} />
+        </View>
+      </SettingsForm>
     );
   }
 
@@ -294,158 +303,133 @@ export default function ImportTradesScreen() {
       ? t`Import ${summary?.trade_count ?? trades.length} trades`
       : t`Import ${preview.row_count ?? 0} rows`;
     return (
-      <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <SettingsForm>
-          <Section
-            title={t`File`}
+      <SettingsForm>
+        <SettingsSection
+          title={t`File`}
+          footer={
+            preview.pending_account != null
+              ? t`Account "${preview.pending_account.name}" will be created on import.`
+              : undefined
+          }
+        >
+          <SettingsRow label={t`File`}>
+            <ValueText>{file?.name ?? ''}</ValueText>
+          </SettingsRow>
+          <SettingsRow label={t`Rows`}>
+            <ValueText>{String(preview.row_count ?? 0)}</ValueText>
+          </SettingsRow>
+          {preview.detected_broker ? (
+            <SettingsRow label={t`Detected broker`}>
+              <ValueText>{preview.detected_broker}</ValueText>
+            </SettingsRow>
+          ) : null}
+        </SettingsSection>
+
+        {isJournal && summary != null ? (
+          <SettingsSection title={t`Summary`}>
+            <SettingsRow label={t`Trades`}>
+              <ValueText>{String(summary.trade_count)}</ValueText>
+            </SettingsRow>
+            <SettingsRow label={t`Stocks / options`}>
+              <ValueText>{`${summary.stock_trades} / ${summary.option_trades}`}</ValueText>
+            </SettingsRow>
+            <SettingsRow label={t`Fills`}>
+              <ValueText>{String(summary.execution_count)}</ValueText>
+            </SettingsRow>
+            <SettingsRow label={t`Est. net P&L`}>
+              <Text size="sm" className={pnlClass(summary.net_pnl)}>
+                {formatPnl(summary.net_pnl)}
+              </Text>
+            </SettingsRow>
+            {summary.error_count > 0 ? (
+              <SettingsRow label={t`Rows with errors`}>
+                <Text size="sm" className="text-destructive">
+                  {String(summary.error_count)}
+                </Text>
+              </SettingsRow>
+            ) : null}
+          </SettingsSection>
+        ) : null}
+
+        {isJournal && trades.length > 0 ? (
+          <SettingsSection
+            title={t`Trades`}
             footer={
-              preview.pending_account != null ? (
-                <UIText>{t`Account "${preview.pending_account.name}" will be created on import.`}</UIText>
-              ) : undefined
+              trades.length > 20 ? t`+${trades.length - 20} more trades in this file.` : undefined
             }
           >
-            <LabeledContent label={t`File`}>
-              <UIText>{file?.name ?? ''}</UIText>
-            </LabeledContent>
-            <LabeledContent label={t`Rows`}>
-              <UIText>{String(preview.row_count ?? 0)}</UIText>
-            </LabeledContent>
-            {preview.detected_broker ? (
-              <LabeledContent label={t`Detected broker`}>
-                <UIText>{preview.detected_broker}</UIText>
-              </LabeledContent>
-            ) : null}
-          </Section>
-
-          {isJournal && summary != null ? (
-            <Section title={t`Summary`}>
-              <LabeledContent label={t`Trades`}>
-                <UIText>{String(summary.trade_count)}</UIText>
-              </LabeledContent>
-              <LabeledContent label={t`Stocks / options`}>
-                <UIText>{`${summary.stock_trades} / ${summary.option_trades}`}</UIText>
-              </LabeledContent>
-              <LabeledContent label={t`Fills`}>
-                <UIText>{String(summary.execution_count)}</UIText>
-              </LabeledContent>
-              <LabeledContent label={t`Est. net P&L`}>
-                <UIText
-                  modifiers={[
-                    foregroundStyle(
-                      summary.net_pnl >= 0 ? theme.colors.profit : theme.colors.loss,
-                    ),
-                  ]}
-                >
-                  {formatPnl(summary.net_pnl)}
-                </UIText>
-              </LabeledContent>
-              {summary.error_count > 0 ? (
-                <LabeledContent label={t`Rows with errors`}>
-                  <UIText modifiers={[foregroundStyle(theme.colors.destructive)]}>
-                    {String(summary.error_count)}
-                  </UIText>
-                </LabeledContent>
-              ) : null}
-            </Section>
-          ) : null}
-
-          {isJournal && trades.length > 0 ? (
-            <Section
-              title={t`Trades`}
-              footer={
-                trades.length > 20 ? (
-                  <UIText>{t`+${trades.length - 20} more trades in this file.`}</UIText>
-                ) : undefined
-              }
-            >
-              {trades.slice(0, 20).map((trade) => (
-                <HStack key={trade.row} spacing={8}>
-                  <VStack alignment="leading" spacing={2}>
-                    <UIText>{trade.symbol}</UIText>
-                    <UIText modifiers={[font({ size: 13 }), secondary]}>
-                      {`${trade.market} · ${trade.side} · ${trade.qty}`}
-                    </UIText>
-                  </VStack>
-                  <Spacer />
-                  <UIText
-                    modifiers={[
-                      foregroundStyle(
-                        trade.return_usd >= 0 ? theme.colors.profit : theme.colors.loss,
-                      ),
-                    ]}
-                  >
+            {trades.slice(0, 20).map((trade) => (
+              <Frame.Row key={trade.row}>
+                <Frame.Content>
+                  <Frame.Title>{trade.symbol}</Frame.Title>
+                  <Text size="sm" muted>
+                    {`${trade.market} · ${trade.side} · ${trade.qty}`}
+                  </Text>
+                </Frame.Content>
+                <Frame.Actions>
+                  <Text size="sm" className={pnlClass(trade.return_usd)}>
                     {formatPnl(trade.return_usd)}
-                  </UIText>
-                </HStack>
-              ))}
-            </Section>
-          ) : null}
+                  </Text>
+                </Frame.Actions>
+              </Frame.Row>
+            ))}
+          </SettingsSection>
+        ) : null}
 
-          {isCsvFills ? (
-            <Section
-              title={t`Map columns`}
-              footer={<UIText>{t`Match each field to a column from the file.`}</UIText>}
-            >
-              {MAPPABLE_FIELDS.filter(
-                (field) =>
-                  !('roundTrip' in field) ||
-                  preview.suggested_mapping?.[field.key] != null ||
-                  mapping[field.key] != null,
-              ).map((field) => {
-                const value = mapping[field.key] ?? SKIP;
-                // Broker presets can pin a constant (`=future`); keep that
-                // choice in the menu even after the user moves off it.
-                const suggested = preview.suggested_mapping?.[field.key];
-                const pinned = suggested?.startsWith('=') ? suggested : null;
-                return (
-                  <Picker
-                    key={field.key}
-                    label={field.label()}
-                    selection={value}
-                    onSelectionChange={(selection) => {
-                      if (selection == null) return;
-                      setMapping((current) => ({ ...current, [field.key]: selection }));
-                    }}
-                  >
-                    <UIText modifiers={[tag(SKIP)]}>{t`(skip)`}</UIText>
-                    {pinned != null ? (
-                      <UIText modifiers={[tag(pinned)]}>{t`Always "${pinned.slice(1)}"`}</UIText>
-                    ) : null}
-                    {preview.headers.map((header) => (
-                      <UIText key={header} modifiers={[tag(header)]}>
-                        {header}
-                      </UIText>
-                    ))}
-                  </Picker>
-                );
-              })}
-            </Section>
-          ) : null}
+        {isCsvFills ? (
+          <SettingsSection
+            title={t`Map columns`}
+            footer={t`Match each field to a column from the file.`}
+          >
+            {MAPPABLE_FIELDS.filter(
+              (field) =>
+                !('roundTrip' in field) ||
+                preview.suggested_mapping?.[field.key] != null ||
+                mapping[field.key] != null,
+            ).map((field) => {
+              const value = mapping[field.key] ?? SKIP;
+              // Broker presets can pin a constant (`=future`); keep that
+              // choice in the menu even after the user moves off it.
+              const suggested = preview.suggested_mapping?.[field.key];
+              const pinned = suggested?.startsWith('=') ? suggested : null;
+              return (
+                <SettingsPicker
+                  key={field.key}
+                  label={field.label()}
+                  selectedValue={value}
+                  onValueChange={(selection) => {
+                    setMapping((current) => ({ ...current, [field.key]: selection }));
+                  }}
+                  items={[
+                    { value: SKIP, label: t`(skip)` },
+                    ...(pinned != null
+                      ? [{ value: pinned, label: t`Always "${pinned.slice(1)}"` }]
+                      : []),
+                    ...preview.headers.map((header) => ({ value: header, label: header })),
+                  ]}
+                />
+              );
+            })}
+          </SettingsSection>
+        ) : null}
 
-          {!isJournal && preview.source === 'json' ? (
-            <Section>
-              <UIText modifiers={[secondary]}>
-                {t`Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map.`}
-              </UIText>
-            </Section>
-          ) : null}
+        {!isJournal && preview.source === 'json' ? (
+          <SettingsSection>
+            <NoteRow>{t`Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map.`}</NoteRow>
+          </SettingsSection>
+        ) : null}
 
-          <Section>
-            <CenteredButton
-              label={busy ? t`Importing…` : commitLabel}
-              onPress={() => {
-                if (!busy) void runCommit();
-              }}
-            />
-            <CenteredButton
-              label={t`Back`}
-              onPress={() => {
-                setPreview(null);
-              }}
-            />
-          </Section>
-        </SettingsForm>
-      </AppHost>
+        <View className="gap-2">
+          <CenteredButton
+            label={busy ? t`Importing…` : commitLabel}
+            loading={busy}
+            onPress={() => {
+              if (!busy) void runCommit();
+            }}
+          />
+          <CenteredButton role="cancel" label={t`Back`} onPress={() => setPreview(null)} />
+        </View>
+      </SettingsForm>
     );
   }
 
@@ -453,135 +437,122 @@ export default function ImportTradesScreen() {
   const sizeLabel =
     file?.size != null ? `${Math.max(1, Math.round(file.size / 1024))} KB` : undefined;
   return (
-    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <SettingsForm>
-        <Section
-          title={t`Account`}
-          footer={
-            usesFileAccount && jsonAccountName != null ? (
-              <UIText>{t`Account "${jsonAccountName}" from the JSON file will be matched or created.`}</UIText>
-            ) : undefined
-          }
-        >
-          {(accounts ?? []).length > 0 || jsonAccountName != null ? (
-            <Picker
-              label={t`Import into`}
-              selection={selectedAccount}
-              onSelectionChange={(value) => value != null && setAccountId(value)}
-            >
-              {jsonAccountName != null ? (
-                <UIText modifiers={[tag(ACCOUNT_FROM_FILE)]}>{t`From file`}</UIText>
-              ) : null}
-              {(accounts ?? []).map((account) => (
-                <UIText key={account.id} modifiers={[tag(account.id)]}>
-                  {account.name}
-                </UIText>
-              ))}
-            </Picker>
-          ) : (
-            <UIText modifiers={[secondary]}>
-              {t`No accounts yet — pick a JSON backup with account details, or add an account first.`}
-            </UIText>
-          )}
-        </Section>
-
-        <Section
-          title={t`File`}
-          footer={
-            file == null ? (
-              <UIText>
-                {t`Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup.`}
-              </UIText>
-            ) : (
-              <UIText>{t`Tap the file to swap it for another one.`}</UIText>
-            )
-          }
-        >
-          {file != null ? (
-            <Button onPress={() => void pickFile()}>
-              <HStack spacing={12}>
-                <Image
-                  systemName={isJsonFile(file) ? 'curlybraces' : 'tablecells'}
-                  size={22}
-                  color={theme.colors.foreground}
-                />
-                <VStack alignment="leading" spacing={2}>
-                  <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
-                    {file.name}
-                  </UIText>
-                  <UIText modifiers={[font({ size: 13 }), secondary]}>
-                    {sizeLabel ?? (isJsonFile(file) ? t`JSON backup` : t`CSV file`)}
-                  </UIText>
-                </VStack>
-                <Spacer />
-                <Image
-                  systemName="arrow.triangle.2.circlepath"
-                  size={14}
-                  color={theme.colors.mutedForeground}
-                />
-              </HStack>
-            </Button>
-          ) : (
-            <Button
-              systemImage="doc.badge.plus"
-              label={t`Choose CSV or JSON file`}
-              onPress={() => void pickFile()}
-            />
-          )}
-        </Section>
-
-        <Section>
-          {/* Disabled rather than alerting: nothing to preview without a file,
-              and a tappable row would fire the upload twice while busy. */}
-          <CenteredButton
-            label={busy ? t`Reading…` : t`Preview import`}
-            disabled={busy || file == null}
-            onPress={() => {
-              if (!usesFileAccount && selectedAccount === '') {
-                Alert.alert(t`Could not preview`, t`Pick an account first.`);
-                return;
-              }
-              void runPreview();
-            }}
+    <SettingsForm>
+      <SettingsSection
+        title={t`Account`}
+        footer={
+          usesFileAccount && jsonAccountName != null
+            ? t`Account "${jsonAccountName}" from the JSON file will be matched or created.`
+            : undefined
+        }
+      >
+        {(accounts ?? []).length > 0 || jsonAccountName != null ? (
+          <SettingsPicker
+            label={t`Import into`}
+            selectedValue={selectedAccount}
+            onValueChange={setAccountId}
+            items={[
+              ...(jsonAccountName != null
+                ? [{ value: ACCOUNT_FROM_FILE, label: t`From file` }]
+                : []),
+              ...(accounts ?? []).map((account) => ({
+                value: account.id,
+                label: account.name,
+              })),
+            ]}
           />
-        </Section>
+        ) : (
+          <NoteRow>{t`No accounts yet — pick a JSON backup with account details, or add an account first.`}</NoteRow>
+        )}
+      </SettingsSection>
 
-        <Section title={t`Supported formats`}>
-          {IMPORT_FORMATS.map((format) => (
-            <HStack key={format.icon} spacing={12} alignment="top">
-              <Image systemName={format.icon} size={16} color={theme.colors.mutedForeground} />
-              <VStack alignment="leading" spacing={3}>
-                <UIText modifiers={[font({ size: 15, weight: 'medium' })]}>{format.name()}</UIText>
-                <UIText modifiers={[font({ size: 13 }), secondary]}>{format.body()}</UIText>
-              </VStack>
-              <Spacer />
-            </HStack>
-          ))}
-        </Section>
+      <SettingsSection
+        title={t`File`}
+        footer={
+          file == null
+            ? t`Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup.`
+            : t`Tap the file to swap it for another one.`
+        }
+      >
+        {file != null ? (
+          <Frame.Row onPress={() => void pickFile()}>
+            <Frame.Media>
+              <Icon
+                name={isJsonFile(file) ? 'curlybraces' : 'tablecells'}
+                size={22}
+                tintColor={foreground}
+              />
+            </Frame.Media>
+            <Frame.Content>
+              <Frame.Title>{file.name}</Frame.Title>
+              <Text size="sm" muted>
+                {sizeLabel ?? (isJsonFile(file) ? t`JSON backup` : t`CSV file`)}
+              </Text>
+            </Frame.Content>
+            <Frame.Actions>
+              <Icon name="arrow.triangle.2.circlepath" size={14} tintColor={mutedForeground} />
+            </Frame.Actions>
+          </Frame.Row>
+        ) : (
+          <SettingsButton
+            systemImage="doc.badge.plus"
+            label={t`Choose CSV or JSON file`}
+            onPress={() => void pickFile()}
+          />
+        )}
+      </SettingsSection>
 
-        {/* Web parity: the Import page's sample downloads. Saving through the
-            share sheet puts them in Files, where the picker above can reach
-            them. */}
-        <Section
-          title={t`Sample files`}
-          footer={
-            <UIText>
-              {t`Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties.`}
-            </UIText>
+      {/* Disabled rather than alerting: nothing to preview without a file,
+          and a tappable button would fire the upload twice while busy. */}
+      <CenteredButton
+        label={busy ? t`Reading…` : t`Preview import`}
+        disabled={busy || file == null}
+        loading={busy}
+        onPress={() => {
+          if (!usesFileAccount && selectedAccount === '') {
+            Alert.alert(t`Could not preview`, t`Pick an account first.`);
+            return;
           }
-        >
-          <Button
-            systemImage="tablecells"
-            label={t`Sample CSV`}
-            onPress={() => void saveSample('csv')}
-          />
-          <Button
-            systemImage="curlybraces"
-            label={t`Sample JSON`}
-            onPress={() => void saveSample('json')}
-          />
-        </Section>
-      </SettingsForm>
-    </AppHost>
+          void runPreview();
+        }}
+      />
+
+      <SettingsSection title={t`Supported formats`}>
+        {IMPORT_FORMATS.map((format) => (
+          <Frame.Row key={format.icon} align="start">
+            <Frame.Media>
+              <Icon name={format.icon} size={16} tintColor={mutedForeground} />
+            </Frame.Media>
+            <Frame.Content>
+              <Text size="sm" weight="medium">
+                {format.name()}
+              </Text>
+              <Text size="sm" muted>
+                {format.body()}
+              </Text>
+            </Frame.Content>
+          </Frame.Row>
+        ))}
+      </SettingsSection>
+
+      {/* Web parity: the Import page's sample downloads. Saving through the
+          share sheet puts them in Files, where the picker above can reach
+          them. */}
+      <SettingsSection
+        title={t`Sample files`}
+        footer={t`Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties.`}
+      >
+        <SettingsButton
+          systemImage="tablecells"
+          label={t`Sample CSV`}
+          onPress={() => void saveSample('csv')}
+        />
+        <SettingsButton
+          systemImage="curlybraces"
+          label={t`Sample JSON`}
+          onPress={() => void saveSample('json')}
+        />
+      </SettingsSection>
+    </SettingsForm>
   );
 }

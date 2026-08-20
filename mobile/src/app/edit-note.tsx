@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Alert, Pressable, Text } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
+import { Icon } from '@/components/icon';
 import { useNote } from '@/api/hooks';
 import type { Note, NoteBody } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
@@ -39,7 +39,7 @@ function EditNoteForm({ note }: { note: Note }) {
   // Queue-aware writes: unreachable-server saves land in the offline outbox,
   // and a note whose create is still queued is edited in place there.
   const { updateNote, deleteNote } = useQueuedNoteOps();
-  const { theme } = useUnistyles();
+  const [destructive] = useCSSVariable(['--color-destructive']) as [string];
 
   const [values, setValues] = useState<NoteFormValues>(() => valuesFromNote(note));
   const onChange = (patch: Partial<NoteFormValues>) =>
@@ -105,9 +105,9 @@ function EditNoteForm({ note }: { note: Note }) {
             hitSlop={10}
             accessibilityRole="button"
             accessibilityLabel={t`Delete note`}
-            style={({ pressed }) => pressed && styles.pressed}
+            className="active:opacity-60"
           >
-            <SymbolView name="trash" size={20} tintColor={theme.colors.destructive} />
+            <Icon name="trash" size={20} tintColor={destructive} />
           </Pressable>
         }
       />
@@ -158,12 +158,7 @@ export default function EditNoteScreen() {
   // Nothing fetched and nothing queued under this id — a stale link.
   return (
     <FormSheet title={t`Edit note`} onSave={() => {}}>
-      <Text style={styles.muted}>{t`Note not found`}</Text>
+      <Text className="text-center text-muted-foreground">{t`Note not found`}</Text>
     </FormSheet>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  pressed: { opacity: 0.6 },
-  muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
-}));

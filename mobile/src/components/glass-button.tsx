@@ -1,42 +1,48 @@
-import {
-  Button,
-  HStack,
-  Image as UIImage,
-  ProgressView,
-  Text as UIText,
-} from '@expo/ui/swift-ui';
-import {
-  accessibilityLabel,
-  buttonStyle,
-  disabled as disabledModifier,
-  font,
-  foregroundStyle,
-  frame,
-  glassEffect,
-  padding,
-} from '@expo/ui/swift-ui/modifiers';
-import { type SFSymbol } from 'expo-symbols';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { AppHost } from '@/components/app-host';
+import type { SFSymbol } from 'expo-symbols';
+import { Button } from 'panelui-native';
+import { ActivityIndicator, Platform } from 'react-native';
+import { useCSSVariable } from 'uniwind';
+
+import { Icon } from '@/components/icon';
+
+export type GlassButtonProps = {
+  label: string;
+  systemImage?: SFSymbol;
+  prominent?: boolean;
+  /** Stretch to the container width — form actions, not inline chrome. */
+  fill?: boolean;
+  disabled?: boolean;
+  onPress: () => void;
+};
+
+export type GlassIconButtonProps = {
+  systemImage: SFSymbol;
+  /** Accessibility label — the button shows only the symbol. */
+  label: string;
+  disabled?: boolean;
+  /** Swaps the glyph for a spinner and disables the button. */
+  loading?: boolean;
+  onPress: () => void;
+};
 
 /**
- * iOS 26 Liquid Glass buttons — real SwiftUI hosted in RN, not a `GlassView`
- * capsule we draw ourselves. expo-glass-effect's view samples the window
- * behind it, so inside a sheet it flattens to a plain dark fill with none of
- * the material or the press highlight.
+ * Sheet / overlay chrome actions, one file for both platforms.
  *
- * The material is `.glassEffect`, not the `.glass` *buttonStyle*: that style
- * fills its capsule with an opaque-reading grey on a dark background, which is
- * the flat "filled pill" look. The variant is scheme-dependent and comes from
- * `theme.materials.glass` — see the token for why. `interactive` is what gives
- * the press bloom. The shape lives on the effect, so no `buttonBorderShape` is
- * needed.
+ * The pair used to be a SwiftUI `glassEffect` original (`glass-button.ios.tsx`)
+ * beside a hand-drawn Material translation; PanelUI's `Button` now covers both
+ * from one call, so the split is gone and with it the two implementations that
+ * had to be kept in step.
  *
- * `Host matchContents` sizes the host to the SwiftUI content, which is what
- * keeps these usable inside flex rows (the sheet header, nav bars).
+ * The labelled button stays **drawn**, not `native`: it carries an optional
+ * glyph beside its label, and a native button can only host elements when its
+ * width is fixed by something above it — a labelled one's is its text's, which
+ * is nobody's, and hosting there takes the app down in native code where a JS
+ * `try` has nothing to catch. Drawn, it also keeps `fill`, the theme tokens and
+ * the icon tint.
  *
- * Disabled state is the native modifier, never an RN opacity wrapper — fading
- * a glass surface greys the material instead of the control.
+ * The one thing that must survive from the SwiftUI original is *rank*:
+ * `prominent` is the single brand action in a sheet, so it keeps the primary
+ * fill and its paired foreground, exactly as the tinted glass read on iOS.
  */
 export function GlassButton({
   label,
@@ -45,99 +51,88 @@ export function GlassButton({
   fill,
   disabled,
   onPress,
-}: {
-  label: string;
-  systemImage?: SFSymbol;
-  prominent?: boolean;
-  /** Stretch to the container width — form actions, not inline chrome. */
-  fill?: boolean;
-  disabled?: boolean;
-  onPress: () => void;
-}) {
-  const { theme } = useUnistyles();
-  const modifiers = [
-    // Plain: the button contributes no chrome of its own, the glass is the
-    // whole surface. Padding has to come first so the effect covers it.
-    buttonStyle('plain'),
-    foregroundStyle(theme.colors.foreground),
-    padding({ horizontal: 18, vertical: 11 }),
-    glassEffect({
-      glass: {
-        variant: theme.materials.glass,
-        interactive: true,
-        // Prominent is the one brand action per sheet — a tinted glass, still
-        // see-through, rather than a solid fill.
-        ...(prominent ? { tint: theme.colors.primary } : {}),
-      },
-      shape: 'capsule',
-    }),
-    ...(disabled ? [disabledModifier(true)] : []),
-  ];
-  const labelFont = font({ size: 15, weight: prominent ? 'semibold' : 'medium' });
+}: GlassButtonProps) {
+  // The glyph is an `expo-symbols` view, not a PanelUI icon, so it does not
+  // inherit the button's `IconColorProvider` — it needs the resolved token.
+  const [primaryForeground, secondaryForeground] = useCSSVariable([
+    '--color-primary-foreground',
+    '--color-secondary-foreground',
+  ]) as [string, string];
+  const tint = prominent ? primaryForeground : secondaryForeground;
 
-  // Width comes from the *label*, not the button: `frame(maxWidth:)` on the
-  // button leaves the glass hugging its content, so a full-width action has to
-  // expand its content instead (the login.tsx idiom).
   return (
-    <AppHost
-      matchContents={fill ? { vertical: true } : true}
-      style={fill ? styles.fill : undefined}
+    <Button
+      variant={prominent ? 'primary' : 'secondary'}
+      fullWidth={fill}
+      disabled={disabled}
+      onPress={onPress}
+      startContent={
+        systemImage ? <Icon name={systemImage} size={15} tintColor={tint} /> : undefined
+      }
     >
-      <Button onPress={onPress} modifiers={modifiers}>
-        <HStack spacing={6} modifiers={fill ? [frame({ maxWidth: 9999 })] : []}>
-          {systemImage ? <UIImage systemName={systemImage} size={15} /> : <></>}
-          <UIText modifiers={[labelFont]}>{label}</UIText>
-        </HStack>
-      </Button>
-    </AppHost>
+      {label}
+    </Button>
   );
 }
 
-/** Circular glass icon button — sheet close / compact bar actions. */
+/**
+ * Circular icon button — sheet close / compact bar actions.
+ *
+ * On iOS this one *is* native: an icon button is a square PanelUI sizes
+ * itself, which is the case where hosting a view inside the platform button is
+ * safe, and it is what buys the real Liquid Glass material on iOS 26.
+ *
+ * On Android it is drawn. The Compose button renders, but a press on it never
+ * reaches `onPress` (verified on the Pixel emulator — the trade form's "+"
+ * drew and did nothing), so Android gets PanelUI's own round secondary button:
+ * same square, same glyph, presses that work.
+ */
 export function GlassIconButton({
   systemImage,
   label,
   disabled,
   loading,
   onPress,
-}: {
-  systemImage: SFSymbol;
-  /** Accessibility label — the button shows only the symbol. */
-  label: string;
-  disabled?: boolean;
-  /** Swaps the glyph for a native spinner and disables the button. */
-  loading?: boolean;
-  onPress: () => void;
-}) {
-  const { theme } = useUnistyles();
-  return (
-    <AppHost matchContents>
+}: GlassIconButtonProps) {
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
+  const off = disabled || loading;
+
+  const glyph = loading ? (
+    // `size="icon"` fixes the button's square, so swapping the glyph for
+    // the spinner cannot resize the circle under the finger.
+    <ActivityIndicator size="small" color={foreground} />
+  ) : (
+    <Icon name={systemImage} size={16} tintColor={foreground} />
+  );
+
+  if (Platform.OS !== 'ios') {
+    return (
       <Button
+        size="icon"
+        variant="secondary"
+        className="rounded-full"
+        disabled={off}
         onPress={onPress}
-        modifiers={[
-          buttonStyle('plain'),
-          foregroundStyle(theme.colors.foreground),
-          // Even padding around a square glyph is what makes the circle round.
-          padding({ all: 11 }),
-          glassEffect({
-            glass: { variant: theme.materials.glass, interactive: true },
-            shape: 'circle',
-          }),
-          accessibilityLabel(label),
-          ...(disabled || loading ? [disabledModifier(true)] : []),
-        ]}
+        accessibilityLabel={label}
+        accessibilityState={{ disabled: !!off, busy: !!loading }}
       >
-        {loading ? (
-          // Pinned to the glyph's box so the circle doesn't resize mid-swap.
-          <ProgressView modifiers={[frame({ width: 16, height: 16 })]} />
-        ) : (
-          <UIImage systemName={systemImage} size={16} />
-        )}
+        {glyph}
       </Button>
-    </AppHost>
+    );
+  }
+
+  return (
+    <Button
+      native
+      glass
+      size="icon"
+      variant="ghost"
+      disabled={off}
+      onPress={onPress}
+      accessibilityLabel={label}
+      accessibilityState={{ disabled: !!off, busy: !!loading }}
+    >
+      {glyph}
+    </Button>
   );
 }
-
-const styles = StyleSheet.create(() => ({
-  fill: { alignSelf: 'stretch' },
-}));

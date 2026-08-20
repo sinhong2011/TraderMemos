@@ -1,56 +1,46 @@
-import {
-  Button as UIButton,
-  Image as UIImage,
-  Menu,
-  Section,
-} from '@expo/ui/swift-ui';
-import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter, type Href } from 'expo-router';
-import { SymbolView, type SFSymbol } from 'expo-symbols';
-import { Platform, Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { type SFSymbol } from 'expo-symbols';
+import { Menu } from 'panelui-native';
+import { Fragment } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
+import { Icon } from '@/components/icon';
 import { useTradingSession } from '@/lib/live-activity';
 
 /**
  * Home-header wrench menu — everywhere you go from Home that isn't a tab.
  *
- * Two sections: the calculators and market lookups (the phone home of the web
- * Tools popover), then the journal sections. Notes and Playbook live here as
- * well as on their dashboard cards because the cards sit below every analytics
- * block — reaching your own journal should not mean scrolling past the whole
- * dashboard. Sheets for the one-shot calculators; everything else pushes in
- * the Home stack.
+ * Presented as a bottom sheet with two shapes of content: the journal
+ * destinations stay reading-order rows, while the tools are a two-column grid
+ * of tiles — calculators are "grab one" objects, not a list you read top to
+ * bottom, and the grid halves the sheet's height. Notes and Playbook live
+ * here as well as on their dashboard cards because the cards sit below every
+ * analytics block — reaching your own journal should not mean scrolling past
+ * the whole dashboard.
+ *
+ * PanelUI `Menu`, so the same sheet draws on both platforms — Android has no
+ * pull-down view manager, and the old fallback pushed one hardcoded action.
  */
 export function ToolsMenu() {
-  const { theme } = useUnistyles();
+  const [foreground, overlayForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-overlay-foreground',
+  ]) as string[];
   const router = useRouter();
   // Lock Screen / Dynamic Island trading session (lib/live-activity.ts).
   // Lives here because this menu is where the day starts, same reasoning as
   // the daily checklist below.
   const tradingSession = useTradingSession();
 
-  const actions: { label: string; systemImage: SFSymbol; href: Href }[] = [
+  const tools: { label: string; systemImage: SFSymbol; href: Href }[] = [
     // Promoted out of the tab bar (2026-08-09) when the search tab took the
     // fifth slot; first here because it was a top-level destination.
-    {
-      label: t`Reports`,
-      systemImage: 'chart.pie',
-      href: '/(tabs)/(dashboard)/reports',
-    },
-    {
-      label: t`Position size`,
-      systemImage: 'scalemass',
-      href: '/tool-position-size',
-    },
+    { label: t`Reports`, systemImage: 'chart.pie', href: '/(tabs)/(dashboard)/reports' },
+    { label: t`Position size`, systemImage: 'scalemass', href: '/tool-position-size' },
     { label: t`Kelly criterion`, systemImage: 'percent', href: '/tool-kelly' },
-    {
-      label: t`Currency converter`,
-      systemImage: 'arrow.left.arrow.right',
-      href: '/tool-fx',
-    },
+    { label: t`Currency converter`, systemImage: 'arrow.left.arrow.right', href: '/tool-fx' },
     {
       label: t`R calculator`,
       systemImage: 'plus.forwardslash.minus',
@@ -61,16 +51,13 @@ export function ToolsMenu() {
       systemImage: 'chart.xyaxis.line',
       href: '/(tabs)/(dashboard)/symbol-journal',
     },
-    {
-      label: t`Backtest`,
-      systemImage: 'backward.frame',
-      href: '/(tabs)/(dashboard)/backtest',
-    },
+    { label: t`Backtest`, systemImage: 'backward.frame', href: '/(tabs)/(dashboard)/backtest' },
     {
       label: t`Economic calendar`,
       systemImage: 'newspaper',
       href: '/(tabs)/(dashboard)/economic-events',
     },
+    { label: t`Connect a broker`, systemImage: 'building.columns', href: '/connect-broker' },
   ];
 
   const journal: { label: string; systemImage: SFSymbol; href: Href }[] = [
@@ -82,73 +69,86 @@ export function ToolsMenu() {
     {
       label: t`Daily checklist`,
       systemImage: 'checklist',
-      href: '/(tabs)/(dashboard)/checklist',
+      href: '/(tabs)/(dashboard)/daily-checklist',
     },
   ];
 
-  if (Platform.OS !== 'ios') {
-    return (
-      <Pressable
-        onPress={() => router.push(actions[3].href)}
-        hitSlop={10}
-        accessibilityRole="button"
-        accessibilityLabel={t`Tools`}
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-      >
-        <SymbolView name="wrench.and.screwdriver" size={17} tintColor={theme.colors.foreground} />
-      </Pressable>
-    );
-  }
+  const rowIcon = (name: SFSymbol) => (
+    <Icon name={name} size={16} tintColor={overlayForeground} />
+  );
 
   return (
-    <AppHost matchContents>
-      <Menu
-        label={<UIImage systemName="wrench.and.screwdriver" size={16} />}
-        modifiers={[buttonStyle('plain'), tint(theme.colors.foreground), accessibilityLabel(t`Tools`)]}
-      >
-        {tradingSession.supported && (
-          <Section title={t`Session`}>
+    <Menu presentation="bottom-sheet">
+      <Menu.Trigger>
+        <Pressable
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel={t`Tools`}
+          className="h-8 w-8 items-center justify-center active:opacity-60"
+        >
+          <Icon name="wrench.and.screwdriver" size={17} tintColor={foreground} />
+        </Pressable>
+      </Menu.Trigger>
+      {/* shadow-none: the sheet is already the surface, but Menu.Content
+          always adds its popover panel chrome (shadow-lg halo + rounded
+          box) which reads as a second card floating inside the sheet. */}
+      <Menu.Content width="full" className="shadow-none rounded-none pb-0">
+        {tradingSession.supported ? (
+          <Fragment>
+            <Menu.Label>{t`Session`}</Menu.Label>
             {tradingSession.active ? (
-              <UIButton
-                label={t`End Lock Screen session`}
-                systemImage="stop.circle"
-                onPress={tradingSession.end}
-              />
+              <Menu.Item icon={rowIcon('stop.circle')} onSelect={tradingSession.end}>
+                {t`End Lock Screen session`}
+              </Menu.Item>
             ) : (
-              <UIButton
-                label={t`Show session on Lock Screen`}
-                systemImage="dot.radiowaves.left.and.right"
-                onPress={tradingSession.start}
-              />
+              <Menu.Item
+                icon={rowIcon('dot.radiowaves.left.and.right')}
+                onSelect={tradingSession.start}
+              >
+                {t`Show session on Lock Screen`}
+              </Menu.Item>
             )}
-          </Section>
-        )}
-        <Section title={t`Journal`}>
-          {journal.map((action) => (
-            <UIButton
+            <Menu.Separator />
+          </Fragment>
+        ) : null}
+        <Menu.Label>{t`Journal`}</Menu.Label>
+        {journal.map((action) => (
+          <Menu.Item
+            key={action.label}
+            icon={rowIcon(action.systemImage)}
+            onSelect={() => router.push(action.href)}
+          >
+            {action.label}
+          </Menu.Item>
+        ))}
+        <Menu.Separator />
+        <Menu.Label>{t`Tools`}</Menu.Label>
+        {/* Bento grid: quiet muted tiles, icon and label centered. Menu.Item
+            keeps the press fill/scale and close-on-select; the class
+            overrides reshape the row into a tile. */}
+        <View className="flex-row flex-wrap gap-1.5 pt-1">
+          {tools.map((action) => (
+            <Menu.Item
               key={action.label}
-              label={action.label}
-              systemImage={action.systemImage}
-              onPress={() => router.push(action.href)}
-            />
+              className="min-h-[56px] w-[48%] rounded-xl bg-secondary p-2"
+              onSelect={() => router.push(action.href)}
+            >
+              {/* Menu.Item wraps children in a plain flex-1 View, so the
+                  centering has to live on our own inner View — alignment
+                  classes on the item itself never reach the content. */}
+              <View className="flex-1 items-center justify-center gap-1">
+                <Icon name={action.systemImage} size={18} tintColor={overlayForeground} />
+                <Text
+                  numberOfLines={2}
+                  className="text-center text-[12px] font-medium text-overlay-foreground"
+                >
+                  {action.label}
+                </Text>
+              </View>
+            </Menu.Item>
           ))}
-        </Section>
-        <Section title={t`Tools`}>
-          {actions.map((action) => (
-            <UIButton
-              key={action.label}
-              label={action.label}
-              systemImage={action.systemImage}
-              onPress={() => router.push(action.href)}
-            />
-          ))}
-        </Section>
-      </Menu>
-    </AppHost>
+        </View>
+      </Menu.Content>
+    </Menu>
   );
 }
-
-const styles = StyleSheet.create(() => ({
-  button: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  pressed: { opacity: 0.6 },
-}));

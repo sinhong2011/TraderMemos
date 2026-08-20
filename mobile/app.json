@@ -101,13 +101,13 @@
       "expo-image",
       "expo-sqlite",
       [
-        "expo-build-properties",
-        {
-          "android": {
-            "usesCleartextTraffic": true
-          }
+      "expo-build-properties",
+      {
+        "android": {
+          "usesCleartextTraffic": true
         }
-      ]
+      }
+    ]
     ],
     "experiments": {
       "typedRoutes": true,

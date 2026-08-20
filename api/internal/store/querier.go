@@ -102,6 +102,7 @@ type Querier interface {
 	ListEnabledFlexSyncSettings(ctx context.Context) ([]FlexSyncSetting, error)
 	ListExecutionsForAccount(ctx context.Context, arg ListExecutionsForAccountParams) ([]Execution, error)
 	ListExecutionsForTrade(ctx context.Context, tradeID string) ([]Execution, error)
+	ListFlexSyncSettingsForUser(ctx context.Context, userID string) ([]ListFlexSyncSettingsForUserRow, error)
 	ListImportBatches(ctx context.Context, userID string) ([]ImportBatch, error)
 	ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error)
 	ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error)

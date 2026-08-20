@@ -1,61 +1,28 @@
-import {
-  Button,
-  Divider,
-  HStack,
-  Image,
-  Menu,
-  ProgressView,
-  Section,
-  Spacer,
-  Text as UIText,
-  TextField,
-  Toggle,
-  useNativeState,
-} from '@expo/ui/swift-ui';
-import {
-  Animation,
-  animation,
-  buttonStyle,
-  controlSize,
-  disabled as disabledModifier,
-  foregroundStyle,
-  lineLimit,
-  listRowBackground,
-  listRowInsets,
-  progressViewStyle,
-  scrollDismissesKeyboard,
-  tint,
-  truncationMode,
-} from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { cn, Frame, Menu, Text, Textarea } from 'panelui-native';
 import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useCSSVariable } from 'uniwind';
 
 import { queryKeys, useApiRequest, useLlmSettings, type LlmKind } from '@/api/hooks';
 import type { LlmApiSettings, LlmApiTestResult, LlmModelsResult } from '@/api/types';
+import { CenteredButton } from '@/components/centered-button';
 import { ErrorState } from '@/components/error-state';
+import { FormField } from '@/components/form-kit';
 import { HeaderIconButton } from '@/components/header-icon-button';
+import { Icon } from '@/components/icon';
+import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsSection, SettingsToggle } from '@/components/settings-rows';
+import { usePrompt } from '@/components/use-prompt';
 import { errorMessage } from '@/lib/errors';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
 
 const DEFAULT_BASE_URL = 'https://api.openai.com/v1';
-
-/**
- * Settle for the connection verdict.
- *
- * Long and soft on purpose: this row is the answer to a question you asked, so
- * it should be seen arriving rather than appear already-there. Damping is
- * below TAB_SPRING's 0.85 to leave a little overshoot — at high damping a
- * short spring is indistinguishable from a cut. SwiftUI takes seconds here,
- * not the milliseconds Reanimated wants.
- */
-const RESULT_SPRING = { duration: 0.65, dampingFraction: 0.72 } as const;
 
 /** Sub-second round trips read better in ms; past that, one decimal second. */
 function formatLatency(ms: number): string {
@@ -78,12 +45,11 @@ function kindCopy(kind: LlmKind) {
 }
 
 /**
- * One LLM endpoint (vision scan or AI coach). Values edit through native
- * prompts rather than inline fields — a base URL or key is far too long for a
- * form row, and the settings idiom here is tap-a-row-to-edit. Save lives in
- * the nav bar and lights up only when something changed, so the screen has no
- * standing action rows; the connection test reports inline instead of through
- * an alert.
+ * One LLM endpoint (vision scan or AI coach). Values edit through prompts
+ * rather than inline fields — a base URL or key is far too long for a form
+ * row, and the settings idiom here is tap-a-row-to-edit. Save lives in the nav
+ * bar and lights up only when something changed, so the screen has no standing
+ * action rows; the connection test reports inline instead of through an alert.
  */
 export default function AiProviderScreen() {
   const params = useLocalSearchParams<{ kind: string }>();
@@ -108,16 +74,18 @@ export default function AiProviderScreen() {
 
   if (!settings.data) {
     return (
-      <AppHost style={{ flex: 1 }}>
+      <>
         <Stack.Screen options={{ title: copy.title }} />
         <SettingsForm>
-          <Section>
-            <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
-              {t`Loading…`}
-            </UIText>
-          </Section>
+          <SettingsSection>
+            <Frame.Row>
+              <Text size="sm" muted className="flex-1">
+                {t`Loading…`}
+              </Text>
+            </Frame.Row>
+          </SettingsSection>
         </SettingsForm>
-      </AppHost>
+      </>
     );
   }
   // Mount the form only once the settings are in cache, so every field can
@@ -126,17 +94,23 @@ export default function AiProviderScreen() {
 }
 
 function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSettings }) {
-  const { theme } = useUnistyles();
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const copy = kindCopy(kind);
+  // Single-value edits go through a prompt — the settings idiom here, and
+  // `usePrompt` is its cross-platform form (`Alert.prompt` is iOS-only).
+  const { prompt, element: promptElement } = usePrompt();
+  const [profit, destructive, mutedForeground] = useCSSVariable([
+    '--color-profit',
+    '--color-destructive',
+    '--color-muted-foreground',
+  ]) as [string, string, string];
 
   const [enabled, setEnabled] = useState(settings.enabled);
   const [baseUrl, setBaseUrl] = useState(settings.base_url.trim() || DEFAULT_BASE_URL);
   const [model, setModel] = useState(settings.model.trim());
   // Empty means "keep the stored key" — the server only ever returns a hint.
   const [apiKey, setApiKey] = useState('');
-  const promptState = useNativeState(settings.custom_prompt ?? '');
   const promptText = useRef(settings.custom_prompt ?? '');
   const [dirty, setDirty] = useState(false);
   const [models, setModels] = useState<string[]>([]);
@@ -213,72 +187,53 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
   });
 
   function editBaseUrl() {
-    Alert.prompt(
-      t`Base URL`,
-      t`The root of an OpenAI-compatible API, ending in /v1.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Done`,
-          onPress: (text?: string) => {
-            const next = (text ?? '').trim();
-            if (!next) return;
-            if (!next.startsWith('http://') && !next.startsWith('https://')) {
-              Alert.alert(t`Invalid URL`, t`The base URL must start with http:// or https://.`);
-              return;
-            }
-            setBaseUrl(next);
-            // Models are per-endpoint — a new host invalidates the list.
-            setModels([]);
-            setTestResult(null);
-            setDirty(true);
-          },
-        },
-      ],
-      'plain-text',
-      baseUrl,
-      'url',
-    );
+    prompt({
+      title: t`Base URL`,
+      message: t`The root of an OpenAI-compatible API, ending in /v1.`,
+      defaultValue: baseUrl,
+      keyboardType: 'url',
+      confirmLabel: t`Done`,
+      onSubmit: (text) => {
+        const next = text.trim();
+        if (!next) return;
+        if (!next.startsWith('http://') && !next.startsWith('https://')) {
+          Alert.alert(t`Invalid URL`, t`The base URL must start with http:// or https://.`);
+          return;
+        }
+        setBaseUrl(next);
+        // Models are per-endpoint — a new host invalidates the list.
+        setModels([]);
+        setTestResult(null);
+        setDirty(true);
+      },
+    });
   }
 
   function editApiKey() {
-    Alert.prompt(
-      t`API key`,
-      settings.api_key_set
+    prompt({
+      title: t`API key`,
+      message: settings.api_key_set
         ? t`Leave blank to keep the key already stored on the server.`
         : t`Stored on your server, never on this phone.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Done`,
-          onPress: (text?: string) => {
-            const next = (text ?? '').trim();
-            if (!next) return;
-            setApiKey(next);
-            setTestResult(null);
-            setDirty(true);
-          },
-        },
-      ],
-      'secure-text',
-      '',
-    );
+      confirmLabel: t`Done`,
+      onSubmit: (text) => {
+        const next = text.trim();
+        if (!next) return;
+        setApiKey(next);
+        setTestResult(null);
+        setDirty(true);
+      },
+    });
   }
 
   function editModel() {
-    Alert.prompt(
-      t`Model`,
-      t`The model id as the endpoint spells it, e.g. gpt-4o-mini.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Done`,
-          onPress: (text?: string) => pickModel((text ?? '').trim()),
-        },
-      ],
-      'plain-text',
-      model,
-    );
+    prompt({
+      title: t`Model`,
+      message: t`The model id as the endpoint spells it, e.g. gpt-4o-mini.`,
+      defaultValue: model,
+      confirmLabel: t`Done`,
+      onSubmit: (text) => pickModel(text.trim()),
+    });
   }
 
   function pickModel(next: string) {
@@ -295,7 +250,7 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
       : t`Not set`;
 
   return (
-    <AppHost style={{ flex: 1 }}>
+    <>
       <Stack.Screen
         options={{
           title: copy.title,
@@ -309,196 +264,135 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
           ),
         }}
       />
-      <SettingsForm modifiers={[scrollDismissesKeyboard('immediately')]}>
-        <Section footer={<UIText>{copy.blurb}</UIText>}>
-          <Toggle
+      <SettingsForm>
+        <SettingsSection footer={copy.blurb}>
+          <SettingsToggle
             label={t`Enabled`}
-            isOn={enabled}
-            onIsOnChange={(value) => {
+            value={enabled}
+            onValueChange={(value) => {
               setEnabled(value);
               setDirty(true);
             }}
           />
-        </Section>
+        </SettingsSection>
 
-        {/* Animating the *section* is what makes the verdict row slide in and
-            out: the row is conditionally mounted, and SwiftUI can only animate
-            an insertion from the container that gains it. Keyed on presence,
-            so a re-test (which clears the row before the new answer lands)
-            plays out rather than snapping.
-
-            `dampingFraction` matches TAB_SPRING's 0.85; the duration is
-            shorter because one row settling should not take as long as a page
-            transition. */}
-        <Section
-          modifiers={[animation(Animation.spring(RESULT_SPRING), testResult != null)]}
+        <SettingsSection
           title={t`Connection`}
-          footer={
-            <UIText>{t`Any OpenAI-compatible endpoint works. Test uses the values above, saved or not.`}</UIText>
-          }
+          footer={t`Any OpenAI-compatible endpoint works. Test uses the values above, saved or not.`}
         >
-          <ValueRow label={t`Base URL`} value={baseUrl} onPress={editBaseUrl} />
+          {/* `accessory="none"`: these rows open a prompt, and a chevron
+              promises a push that never happens. */}
+          <NavRow label={t`Base URL`} value={baseUrl} accessory="none" onPress={editBaseUrl} />
 
-          <Menu
-            label={
-              <HStack spacing={8}>
-                <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
-                  {t`Model`}
-                </UIText>
-                <Spacer />
-                <UIText
-                  modifiers={[
-                    foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
-                    lineLimit(1),
-                    truncationMode('middle'),
-                  ]}
+          {/* The model row is a pull-down rather than a picker: besides the
+              models the endpoint listed, it carries the two actions that
+              produce that list in the first place. */}
+          <Menu presentation="bottom-sheet">
+            <Menu.Trigger>
+              <Frame.Row accessibilityRole="button" accessibilityLabel={t`Model`}>
+                <Frame.Content>
+                  <Frame.Title>{t`Model`}</Frame.Title>
+                </Frame.Content>
+                <Frame.Actions className="min-w-0 shrink justify-end">
+                  <Text size="sm" muted numberOfLines={1} ellipsizeMode="middle">
+                    {model || t`Default`}
+                  </Text>
+                  <Icon name="chevron.up.chevron.down" size={11} tintColor={mutedForeground} />
+                </Frame.Actions>
+              </Frame.Row>
+            </Menu.Trigger>
+            <Menu.Content width="full" className="shadow-none rounded-none">
+              {models.map((name) => (
+                <Menu.Item
+                  key={name}
+                  icon={
+                    name === model ? (
+                      <Icon name="checkmark" size={13} tintColor={mutedForeground} />
+                    ) : undefined
+                  }
+                  onPress={() => pickModel(name)}
                 >
-                  {model || t`Default`}
-                </UIText>
-                <Image
-                  systemName="chevron.up.chevron.down"
-                  size={11}
-                  color={theme.colors.mutedForeground}
-                />
-              </HStack>
-            }
-          >
-            {models.map((name) => (
-              <Button
-                key={name}
-                label={name}
-                systemImage={name === model ? 'checkmark' : undefined}
-                onPress={() => pickModel(name)}
-              />
-            ))}
-            {models.length > 0 ? <Divider /> : null}
-            <Button
-              label={listModels.isPending ? t`Loading models…` : t`Fetch models`}
-              systemImage="arrow.down.circle"
-              onPress={() => {
-                if (!listModels.isPending) listModels.mutate();
-              }}
-            />
-            <Button label={t`Type a model id…`} systemImage="keyboard" onPress={editModel} />
+                  {name}
+                </Menu.Item>
+              ))}
+              {models.length > 0 ? <Menu.Separator /> : null}
+              <Menu.Item
+                icon={<Icon name="arrow.down.circle" size={13} tintColor={mutedForeground} />}
+                disabled={listModels.isPending}
+                onPress={() => {
+                  if (!listModels.isPending) listModels.mutate();
+                }}
+              >
+                {listModels.isPending ? t`Loading models…` : t`Fetch models`}
+              </Menu.Item>
+              <Menu.Item
+                icon={<Icon name="keyboard" size={13} tintColor={mutedForeground} />}
+                onPress={editModel}
+              >
+                {t`Type a model id…`}
+              </Menu.Item>
+            </Menu.Content>
           </Menu>
 
-          <ValueRow label={t`API key`} value={apiKeyValue} onPress={editApiKey} />
+          <NavRow label={t`API key`} value={apiKeyValue} accessory="none" onPress={editApiKey} />
+
           {/* The verdict belongs to the fields it tested, so it reads as the
               last row of the Connection card rather than an annotation on the
-              button — which now sits outside the form entirely. */}
+              button — which sits outside the form entirely. It fades in rather
+              than appearing already-there: this row is the answer to a
+              question that was asked. */}
           {testResult ? (
-            <HStack spacing={10}>
-              <Image
-                systemName={
-                  testResult.ok ? 'checkmark.circle.fill' : 'exclamationmark.triangle.fill'
-                }
+            <Animated.View
+              entering={FadeIn.duration(250)}
+              exiting={FadeOut.duration(150)}
+              className="flex-row items-center gap-2.5 px-4 py-3.5"
+            >
+              <Icon
+                name={testResult.ok ? 'checkmark.circle.fill' : 'exclamationmark.triangle.fill'}
                 size={17}
-                color={testResult.ok ? theme.colors.profit : theme.colors.destructive}
+                tintColor={testResult.ok ? profit : destructive}
               />
-              <UIText
-                modifiers={[
-                  foregroundStyle(testResult.ok ? theme.colors.profit : theme.colors.destructive),
-                ]}
-              >
+              <Text className={cn('flex-1', testResult.ok ? 'text-profit' : 'text-destructive')}>
                 {testResult.message}
-              </UIText>
-              <Spacer />
-            </HStack>
+              </Text>
+            </Animated.View>
           ) : null}
-        </Section>
+        </SettingsSection>
 
-        {/* Outside the Connection card: this is an action on those fields,
-            not another field, and the prominent fill fought the inset-grouped
-            rows it used to sit among. `listRowBackground` transparent with no
-            insets is what keeps it out — a Section still paints its own card
-            otherwise, which would just move the button into a second one.
+        {/* Outside the Connection card: this is an action on those fields, not
+            another field. A label that merely reads "Testing…" leaves the
+            button looking idle on a slow endpoint — exactly when feedback
+            matters, so it spins and locks out a second tap. */}
+        <CenteredButton
+          label={test.isPending ? t`Testing…` : t`Test connection`}
+          loading={test.isPending}
+          onPress={() => {
+            setTestResult(null);
+            test.mutate();
+          }}
+        />
 
-            A label that merely reads "Testing…" leaves the button looking idle
-            on a slow endpoint — exactly when feedback matters. Spinner plus a
-            disabled button: the spin is the only thing on screen that proves
-            the request is still in flight. */}
-        <Section
-          modifiers={[listRowBackground('transparent'), listRowInsets({ leading: 0, trailing: 0 })]}
-        >
-          <Button
-            onPress={() => {
-              setTestResult(null);
-              test.mutate();
-            }}
-            modifiers={[
-              buttonStyle('borderedProminent'),
-              // Explicit tint: `borderedProminent` fills with the ambient
-              // accent, and SettingsForm deliberately sets none — leaving the
-              // capsule white with a white label.
-              tint(theme.colors.primary),
-              controlSize('large'),
-              disabledModifier(test.isPending),
-            ]}
-          >
-            <HStack spacing={8}>
-              <Spacer />
-              {test.isPending ? (
-                // Explicitly circular: an indeterminate ProgressView inside a
-                // Form otherwise renders as a full-width linear bar.
-                <ProgressView
-                  modifiers={[progressViewStyle('circular'), tint(theme.colors.primaryForeground)]}
-                />
-              ) : null}
-              <UIText modifiers={[foregroundStyle(theme.colors.primaryForeground)]}>
-                {test.isPending ? t`Testing…` : t`Test connection`}
-              </UIText>
-              <Spacer />
-            </HStack>
-          </Button>
-
-        </Section>
-
-        <Section title={t`Prompt`} footer={<UIText>{copy.promptHint}</UIText>}>
-          <TextField
+        {/* An input, so it takes the form-kit anatomy — bare on the
+            background, not floated inside a section card. */}
+        <FormField label={t`Prompt`}>
+          <Textarea
+            variant="filled"
+            className="rounded-3xl border-0"
+            defaultValue={settings.custom_prompt ?? ''}
             placeholder={t`Leave blank to use the built-in prompt`}
-            text={promptState}
-            axis="vertical"
-            modifiers={[lineLimit({ min: 3, max: 10 })]}
-            onTextChange={(text) => {
+            description={copy.promptHint}
+            rows={3}
+            autoGrow
+            maxRows={10}
+            accessibilityLabel={t`Prompt`}
+            onChangeText={(text) => {
               promptText.current = text;
               setDirty(true);
             }}
           />
-        </Section>
+        </FormField>
       </SettingsForm>
-    </AppHost>
-  );
-}
-
-/** Settings row whose value is edited in a native prompt. */
-function ValueRow({
-  label,
-  value,
-  onPress,
-}: {
-  label: string;
-  value: string;
-  onPress: () => void;
-}) {
-  const { theme } = useUnistyles();
-  return (
-    <Button onPress={onPress}>
-      <HStack spacing={8}>
-        <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
-          {label}
-        </UIText>
-        <Spacer />
-        <UIText
-          modifiers={[
-            foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
-            lineLimit(1),
-            truncationMode('head'),
-          ]}
-        >
-          {value}
-        </UIText>
-        <Image systemName="chevron.right" size={12} color={theme.colors.mutedForeground} />
-      </HStack>
-    </Button>
+      {promptElement}
+    </>
   );
 }

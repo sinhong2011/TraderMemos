@@ -1,83 +1,87 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { SymbolView } from 'expo-symbols';
-import { useRef } from 'react';
 import { Alert, Pressable, RefreshControl, Text, View } from 'react-native';
-import ReanimatedSwipeable, {
-  type SwipeableMethods,
-} from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
+import { EmptyState } from '@/components/empty-state';
+import { Icon } from '@/components/icon';
 import { queryKeys, useApiRequest, useTags } from '@/api/hooks';
 import type { Tag } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
+import { Swipe } from '@/components/swipe';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { DEFAULT_TAG_COLOR, kindLabel } from '@/lib/tags';
-import { AppHost } from '@/components/app-host';
 
-/** One tag: tap to edit, trailing swipe to delete (the api-tokens idiom). */
+/**
+ * One tag, in the trades-list row anatomy: a tap (or the leading swipe) opens
+ * it for editing, a long press previews the edit form, the trailing swipe
+ * deletes it.
+ */
 function TagRow({ tag, onEdit, onDelete }: { tag: Tag; onEdit: () => void; onDelete: () => void }) {
-  const { theme } = useUnistyles();
-  const swipeable = useRef<SwipeableMethods>(null);
-
   return (
-    <ReanimatedSwipeable
-      ref={swipeable}
-      friction={2}
-      rightThreshold={36}
-      overshootRight={false}
-      renderRightActions={() => (
-        <Pressable
-          onPress={() => {
-            swipeable.current?.close();
-            onDelete();
-          }}
-          accessibilityRole="button"
-          accessibilityLabel={t`Delete`}
-          style={({ pressed }) => [
-            styles.swipeAction,
-            { backgroundColor: theme.colors.destructive },
-            pressed && styles.pressed,
-          ]}
-        >
-          <SymbolView name="trash.fill" size={17} tintColor="#FFFFFF" />
-          <Text style={styles.swipeLabel} numberOfLines={1}>
-            {t`Delete`}
-          </Text>
-        </Pressable>
-      )}
-    >
-      <Pressable onPress={onEdit} accessibilityRole="button">
-        {({ pressed }) => (
-          <View style={[styles.row, pressed && styles.pressed]}>
-            <View style={[styles.dot, { backgroundColor: tag.color || DEFAULT_TAG_COLOR }]} />
-            <Text style={styles.rowName} numberOfLines={1}>
-              {tag.name}
-            </Text>
-            <Text style={styles.rowMeta} numberOfLines={1}>
-              {kindLabel(tag.kind)}
-            </Text>
-          </View>
-        )}
-      </Pressable>
-    </ReanimatedSwipeable>
+    <Swipe resetKey={tag.id}>
+      <Swipe.Start>
+        <Swipe.Action
+          color="info"
+          icon={<Icon name="pencil" />}
+          label={t`Edit`}
+          onPress={onEdit}
+        />
+      </Swipe.Start>
+      <Swipe.End>
+        <Swipe.Action
+          color="destructive"
+          icon={<Icon name="trash.fill" />}
+          label={t`Delete`}
+          onPress={onDelete}
+        />
+      </Swipe.End>
+      <Link href={{ pathname: '/tag-form', params: { id: tag.id } }} asChild>
+        {/* Link.Trigger clones its child and overwrites `style`, so the
+            Pressable stays bare and an inner View carries the row's surface
+            (the trade-row rule). */}
+        <Link.Trigger>
+          <Pressable>
+            <View className="flex-row items-center gap-3 rounded-lg bg-card p-4">
+              {/* The dot is the tag's own color — the one thing on the row that
+                  is data rather than theme, so it stays an inline style. */}
+              <View
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: tag.color || DEFAULT_TAG_COLOR }}
+              />
+              <Text className="flex-1 text-[15px] font-semibold text-foreground" numberOfLines={1}>
+                {tag.name}
+              </Text>
+              <Text className="text-[13px] text-muted-foreground" numberOfLines={1}>
+                {kindLabel(tag.kind)}
+              </Text>
+            </View>
+          </Pressable>
+        </Link.Trigger>
+        <Link.Preview />
+      </Link>
+    </Swipe>
   );
 }
 
 /**
- * Tag management (web JournalTab parity), built like api-tokens.tsx rather
- * than as a SwiftUI Form: the tag list is unbounded and a Form Section renders
- * every row eagerly. Creation lives behind the bar's + button so the screen
- * stays a list; rows open the edit sheet, swipe deletes.
+ * Tag management (web JournalTab parity), built as a list rather than a
+ * settings form: the tag list is unbounded and a form section renders every
+ * row eagerly. Creation lives behind the bar's + button so the screen stays a
+ * list; a row's swipe actions edit and delete.
  */
 export default function TagsScreen() {
   const router = useRouter();
-  const { theme } = useUnistyles();
+  // `FlashList` is not a core component Uniwind can take a `className` on, so
+  // its content fill has to be a JS value.
+  const [background, foreground] = useCSSVariable([
+    '--color-background',
+    '--color-foreground',
+  ]) as [string, string];
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const tags = useTags();
@@ -105,9 +109,9 @@ export default function TagsScreen() {
       hitSlop={10}
       accessibilityRole="button"
       accessibilityLabel={t`New tag`}
-      style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}
+      className="h-8 w-8 items-center justify-center active:opacity-70"
     >
-      <SymbolView name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
+      <Icon name="plus" size={18} tintColor={foreground} weight="semibold" />
     </Pressable>
   );
 
@@ -115,9 +119,9 @@ export default function TagsScreen() {
     <>
       <Stack.Screen options={{ headerRight: () => addButton }} />
       {tags.isLoading ? (
-        <View style={[styles.page, styles.skeletonPage]}>
+        <View className="flex-1 gap-2 bg-background p-4 pt-[120px]">
           {Array.from({ length: 5 }, (_, i) => (
-            <Skeleton key={i} style={styles.skeletonRow} />
+            <Skeleton key={i} className="h-14 rounded-lg" />
           ))}
         </View>
       ) : loadFailed ? (
@@ -131,7 +135,7 @@ export default function TagsScreen() {
           data={tags.data ?? []}
           keyExtractor={(tag) => tag.id}
           contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={styles.content}
+          contentContainerStyle={{ padding: 16, paddingBottom: 48, backgroundColor: background }}
           refreshControl={
             <RefreshControl refreshing={tags.isRefetching} onRefresh={() => void tags.refetch()} />
           }
@@ -142,69 +146,27 @@ export default function TagsScreen() {
               onDelete={() => confirmDelete(item)}
             />
           )}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ItemSeparatorComponent={() => <View className="h-2" />}
           ListFooterComponent={
             (tags.data ?? []).length > 0 ? (
-              <Text style={styles.footnote}>
-                {t`Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, swipe to delete.`}
+              // No horizontal inset of its own — the helper text lines up with
+              // the card edges above it, not 4pt inside them.
+              <Text className="pt-4 text-xs leading-[17px] text-muted-foreground">
+                {t`Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, or swipe to delete.`}
               </Text>
             ) : null
           }
           ListEmptyComponent={
-            <AppHost style={styles.empty}>
-              <ContentUnavailableView
+            <View className="min-h-[320px]">
+              <EmptyState
                 title={t`No tags yet`}
                 systemImage="tag"
                 description={t`Tap + to add one — tags annotate trades with mistakes, habits, and custom labels.`}
               />
-            </AppHost>
+            </View>
           }
         />
       )}
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-    backgroundColor: theme.colors.background,
-  },
-  addButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  footnote: {
-    fontSize: 12,
-    lineHeight: 17,
-    color: theme.colors.mutedForeground,
-    paddingTop: theme.spacing.lg,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    padding: theme.spacing.lg,
-  },
-  dot: { width: 10, height: 10, borderRadius: theme.radius.full },
-  rowName: { flex: 1, fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  rowMeta: { fontSize: 13, color: theme.colors.mutedForeground },
-  separator: { height: theme.spacing.sm },
-  swipeAction: {
-    width: 72,
-    marginLeft: theme.spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-  },
-  pressed: { opacity: 0.7 },
-  swipeLabel: { fontSize: 11, fontWeight: '600', color: '#FFFFFF' },
-  empty: { minHeight: 320 },
-  skeletonPage: { padding: theme.spacing.lg, gap: theme.spacing.sm, paddingTop: 120 },
-  skeletonRow: { height: 56, borderRadius: theme.radius.lg },
-}));

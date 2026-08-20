@@ -1,7 +1,7 @@
 import { Redirect } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { ActivityIndicator, View } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { ActivityIndicator, Platform, View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
@@ -14,13 +14,20 @@ export const unstable_settings = { anchor: '(dashboard)' };
 
 export default function TabsLayout() {
   const { session, isLoading } = useSession();
-  const { theme } = useUnistyles();
+  // `NativeTabs` takes colors as props on a native view, not as classes, so
+  // every one of these is read from the token as a JS value.
+  const [foreground, card, fill, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-card',
+    '--color-fill',
+    '--color-muted-foreground',
+  ]) as [string, string, string, string];
 
   // Hold the tabs back until SecureStore has been read, otherwise a restored
   // session would flash the login modal on every cold start.
   if (isLoading) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View className="flex-1 items-center justify-center">
         <ActivityIndicator />
       </View>
     );
@@ -30,19 +37,49 @@ export default function TabsLayout() {
 
   // Neutral foreground tint: the selected tab shouldn't pick up the system accent color.
   return (
-    <NativeTabs tintColor={theme.colors.foreground}>
+    <NativeTabs
+      tintColor={foreground}
+      // Android only. Material's default labels the *selected* item alone;
+      // every tab keeps its label here to match how the iOS tab bar reads.
+      labelVisibilityMode="labeled"
+      // Android only again: left alone, the Material bar paints itself from
+      // the device's dynamic color (wallpaper-derived surface + a lavender
+      // indicator pill) and drifts off the app's palette entirely. Restate
+      // every surface in theme tokens — bar on `card` like any other elevated
+      // block, indicator and ripple on `fill` (the same capsule fill the
+      // Segmented track uses; NOT `accent`, which here is the teal/amber
+      // section-title hue), unselected content on `mutedForeground`. Gated
+      // because `backgroundColor` is cross-platform and would replace the iOS
+      // tab bar's Liquid Glass with a flat fill.
+      {...(Platform.OS === 'android'
+        ? {
+            backgroundColor: card,
+            indicatorColor: fill,
+            rippleColor: fill,
+            iconColor: { default: mutedForeground },
+            labelStyle: {
+              default: { color: mutedForeground },
+              selected: { color: foreground },
+            },
+          }
+        : null)}
+    >
+      {/* Per-platform icon vocabularies (the port's standing decision): `sf`
+          draws the SF Symbol on iOS, `md` a Material Symbols glyph on Android
+          via the same expo-symbols font the in-tree `<Icon>` uses. Both are
+          typed, so tsc rejects a bad name on either side. */}
       <NativeTabs.Trigger name="(dashboard)">
-        <NativeTabs.Trigger.Icon sf="house" />
+        <NativeTabs.Trigger.Icon sf="house" md="home" />
         <NativeTabs.Trigger.Label>{t`Home`}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="(trades)">
-        <NativeTabs.Trigger.Icon sf="list.bullet.rectangle" />
+        <NativeTabs.Trigger.Icon sf="list.bullet.rectangle" md="list_alt" />
         <NativeTabs.Trigger.Label>{t`Trades`}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       {/* Calendar sizes itself to the exact visible area (no-scroll board), so it
           opts out of the automatic ScrollView insets and uses SafeAreaView instead. */}
       <NativeTabs.Trigger name="(calendar)" disableAutomaticContentInsets>
-        <NativeTabs.Trigger.Icon sf="calendar" />
+        <NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />
         <NativeTabs.Trigger.Label>{t`Calendar`}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       {/* Reports moved into the Home Tools menu (pushed in that stack,
@@ -51,7 +88,7 @@ export default function TabsLayout() {
           this expo-router/RNS version renders it as a plain fifth tab, not
           iOS 26's separated magnifier. */}
       <NativeTabs.Trigger name="(settings)">
-        <NativeTabs.Trigger.Icon sf="gearshape" />
+        <NativeTabs.Trigger.Icon sf="gearshape" md="settings" />
         <NativeTabs.Trigger.Label>{t`Settings`}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>

@@ -27,7 +27,7 @@ TradeZella、TraderSync 等雲端交易日誌固然精緻，但你的交易優�
 - **工具** —— 倉位 / 匯率 / 凱利計算器、高級圖表、財經日曆與現金流水賬
 - **AI**（可選）—— 截圖自動提取成交信息 + AI 交易教練，基於兼容 OpenAI 的 API，使用你自己的密鑰
 - **API 訪問** —— 個人訪問令牌（`tm_pat_…`）可用於 MCP / 腳本；OpenAPI 文檔位於 `/docs`
-- **iOS 應用**（測試版）—— 原生 SwiftUI 隨身版，支持離線記錄、小組件、即時動態與 Siri 快速記賬
+- **行動應用**（測試版）—— iOS 與 Android 原生隨身版，支援離線記錄；小工具、即時動態與 Siri 快速記帳為 iOS 專屬 —— 參見[行動應用](/zh-Hant/docs/getting-started/mobile-app)
 
 ## 技術棧
 
@@ -35,7 +35,7 @@ TradeZella、TraderSync 等雲端交易日誌固然精緻，但你的交易優�
 |-------|-------|
 | **API** | Go · Echo · sqlc · golang-migrate · SQLite / Postgres |
 | **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
-| **移動端** | Expo · @expo/ui (SwiftUI) |
+| **移動端** | Expo（iOS / Android）· PanelUI + Uniwind |
 | **設計** | shadcn/ui + coss ui 設計令牌 |
 
 ## 下一步
@@ -43,6 +43,7 @@ TradeZella、TraderSync 等雲端交易日誌固然精緻，但你的交易優�
 <Cards>
   <Card title="快速開始" href="/zh-Hant/docs/getting-started/quick-start" description="通過一條 Docker 命令在本地運行完整服務棧。" />
   <Card title="入門指引" href="/zh-Hant/docs/getting-started/first-steps" description="初始化嚮導、第一批交易，以及面向新用戶的功能導覽。" />
+  <Card title="行動應用" href="/zh-Hant/docs/getting-started/mobile-app" description="安裝 iOS（TestFlight）或 Android（APK）隨身版，並連接到你自己的伺服器。" />
   <Card title="部署" href="/zh-Hant/docs/self-hosting/deploy" description="Docker、CDN + API 分離，或邊緣重寫等部署方式。" />
   <Card title="Fork 並部署" href="/zh-Hant/docs/self-hosting/fork-deploy" description="一鍵將 Web UI 部署到你自己的 Vercel、Cloudflare 或 Netlify 賬戶。" />
   <Card title="導入交易" href="/zh-Hant/docs/guides/importing-trades" description="通過列映射導入券商 CSV —— 重複記錄自動跳過。" />

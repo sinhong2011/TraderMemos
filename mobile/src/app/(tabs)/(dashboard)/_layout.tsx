@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router/stack';
-import { View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Platform, View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { useAccounts, useCash } from '@/api/hooks';
 import { AccountMenu } from '@/components/account-menu';
@@ -21,7 +21,7 @@ import { t } from '@lingui/core/macro';
 function HomeHeaderRight() {
   const { privacyMode } = useDisplayPrefs();
   return (
-    <View style={styles.headerRight}>
+    <View className="flex-row items-center gap-2">
       <HeaderIconButton
         systemImage={privacyMode ? 'eye.slash' : 'eye'}
         label={privacyMode ? t`Show amounts` : t`Hide amounts`}
@@ -54,15 +54,23 @@ function ReportsHeaderFilterMenu() {
 export const unstable_settings = { initialRouteName: 'index' };
 
 export default function DashboardLayout() {
-  const { theme } = useUnistyles();
+  // Navigation options take colors as values, not classes.
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   return (
     <Stack
       screenOptions={{
-        headerTransparent: true,
+        // iOS only. A transparent bar relies on UIKit's automatic content-inset
+        // adjustment to push the scroll view clear of it; react-native-screens
+        // has no such pass on Android, so a transparent header there simply
+        // floats over the first card. Opaque takes layout space, which is the
+        // Material bar anyway.
+        headerTransparent: Platform.OS === 'ios',
         headerShadowVisible: false,
+        // Android left-aligns headerTitle by default; iOS centres. Keep both centred.
+        headerTitleAlign: 'center',
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: 'transparent' },
-        headerTitleStyle: { color: theme.colors.foreground },
+        headerTitleStyle: { color: foreground },
         headerLargeTitle: true,
         headerBlurEffect: 'none',
         // iOS 27 flipped the nav-bar default edge style from soft to hard, which
@@ -84,8 +92,12 @@ export default function DashboardLayout() {
       />
       <Stack.Screen name="notes" options={{ title: t`Notes`, headerLargeTitle: false }} />
       <Stack.Screen
-        name="checklist"
+        name="daily-checklist"
         options={{ title: t`Daily checklist`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
+        name="checklist"
+        options={{ title: t`Edit checklist`, headerLargeTitle: false }}
       />
       <Stack.Screen name="playbook" options={{ title: t`Playbook`, headerLargeTitle: false }} />
       <Stack.Screen
@@ -102,18 +114,18 @@ export default function DashboardLayout() {
         options={{ title: t`Economic calendar`, headerLargeTitle: false }}
       />
       {/* Reports left the tab bar for the Tools menu (2026-08-09), so it pushes
-          in the Home stack. The bar goes opaque because the pager root is a
-          plain View, not an inset-aware ScrollView; the segmented section
-          switcher keeps the vertical room a large title would take. Account
-          scope is set from the Home header — the back button owns the left slot
-          here, so Reports keeps only its display filters. */}
+          in the Home stack. It keeps every stack default — transparent blurred
+          bar, large title, soft scroll edge: its pager pages nominate their
+          scroll view through soft-scroll-edge, so UIKit drives the bar from
+          the section being read even though the pager root is a plain View.
+          (Before that the bar had to be opaque, which is what cost this screen
+          its blur.) Account scope is set from the Home header — the back
+          button owns the left slot here, so Reports keeps only its display
+          filters. */}
       <Stack.Screen
         name="reports"
         options={{
           title: t`Reports`,
-          headerLargeTitle: false,
-          headerTransparent: false,
-          headerStyle: { backgroundColor: theme.colors.background },
           headerRight: () => <ReportsHeaderFilterMenu />,
         }}
       />
@@ -127,21 +139,17 @@ export default function DashboardLayout() {
           sheetCornerRadius: 24,
         }}
       />
-      {/* Same opaque-bar reasoning as Reports: the year pager's root is a plain
-          View, so a transparent header would sit on top of the year switcher. */}
+      {/* Keeps the stack's transparent (blurred) bar: like Reports, the year
+          pages nominate their scroll view through soft-scroll-edge and carry
+          the switcher in their own content, so nothing needs a fixed spot
+          under the bar. Compact bar — a recap page has its own year heading. */}
       <Stack.Screen
         name="wrapped"
         options={{
           title: t`Year Wrapped`,
           headerLargeTitle: false,
-          headerTransparent: false,
-          headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
     </Stack>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-}));

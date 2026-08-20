@@ -12,7 +12,8 @@ flowchart TD
     G -->|"not yet"| C
     G -->|"merge the Release PR"| E["tag vX.Y.Z<br/>GitHub Release published"]
     E --> F["docker-publish.yml"]
-    E --> H["mobile-eas.yml<br/>EAS build + TestFlight"]
+    E --> H["mobile-eas.yml (ios)<br/>EAS build + TestFlight"]
+    E --> I["mobile-eas.yml (android)<br/>EAS build → APK on the Release page"]
 ```
 
 There is no hand-cut release branch: `release-please--branches--main` **is** the
@@ -38,6 +39,8 @@ lines release-please reads to build the changelog.
 5. Approve the `docker-hub` deployment → Docker images are published.
 6. Approve the `app-store` deployment → the iOS app builds on EAS and goes to
    TestFlight (see [Mobile releases](#mobile-releases)).
+7. The Android APK builds on EAS in parallel — no approval needed — and lands on
+   the GitHub Release page as `TraderMemos-<version>.apk` (+ `.sha256`).
 
 ## Commit messages
 
@@ -75,13 +78,14 @@ accumulate yields fuller notes and a readable `main` history. Prefer the latter.
 | `VERSION` | Source of truth for API + web builds |
 | `web/package.json` | Kept in sync by release-please |
 | `mobile/package.json` | Kept in sync by release-please |
-| `mobile/app.json` (`expo.version`) | Marketing version of the iOS build — kept in sync by release-please |
+| `mobile/app.json` (`expo.version`) | Marketing version of the mobile builds (both platforms) — kept in sync by release-please |
 | `CHANGELOG.md` | Human-readable release notes |
 | `.release-please-manifest.json` | Last released version (managed by release-please) |
 
-The iOS **build number** is not in this table: `eas.json` sets
-`appVersionSource: "remote"`, so EAS owns it and auto-increments it per
-production build. Only the marketing version comes from the repo.
+The **build number** (iOS `CFBundleVersion`, Android `versionCode`) is not in
+this table: `eas.json` sets `appVersionSource: "remote"`, so EAS owns both and
+auto-increments them per production build. Only the marketing version comes
+from the repo.
 
 ## Docker images
 
@@ -116,8 +120,11 @@ file. `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` remain repo secrets.
 
 ## Mobile releases
 
-The Expo app builds on [EAS Build](https://docs.expo.dev/build/introduction/)
-and is submitted by EAS Submit — no local Xcode archive, no manual upload.
+The Expo app builds on [EAS Build](https://docs.expo.dev/build/introduction/).
+iOS is submitted by EAS Submit — no local Xcode archive, no manual upload.
+Android has no store presence: the release-signed APK is attached to the GitHub
+Release page, which is the Android distribution channel (same shape as the
+tm-sync binaries).
 
 ```mermaid
 flowchart TD
@@ -126,34 +133,35 @@ flowchart TD
     C -->|"approve"| D["eas build --platform ios --profile production --auto-submit"]
     D --> E["EAS: prebuild → archive → sign"]
     E --> F["App Store Connect · TestFlight"]
-    C -->|"approve"| G["eas build --platform android --profile production"]
-    G --> H["Signed APK attached to the GitHub release"]
+    B --> G["eas build --platform android --profile production-apk"]
+    G --> H["download APK · sha256"]
+    H --> I["gh release upload vX.Y.Z<br/>GitHub Release assets"]
 ```
 
-### Android
-
-There is no Play Console listing yet, so Android ships as a **signed, sideloadable
-APK attached to the GitHub release** (every profile builds `buildType: apk`; a
-release run downloads the artifact and `gh release upload`s it). The upload
-keystore lives on EAS as the project's default Android build credentials —
-back it up with `npx eas-cli credentials -p android` → download. When a Play
-listing exists: switch `production.android.buildType` to `app-bundle`, add
-`submit.production.android` (service-account key), and let the workflow submit
-instead of attaching. Android submission is deliberately never attempted today —
-`--auto-submit` applies only to the iOS build.
+The release-please chain calls `mobile-eas.yml` once per platform: iOS through
+the `app-store` reviewer gate (submitting is irreversible), Android ungated (a
+release asset is replaceable with `--clobber`). A missed or failed APK is
+backfilled via `workflow_dispatch`: platform `android`, profile
+`production-apk`, *attach-to-release* set to the bare version (`0.8.4`).
 
 ### Build profiles (`mobile/eas.json`)
 
 | Profile | Distribution | Used for |
 |---------|--------------|----------|
-| `development` | internal, simulator | dev-client build without a local Xcode toolchain |
-| `preview` | internal | ad-hoc install on registered devices |
+| `development` | internal, simulator | dev-client build without a local Xcode toolchain (Android: APK) |
+| `preview` | internal | ad-hoc install on registered devices (Android: APK) |
 | `production` | store | release builds; `autoIncrement` bumps the EAS-side build number |
+| `production-apk` | internal | release-signed APK for the GitHub Release page (extends `production`) |
 
-The three profiles repeat their `node`/`corepack`/`env` lines rather than sharing an
-`extends: base` parent. An abstract parent is still a selectable profile in every
+The three base profiles repeat their `node`/`corepack`/`env` lines rather than sharing
+an `extends: base` parent. An abstract parent is still a selectable profile in every
 `eas` prompt, and picking it in `eas credentials` configures credentials against a
 profile nothing ever builds — the duplication is cheaper than that footgun.
+(`production-apk` extends `production`, which is fine: `production` is a real,
+buildable profile, not an abstract parent.) `production` keeps
+`buildType: "app-bundle"` so a Play Store submission stays one profile away if a
+store presence ever happens; `production-apk` overrides it to a directly
+installable APK.
 
 `groups: ["Internal Testers"]` makes EAS Submit attach every submitted build to
 that TestFlight group, so a release reaches testers without anyone opening App
@@ -169,6 +177,11 @@ app ID is the number in an App Store URL and the team ID ships inside every
 signed binary. Change them only if the app moves to a different Apple account;
 the workflow's preflight step refuses to start a submitting build if either is
 missing or malformed.
+
+`submit.production.android` (Play internal track via a service-account key) is
+aspirational: the key path it references does not exist in the repo, nothing
+invokes it, and the workflow refuses `submit` on Android. Until a Play Store
+presence exists, the APK on the GitHub Release page is the Android channel.
 
 ### Export compliance
 
@@ -189,16 +202,23 @@ Nothing below is in the repo — it lives in the Expo and GitHub accounts.
 2. `npx eas-cli credentials` — upload (or let EAS generate) the iOS distribution
    certificate and provisioning profile, plus the App Store Connect API key that
    EAS Submit uses. Nothing Apple-related is stored in this repo.
-3. GitHub repo secret `EXPO_TOKEN` (expo.dev → Account → Access tokens).
+3. `npx eas-cli credentials -p android` — let EAS generate the Android release
+   keystore once. A `--non-interactive` CI build cannot create one and fails
+   with a credentials error until it exists. The keystore lives on EAS; losing
+   it means future APKs no longer upgrade-install over old ones, so leave it
+   managed there.
+4. GitHub repo secret `EXPO_TOKEN` (expo.dev → Account → Access tokens).
 4. Settings → Environments → **`app-store`**: add yourself as a required
    reviewer. Same shape as the `docker-hub` gate — nothing reaches TestFlight
    without an explicit approval.
 
 ### Manual builds
 
-**EAS Build** via `workflow_dispatch` — pick a profile, tick *submit* only when
-the build should also go to TestFlight. Locally: `make eas-build-preview`,
-`make eas-build-ios`, `make eas-submit-ios`.
+**EAS Build** via `workflow_dispatch` — pick a platform and profile, tick
+*submit* only when an iOS build should also go to TestFlight, set
+*attach-to-release* to a bare version to put an Android APK on that release.
+Locally: `make eas-build-preview`, `make eas-build-ios`, `make eas-submit-ios`,
+`make eas-build-android` (release APK via `production-apk`).
 
 `cli.requireCommit` is on, so EAS builds from committed state only; a dirty tree
 is rejected rather than silently building something that is not in git.

@@ -9,6 +9,8 @@
 
 **Governing decision (2026-08-08): finish all features first.** Everything ships unlocked (TestFlight during development); the free/Pro line is drawn last, before the first public App Store release. While building, each mobile Pro-candidate keeps a one-place `<ProGate>` seam (always-true for now) so the line needs no refactoring later.
 
+**Android (2026-08-19):** the app is cross-platform (PanelUI/Uniwind) and Android ships continuously as a release-signed APK on the GitHub Release page — no Play Store presence, so it sits outside the store waves below. Wave 3's natives (WidgetKit, Live Activity, App Intents) stay iOS-only by nature, and Wave 6's IAP line has no Android surface until a Play listing exists (a sideloaded APK has no StoreKit — see mobile-monetization-plan.md, open question 3).
+
 ---
 
 ## Waves

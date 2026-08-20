@@ -1,10 +1,9 @@
-import { Chart } from '@expo/ui/swift-ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { SymbolView } from 'expo-symbols';
+import { cn, LineChart, Skeleton } from 'panelui-native';
 import { useMemo } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import {
   useAccounts,
@@ -14,11 +13,11 @@ import {
   useSummary,
   useTrades,
 } from '@/api/hooks';
+import { Icon } from '@/components/icon';
 import type { BehaviorReport, ComplianceReport, Note, Trade } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
 import { Pill } from '@/components/pill';
-import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { SwipeableTradeRow } from '@/components/swipeable-trade-row';
 import { t } from '@lingui/core/macro';
@@ -29,8 +28,7 @@ import { formatPercent, useFormatters } from '@/lib/format';
 import { noteExcerpt } from '@/lib/markdown';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency } from '@/lib/prefs';
-import { pnlColor } from '@/styles/unistyles';
-import { AppHost } from '@/components/app-host';
+import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -63,9 +61,13 @@ function cumulativePnl(trades: Trade[], fxRate: number) {
 }
 
 /**
- * Cumulative realized P&L over the session, stepped at each close. Swift
- * Charts plots against the close index (the equity-card idiom) — clock times
- * ride along in the caption, where they stay readable at phone width.
+ * Cumulative realized P&L over the session, stepped at each close. Plotted
+ * against the close index (the equity-card idiom) — clock times ride along in
+ * the tooltip and the caption, where they stay readable at phone width.
+ *
+ * The break-even line is carried as a flat second series: PanelUI's charts have
+ * no reference-line part, and a dashed constant is the same picture — it also
+ * pins zero inside the y-domain, which a bare annotation would not.
  */
 function IntradayCurve({
   trades,
@@ -76,39 +78,51 @@ function IntradayCurve({
   currency: string;
   fxRate: number;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   const { formatPnl, formatTime } = useFormatters();
   const series = useMemo(() => cumulativePnl(trades, fxRate), [trades, fxRate]);
 
   if (series.length < 2) {
-    return <Text style={styles.empty}>{t`Not enough closed trades to draw a session curve.`}</Text>;
+    return (
+      <Text className="text-[13px] leading-[19px] text-muted-foreground">
+        {t`Not enough closed trades to draw a session curve.`}
+      </Text>
+    );
   }
 
   const final = series[series.length - 1].y;
   const peak = series.reduce((best, point) => (point.y > best.y ? point : best), series[0]);
+  // The session's own verdict tints the curve — a green line under a red close
+  // is the one reading this card must not allow.
+  const curveColor = pnlColor(palette, final);
+  const data = series.map((point) => ({ ...point, zero: 0 }));
 
   return (
     <>
-      <View style={styles.headline}>
-        <Text selectable style={[styles.headlineValue, { color: pnlColor(theme.colors, final) }]}>
+      <View className="flex-row items-baseline gap-2">
+        <Text
+          selectable
+          className={cn('text-[22px] font-semibold tabular-nums', pnlClass(final))}
+        >
           {formatPnl(final, currency)}
         </Text>
-        <Text style={styles.headlineMeta}>{t`over ${series.length} closes`}</Text>
+        <Text className="text-[13px] text-muted-foreground">{t`over ${series.length} closes`}</Text>
       </View>
-      <AppHost style={styles.chart}>
-        <Chart
-          data={series.map(({ x, y }) => ({ x, y }))}
-          type="line"
-          animate
-          lineStyle={{ color: pnlColor(theme.colors, final), width: 2 }}
-          referenceLines={[{ x: 'start', y: 0 }]}
-          ruleStyle={{ color: '#80808055', lineWidth: 1, dashArray: [4, 4] }}
+      <LineChart data={data} xDataKey="x" aspectRatio={1.9}>
+        <LineChart.Grid />
+        <LineChart.Line dataKey="y" color={curveColor} />
+        <LineChart.Line dataKey="zero" color={mutedForeground} strokeWidth={1} dashArray="4,4" />
+        <LineChart.Tooltip
+          color={curveColor}
+          formatValue={(value) => formatPnl(value, currency)}
+          formatX={(datum) => formatTime(String(datum.at))}
         />
-      </AppHost>
+      </LineChart>
       {peak.y > final ? (
-        <Text style={styles.caption}>
+        <Text className="text-xs text-muted-foreground">
           {t`Peaked at`}{' '}
-          <Text style={[styles.captionValue, { color: pnlColor(theme.colors, peak.y) }]}>
+          <Text className={cn('font-medium tabular-nums', pnlClass(peak.y))}>
             {formatPnl(peak.y, currency)}
           </Text>{' '}
           {t`around ${formatTime(peak.at)}`}
@@ -137,7 +151,7 @@ function DayFlags({
   return (
     <>
       {compliance?.rules_configured ? (
-        <View style={styles.pills}>
+        <View className="flex-row flex-wrap items-center gap-1">
           {day == null ? (
             <Pill>{t`no closed trades scored`}</Pill>
           ) : day.compliant ? (
@@ -157,7 +171,7 @@ function DayFlags({
       ) : null}
 
       {behavior != null && behaviorFlags > 0 ? (
-        <View style={styles.pills}>
+        <View className="flex-row flex-wrap items-center gap-1">
           {behavior.revenge.events.length > 0 ? (
             <Pill tone="amber">{t`revenge trades ×${behavior.revenge.events.length}`}</Pill>
           ) : null}
@@ -184,13 +198,13 @@ function NoteRow({ note, onPress }: { note: Note; onPress: () => void }) {
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      style={({ pressed }) => [styles.noteRow, pressed && styles.pressed]}
+      className="gap-1 rounded-md bg-muted p-2 active:opacity-60"
     >
-      <Text style={styles.noteTitle} numberOfLines={1}>
+      <Text className="text-sm font-semibold text-foreground" numberOfLines={1}>
         {note.title || (note.type === 'daily_log' ? t`Daily log` : t`Note`)}
       </Text>
       {excerpt ? (
-        <Text style={styles.noteExcerpt} numberOfLines={2}>
+        <Text className="text-xs leading-[17px] text-muted-foreground" numberOfLines={2}>
           {excerpt}
         </Text>
       ) : null}
@@ -206,7 +220,8 @@ function NoteRow({ note, onPress }: { note: Note; onPress: () => void }) {
  * never stacks a screen per day.
  */
 export default function CalendarDayScreen() {
-  const { theme } = useUnistyles();
+  // `expo-symbols` takes a resolved color, not a class.
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const router = useRouter();
   const { date } = useLocalSearchParams<{ date: string }>();
   const day = date && DATE_RE.test(date) ? date : '';
@@ -255,32 +270,32 @@ export default function CalendarDayScreen() {
         options={{
           title: day ? dayTitle(day) : t`Day`,
           headerRight: () => (
-            <View style={styles.headerButtons}>
+            <View className="flex-row items-center gap-1">
               <Pressable
                 onPress={() => stepDay(-1)}
                 hitSlop={10}
                 accessibilityRole="button"
                 accessibilityLabel={t`Previous day`}
-                style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
+                className="p-1 active:opacity-60"
               >
-                <SymbolView name="chevron.left" size={15} tintColor={theme.colors.foreground} />
+                <Icon name="chevron.left" size={15} tintColor={foreground} />
               </Pressable>
               <Pressable
                 onPress={() => stepDay(1)}
                 hitSlop={10}
                 accessibilityRole="button"
                 accessibilityLabel={t`Next day`}
-                style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
+                className="p-1 active:opacity-60"
               >
-                <SymbolView name="chevron.right" size={15} tintColor={theme.colors.foreground} />
+                <Icon name="chevron.right" size={15} tintColor={foreground} />
               </Pressable>
             </View>
           ),
         }}
       />
       <ScrollView
-        style={styles.page}
-        contentContainerStyle={styles.content}
+        className="flex-1 bg-background"
+        contentContainerClassName="gap-3 p-4 pb-12"
         contentInsetAdjustmentBehavior="automatic"
         refreshControl={
           <RefreshControl
@@ -299,16 +314,18 @@ export default function CalendarDayScreen() {
       >
         <DashboardCard title={t`Session summary`} flush>
           {summary.isLoading ? (
-            <Skeleton style={styles.statsSkeleton} />
+            <Skeleton className="h-[200px] rounded-lg" label={t`Loading session summary`} />
           ) : summary.isError && summary.data == null ? (
             // Every StatBar below falls back to a zero, so without this the
             // card reports a flat, feeless, tradeless session as fact.
-            <View style={styles.cardError}>
+            //
+            // The summary card is `flush`, so its error row brings its own inset.
+            <View className="px-4 py-3">
               <InlineError error={summary.error} onRetry={() => void summary.refetch()} />
             </View>
           ) : (
             <>
-              <View style={styles.grid}>
+              <View className="flex-row flex-wrap gap-2">
                 <StatBar
                   label={t`Net P&L`}
                   value={formatPnl(netPnl, currency)}
@@ -337,7 +354,7 @@ export default function CalendarDayScreen() {
 
         <DashboardCard title={t`Intraday P&L`}>
           {trades.isLoading ? (
-            <Skeleton style={styles.chart} />
+            <Skeleton className="h-[190px] rounded-lg" />
           ) : trades.isError && trades.data == null ? (
             <InlineError error={trades.error} onRetry={() => void trades.refetch()} />
           ) : (
@@ -347,13 +364,13 @@ export default function CalendarDayScreen() {
 
         <DashboardCard title={t`Trades`}>
           {trades.isLoading ? (
-            <Skeleton style={styles.listSkeleton} />
+            <Skeleton className="h-40 rounded-lg" />
           ) : trades.isError && trades.data == null ? (
             <InlineError error={trades.error} onRetry={() => void trades.refetch()} />
           ) : dayTrades.length === 0 ? (
-            <Text style={styles.empty}>{t`No trades on this day.`}</Text>
+            <Text className="text-[13px] leading-[19px] text-muted-foreground">{t`No trades on this day.`}</Text>
           ) : (
-            <View style={styles.rows}>
+            <View className="gap-2">
               {dayTrades.map((trade) => (
                 <SwipeableTradeRow key={trade.id} trade={trade} showDate={false} />
               ))}
@@ -370,15 +387,15 @@ export default function CalendarDayScreen() {
           }}
         >
           {notes.isLoading ? (
-            <Skeleton style={styles.notesSkeleton} />
+            <Skeleton className="h-[72px] rounded-lg" />
           ) : notes.isError && notes.data == null ? (
             <InlineError error={notes.error} onRetry={() => void notes.refetch()} />
           ) : dayNotes.length === 0 ? (
-            <Text style={styles.empty}>
+            <Text className="text-[13px] leading-[19px] text-muted-foreground">
               {t`Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written.`}
             </Text>
           ) : (
-            <View style={styles.rows}>
+            <View className="gap-2">
               {dayNotes.map((note) => (
                 <NoteRow
                   key={note.id}
@@ -393,40 +410,3 @@ export default function CalendarDayScreen() {
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  headerButtons: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
-  headerButton: { padding: theme.spacing.xs },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  pills: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: theme.spacing.xs },
-  headline: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.sm },
-  headlineValue: { fontSize: 22, fontWeight: '600', ...theme.numeric },
-  headlineMeta: { fontSize: 13, color: theme.colors.mutedForeground },
-  chart: { height: 190 },
-  caption: { fontSize: 12, color: theme.colors.mutedForeground },
-  captionValue: { fontWeight: '500', ...theme.numeric },
-  rows: { gap: theme.spacing.sm },
-  noteRow: {
-    gap: theme.spacing.xs,
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.sm,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  noteTitle: { fontSize: 14, fontWeight: '600', color: theme.colors.foreground },
-  noteExcerpt: { fontSize: 12, lineHeight: 17, color: theme.colors.mutedForeground },
-  pressed: { opacity: 0.6 },
-  statsSkeleton: { height: 200, borderRadius: theme.radius.lg },
-  listSkeleton: { height: 160, borderRadius: theme.radius.lg },
-  notesSkeleton: { height: 72, borderRadius: theme.radius.lg },
-  empty: { fontSize: 13, lineHeight: 19, color: theme.colors.mutedForeground },
-  /** The summary card is `flush`, so its error row has to bring its own inset. */
-  cardError: { paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.md },
-}));

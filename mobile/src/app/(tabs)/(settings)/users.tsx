@@ -1,13 +1,11 @@
-import { Button, Section, Text as UIText } from '@expo/ui/swift-ui';
-import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
-import { useUnistyles } from 'react-native-unistyles';
+import { Frame, Text } from 'panelui-native';
 
 import { useAdminUsers, useMe } from '@/api/hooks';
-import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsButton, SettingsSection } from '@/components/settings-rows';
 import { describeError } from '@/lib/errors';
 import { t } from '@lingui/core/macro';
 
@@ -19,13 +17,11 @@ import { t } from '@lingui/core/macro';
  * can land a member here.
  */
 export default function UsersScreen() {
-  const { theme } = useUnistyles();
   const router = useRouter();
   const me = useMe();
   const isOwner = me.data?.is_admin ?? false;
   const users = useAdminUsers(isOwner);
 
-  const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' as const });
   // Named rather than hardcoded: a server this phone can't reach and a server
   // that refused the request are different problems, and only one of them is
   // worth a Try again. Only when the list is empty though — a persisted cache
@@ -33,53 +29,65 @@ export default function UsersScreen() {
   const failure = users.isError && users.data == null ? describeError(users.error) : null;
 
   return (
-    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <SettingsForm>
-        {!isOwner ? (
-          <Section title={t`Users`}>
-            <UIText modifiers={[secondary]}>
+    <SettingsForm>
+      {!isOwner ? (
+        <SettingsSection title={t`Users`}>
+          <Frame.Row>
+            <Text size="sm" muted className="flex-1">
               {t`Only an owner can manage the accounts on this server.`}
-            </UIText>
-          </Section>
-        ) : (
-          <>
-            <Section
-              title={t`People`}
-              footer={
-                <UIText>
-                  {t`Members see only their own trades. Owners can also add and remove accounts here.`}
-                </UIText>
-              }
-            >
-              {(users.data ?? []).map((user) => (
-                <NavRow
-                  key={user.id}
-                  systemImage={user.is_admin ? 'person.badge.key' : 'person'}
-                  label={user.email}
-                  value={user.id === me.data?.id ? t`You` : user.is_admin ? t`Owner` : t`Member`}
-                  onPress={() => router.push({ pathname: '/user-detail', params: { id: user.id } })}
-                />
-              ))}
-              {users.data?.length === 0 ? (
-                <UIText modifiers={[secondary]}>{t`No accounts yet`}</UIText>
-              ) : null}
-              {users.isLoading ? <UIText modifiers={[secondary]}>{t`Loading…`}</UIText> : null}
-              {failure ? <UIText modifiers={[secondary]}>{failure.title}</UIText> : null}
-              {failure?.retryable ? (
-                <Button
-                  systemImage="arrow.clockwise"
-                  label={t`Try again`}
-                  onPress={() => void users.refetch()}
-                />
-              ) : null}
-            </Section>
+            </Text>
+          </Frame.Row>
+        </SettingsSection>
+      ) : (
+        <>
+          <SettingsSection
+            title={t`People`}
+            footer={t`Members see only their own trades. Owners can also add and remove accounts here.`}
+          >
+            {(users.data ?? []).map((user) => (
+              <NavRow
+                key={user.id}
+                systemImage={user.is_admin ? 'person.badge.key' : 'person'}
+                label={user.email}
+                value={user.id === me.data?.id ? t`You` : user.is_admin ? t`Owner` : t`Member`}
+                onPress={() => router.push({ pathname: '/user-detail', params: { id: user.id } })}
+              />
+            ))}
+            {users.data?.length === 0 ? (
+              <Frame.Row>
+                <Text size="sm" muted className="flex-1">
+                  {t`No accounts yet`}
+                </Text>
+              </Frame.Row>
+            ) : null}
+            {users.isLoading ? (
+              <Frame.Row>
+                <Text size="sm" muted className="flex-1">
+                  {t`Loading…`}
+                </Text>
+              </Frame.Row>
+            ) : null}
+            {failure ? (
+              <Frame.Row>
+                <Text size="sm" muted className="flex-1">
+                  {failure.title}
+                </Text>
+              </Frame.Row>
+            ) : null}
+            {failure?.retryable ? (
+              <SettingsButton
+                systemImage="arrow.clockwise"
+                label={t`Try again`}
+                onPress={() => void users.refetch()}
+              />
+            ) : null}
+          </SettingsSection>
 
-            <Section>
-              <CenteredButton label={t`Add user`} onPress={() => router.push('/user-form')} />
-            </Section>
-          </>
-        )}
-      </SettingsForm>
-    </AppHost>
+          {/* Outside a section card: a standalone action is not another row,
+              and a filled button inside the panel would fight its corners. */}
+          <CenteredButton label={t`Add user`} onPress={() => router.push('/user-form')} />
+        </>
+      )}
+    </SettingsForm>
   );
 }

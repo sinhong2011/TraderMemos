@@ -1,8 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
+import { FormSheet } from '@/components/form-sheet';
 import { FormSkeleton } from '@/components/skeleton';
 
 import { useSession } from '@/api/session';
@@ -133,16 +133,25 @@ export default function NewTradeScreen() {
   }
 
   if (!accounts || !setups || !tags || prefill.importing) {
+    // Same chrome as the loaded form (FormSheet owns the status-bar inset on a
+    // pushed card) so the fields don't jump down when the queries land.
     return (
-      <View style={styles.loading}>
+      <FormSheet
+        pushed
+        title={t`New trade`}
+        saveLabel={t`Preview`}
+        saveIcon="eye"
+        saveDisabled
+        onSave={() => {}}
+      >
         <FormSkeleton />
-      </View>
+      </FormSheet>
     );
   }
   if (accounts.length === 0) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.muted}>{t`No account found — create one on the web app first.`}</Text>
+      <View className="flex-1 items-center justify-center bg-background p-6">
+        <Text className="text-center text-muted-foreground">{t`No account found — create one on the web app first.`}</Text>
       </View>
     );
   }
@@ -160,15 +169,3 @@ export default function NewTradeScreen() {
     />
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  loading: { flex: 1, backgroundColor: theme.colors.background },
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.xl,
-    backgroundColor: theme.colors.background,
-  },
-  muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
-}));

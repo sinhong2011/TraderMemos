@@ -31,6 +31,12 @@ func (s *Server) handleCompliance(c *echo.Context) error {
 		if rulesRow.MaxDailyLoss.Valid {
 			rules.MaxDailyLoss = rulesRow.MaxDailyLoss.Float64
 		}
+		if rulesRow.MaxTradesPerDay.Valid {
+			rules.MaxTradesPerDay = int(rulesRow.MaxTradesPerDay.Int64)
+		}
+		if rulesRow.MaxConsecutiveLosses.Valid {
+			rules.MaxConsecutiveLosses = int(rulesRow.MaxConsecutiveLosses.Int64)
+		}
 	}
 
 	rows, err := s.loadClosedTrades(ctx, uid, f)

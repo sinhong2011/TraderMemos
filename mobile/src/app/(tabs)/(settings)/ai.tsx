@@ -1,66 +1,48 @@
-import {
-  Button,
-  HStack,
-  Image,
-  Section,
-  Spacer,
-  Text as UIText,
-  VStack,
-} from '@expo/ui/swift-ui';
-import { font, foregroundStyle, lineLimit, truncationMode } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
-import { useUnistyles } from 'react-native-unistyles';
+import type { SFSymbol } from 'expo-symbols';
+import { Frame, Text } from 'panelui-native';
+import { useCSSVariable } from 'uniwind';
 
 import { useLlmSettings, type LlmKind } from '@/api/hooks';
 import type { LlmApiSettings } from '@/api/types';
+import { Icon } from '@/components/icon';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsSection } from '@/components/settings-rows';
 import { t } from '@lingui/core/macro';
 import { describeError } from '@/lib/errors';
-import { AppHost } from '@/components/app-host';
 
 /**
  * AI hub. The two integrations (vision scan, AI coach) take the same six
  * settings, so listing both on one screen meant a duplicated wall of URL and
  * key fields — instead each is one status row that pushes its own form
- * (`ai/[kind]`), the iOS Settings depth idiom. The row answers the only
- * questions worth answering at a glance: is it on, and on which model.
+ * (`ai/[kind]`), the Settings depth idiom. The row answers the only questions
+ * worth answering at a glance: is it on, and on which model.
  */
 export default function AiSettingsScreen() {
   return (
-    <AppHost style={{ flex: 1 }}>
-      <SettingsForm>
-        <Section
-          title={t`Intelligence`}
-          footer={
-            <UIText>
-              {t`Vision scan reads broker screenshots into executions on Import. AI coach reviews your journal and trades to surface patterns. Both work with any OpenAI-compatible API, and keys stay on your server.`}
-            </UIText>
-          }
-        >
-          <ProviderRow kind="ocr" title={t`Vision scan`} systemImage="text.viewfinder" />
-          <ProviderRow kind="coach" title={t`AI coach`} systemImage="brain" />
-        </Section>
-      </SettingsForm>
-    </AppHost>
+    <SettingsForm>
+      <SettingsSection
+        title={t`Intelligence`}
+        footer={t`Vision scan reads broker screenshots into executions on Import. AI coach reviews your journal and trades to surface patterns. Both work with any OpenAI-compatible API, and keys stay on your server.`}
+      >
+        <ProviderRow kind="ocr" title={t`Vision scan`} systemImage="text.viewfinder" />
+        <ProviderRow kind="coach" title={t`AI coach`} systemImage="brain" />
+      </SettingsSection>
+    </SettingsForm>
   );
 }
 
 /** Trailing state word plus the detail line under the title. */
-function rowState(
-  settings: LlmApiSettings,
-  mutedColor: string,
-  onColor: string,
-  actionColor: string,
-) {
+function rowState(settings: LlmApiSettings) {
   // Unconfigured is an invitation, not an error — brand tint, not destructive.
   if (!settings.api_key_set) {
-    return { status: t`Set up`, statusColor: actionColor, detail: t`No API key yet` };
+    return { status: t`Set up`, statusClass: 'text-primary', detail: t`No API key yet` };
   }
   const model = settings.model.trim();
   const detail = model || t`Default model`;
   return settings.enabled
-    ? { status: t`On`, statusColor: onColor, detail }
-    : { status: t`Off`, statusColor: mutedColor, detail };
+    ? { status: t`On`, statusClass: 'text-profit', detail }
+    : { status: t`Off`, statusClass: 'text-muted-foreground', detail };
 }
 
 function ProviderRow({
@@ -70,56 +52,44 @@ function ProviderRow({
 }: {
   kind: LlmKind;
   title: string;
-  systemImage: 'text.viewfinder' | 'brain';
+  systemImage: SFSymbol;
 }) {
   const router = useRouter();
-  const { theme } = useUnistyles();
+  const [foreground, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-muted-foreground',
+  ]) as [string, string];
   const settings = useLlmSettings(kind);
 
   const state = settings.data
-    ? rowState(
-        settings.data,
-        theme.colors.mutedForeground,
-        theme.colors.profit,
-        theme.colors.primary,
-      )
+    ? rowState(settings.data)
     : {
         status: '',
-        statusColor: theme.colors.mutedForeground,
+        statusClass: 'text-muted-foreground',
         // "Unavailable" said nothing about which of the two things is
         // unavailable — the integration or the server holding its settings.
         detail: settings.isError ? describeError(settings.error).title : t`Loading…`,
       };
 
   return (
-    <Button onPress={() => router.push({ pathname: '/ai/[kind]', params: { kind } })}>
-      <HStack spacing={10}>
-        <Image systemName={systemImage} size={20} color={theme.colors.foreground} />
-        <VStack alignment="leading" spacing={2}>
-          <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
-            {title}
-          </UIText>
-          {/* Single string child — the SwiftUI Text bridge can't mount an
-              array of interpolations (RawText crash). */}
-          <UIText
-            modifiers={[
-              font({ size: 13 }),
-              foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
-              lineLimit(1),
-              truncationMode('middle'),
-            ]}
-          >
-            {state.detail}
-          </UIText>
-        </VStack>
-        <Spacer />
+    <Frame.Row onPress={() => router.push({ pathname: '/ai/[kind]', params: { kind } })}>
+      <Frame.Media>
+        <Icon name={systemImage} size={20} tintColor={foreground} />
+      </Frame.Media>
+      <Frame.Content>
+        <Frame.Title>{title}</Frame.Title>
+        <Text size="sm" muted numberOfLines={1} ellipsizeMode="middle">
+          {state.detail}
+        </Text>
+      </Frame.Content>
+      <Frame.Actions>
         {state.status ? (
-          <UIText modifiers={[font({ size: 15 }), foregroundStyle(state.statusColor)]}>
+          <Text size="sm" className={state.statusClass}>
             {state.status}
-          </UIText>
+          </Text>
         ) : null}
-        <Image systemName="chevron.right" size={12} color={theme.colors.mutedForeground} />
-      </HStack>
-    </Button>
+        <Icon name="chevron.right" size={12} tintColor={mutedForeground} />
+      </Frame.Actions>
+    </Frame.Row>
   );
 }

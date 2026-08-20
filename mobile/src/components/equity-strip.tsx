@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { View, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import type { ReplayFrame } from '@/lib/replay';
+import { usePnlPalette } from '@/styles/pnl';
 
 export const STRIP_HEIGHT = 46;
 /** Columns to draw at most — one View per bar would be thousands on a daily run. */
@@ -14,10 +15,11 @@ const MAX_COLUMNS = 110;
  * below a zero line: green above, red below, the played span solid and the rest
  * ghosted. It is the scrub track as well as the readout — dragging it seeks.
  *
- * Columns rather than a line because there is no SVG dependency in this app
- * (same constraint as `chart-canvas`), and columns survive the sampling: a
- * polyline through every 30th point would lie about the shape between them,
- * whereas a column band reads honestly as a silhouette.
+ * Columns rather than a PanelUI series because this is a *control*: the
+ * playhead, the ghosted future and the pan-to-seek gesture are the point, and
+ * no chart in the registry hands those over. Columns also survive the sampling
+ * a line would lie about: a polyline through every 30th point invents the shape
+ * between them, whereas a column band reads honestly as a silhouette.
  */
 export function EquityStrip({
   frames,
@@ -28,7 +30,8 @@ export function EquityStrip({
   cursor: number;
   onScrub?: (index: number) => void;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const [width, setWidth] = useState(0);
 
   const columns = useMemo(() => {
@@ -77,55 +80,49 @@ export function EquityStrip({
   const onStripLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
 
   const strip = (
-    <View style={styles.strip} onLayout={onStripLayout}>
-      <View style={styles.zeroLine} />
+    // flex-start, not stretch: each column carries its own height and is then
+    // nudged down to straddle the zero line by `top`.
+    <View
+      className="flex-row items-start"
+      style={{ height: STRIP_HEIGHT }}
+      onLayout={onStripLayout}
+    >
+      <View
+        className="absolute left-0 right-0 h-px bg-border"
+        style={{ top: STRIP_HEIGHT / 2 }}
+      />
       {columns?.map((column) => (
         <View
           key={column.index}
+          // Columns share the row evenly — `flex-1` gives each one its slot
+          // width; only the bar itself is absolutely placed.
+          className="mx-[0.5px] flex-1 rounded-[1px]"
           style={[
-            styles.column,
-            // Columns are laid out by flex, so only the bar itself is absolute.
             {
               top: column.top,
               height: column.height,
-              backgroundColor: column.net >= 0 ? theme.colors.profit : theme.colors.loss,
+              backgroundColor: column.net >= 0 ? palette.profit : palette.loss,
             },
-            column.index > cursor && styles.future,
+            column.index > cursor && { opacity: 0.22 },
           ]}
         />
       ))}
       {width > 0 && frames.length > 1 ? (
         <View
-          style={[
-            styles.playhead,
-            {
-              left: (cursor / (frames.length - 1)) * width - 1,
-              backgroundColor: theme.colors.foreground,
-            },
-          ]}
+          className="absolute bottom-0 top-0 w-0.5 rounded-[1px] opacity-70"
+          style={{
+            left: (cursor / (frames.length - 1)) * width - 1,
+            backgroundColor: foreground,
+          }}
         />
       ) : null}
     </View>
   );
 
-  if (!columns) return <View style={styles.strip} onLayout={onStripLayout} />;
+  if (!columns) {
+    return (
+      <View className="flex-row items-start" style={{ height: STRIP_HEIGHT }} onLayout={onStripLayout} />
+    );
+  }
   return scrub ? <GestureDetector gesture={scrub}>{strip}</GestureDetector> : strip;
 }
-
-const styles = StyleSheet.create((theme) => ({
-  // flex-start, not stretch: each column carries its own height and is then
-  // nudged down to straddle the zero line by `top`.
-  strip: { height: STRIP_HEIGHT, flexDirection: 'row', alignItems: 'flex-start' },
-  /** Columns share the row evenly — `flex: 1` gives each one its slot width. */
-  column: { flex: 1, marginHorizontal: 0.5, borderRadius: 1 },
-  future: { opacity: 0.22 },
-  zeroLine: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: STRIP_HEIGHT / 2,
-    height: 1,
-    backgroundColor: theme.colors.border,
-  },
-  playhead: { position: 'absolute', top: 0, bottom: 0, width: 2, borderRadius: 1, opacity: 0.7 },
-}));

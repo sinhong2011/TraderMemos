@@ -28,8 +28,10 @@ Current direction: **shadcn/ui + [coss ui](https://coss.com/ui/docs)** (2026-07-
 
 ## Mobile app (Expo SDK 57)
 
-The `mobile/` app is Expo Router + **`@expo/ui`** — real SwiftUI / Jetpack Compose
-components driven from React.
+The `mobile/` app is Expo Router + **PanelUI** (`panelui-native`) — JS-drawn components
+styled with Tailwind v4 through **Uniwind**, one identical codepath on iOS and Android.
+(`@expo/ui` stays installed ONLY as PanelUI's optional peer for `<Button native glass>`
+chrome; never import it directly.)
 
 - The app uses a **development build** (`expo-dev-client`), not Expo Go. Day-to-day: `pnpm start`
   from `mobile/` (or `make dev-mobile`), then open the installed TraderMemos dev build in the
@@ -59,8 +61,10 @@ components driven from React.
   first and Hermes segfaults (`EXC_BAD_ACCESS` in `AppContext.prepareRuntime`).
 - **Cloud builds run on EAS** (`mobile/eas.json`, `.github/workflows/mobile-eas.yml`).
   Profiles: `development` (simulator dev client), `preview` (internal), `production`
-  (store, auto-submits to TestFlight on release). Marketing version comes from
-  `app.json`, which release-please bumps; EAS owns the build number
+  (store, iOS auto-submits to TestFlight on release), `production-apk` (release-signed
+  Android APK; on release it is attached to the GitHub Release page — the Android
+  distribution channel, no Play Store presence). Marketing version comes from
+  `app.json`, which release-please bumps; EAS owns the build numbers
   (`appVersionSource: "remote"`). See `docs/release.md` → Mobile releases.
 
 ### Upgrading dependencies
@@ -78,24 +82,43 @@ mismatch segfaults Expo Go on project load (`JSIWorkletsModuleProxy::toOptimized
 `EXC_BAD_ACCESS`). This is why the project uses a development build; don't "test quickly in
 Expo Go" until Expo ships a client with worklets 0.10.1.
 
-### Styling rules (differ from web — do not copy web patterns here)
+### Styling rules (PanelUI + Uniwind — migrated 2026-08-15)
 
-- **No Tailwind, no NativeWind, no CSS.** Prefer `@expo/ui` components; layout is styled
-  with **react-native-unistyles v3** (shadcn-style semantic tokens).
-- **Design tokens live in `src/styles/unistyles.ts`** — semantic slots (`background`,
-  `foreground`, `card`, `muted`, `mutedForeground`, `border`, `primary`, `destructive`,
-  `profit`/`loss`/`flat`, `accent`) mirrored from the web theme (`web/src/global.css`
-  `:root`/`.dark`; resolved hex of the oklch/color-mix values — keep in sync). Plus
-  `theme.spacing`, `theme.radius`, `theme.numeric` (tabular-nums).
-- Components use `StyleSheet.create((theme) => ({…}))` from `react-native-unistyles`
-  (the babel plugin auto-re-renders on scheme change); for non-style props (chart colors,
-  icon tints, nav themes) read `useUnistyles().theme`. The theme registers via the custom
-  `index.ts` entry **before** `expo-router/entry` — don't change `package.json` `main`.
-- React Compiler is on (`experiments.reactCompiler`); unistyles + lingui + compiler all
-  run as babel plugins — any babel change needs Metro restarted with `--clear`.
-- Use `boxShadow`, never legacy `shadow*` / `elevation` props.
+- **Stack: `panelui-native` + Uniwind (Tailwind v4) + Reanimated 4.** `className` works on
+  core RN components (`contentContainerClassName` on ScrollView). No unistyles, no
+  NativeWind, no direct `@expo/ui`.
+- **Design tokens live in `mobile/src/global.css`** — shadcn-style variables in
+  `@variant light` / `@variant dark` blocks, mirrored from the web theme (keep in sync;
+  values must be static hex/rgba — native can't evaluate `color-mix()`). App-specific
+  tokens beyond PanelUI's set: `profit`/`loss`/`flat`, `fill`, `segment-active`,
+  `heading` (section-title accent — PanelUI's `accent` is a hover/selected fill and must
+  stay stronger than `secondary`), `open`. Radius tiers follow DESIGN.md.
+- **Semantic token classes only** (`bg-card`, `text-muted-foreground`, `text-profit`) —
+  never palette literals, never `dark:` (the token already knows). `gap-*`, never
+  `space-y-*`. `cn()` from `panelui-native` for conditional classes.
+- **A color needed as a JS value** (Icon `tintColor`, chart series, ActivityIndicator)
+  comes from `useCSSVariable([...])` (from `uniwind`) — never a hex. P&L colors: helpers
+  in `src/styles/pnl.ts` (`pnlClass`, `usePnlPalette`, `pnlColor`, `PnlFill`).
+- **Prefer a PanelUI component over hand-built UI** — 108 modules (Card, Item, Frame,
+  Input, Select, Menu, BottomSheet, Dialog, Switch, Chip, EmptyState, Skeleton, charts…).
+  Fetch `https://panelui.dev/llms.mdx/components/<slug>` (or `charts/<slug>`) before first
+  use — props tables are generated from the library TS. Overlays take `open`/`onOpenChange`
+  (never unmount to close); compound parts stay inside their root.
+- **`<Button native glass>`** (the one `@expo/ui` touchpoint, via PanelUI) may host only a
+  string or a bare icon — an element child crashes in native code. Native controls ignore
+  `className`; space them from the container.
+- `PanelUIProvider` wraps the root layout (owns gesture root, portal host, toast viewport)
+  — exactly one. Theme pinning runs through `Uniwind.setTheme` in `src/lib/prefs.ts`
+  (`useResolvedScheme` reads the live Uniwind theme).
+- Metro is wrapped by `withUniwindConfig` (`metro.config.js`, css entry
+  `src/global.css`); babel = lingui macro only. React Compiler is on
+  (`experiments.reactCompiler`); any babel/metro change needs Metro restarted with `--clear`.
+- Use `boxShadow`, never legacy `shadow*` / `elevation` props (rarely needed — `Card`
+  carries its own elevation).
 - Wrap scrollables with `contentInsetAdjustmentBehavior="automatic"` instead of `SafeAreaView`.
-- Numbers use `fontVariant: ['tabular-nums']` (`NumericFont`), matching DESIGN.md.
+- Numbers use the `tabular-nums` class, matching DESIGN.md.
+- Icons stay `@/components/icon` (expo-symbols; SF name → Material via
+  `src/lib/sf-to-material.ts`, verify with `pnpm run check-icons`).
 - **`Link.Trigger` clones its child and overwrites `style`** — never style the Pressable
   directly inside it (the styles silently vanish); wrap the content in an inner `View`
   that carries the surface/layout (see `trade-row.tsx`).

@@ -1,21 +1,13 @@
-import {
-  HStack,
-  Image,
-  LabeledContent,
-  Link,
-  Section,
-  Spacer,
-  Text as UIText,
-} from '@expo/ui/swift-ui';
-import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import * as Application from 'expo-application';
-import { useUnistyles } from 'react-native-unistyles';
+import { Linking } from 'react-native';
 
 import { useApiHealth } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
+import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
-import { AppHost } from '@/components/app-host';
+import { SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
+import { usePnlPalette } from '@/styles/pnl';
 
 /** Same source of truth as web/src/lib/aboutContent.ts. */
 const REPO_URL = 'https://github.com/sinhong2011/TraderMemos';
@@ -25,109 +17,88 @@ const DEVELOPER_GITHUB = 'https://github.com/sinhong2011';
 /**
  * About (web AboutTab essentials): app + API versions, server health, GitHub
  * links. The web tab's update checker and marketing blocks (features, stack,
- * philosophy) stay web-only — native updates ship through the App Store.
+ * philosophy) stay web-only — native updates ship through the stores.
+ *
+ * Built on the shared settings vocabulary; the GitHub rows are
+ * `NavRow accessory="external"` (the leaving glyph, per the NavRow doc) with
+ * `Linking.openURL`.
  */
 export default function AboutScreen() {
-  const { theme } = useUnistyles();
+  // Server health reads in the P&L hues — green for reachable, red for not —
+  // so it takes the same live palette every other verdict in the app does.
+  const palette = usePnlPalette();
   const { session } = useSession();
   const health = useApiHealth();
   const healthOk = health.isSuccess && health.data.status === 'ok';
 
   const appVersion = Application.nativeApplicationVersion ?? '1.0.0';
   const build = Application.nativeBuildVersion;
-  const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' });
 
   return (
-    <AppHost style={{ flex: 1 }}>
-      <SettingsForm>
-        <Section title={t`App`}>
-          <LabeledContent label={t`Version`}>
-            <UIText modifiers={[secondary]}>
-              {build ? `${appVersion} (${build})` : appVersion}
-            </UIText>
-          </LabeledContent>
-          <Link destination={REPO_URL}>
-            <HStack spacing={8}>
-              {/* SF Symbols ships no brand logos, so the repo row wears the
-                  code glyph Apple's own UI uses for source links rather than
-                  bundling GitHub's trademark asset. */}
-              <Image
-                systemName="chevron.left.forwardslash.chevron.right"
-                size={15}
-                color={theme.colors.mutedForeground}
-              />
-              <UIText>{t`GitHub repository`}</UIText>
-              <Spacer />
-              <Image systemName="arrow.up.right" size={12} color={theme.colors.mutedForeground} />
-            </HStack>
-          </Link>
-          <Link destination={`${REPO_URL}/issues`}>
-            <HStack spacing={8}>
-              <Image systemName="ladybug" size={15} color={theme.colors.mutedForeground} />
-              <UIText>{t`Report an issue`}</UIText>
-              <Spacer />
-              <Image systemName="arrow.up.right" size={12} color={theme.colors.mutedForeground} />
-            </HStack>
-          </Link>
-        </Section>
+    <SettingsForm>
+      <SettingsSection title={t`App`}>
+        <SettingsRow label={t`Version`}>
+          <ValueText>{build ? `${appVersion} (${build})` : appVersion}</ValueText>
+        </SettingsRow>
+        {/* SF Symbols ships no brand logos, so the repo row wears the code
+            glyph Apple's own UI uses for source links rather than bundling
+            GitHub's trademark asset. */}
+        <NavRow
+          systemImage="chevron.left.forwardslash.chevron.right"
+          label={t`GitHub repository`}
+          accessory="external"
+          onPress={() => void Linking.openURL(REPO_URL)}
+        />
+        <NavRow
+          systemImage="ladybug"
+          label={t`Report an issue`}
+          accessory="external"
+          onPress={() => void Linking.openURL(`${REPO_URL}/issues`)}
+        />
+      </SettingsSection>
 
-        <Section title={t`Server`}>
-          <LabeledContent label={t`Server URL`}>
-            <UIText modifiers={[secondary]}>{session?.serverUrl ?? t`Not connected`}</UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Status`}>
-            {/* The failure word is describeError's, not this screen's — About
-                and the error states must not name the same thing differently. */}
-            <UIText
-              modifiers={[
-                foregroundStyle(
-                  health.isPending
-                    ? theme.colors.mutedForeground
-                    : healthOk
-                      ? theme.colors.profit
-                      : theme.colors.loss,
-                ),
-              ]}
-            >
-              {health.isPending ? t`Checking…` : healthOk ? t`Online` : t`Can't reach the server`}
-            </UIText>
-          </LabeledContent>
-          {health.data?.version ? (
-            <LabeledContent label={t`API version`}>
-              <UIText modifiers={[secondary]}>
-                {health.data.commit
-                  ? `${health.data.version} (${health.data.commit.slice(0, 7)})`
-                  : health.data.version}
-              </UIText>
-            </LabeledContent>
-          ) : null}
-          {health.data?.go ? (
-            <LabeledContent label={t`Go runtime`}>
-              <UIText modifiers={[secondary]}>{health.data.go}</UIText>
-            </LabeledContent>
-          ) : null}
-        </Section>
+      <SettingsSection title={t`Server`}>
+        <SettingsRow label={t`Server URL`}>
+          <ValueText>{session?.serverUrl ?? t`Not connected`}</ValueText>
+        </SettingsRow>
+        <SettingsRow label={t`Status`}>
+          {/* The failure word is describeError's, not this screen's — About
+              and the error states must not name the same thing differently.
+              A pending check takes no color at all, which is the muted value
+              color every other row reads in. */}
+          <ValueText
+            color={health.isPending ? undefined : healthOk ? palette.profit : palette.loss}
+          >
+            {health.isPending ? t`Checking…` : healthOk ? t`Online` : t`Can't reach the server`}
+          </ValueText>
+        </SettingsRow>
+        {health.data?.version ? (
+          <SettingsRow label={t`API version`}>
+            <ValueText>
+              {health.data.commit
+                ? `${health.data.version} (${health.data.commit.slice(0, 7)})`
+                : health.data.version}
+            </ValueText>
+          </SettingsRow>
+        ) : null}
+        {health.data?.go ? (
+          <SettingsRow label={t`Go runtime`}>
+            <ValueText>{health.data.go}</ValueText>
+          </SettingsRow>
+        ) : null}
+      </SettingsSection>
 
-        <Section
-          title={t`Developer`}
-          footer={
-            <UIText>{t`TraderMemos is a self-hosted trading journal — your data stays on your server.`}</UIText>
-          }
-        >
-          <Link destination={DEVELOPER_GITHUB}>
-            <HStack spacing={8}>
-              <Image
-                systemName="person.crop.circle"
-                size={15}
-                color={theme.colors.mutedForeground}
-              />
-              <UIText>{DEVELOPER_NAME}</UIText>
-              <Spacer />
-              <Image systemName="arrow.up.right" size={12} color={theme.colors.mutedForeground} />
-            </HStack>
-          </Link>
-        </Section>
-      </SettingsForm>
-    </AppHost>
+      <SettingsSection
+        title={t`Developer`}
+        footer={t`TraderMemos is a self-hosted trading journal — your data stays on your server.`}
+      >
+        <NavRow
+          systemImage="person.crop.circle"
+          label={DEVELOPER_NAME}
+          accessory="external"
+          onPress={() => void Linking.openURL(DEVELOPER_GITHUB)}
+        />
+      </SettingsSection>
+    </SettingsForm>
   );
 }

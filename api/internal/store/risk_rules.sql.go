@@ -11,7 +11,7 @@ import (
 )
 
 const getRiskRules = `-- name: GetRiskRules :one
-SELECT user_id, max_risk_per_trade, max_daily_loss, max_open_risk, default_account_risk_pct, updated_at
+SELECT user_id, max_risk_per_trade, max_daily_loss, max_open_risk, default_account_risk_pct, updated_at, max_trades_per_day, max_consecutive_losses
 FROM risk_rules WHERE user_id = ?
 `
 
@@ -25,6 +25,8 @@ func (q *Queries) GetRiskRules(ctx context.Context, userID string) (RiskRule, er
 		&i.MaxOpenRisk,
 		&i.DefaultAccountRiskPct,
 		&i.UpdatedAt,
+		&i.MaxTradesPerDay,
+		&i.MaxConsecutiveLosses,
 	)
 	return i, err
 }
@@ -63,15 +65,17 @@ func (q *Queries) ListJournalRisks(ctx context.Context, userID string) ([]ListJo
 }
 
 const upsertRiskRules = `-- name: UpsertRiskRules :one
-INSERT INTO risk_rules (user_id, max_risk_per_trade, max_daily_loss, max_open_risk, default_account_risk_pct, updated_at)
-VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+INSERT INTO risk_rules (user_id, max_risk_per_trade, max_daily_loss, max_open_risk, default_account_risk_pct, max_trades_per_day, max_consecutive_losses, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
 ON CONFLICT(user_id) DO UPDATE SET
     max_risk_per_trade = excluded.max_risk_per_trade,
     max_daily_loss = excluded.max_daily_loss,
     max_open_risk = excluded.max_open_risk,
     default_account_risk_pct = excluded.default_account_risk_pct,
+    max_trades_per_day = excluded.max_trades_per_day,
+    max_consecutive_losses = excluded.max_consecutive_losses,
     updated_at = CURRENT_TIMESTAMP
-RETURNING user_id, max_risk_per_trade, max_daily_loss, max_open_risk, default_account_risk_pct, updated_at
+RETURNING user_id, max_risk_per_trade, max_daily_loss, max_open_risk, default_account_risk_pct, updated_at, max_trades_per_day, max_consecutive_losses
 `
 
 type UpsertRiskRulesParams struct {
@@ -80,6 +84,8 @@ type UpsertRiskRulesParams struct {
 	MaxDailyLoss          sql.NullFloat64 `json:"max_daily_loss"`
 	MaxOpenRisk           sql.NullFloat64 `json:"max_open_risk"`
 	DefaultAccountRiskPct sql.NullFloat64 `json:"default_account_risk_pct"`
+	MaxTradesPerDay       sql.NullInt64   `json:"max_trades_per_day"`
+	MaxConsecutiveLosses  sql.NullInt64   `json:"max_consecutive_losses"`
 }
 
 func (q *Queries) UpsertRiskRules(ctx context.Context, arg UpsertRiskRulesParams) (RiskRule, error) {
@@ -89,6 +95,8 @@ func (q *Queries) UpsertRiskRules(ctx context.Context, arg UpsertRiskRulesParams
 		arg.MaxDailyLoss,
 		arg.MaxOpenRisk,
 		arg.DefaultAccountRiskPct,
+		arg.MaxTradesPerDay,
+		arg.MaxConsecutiveLosses,
 	)
 	var i RiskRule
 	err := row.Scan(
@@ -98,6 +106,8 @@ func (q *Queries) UpsertRiskRules(ctx context.Context, arg UpsertRiskRulesParams
 		&i.MaxOpenRisk,
 		&i.DefaultAccountRiskPct,
 		&i.UpdatedAt,
+		&i.MaxTradesPerDay,
+		&i.MaxConsecutiveLosses,
 	)
 	return i, err
 }

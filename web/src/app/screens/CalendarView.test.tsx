@@ -143,7 +143,8 @@ describe("CalendarView", () => {
     expect(screen.getByText(/-\$41/)).toBeInTheDocument();
     expect(screen.getByText("Week")).toBeInTheDocument();
     expect(screen.getByText("Week 1")).toBeInTheDocument();
-    expect(screen.getAllByText(/2 days/).length).toBeGreaterThanOrEqual(1);
+    // Boards carry no day/trade-count lines — only the W/L record.
+    expect(screen.queryByText(/2 days/)).not.toBeInTheDocument();
   });
 
   it("week cells use sm:h-full to fill the row inside Button trigger", () => {

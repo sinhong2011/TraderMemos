@@ -59,6 +59,57 @@ func TestComplianceDailyLossIntradayDip(t *testing.T) {
 	}
 }
 
+func TestComplianceTradeLimit(t *testing.T) {
+	rules := ComplianceRules{MaxTradesPerDay: 2}
+	trades := []ComplianceTrade{
+		ct(1, 10, 50, 0),
+		ct(1, 11, -20, 0),
+		ct(1, 12, 30, 0), // third trade of the day — over the limit
+		ct(2, 10, 40, 0),
+	}
+	rep := Compliance(trades, rules, time.UTC)
+	if !rep.RulesConfigured {
+		t.Fatal("trade limit alone should configure the rules")
+	}
+	if len(rep.Days) != 2 || !rep.Days[0].TradeLimitBreach || rep.Days[1].TradeLimitBreach {
+		t.Fatalf("expected day 1 over the limit only, got %+v", rep.Days)
+	}
+	if rep.TradeLimitBreaches != 1 {
+		t.Fatalf("tradeLimitBreaches=%d, want 1", rep.TradeLimitBreaches)
+	}
+	if rep.CompliantDays != 1 || rep.BreachDays != 1 {
+		t.Fatalf("compliant=%d breach=%d, want 1/1", rep.CompliantDays, rep.BreachDays)
+	}
+	if rep.BreachPnl != 60 || rep.CompliantPnl != 40 {
+		t.Fatalf("breachPnl=%v compliantPnl=%v", rep.BreachPnl, rep.CompliantPnl)
+	}
+}
+
+func TestComplianceLossStreak(t *testing.T) {
+	rules := ComplianceRules{MaxConsecutiveLosses: 2}
+	trades := []ComplianceTrade{
+		ct(1, 10, -50, 0),
+		ct(1, 11, -30, 0), // streak hits 2 — stop is due
+		ct(1, 12, 80, 0),  // trades on anyway: breach, even though it won
+		ct(2, 10, -40, 0),
+		ct(2, 11, 60, 0), // reset before the stop was due — clean day
+		ct(2, 12, -20, 0),
+	}
+	rep := Compliance(trades, rules, time.UTC)
+	if !rep.RulesConfigured {
+		t.Fatal("loss streak alone should configure the rules")
+	}
+	if len(rep.Days) != 2 || !rep.Days[0].LossStreakBreach || rep.Days[1].LossStreakBreach {
+		t.Fatalf("expected day 1 streak breach only, got %+v", rep.Days)
+	}
+	if rep.LossStreakBreaches != 1 || rep.CompliantDays != 1 || rep.BreachDays != 1 {
+		t.Fatalf(
+			"streak=%d compliant=%d breach=%d, want 1/1/1",
+			rep.LossStreakBreaches, rep.CompliantDays, rep.BreachDays,
+		)
+	}
+}
+
 func TestComplianceDailyLossNotBreached(t *testing.T) {
 	rules := ComplianceRules{MaxDailyLoss: 200}
 	trades := []ComplianceTrade{

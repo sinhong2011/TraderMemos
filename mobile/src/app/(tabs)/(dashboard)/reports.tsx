@@ -3,13 +3,12 @@
 import PagerView from 'react-native-pager-view';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { useEffect, useRef, useState } from 'react';
-import { Animated, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { useHeaderHeight } from 'expo-router/react-navigation';
+import { useRef, useState } from 'react';
+import { View } from 'react-native';
 
 import { useAccounts, useCash, useSystemInfo } from '@/api/hooks';
 import { HeaderIconButton } from '@/components/header-icon-button';
-import { PagerTabs } from '@/components/pager-tabs';
 import { BehaviorSection } from '@/components/reports/behavior-section';
 import { DetailedSection } from '@/components/reports/detailed-section';
 import { OverviewSection } from '@/components/reports/overview-section';
@@ -46,7 +45,7 @@ function ReportsHeaderRight() {
       ? netDeposits(accounts.data, selectedId, cash.data)
       : 0;
   return (
-    <View style={styles.headerRight}>
+    <View className="flex-row items-center gap-2">
       {shareEnabled ? (
         <HeaderIconButton
           systemImage="square.and.arrow.up"
@@ -66,43 +65,40 @@ function ReportsHeaderRight() {
 
 export default function ReportsScreen() {
   const [section, setSection] = useState<ReportsSection>('overview');
-  const [scrolled, setScrolled] = useState(false);
+  // Sections mount on first visit, not up front: a chart rendered inside a
+  // never-attached off-screen pager page measures 0×0 and draws stuck — empty
+  // line charts, hairline bars, a radar collapsed to its centre dot. Once
+  // visited a section stays mounted so its scroll position survives.
+  const [visited, setVisited] = useState<ReadonlySet<ReportsSection>>(
+    () => new Set<ReportsSection>(['overview']),
+  );
   const pagerRef = useRef<PagerView>(null);
 
-  // Measured rather than assumed: the switcher's height is also the top inset
-  // every page scrolls under, and it changes with the text size.
-  const [headerHeight, setHeaderHeight] = useState(0);
-  // Held in state, not a ref: the interpolations read it during render, which
-  // is exactly what a ref is not allowed to be used for.
-  const [offset] = useState(() => new Animated.Value(0));
-
-  // Each page keeps its own scroll position but they share one switcher, so a
-  // page change brings it back rather than leaving it hidden by the last page.
-  useEffect(() => {
-    Animated.timing(offset, { toValue: 0, duration: 160, useNativeDriver: true }).start();
-  }, [section, offset]);
-
-  // `1` guards the first frame, before the switcher has been measured.
-  const travel = offset.interpolate({
-    inputRange: [0, Math.max(1, headerHeight)],
-    outputRange: [0, -headerHeight],
-    extrapolate: 'clamp',
-  });
-  const fade = offset.interpolate({
-    inputRange: [0, Math.max(1, headerHeight)],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
+  const visit = (value: ReportsSection) =>
+    setVisited((prev) => (prev.has(value) ? prev : new Set(prev).add(value)));
 
   const sections: { value: ReportsSection; label: string }[] = [
     { value: 'overview', label: t`Overview` },
-    { value: 'winloss', label: t`Win / Loss` },
+    // "W/L", not "Win / Loss": five triggers share a 360dp phone's width, and
+    // the long label wraps to two lines and crushes the whole strip.
+    { value: 'winloss', label: t`W/L` },
     { value: 'detailed', label: t`Detailed` },
     { value: 'risk', label: t`Risk` },
     { value: 'behavior', label: t`Behavior` },
   ];
 
+  // Pages need the *expanded* header height as their top padding: UIKit's
+  // automatic inset adjustment does not reach a scroll view nested in the
+  // pager (the same gap `usePagerBottomInset` covers at the bottom), so
+  // `automatic` would leave every page under the transparent bar. Captured
+  // once rather than read live: the hook's value shrinks as the large title
+  // collapses, and a padding that shrank with it would drag the content up
+  // mid-scroll. The screen always mounts at rest, so the first read is the
+  // expanded height.
+  const [headerHeight] = useState(useHeaderHeight());
+
   const selectSection = (value: ReportsSection) => {
+    visit(value);
     setSection(value);
     pagerRef.current?.setPage(SECTION_VALUES.indexOf(value));
   };
@@ -111,40 +107,41 @@ export default function ReportsScreen() {
     <>
       <Stack.Screen
         options={{
-          title: scrolled ? t`Reports` : '',
+          title: t`Reports`,
           headerRight: () => <ReportsHeaderRight />,
         }}
       />
-      <View style={styles.page}>
-        {/* Floats over the pages and slides out with the content — the sections
-            are long, and the switcher only matters between reads. */}
-        <Animated.View
-          style={[styles.segment, { opacity: fade, transform: [{ translateY: travel }] }]}
-          onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
-        >
-          <PagerTabs options={sections} value={section} onChange={selectSection} />
-        </Animated.View>
-        <ReportsScrollProvider value={{ offset, headerHeight }}>
+      <View className="flex-1 bg-background">
+        {/* The switcher rides at the top of each page's scroll content rather
+            than floating over it: a floating bar has to be positioned against
+            the header, and under a transparent (blurred) header there is no
+            fixed y to position it at. In-content it simply scrolls under the
+            blur like every other row — the Trades list header pattern. */}
+        <ReportsScrollProvider value={{ sections, section, onChange: selectSection, headerHeight }}>
           <PagerView
             ref={pagerRef}
             initialPage={0}
-            style={styles.pager}
-            onPageSelected={(event) => setSection(SECTION_VALUES[event.nativeEvent.position])}
+            style={FILL}
+            onPageSelected={(event) => {
+              const next = SECTION_VALUES[event.nativeEvent.position];
+              visit(next);
+              setSection(next);
+            }}
           >
-            <View key="overview" style={styles.fill}>
-              <OverviewSection onScrolledChange={setScrolled} />
+            <View key="overview" className="flex-1">
+              {visited.has('overview') ? <OverviewSection /> : null}
             </View>
-            <View key="winloss" style={styles.fill}>
-              <WinLossSection onScrolledChange={setScrolled} />
+            <View key="winloss" className="flex-1">
+              {visited.has('winloss') ? <WinLossSection /> : null}
             </View>
-            <View key="detailed" style={styles.fill}>
-              <DetailedSection onScrolledChange={setScrolled} />
+            <View key="detailed" className="flex-1">
+              {visited.has('detailed') ? <DetailedSection /> : null}
             </View>
-            <View key="risk" style={styles.fill}>
-              <RiskSection onScrolledChange={setScrolled} />
+            <View key="risk" className="flex-1">
+              {visited.has('risk') ? <RiskSection /> : null}
             </View>
-            <View key="behavior" style={styles.fill}>
-              <BehaviorSection onScrolledChange={setScrolled} />
+            <View key="behavior" className="flex-1">
+              {visited.has('behavior') ? <BehaviorSection /> : null}
             </View>
           </PagerView>
         </ReportsScrollProvider>
@@ -153,21 +150,5 @@ export default function ReportsScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  // Opaque and above the pages: the rows sliding under it have to disappear.
-  segment: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 2,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.sm,
-    backgroundColor: theme.colors.background,
-  },
-  pager: { flex: 1 },
-  fill: { flex: 1 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-}));
+/** `PagerView` is a native component, not one Uniwind styles by class. */
+const FILL = { flex: 1 } as const;

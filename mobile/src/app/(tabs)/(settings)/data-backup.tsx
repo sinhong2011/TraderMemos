@@ -1,23 +1,17 @@
-import {
-  Button,
-  Section,
-  Text as UIText,
-} from '@expo/ui/swift-ui';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
 
 import { useSession } from '@/api/session';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsButton, SettingsSection } from '@/components/settings-rows';
 import { buildAppConfigExport, parseAppConfig } from '@/lib/app-config';
 import { errorMessage } from '@/lib/errors';
 import { shareFile } from '@/lib/file-transfer';
 import { applyJournalPrefs } from '@/lib/journal-prefs';
 import { applyDisplayPrefs } from '@/lib/prefs';
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
 
 /**
  * Every import/export in one place, one push away from Settings. Trade data
@@ -26,7 +20,6 @@ import { AppHost } from '@/components/app-host';
  */
 export default function DataBackupScreen() {
   const router = useRouter();
-  const { theme } = useUnistyles();
   const { session } = useSession();
 
   async function exportAppConfig() {
@@ -68,48 +61,38 @@ export default function DataBackupScreen() {
   }
 
   return (
-    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <SettingsForm>
-        <Section
-          title={t`Trades`}
-          footer={
-            <UIText>
-              {t`Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots.`}
-            </UIText>
-          }
-        >
-          <Button
-            systemImage="square.and.arrow.down"
-            label={t`Import trades`}
-            onPress={() => router.push('/import-trades')}
-          />
-          <Button
-            systemImage="square.and.arrow.up"
-            label={t`Export data`}
-            onPress={() => router.push('/export-trades')}
-          />
-        </Section>
+    <SettingsForm>
+      <SettingsSection
+        title={t`Trades`}
+        footer={t`Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots.`}
+      >
+        <SettingsButton
+          systemImage="square.and.arrow.down"
+          label={t`Import trades`}
+          onPress={() => router.push('/import-trades')}
+        />
+        <SettingsButton
+          systemImage="square.and.arrow.up"
+          label={t`Export data`}
+          onPress={() => router.push('/export-trades')}
+        />
+      </SettingsSection>
 
-        <Section
-          title={t`App config`}
-          footer={
-            <UIText>
-              {t`Config files carry this device's app preferences only — no trades, no credentials. They round-trip with the web app.`}
-            </UIText>
-          }
-        >
-          <Button
-            systemImage="arrow.up.doc"
-            label={t`Import app config`}
-            onPress={() => void importAppConfig()}
-          />
-          <Button
-            systemImage="arrow.down.doc"
-            label={t`Export app config`}
-            onPress={() => void exportAppConfig()}
-          />
-        </Section>
-      </SettingsForm>
-    </AppHost>
+      <SettingsSection
+        title={t`App config`}
+        footer={t`Config files carry this device's app preferences only — no trades, no credentials. They round-trip with the web app.`}
+      >
+        <SettingsButton
+          systemImage="arrow.up.doc"
+          label={t`Import app config`}
+          onPress={() => void importAppConfig()}
+        />
+        <SettingsButton
+          systemImage="arrow.down.doc"
+          label={t`Export app config`}
+          onPress={() => void exportAppConfig()}
+        />
+      </SettingsSection>
+    </SettingsForm>
   );
 }

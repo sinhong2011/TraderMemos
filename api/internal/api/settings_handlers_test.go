@@ -18,7 +18,7 @@ func TestRiskRulesRoundTrip(t *testing.T) {
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &empty))
 	require.Nil(t, empty["max_risk_per_trade"])
 
-	body := `{"max_risk_per_trade":100,"max_daily_loss":300,"max_open_risk":250,"default_account_risk_pct":1}`
+	body := `{"max_risk_per_trade":100,"max_daily_loss":300,"max_open_risk":250,"default_account_risk_pct":1,"max_trades_per_day":5}`
 	rec = do(s, http.MethodPut, "/api/v1/settings/risk-rules", body, tok)
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 
@@ -29,6 +29,10 @@ func TestRiskRulesRoundTrip(t *testing.T) {
 	require.Equal(t, 100.0, got["max_risk_per_trade"])
 	require.Equal(t, 300.0, got["max_daily_loss"])
 	require.Equal(t, 1.0, got["default_account_risk_pct"])
+	require.Equal(t, 5.0, got["max_trades_per_day"])
+
+	rec = do(s, http.MethodPut, "/api/v1/settings/risk-rules", `{"max_trades_per_day":-1}`, tok)
+	require.Equal(t, http.StatusBadRequest, rec.Code, rec.Body.String())
 }
 
 func TestAnnualGoalRoundTrip(t *testing.T) {

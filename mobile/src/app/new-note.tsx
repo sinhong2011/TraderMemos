@@ -97,7 +97,7 @@ export default function NewNoteScreen() {
       scroll={false}
       onSave={handleSave}
     >
-      <NoteEditor values={values} onChange={onChange} autoFocus />
+      <NoteEditor values={values} onChange={onChange} />
     </FormSheet>
   );
 }

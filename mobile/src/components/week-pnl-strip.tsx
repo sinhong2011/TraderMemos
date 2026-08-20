@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useFormatters } from '@/lib/format';
+import { usePnlPalette } from '@/styles/pnl';
 
 /** Band height — full-magnitude bar height : `BAR_WIDTH` ≥ ~1.4 (96 → 47 : 32 ≈ 1.47). */
 export const WEEK_STRIP_HEIGHT = 88;
@@ -103,13 +104,14 @@ export function WeekPnlStrip({
   onSelect: (date: string) => void;
   currency: string;
 }) {
-  const { theme } = useUnistyles();
+  // Bars are positioned views, so their fills are token *values*, not classes.
+  const palette = usePnlPalette();
+  const [border] = useCSSVariable(['--color-border']) as [string];
   const { formatPnl } = useFormatters();
 
   const { layout, columns } = useMemo(() => {
     const layout = computeWeekStripLayout(days, data);
     const { zeroLineY, pxPerUnit } = layout;
-    const untradedColor = theme.colors.border;
 
     const columns = days.map((key) => {
       const pnl = data[key];
@@ -135,38 +137,49 @@ export function WeekPnlStrip({
         height: magnitude,
         color:
           !hasTrade || value === 0
-            ? untradedColor
+            ? border
             : value > 0
-              ? theme.colors.profit
-              : theme.colors.loss,
+              ? palette.profit
+              : palette.loss,
       };
     });
 
     return { layout, columns };
-  }, [currency, data, days, formatPnl, theme.colors]);
+  }, [border, currency, data, days, formatPnl, palette.loss, palette.profit]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.strip}>
+    <View className="w-full self-center" style={{ maxWidth: STRIP_MAX_WIDTH }}>
+      <View
+        className="flex-row items-stretch overflow-hidden"
+        style={{ height: WEEK_STRIP_HEIGHT }}
+      >
         {columns.map((column) => (
           <Pressable
             key={column.key}
             onPress={() => onSelect(column.key)}
             accessibilityRole="button"
             accessibilityLabel={column.label}
-            style={({ pressed }) => [styles.columnSlot, pressed && styles.pressed]}
+            className="flex-1 active:opacity-60"
           >
             <View
-              style={[
-                styles.column,
-                { top: column.top, height: column.height, backgroundColor: column.color },
-              ]}
+              className="absolute left-1/2 rounded-[1px]"
+              style={{
+                width: BAR_WIDTH,
+                marginLeft: -BAR_WIDTH / 2,
+                top: column.top,
+                height: column.height,
+                backgroundColor: column.color,
+              }}
             />
           </Pressable>
         ))}
-        <View style={[styles.zeroLine, { top: layout.zeroLineY }]} pointerEvents="none" />
+        <View
+          className="absolute left-0 right-0 z-10 h-px bg-border"
+          style={{ top: layout.zeroLineY }}
+          pointerEvents="none"
+        />
       </View>
-      <View style={styles.labelRow}>
+      <View className="flex-row" style={{ marginTop: LABEL_GAP }}>
         {days.map((key) => {
           const d = new Date(`${key}T00:00:00Z`);
           const weekday = d.toLocaleDateString(locale, { weekday: 'short', timeZone: 'UTC' });
@@ -176,7 +189,11 @@ export function WeekPnlStrip({
             timeZone: 'UTC',
           });
           return (
-            <Text key={key} style={styles.dayLabel} numberOfLines={1}>
+            <Text
+              key={key}
+              className="flex-1 text-center text-[10px] text-muted-foreground tabular-nums"
+              numberOfLines={1}
+            >
               {`${weekday} ${date}`}
             </Text>
           );
@@ -185,42 +202,3 @@ export function WeekPnlStrip({
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  container: {
-    alignSelf: 'center',
-    width: '100%',
-    maxWidth: STRIP_MAX_WIDTH,
-  },
-  strip: {
-    height: WEEK_STRIP_HEIGHT,
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    overflow: 'hidden',
-  },
-  zeroLine: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 1,
-    backgroundColor: theme.colors.border,
-    zIndex: 1,
-  },
-  columnSlot: { flex: 1 },
-  column: {
-    position: 'absolute',
-    width: BAR_WIDTH,
-    left: '50%',
-    marginLeft: -BAR_WIDTH / 2,
-    borderRadius: 1,
-  },
-  labelRow: { flexDirection: 'row', marginTop: LABEL_GAP },
-  dayLabel: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 10,
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  pressed: { opacity: 0.6 },
-}));

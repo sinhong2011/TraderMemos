@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { cn } from 'panelui-native';
 import { Alert, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { FormSkeleton } from '@/components/skeleton';
 
@@ -15,7 +15,7 @@ import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { useProUnlocked } from '@/lib/pro';
 import { usePendingTradeJournal, useQueuedTradeJournal } from '@/lib/use-outbox';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass } from '@/styles/pnl';
 import { t } from '@lingui/core/macro';
 import {
   TRADE_GRADES,
@@ -24,6 +24,12 @@ import {
   intFromGrade,
   parseJournalNotes,
 } from '@/lib/journal';
+
+/** Squircle corners on the summary card — no Tailwind utility maps to this. */
+const CONTINUOUS = { borderCurve: 'continuous' } as const;
+
+/** The screen's "nothing to show" frame, shared by both dead ends below. */
+const CENTERED = 'flex-1 items-center justify-center bg-background p-6';
 
 /**
  * Swipe-action "quick journal": just the post-trade reflection fields (review
@@ -86,9 +92,9 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
       {entryReason ? (
         // What you told yourself at entry — the thing the review is measured
         // against. Read-only here; editing it belongs in the full trade form.
-        <View style={styles.recall}>
-          <Text style={styles.recallLabel}>{t`Entry reason`}</Text>
-          <Text style={styles.recallBody}>{entryReason}</Text>
+        <View className="gap-1">
+          <Text className="text-xs text-muted-foreground">{t`Entry reason`}</Text>
+          <Text className="text-sm leading-5 text-muted-foreground">{entryReason}</Text>
         </View>
       ) : null}
       <FormField label={t`Review notes`}>
@@ -97,7 +103,6 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
           onChangeText={setReviewNotes}
           placeholder={t`What would you do differently?`}
           multiline
-          autoFocus
         />
       </FormField>
       <FormField label={t`Execution rating`}>
@@ -131,29 +136,30 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
  * this the only anchor was a symbol in a truncating title.
  */
 function TradeSummary({ trade }: { trade: TradeDetail }) {
-  const { theme } = useUnistyles();
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatDate, formatPnl } = useFormatters();
   const isOpen = trade.status === 'open';
   const isLong = trade.direction === 'long';
   return (
-    <View style={styles.summary}>
-      <View style={styles.summaryTop}>
-        <Text style={styles.symbol} numberOfLines={1}>
+    <View className="gap-2 rounded-lg bg-card p-4" style={CONTINUOUS}>
+      <View className="flex-row items-baseline justify-between gap-3">
+        <Text className="shrink text-xl font-bold text-foreground" numberOfLines={1}>
           {trade.symbol}
         </Text>
         <Text
-          style={[
-            styles.pnl,
-            { color: isOpen ? theme.colors.mutedForeground : pnlColor(theme.colors, trade.net_pnl) },
-          ]}
+          className={cn(
+            'text-xl font-bold tracking-[-0.4px] tabular-nums',
+            isOpen ? 'text-muted-foreground' : pnlClass(trade.net_pnl),
+          )}
         >
           {isOpen ? t`Open` : formatPnl(trade.net_pnl, trade.pnl_currency)}
         </Text>
       </View>
-      <View style={styles.summaryMeta}>
+      <View className="flex-row items-center gap-2">
         <Pill tone={isLong ? 'pos' : 'neg'}>{isLong ? t`LONG` : t`SHORT`}</Pill>
-        <Text style={styles.summaryDate}>{formatDate(trade.opened_at)}</Text>
+        <Text className="text-[13px] tabular-nums text-muted-foreground">
+          {formatDate(trade.opened_at)}
+        </Text>
       </View>
     </View>
   );
@@ -191,20 +197,22 @@ export default function QuickJournalScreen() {
 
   if (!resolvedId && !(wantLatest && tradesLoading)) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.muted}>{t`No trades to review yet`}</Text>
+      <View className={CENTERED}>
+        <Text className="text-center text-muted-foreground">{t`No trades to review yet`}</Text>
       </View>
     );
   }
 
   if (isLoading || tradesLoading || !trade || !tags) {
     return isLoading || tradesLoading || !tags ? (
-      <View style={styles.loading}>
+      // Same chrome as the loaded form so the fields don't jump when the
+      // queries land (see new-trade.tsx).
+      <FormSheet title={t`Review`} saveDisabled onSave={() => {}}>
         <FormSkeleton fields={3} />
-      </View>
+      </FormSheet>
     ) : (
-      <View style={styles.centered}>
-        <Text style={styles.muted}>{t`Trade not found`}</Text>
+      <View className={CENTERED}>
+        <Text className="text-center text-muted-foreground">{t`Trade not found`}</Text>
       </View>
     );
   }
@@ -213,35 +221,3 @@ export default function QuickJournalScreen() {
     <QuickJournalForm trade={trade} mistakeTags={tags.filter((tag) => tag.kind === 'mistake')} />
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  summary: {
-    gap: theme.spacing.sm,
-    padding: theme.spacing.lg,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-  },
-  summaryTop: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
-  },
-  symbol: { flexShrink: 1, fontSize: 20, fontWeight: '700', color: theme.colors.foreground },
-  pnl: { fontSize: 20, fontWeight: '700', letterSpacing: -0.4, ...theme.numeric },
-  summaryMeta: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  summaryDate: { fontSize: 13, color: theme.colors.mutedForeground, ...theme.numeric },
-  recall: { gap: theme.spacing.xs },
-  recallLabel: { fontSize: 12, color: theme.colors.mutedForeground },
-  recallBody: { fontSize: 14, lineHeight: 20, color: theme.colors.mutedForeground },
-  loading: { flex: 1, backgroundColor: theme.colors.background },
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.xl,
-    backgroundColor: theme.colors.background,
-  },
-  muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
-}));

@@ -31,7 +31,11 @@ import type {
   EconomicEvent,
   EquityCurve,
   Filters,
+  ExecScoreReport,
+  FlexSyncConnection,
   FlexSyncSettings,
+  MonteCarloResult,
+  ImportBatch,
   FxRate,
   Note,
   PropStatusResponse,
@@ -99,6 +103,11 @@ export const queryKeys = {
   propStatus: (accountId: string, filters: Filters) =>
     ['accounts', accountId, 'prop-status', filters] as const,
   flexSync: (accountId: string) => ['accounts', accountId, 'flex-sync'] as const,
+  executionScore: (filters: Filters, bucket: 'week' | 'month') =>
+    ['analytics', 'execution-score', bucket, filters] as const,
+  monteCarlo: (filters: Filters) => ['analytics', 'montecarlo', filters] as const,
+  flexSyncConnections: () => ['flex-sync'] as const,
+  imports: () => ['imports'] as const,
   health: () => ['health'] as const,
   systemInfo: () => ['system-info'] as const,
 };
@@ -176,6 +185,20 @@ function useApiQuery<T>(
         });
       }),
   });
+}
+
+/** Execution-quality composite + per-axis series (web ReportsExecutionScore parity). */
+export function useExecutionScore(bucket: 'week' | 'month', filters: Filters = {}) {
+  return useApiQuery<ExecScoreReport>(
+    queryKeys.executionScore(filters, bucket),
+    '/analytics/execution-score',
+    { ...filters, bucket },
+  );
+}
+
+/** Bootstrap-resampled equity fan (web ReportsMonteCarlo parity). */
+export function useMonteCarlo(filters: Filters = {}) {
+  return useApiQuery<MonteCarloResult>(queryKeys.monteCarlo(filters), '/analytics/montecarlo', filters);
 }
 
 export function useSummary(filters: Filters = {}) {
@@ -513,4 +536,27 @@ export function useFlexSync(accountId: string, enabled = true) {
     undefined,
     { enabled: enabled && accountId.length > 0 },
   );
+}
+
+/** True when the connection's last sync attempt failed. */
+export function flexSyncFailed(s: Pick<FlexSyncSettings, 'last_status' | 'last_error'>): boolean {
+  return s.last_status === 'error' || Boolean(s.last_error);
+}
+
+/** Every configured broker connection in one request (sync-health badges). */
+export function useFlexSyncConnections(enabled = true) {
+  // staleTime 0: sync state changes server-side (the scheduled job), so a
+  // persisted cache hit must still revalidate.
+  return useApiQuery<FlexSyncConnection[]>(queryKeys.flexSyncConnections(), '/flex-sync', undefined, {
+    enabled,
+    staleTime: 0,
+  });
+}
+
+/** Every import batch — scheduled syncs, manual syncs, and file imports. */
+export function useImports(enabled = true) {
+  return useApiQuery<ImportBatch[]>(queryKeys.imports(), '/imports', undefined, {
+    enabled,
+    staleTime: 0,
+  });
 }

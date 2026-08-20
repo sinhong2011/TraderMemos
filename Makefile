@@ -1,6 +1,6 @@
 export PATH := $(HOME)/.local/share/pnpm:$(HOME)/go/bin:$(PATH)
 
-.PHONY: help setup setup-mobile dev dev-api dev-web dev-mobile run-ios prebuild-ios rebuild-ios build test test-api test-web lint lint-api lint-web lint-mobile check check-web check-mobile e2e eas-build-dev eas-build-preview eas-build-ios eas-submit-ios sqlc kill up up-build up-postgres up-postgres-build down logs demo-seed
+.PHONY: help setup setup-mobile dev dev-api dev-web dev-mobile run-ios prebuild-ios rebuild-ios run-android prebuild-android rebuild-android doctor-android build test test-api test-web lint lint-api lint-web lint-mobile check check-web check-mobile e2e eas-build-dev eas-build-preview eas-build-ios eas-submit-ios eas-build-android eas-submit-android sqlc kill up up-build up-postgres up-postgres-build down logs demo-seed
 
 # Default: show available targets
 help: ## List available targets
@@ -53,6 +53,46 @@ prebuild-ios: ## Regenerate ios/ from scratch (prebuild --clean + verify UIScene
 
 rebuild-ios: prebuild-ios run-ios ## Full native rebuild: clean prebuild, patch, build + install
 
+# Android Studio ships the JDK Gradle needs, but only the IDE knows where it is —
+# a bare shell has no `java`. Point JAVA_HOME at the bundled JetBrains Runtime and
+# ANDROID_HOME at the SDK the IDE's SDK Manager installs. Override either on the
+# command line if you keep them elsewhere.
+#
+# JetBrains Toolbox installs into ~/Applications; a direct download lands in
+# /Applications. Take whichever exists, preferring the Toolbox copy. This has
+# to go through the shell rather than $(wildcard): "Android Studio.app" has a
+# space in it, and make's $(firstword) would split the path in half.
+ANDROID_STUDIO ?= $(shell ls -d "$$HOME/Applications/Android Studio.app" "/Applications/Android Studio.app" 2>/dev/null | head -1)
+
+# Build on JDK 17 (mise), NOT Android Studio's bundled JBR. Studio currently
+# ships JBR 25, and JDK 24+ enforces integrity-by-default: the CMake configure
+# tasks for the native RN modules (react-native-screens, worklets,
+# nitro-modules) die with "A restricted method in java.lang.System has been
+# called". Falls back to the JBR only if mise has no JDK, which will fail that
+# way until you `mise use -g java@temurin-17`.
+MISE_JDK := $(shell ls -d "$$HOME/.local/share/mise/installs/java/temurin-17" 2>/dev/null | head -1)
+JAVA_HOME ?= $(if $(MISE_JDK),$(MISE_JDK),$(ANDROID_STUDIO)/Contents/jbr/Contents/Home)
+ANDROID_HOME ?= $(HOME)/Library/Android/sdk
+ANDROID_ENV := JAVA_HOME="$(JAVA_HOME)" ANDROID_HOME="$(ANDROID_HOME)" PATH="$(JAVA_HOME)/bin:$(ANDROID_HOME)/platform-tools:$(PATH)"
+
+doctor-android: ## Verify the Android toolchain (JDK, SDK, adb, emulators)
+	@echo "JAVA_HOME   $(JAVA_HOME)"
+	@test -x "$(JAVA_HOME)/bin/java" || (echo "  ✗ no java here — install Android Studio, or set JAVA_HOME=<jdk>"; exit 1)
+	@"$(JAVA_HOME)/bin/java" -version 2>&1 | sed 's/^/  ✓ /'
+	@echo "ANDROID_HOME $(ANDROID_HOME)"
+	@test -d "$(ANDROID_HOME)/platform-tools" || (echo "  ✗ no SDK — open Android Studio ▸ SDK Manager and install the platform + tools"; exit 1)
+	@echo "  ✓ platform-tools present"
+	@echo "installed platforms:"; ls "$(ANDROID_HOME)/platforms" 2>/dev/null | sed 's/^/  /' || echo "  (none)"
+	@echo "devices:"; "$(ANDROID_HOME)/platform-tools/adb" devices | tail -n +2 | sed 's/^/  /'
+
+run-android: ## Build + install the Android dev client on the running emulator/device
+	cd mobile && $(NO_PROXY_ENV) $(ANDROID_ENV) npx expo run:android
+
+prebuild-android: ## Regenerate android/ from scratch
+	cd mobile && $(NO_PROXY_ENV) npx expo prebuild --clean --platform android
+
+rebuild-android: prebuild-android run-android ## Full native rebuild: clean prebuild, build + install
+
 kill: ## Free API/web ports (air + listeners on 8080/5173)
 	@./scripts/release-ports.sh
 
@@ -93,13 +133,16 @@ check: lint-api check-web check-mobile ## Lint/typecheck everything
 check-web: ## Vite+ check for web
 	cd web && pnpm run check
 
-check-mobile: ## tsc typecheck for the Expo app
+check-mobile: ## tsc typecheck + icon-map check for the Expo app
 	cd mobile && pnpm run check
+	cd mobile && pnpm run check-icons
 
 ## --- eas ---
 
 # Cloud builds on EAS. One-time setup: `cd mobile && npx eas-cli login && npx eas-cli init`,
-# then `npx eas-cli credentials` for the signing assets and the ASC API key.
+# then `npx eas-cli credentials` for the iOS signing assets + ASC API key, and
+# `npx eas-cli credentials -p android` once to generate the Android release keystore
+# (non-interactive CI builds cannot create one).
 # CI does the same thing via .github/workflows/mobile-eas.yml.
 
 eas-build-dev: ## EAS: simulator dev-client build (development profile)
@@ -113,6 +156,12 @@ eas-build-ios: ## EAS: store build (production profile, no submit)
 
 eas-submit-ios: ## EAS: submit the latest production build to App Store Connect
 	cd mobile && npx eas-cli submit --platform ios --profile production --latest
+
+eas-build-android: ## EAS: release-signed APK (production-apk profile, sideload/GitHub Release)
+	cd mobile && npx eas-cli build --platform android --profile production-apk
+
+eas-submit-android: ## EAS: submit the latest production build to Google Play
+	cd mobile && npx eas-cli submit --platform android --profile production --latest
 
 ## --- codegen ---
 

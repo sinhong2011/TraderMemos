@@ -41,6 +41,13 @@
       "distribution": "store",
       "autoIncrement": true,
       "android": {
+        "buildType": "app-bundle"
+      }
+    },
+    "production-apk": {
+      "extends": "production",
+      "distribution": "internal",
+      "android": {
         "buildType": "apk"
       }
     }
@@ -52,6 +59,10 @@
         "appleTeamId": "FX3VR69P5K",
         "language": "en-US",
         "groups": ["Internal Testers"]
+      },
+      "android": {
+        "serviceAccountKeyPath": "../secrets/play-service-account.json",
+        "track": "internal"
       }
     }
   }

@@ -1,0 +1,192 @@
+/*
+ * TraderMemos theme over PanelUI — the mobile design tokens, shadcn-style,
+ * mirrored from the web theme (web/src/global.css :root/.dark; values are the
+ * resolved hex of the oklch/color-mix expressions there — keep in sync when
+ * global.css changes). Replaces src/styles/unistyles.ts as the source of truth.
+ *
+ * Every value must be a static hex/rgba — native cannot evaluate color-mix()
+ * at runtime. Per-theme values live in @variant blocks; `dark:` classes never
+ * appear in components (the token already knows).
+ */
+
+@import 'tailwindcss';
+@import 'uniwind';
+@import 'panelui-native/theme.css';
+
+@source '../node_modules/panelui-native/src';
+
+/*
+ * App-specific tokens PanelUI does not define. Declared `unset` here so
+ * Tailwind emits utilities (text-profit, bg-fill, …); values follow below.
+ * profit/loss/flat are the P&L hues (web --profit/--loss/--flat) — domain
+ * colors, not status colors: they lighten in dark mode for text legibility.
+ */
+@theme {
+  --color-profit: unset;
+  --color-loss: unset;
+  --color-flat: unset;
+  /* iOS tertiarySystemFill — the capsule behind compact pickers/fields. */
+  --color-fill: unset;
+  /* Selected-segment fill inside a `fill` capsule track (= background). */
+  --color-segment-active: unset;
+  /* Track behind PanelUI's segmented Tabs chip. The chip is bg-popover and
+     cannot be restyled per instance, so the *track* carries the contrast: in
+     dark it recesses below the #202020 chip (muted's 4% white resolves to the
+     same grey as the chip and the selection vanishes); in light it equals
+     muted, the value that already read well under the white chip. */
+  --color-segment-track: unset;
+  /* Section-title accent (the old unistyles `accent` slot — deliberately
+     cool teal on light, amber on dark; see the note in git history). */
+  --color-heading: unset;
+  /* Open-position blue (web --chart-open); same in both schemes. */
+  --color-open: unset;
+}
+
+@layer theme {
+  :root {
+    @variant light {
+      /* iOS grouped-table pair: systemGroupedBackground over
+         secondarySystemGroupedBackground — matching the system values is what
+         lets SwiftUI-drawn surfaces agree with the RN ones they abut. */
+      --color-background: #f2f2f7;
+      --color-foreground: #262626;
+      --color-card: #ffffff;
+      --color-card-foreground: #262626;
+      --color-popover: #ffffff;
+      --color-popover-foreground: #262626;
+      --color-overlay: #ffffff;
+      --color-overlay-foreground: #262626;
+
+      /* TraderMemos brand — web --primary oklch(0.5013 0.1428 252.49). */
+      --color-primary: #1264b2;
+      --color-primary-foreground: #ffffff;
+      --color-ring: #1264b2;
+
+      /* 8%, not 4%: 4% black over the white card composites to the old page
+         color and nested tiles vanish. 8% lands within a hair of iOS
+         tertiarySystemFill. */
+      --color-muted: rgba(0, 0, 0, 0.08);
+      --color-muted-foreground: #686868;
+      --color-secondary: rgba(0, 0, 0, 0.08);
+      --color-secondary-foreground: #262626;
+      /* Selected/hover fill — must read STRONGER than secondary (the resting
+         chip/button ground), or Chip's selected state looks unselected. */
+      --color-accent: rgba(0, 0, 0, 0.11);
+      --color-accent-foreground: #262626;
+
+      /* 12%/18% keep a divider and a field outline distinct from a filled row
+         (8% hairlines resolved identical to the muted fill). */
+      --color-border: rgba(0, 0, 0, 0.12);
+      --color-input: rgba(0, 0, 0, 0.18);
+
+      --color-destructive: #fb2c36;
+      --color-destructive-foreground: #b91c1c;
+      --color-success: #098926;
+      --color-success-foreground: #047857;
+      --color-info: #0490c8;
+      --color-info-foreground: #1d4ed8;
+
+      /* Content over a full-strength status fill (Swipe.Action tiles). White,
+         the iOS treatment — PanelUI's default is #171717 for its own neon
+         palette and reads as a mistake on ours. */
+      --color-destructive-solid-foreground: #ffffff;
+      --color-success-solid-foreground: #ffffff;
+      --color-info-solid-foreground: #ffffff;
+
+      /* Nested-tile ladder on a white card. */
+      --color-surface: #f5f5f5;
+      --color-surface-secondary: #efefef;
+      --color-surface-tertiary: #eaeaea;
+
+      /* Brand chart ramp — chart-1 is the series the chart is about. */
+      --color-chart-1: #1264b2;
+      --color-chart-2: #098926;
+      --color-chart-3: #104e64;
+      --color-chart-4: #f59e0b;
+      --color-chart-5: #8b5cf6;
+
+      --color-profit: #098926;
+      --color-loss: #e7000b;
+      --color-flat: #737373;
+      --color-fill: rgba(118, 118, 128, 0.12);
+      --color-segment-active: #f2f2f7;
+      --color-segment-track: rgba(0, 0, 0, 0.08);
+      --color-heading: #104e64;
+      --color-open: #0490c8;
+
+      /* DESIGN.md radius tiers (sm 6 / md 10 / lg 14). */
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 16px;
+      --radius-2xl: 20px;
+      --radius-3xl: 24px;
+    }
+
+    @variant dark {
+      --color-background: #161616;
+      --color-foreground: #f5f5f5;
+      --color-card: #1b1b1b;
+      --color-card-foreground: #f5f5f5;
+      --color-popover: #202020;
+      --color-popover-foreground: #f5f5f5;
+      --color-overlay: #242424;
+      --color-overlay-foreground: #f5f5f5;
+
+      --color-primary: #1264b2;
+      --color-primary-foreground: #ffffff;
+      --color-ring: #1264b2;
+
+      --color-muted: rgba(255, 255, 255, 0.04);
+      --color-muted-foreground: #878787;
+      --color-secondary: rgba(255, 255, 255, 0.08);
+      --color-secondary-foreground: #f5f5f5;
+      /* Selected/hover fill — kept above secondary; see the light block. */
+      --color-accent: rgba(255, 255, 255, 0.11);
+      --color-accent-foreground: #f5f5f5;
+
+      --color-border: rgba(255, 255, 255, 0.06);
+      --color-input: rgba(255, 255, 255, 0.08);
+
+      --color-destructive: #fb414a;
+      --color-destructive-foreground: #f87171;
+      --color-success: #54bf5c;
+      --color-success-foreground: #34d399;
+      --color-info: #0490c8;
+      --color-info-foreground: #60a5fa;
+
+      /* See the light block — white over full-strength status fills. */
+      --color-destructive-solid-foreground: #ffffff;
+      --color-success-solid-foreground: #ffffff;
+      --color-info-solid-foreground: #ffffff;
+
+      --color-surface: #212121;
+      --color-surface-secondary: #262626;
+      --color-surface-tertiary: #2b2b2b;
+
+      --color-chart-1: #1264b2;
+      --color-chart-2: #54bf5c;
+      --color-chart-3: #f59e0b;
+      --color-chart-4: #ff6467;
+      --color-chart-5: #a78bfa;
+
+      --color-profit: #54bf5c;
+      --color-loss: #ff6467;
+      --color-flat: #a1a1a1;
+      --color-fill: rgba(118, 118, 128, 0.24);
+      --color-segment-active: #161616;
+      /* 30% black over #161616 ≈ #0f0f0f — a real step below the chip, the
+         same ~20-point delta the light pairing has. */
+      --color-segment-track: rgba(0, 0, 0, 0.3);
+      --color-heading: #f59e0b;
+      --color-open: #0490c8;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 16px;
+      --radius-2xl: 20px;
+      --radius-3xl: 24px;
+    }
+  }
+}

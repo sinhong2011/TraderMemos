@@ -25,7 +25,19 @@ export interface FlexSyncRunResult {
   rows: number;
 }
 
+/** A configured connection: the settings row plus the account it belongs to. */
+export interface FlexSyncConnection extends FlexSyncSettings {
+  account_id: string;
+  account_name: string;
+}
+
+/** True when the connection's last sync attempt failed. */
+export function flexSyncFailed(s: Pick<FlexSyncSettings, "last_status" | "last_error">): boolean {
+  return s.last_status === "error" || Boolean(s.last_error);
+}
+
 export const flexSyncApi = {
+  list: () => apiFetch<FlexSyncConnection[]>(`/flex-sync`),
   get: (accountId: string) => apiFetch<FlexSyncSettings>(`/accounts/${accountId}/flex-sync`),
   save: (accountId: string, body: FlexSyncSave) =>
     apiFetch<FlexSyncSettings>(`/accounts/${accountId}/flex-sync`, {

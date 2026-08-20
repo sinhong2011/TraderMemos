@@ -28,7 +28,7 @@ run it on your infrastructure, own the database, extend it without asking permis
 - **Tools** — position-size / FX / Kelly calculators, advanced chart, economic calendar, cash ledger
 - **AI** *(optional)* — screenshot fill extraction + trade coach via OpenAI-compatible APIs, your keys
 - **API access** — personal access tokens (`tm_pat_…`) for MCP/scripts; OpenAPI docs at `/docs`
-- **iOS app** *(beta)* — native SwiftUI companion with offline journaling, widgets, Live Activities, and Siri quick capture
+- **Mobile app** *(beta)* — native iOS & Android companion with offline journaling; widgets, Live Activities, and Siri quick capture on iOS — see [Mobile app](/en/docs/getting-started/mobile-app)
 
 ## Tech stack
 
@@ -36,7 +36,7 @@ run it on your infrastructure, own the database, extend it without asking permis
 |-------|-------|
 | **API** | Go · Echo · sqlc · golang-migrate · SQLite / Postgres |
 | **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
-| **Mobile** | Expo · @expo/ui (SwiftUI) |
+| **Mobile** | Expo (iOS & Android) · PanelUI + Uniwind |
 | **Design** | shadcn/ui + coss ui tokens |
 
 ## Next steps
@@ -44,6 +44,7 @@ run it on your infrastructure, own the database, extend it without asking permis
 <Cards>
   <Card title="Quick start" href="/en/docs/getting-started/quick-start" description="Run the whole stack locally with Docker in one command." />
   <Card title="First steps" href="/en/docs/getting-started/first-steps" description="Setup wizard, first trades, and a tour of the app for new users." />
+  <Card title="Mobile app" href="/en/docs/getting-started/mobile-app" description="Install the iOS (TestFlight) or Android (APK) companion and point it at your server." />
   <Card title="Deploy" href="/en/docs/self-hosting/deploy" description="Docker, split CDN + API, or edge rewrite deployment modes." />
   <Card title="Fork & deploy" href="/en/docs/self-hosting/fork-deploy" description="One-click deploy the web UI to your own Vercel, Cloudflare, or Netlify account." />
   <Card title="Importing trades" href="/en/docs/guides/importing-trades" description="Broker CSV imports with column mapping — duplicates are skipped automatically." />
