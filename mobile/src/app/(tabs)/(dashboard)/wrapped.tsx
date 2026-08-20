@@ -2,12 +2,18 @@
 // swallows taps on RN views inside its pages, so year paging rides
 // react-native-pager-view.
 import PagerView from 'react-native-pager-view';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+  ReduceMotion,
+} from 'react-native-reanimated';
 
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useHeaderHeight } from 'expo-router/react-navigation';
-import { Skeleton, cn } from 'panelui-native';
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { Card, Skeleton, cn } from 'panelui-native';
+import { useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
@@ -46,19 +52,26 @@ function monthShort(month: number): string {
   });
 }
 
+/** One spring for the strip: the capsule settles rather than snapping. */
+const DOT_MOTION = LinearTransition.springify()
+  .damping(20)
+  .stiffness(220)
+  .reduceMotion(ReduceMotion.System);
+
 /**
- * Page dots only. Every label this strip used to carry — the neighbouring
- * years as peeks, then the year itself — repeated something already on
- * screen: the recap's own caption right below states the year. What is left
- * is the one thing nothing else says, which page of the range you are on.
+ * Page dots, pinned under the bar rather than riding the scroll content: it is
+ * the screen's switcher, so it has to stay put like a tab strip while a year
+ * scrolls beneath it. The year itself is the recap card's own heading.
  */
 function YearIndicator({
   years,
   index,
+  currentYear,
   onSelect,
 }: {
   years: number[];
   index: number;
+  currentYear: number;
   onSelect: (index: number) => void;
 }) {
   // Sliding window of at most 7 dots so a 2000→now range doesn't paint a grid.
@@ -67,33 +80,44 @@ function YearIndicator({
     0,
     Math.min(index - Math.floor(windowSize / 2), years.length - windowSize),
   );
+  if (years.length < 2) return null;
 
   return (
-    <View className="items-center bg-background px-4 py-2">
-      {years.length > 1 ? (
-        <View className="flex-row items-center justify-center gap-1.5">
-          {Array.from({ length: windowSize }, (_, i) => {
-            const pageIndex = windowStart + i;
-            const active = pageIndex === index;
-            return (
-              <Pressable
-                key={years[pageIndex]}
-                onPress={() => onSelect(pageIndex)}
-                hitSlop={6}
-                accessibilityRole="button"
-                accessibilityLabel={String(years[pageIndex])}
-                accessibilityState={{ selected: active }}
-                // Capsule chip dots — trade-form pager language, without a
-                // bordered track.
-                className={cn(
-                  'h-1.5 w-1.5 rounded-full bg-muted',
-                  active && 'w-3.5 bg-foreground',
-                )}
-              />
-            );
-          })}
-        </View>
-      ) : null}
+    <View className="flex-row items-center justify-center gap-1.5 bg-background px-4 py-3">
+      {Array.from({ length: windowSize }, (_, i) => {
+        const pageIndex = windowStart + i;
+        const active = pageIndex === index;
+        const isCurrentYear = years[pageIndex] === currentYear;
+        return (
+          // The capsule stretches and the window's dots slide in and out
+          // rather than cutting: paging is a continuous gesture, so its
+          // indicator has to move continuously too.
+          <Animated.View
+            key={years[pageIndex]}
+            layout={DOT_MOTION}
+            entering={FadeIn.duration(140).reduceMotion(ReduceMotion.System)}
+            exiting={FadeOut.duration(110).reduceMotion(ReduceMotion.System)}
+          >
+            <Pressable
+              onPress={() => onSelect(pageIndex)}
+              hitSlop={6}
+              accessibilityRole="button"
+              accessibilityLabel={String(years[pageIndex])}
+              accessibilityState={{ selected: active }}
+              // Capsule chip dots — trade-form pager language, without a
+              // bordered track. Width says "you are here"; the year still
+              // running is a bigger, tinted dot, so both read when they
+              // coincide.
+              className={cn(
+                'h-1.5 w-1.5 rounded-full bg-muted',
+                active && 'w-3.5 bg-foreground',
+                isCurrentYear && 'h-2 bg-primary',
+                isCurrentYear && (active ? 'w-4' : 'w-2'),
+              )}
+            />
+          </Animated.View>
+        );
+      })}
     </View>
   );
 }
@@ -102,18 +126,12 @@ function YearIndicator({
 function WrappedYear({
   year,
   active,
-  inProgress,
-  indicator,
-  headerHeight,
+  topInset,
 }: {
   year: number;
   active: boolean;
-  /** The year hasn't ended — the recap is a partial one. */
-  inProgress: boolean;
-  /** Rendered at the top of this page's scroll content — see the screen below. */
-  indicator: ReactNode;
-  /** Measured once by the screen — never per page (see the note there). */
-  headerHeight: number;
+  /** Header + pinned dot strip: what this page's content has to clear. */
+  topInset: number;
 }) {
   // The month bars are drawn views, so their fills are token values.
   const palette = usePnlPalette();
@@ -153,7 +171,7 @@ function WrappedYear({
       // here (lib/pager-insets.ts), so it would leave the content under the bar.
       contentInsetAdjustmentBehavior="never"
       contentContainerClassName="gap-4 p-4"
-      contentContainerStyle={{ paddingTop: headerHeight + 24, paddingBottom: 48 + bottomInset }}
+      contentContainerStyle={{ paddingTop: topInset, paddingBottom: 48 + bottomInset }}
       refreshControl={
         <RefreshControl
           refreshing={trades.isRefetching}
@@ -161,7 +179,6 @@ function WrappedYear({
         />
       }
     >
-      {indicator}
       {trades.isLoading || (!active && trades.data == null) ? (
         <>
           <Skeleton className={SKELETON_TALL} label={t`Loading ${year}`} />
@@ -188,8 +205,17 @@ function WrappedYear({
         </View>
       ) : (
         <>
-          <DashboardCard title={inProgress ? t`${year} so far` : t`${year} in one number`}>
-            <View className="items-center gap-1 py-2">
+          {/* The hero card wears the year as its own title — centred and at
+              heading scale rather than in the small grey caps every other card
+              uses, because on this screen the year *is* the subject. */}
+          <Card className="items-center gap-1 rounded-lg border-0 p-4 pt-3">
+            <Text
+              className="text-[22px] font-semibold tracking-tight tabular-nums text-foreground"
+              accessibilityRole="header"
+            >
+              {year}
+            </Text>
+            <View className="items-center gap-1 pb-1">
               <Text
                 selectable
                 className={cn(
@@ -203,7 +229,7 @@ function WrappedYear({
                 {t`${wrapped.totalTrades} closed trades · ${formatPercent(wrapped.winRate, 0)} win rate · ${wrapped.tradingDays} trading days`}
               </Text>
             </View>
-          </DashboardCard>
+          </Card>
 
           <DashboardCard title={t`Your highs`} flush>
             <View className="flex-row flex-wrap gap-2">
@@ -361,6 +387,9 @@ export default function WrappedScreen() {
   // on top when the pager got round to mounting it, and a year mounted while
   // a large-title screen was still up padded itself 68pt too far.
   const [headerHeight] = useState(useHeaderHeight());
+  // Measured rather than assumed: the strip's height is the rest of the pages'
+  // top inset, and it moves with the text size.
+  const [stripHeight, setStripHeight] = useState(0);
 
   const selectIndex = (next: number) => {
     const clamped = Math.max(0, Math.min(years.length - 1, next));
@@ -391,10 +420,6 @@ export default function WrappedScreen() {
         }}
       />
       <View className="flex-1 bg-background">
-        {/* The year switcher rides at the top of each page's scroll content
-            rather than sitting above the pager: in flow above it, it would be
-            the thing a transparent (blurred) bar covers — which is why this
-            screen used to opt out of that bar and lose its blur. */}
         <PagerView
           ref={pagerRef}
           initialPage={initialIndex}
@@ -406,15 +431,26 @@ export default function WrappedScreen() {
               <WrappedYear
                 year={year}
                 active={Math.abs(pageIndex - index) <= 1}
-                inProgress={year === currentYear}
-                headerHeight={headerHeight}
-                indicator={
-                  <YearIndicator years={years} index={index} onSelect={selectIndex} />
-                }
+                topInset={headerHeight + stripHeight}
               />
             </View>
           ))}
         </PagerView>
+        {/* Pinned over the pages, below the bar: one switcher for every page,
+            and it stays put while a year scrolls under it. Opaque, so the rows
+            passing beneath disappear rather than showing through. */}
+        <View
+          className="absolute inset-x-0 z-10"
+          style={{ top: headerHeight }}
+          onLayout={(e) => setStripHeight(e.nativeEvent.layout.height)}
+        >
+          <YearIndicator
+            years={years}
+            index={index}
+            currentYear={currentYear}
+            onSelect={selectIndex}
+          />
+        </View>
       </View>
     </>
   );
