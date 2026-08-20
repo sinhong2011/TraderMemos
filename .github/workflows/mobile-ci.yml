@@ -21,9 +21,20 @@ on:
       - mobile/**
       - .github/workflows/mobile-ci.yml
   workflow_call:
+    inputs:
+      concurrency-key:
+        description: >-
+          Disambiguates the concurrency group between several reusable calls in
+          one run. A release calls this workflow once per platform through
+          mobile-eas.yml; with a shared group the second call leaves the first
+          queued, and a third arrival cancels the queued one outright — which
+          is how the v0.10.0 iOS build was cancelled before it started.
+        default: ''
+        required: false
+        type: string
 
 concurrency:
-  group: mobile-ci-${{ github.ref }}
+  group: mobile-ci-${{ github.ref }}-${{ inputs.concurrency-key || '' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:

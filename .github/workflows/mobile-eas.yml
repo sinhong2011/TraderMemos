@@ -105,6 +105,10 @@ jobs:
   # Same checks as PR CI — reused so a release can never build code that skipped them.
   test-mobile:
     uses: ./.github/workflows/mobile-ci.yml
+    # Per-platform, so the iOS and Android calls in a release run don't land in
+    # one concurrency group and cancel each other while queued.
+    with:
+      concurrency-key: ${{ inputs.platform }}
 
   build:
     name: EAS build (${{ inputs.platform }} · ${{ inputs.profile }})
