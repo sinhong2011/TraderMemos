@@ -208,7 +208,7 @@ Nothing below is in the repo — it lives in the Expo and GitHub accounts.
    it means future APKs no longer upgrade-install over old ones, so leave it
    managed there.
 4. GitHub repo secret `EXPO_TOKEN` (expo.dev → Account → Access tokens).
-4. Settings → Environments → **`app-store`**: add yourself as a required
+5. Settings → Environments → **`app-store`**: add yourself as a required
    reviewer. Same shape as the `docker-hub` gate — nothing reaches TestFlight
    without an explicit approval.
 
