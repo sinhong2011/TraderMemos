@@ -13,16 +13,17 @@ import { ErrorState } from '@/components/error-state';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { SwipeableTradeRow } from '@/components/swipeable-trade-row';
 import { TradeFilterMenu } from '@/components/trade-filter-menu';
+import { DateRangeSheet, type DayRange } from '@/components/date-range-sheet';
 import { t } from '@lingui/core/macro';
 import { setSelectedAccountId, useSelectedAccountId } from '@/lib/account-store';
-import { useGlobalFilters } from '@/lib/filters';
+import { dayBounds, useGlobalFilters } from '@/lib/filters';
 import { useFormatters } from '@/lib/format';
 import { parseEmotionalStates } from '@/lib/journal';
 import { useTagBarState } from '@/lib/tag-bar';
 import { pnlClass } from '@/styles/pnl';
 
 type StatusFilter = 'all' | 'win' | 'loss' | 'open';
-type DateFilter = 'all' | 'today' | 'week' | 'month' | '30d' | 'year';
+type DateFilter = 'all' | 'today' | 'week' | 'month' | '30d' | 'year' | 'custom';
 type MarketFilter = 'all' | 'stock' | 'option' | 'crypto' | 'future' | 'forex';
 type SortOrder = 'newest' | 'oldest' | 'pnl-desc' | 'pnl-asc' | 'symbol';
 
@@ -69,9 +70,25 @@ function compareTrades(
   }
 }
 
-/** Local-midnight-anchored range start for the server-side `from` filter. */
-function rangeStart(filter: DateFilter, nowMs: number): string | undefined {
-  if (filter === 'all') return undefined;
+/**
+ * The server-side date window for a filter.
+ *
+ * The presets are open-ended — "this month" runs to now — so they answer with
+ * a `from` alone. A custom span has two ends, and both are resolved in the
+ * market timezone: the API attributes a trade to the market's calendar day,
+ * so "June 1 to June 30" has to mean the market's, not the phone's.
+ */
+function rangeBounds(
+  filter: DateFilter,
+  nowMs: number,
+  custom: DayRange | null,
+  tz: string,
+): { from?: string; to?: string } {
+  if (filter === 'custom') {
+    if (!custom) return {};
+    return { from: dayBounds(custom.from, tz).from, to: dayBounds(custom.to, tz).to };
+  }
+  if (filter === 'all') return {};
   const d = new Date(nowMs);
   d.setHours(0, 0, 0, 0);
   switch (filter) {
@@ -90,7 +107,7 @@ function rangeStart(filter: DateFilter, nowMs: number): string | undefined {
       d.setMonth(0, 1);
       break;
   }
-  return d.toISOString();
+  return { from: d.toISOString() };
 }
 
 function matchesStatus(filter: StatusFilter, trade: { status: string; net_pnl: number | null }) {
@@ -201,20 +218,23 @@ export default function TradesScreen() {
   const [searching, setSearching] = useState(false);
   const [status, setStatus] = useState<StatusFilter>('all');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [customRange, setCustomRange] = useState<DayRange | null>(null);
+  const [rangeSheet, setRangeSheet] = useState(false);
   const [market, setMarket] = useState<MarketFilter>('all');
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [tagFilter, setTagFilter] = useState('all');
   // Captured once per mount so the query key doesn't churn between renders.
   const [nowMs] = useState(() => Date.now());
-  const from = rangeStart(dateFilter, nowMs);
   const globalFilters = useGlobalFilters();
+  const window = rangeBounds(dateFilter, nowMs, customRange, globalFilters.tz ?? 'UTC');
   const { data, isLoading, error, refetch, isRefetching } = useTrades({
     ...globalFilters,
-    ...(from ? { from } : {}),
+    ...(window.from ? { from: window.from } : {}),
+    ...(window.to ? { to: window.to } : {}),
   });
   // Re-render when privacy mode flips — the net summary formats money.
   // Formatters bound to the display prefs (see lib/format.ts).
-  const { formatPnl } = useFormatters();
+  const { formatPnl, formatDayKey } = useFormatters();
   const { data: tags } = useTags();
   const { data: accounts } = useAccounts();
   const selectedAccountId = useSelectedAccountId();
@@ -280,6 +300,17 @@ export default function TradesScreen() {
     { value: 'month' as const, label: t`This month` },
     { value: '30d' as const, label: t`Last 30 days` },
     { value: 'year' as const, label: t`This year` },
+    {
+      value: 'custom' as const,
+      // Named by the span once there is one: the menu row shows the filter's
+      // label, and "Custom range" on a list already narrowed to two weeks in
+      // June says nothing the trader needs.
+      label: customRange
+        ? customRange.from === customRange.to
+          ? formatDayKey(customRange.from)
+          : `${formatDayKey(customRange.from)} – ${formatDayKey(customRange.to)}`
+        : t`Custom range…`,
+    },
   ];
   const markets = [
     { value: 'all' as const, label: t`All markets` },
@@ -309,8 +340,11 @@ export default function TradesScreen() {
   ];
   // Sort is deliberately not in here: it reorders the list, it never hides a
   // trade, so it must not fill the icon or get swept up by "Clear filters".
+  // A `custom` filter with no span yet narrows nothing — the sheet was opened
+  // and dismissed — so it must not fill the icon either.
+  const dateActive = dateFilter === 'custom' ? customRange != null : dateFilter !== 'all';
   const filtersActive =
-    status !== 'all' || dateFilter !== 'all' || market !== 'all' || scopedAccount !== 'all';
+    status !== 'all' || dateActive || market !== 'all' || scopedAccount !== 'all';
 
   if (isLoading) {
     // Row-shaped skeletons standing in for the trade list.
@@ -355,6 +389,7 @@ export default function TradesScreen() {
                 onReset={() => {
                   setStatus('all');
                   setDateFilter('all');
+                  setCustomRange(null);
                   setMarket('all');
                   setSelectedAccountId(null);
                 }}
@@ -378,7 +413,14 @@ export default function TradesScreen() {
                     icon: 'calendar',
                     options: dateFilters,
                     value: dateFilter,
-                    onChange: (v) => setDateFilter(v as DateFilter),
+                    onChange: (v) => {
+                      setDateFilter(v as DateFilter);
+                      // Re-picking `custom` is how you edit the span, so the
+                      // calendar opens whether or not one is already set — a
+                      // frame later, so the menu's own sheet is done dismissing
+                      // before a second one takes the portal.
+                      if (v === 'custom') requestAnimationFrame(() => setRangeSheet(true));
+                    },
                   },
                   {
                     key: 'status',
@@ -479,6 +521,26 @@ export default function TradesScreen() {
         onClose={() => {
           setSearch('');
           setSearching(false);
+        }}
+      />
+      <DateRangeSheet
+        open={rangeSheet}
+        onOpenChange={(next) => {
+          setRangeSheet(next);
+          /*
+           * Only the sheet reports its own dismissal here, never `onApply` —
+           * which is why applying closes it from this side instead. Routing
+           * the apply through this handler read `customRange` from the render
+           * that opened the sheet, so the state set a line earlier was still
+           * `null` here and every apply reverted itself to "All time".
+           */
+          if (!next && customRange == null) setDateFilter('all');
+        }}
+        value={customRange}
+        onApply={(range) => {
+          setCustomRange(range);
+          setDateFilter('custom');
+          setRangeSheet(false);
         }}
       />
     </>

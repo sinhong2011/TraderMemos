@@ -91,7 +91,7 @@ msgstr "청산 거래 {0}건 제외 (스톱 미기록)."
 #~ msgstr "일일 손실 {0}"
 
 #. placeholder {0}: traded.length
-#: src/app/(tabs)/(calendar)/index.tsx:1198
+#: src/app/(tabs)/(calendar)/index.tsx:1283
 msgid "{0} days"
 msgstr "{0}일"
 
@@ -307,9 +307,9 @@ msgstr "차트 {charts}개"
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
 #~ msgstr "{count, plural, other {#건}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1439
-#: src/app/(tabs)/(calendar)/index.tsx:1602
-#: src/app/(tabs)/(trades)/index.tsx:450
+#: src/app/(tabs)/(calendar)/index.tsx:1524
+#: src/app/(tabs)/(calendar)/index.tsx:1687
+#: src/app/(tabs)/(trades)/index.tsx:490
 msgid "{count} trades"
 msgstr "트레이드 {count}건"
 
@@ -428,7 +428,7 @@ msgstr "{year}년 손익 목표"
 #~ msgid "{yearCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{yearCount, plural, other {#건}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1516
+#: src/app/(tabs)/(calendar)/index.tsx:1601
 msgid "{yearCount} trades"
 msgstr "트레이드 {yearCount}건"
 
@@ -488,7 +488,7 @@ msgstr "변경 1건 동기화 대기 중"
 msgid "1 chart"
 msgstr "차트 1개"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1198
+#: src/app/(tabs)/(calendar)/index.tsx:1283
 msgid "1 day"
 msgstr "1일"
 
@@ -518,9 +518,9 @@ msgid "1 symbol found"
 msgstr "1개 종목을 찾았습니다"
 
 #: src/app/(tabs)/(calendar)/index.tsx:280
-#: src/app/(tabs)/(calendar)/index.tsx:1439
-#: src/app/(tabs)/(calendar)/index.tsx:1516
-#: src/app/(tabs)/(calendar)/index.tsx:1602
+#: src/app/(tabs)/(calendar)/index.tsx:1524
+#: src/app/(tabs)/(calendar)/index.tsx:1601
+#: src/app/(tabs)/(calendar)/index.tsx:1687
 msgid "1 trade"
 msgstr "1건"
 
@@ -634,7 +634,7 @@ msgstr "액세스 토큰 연동 API 웹훅"
 #: src/app/(tabs)/(settings)/export-trades.tsx:87
 #: src/app/(tabs)/(settings)/import-trades.tsx:442
 #: src/app/(tabs)/(settings)/user-detail.tsx:104
-#: src/app/(tabs)/(trades)/index.tsx:367
+#: src/app/(tabs)/(trades)/index.tsx:402
 #: src/app/cash-form.tsx:150
 #: src/app/cash-form.tsx:156
 #: src/app/cash-form.tsx:167
@@ -917,17 +917,17 @@ msgid "Alerts are evaluated on your server after every trade and delivered to ea
 msgstr "알림은 매 거래 후 내 서버에서 평가되어 등록된 각 기기와 웹훅으로 전송됩니다. 언제나 무료입니다."
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:175
-#: src/app/(tabs)/(trades)/index.tsx:180
-#: src/app/(tabs)/(trades)/index.tsx:271
+#: src/app/(tabs)/(trades)/index.tsx:197
+#: src/app/(tabs)/(trades)/index.tsx:291
 msgid "All"
 msgstr "전체"
 
-#: src/app/(tabs)/(trades)/index.tsx:307
+#: src/app/(tabs)/(trades)/index.tsx:338
 #: src/components/account-menu.tsx:134
 msgid "All accounts"
 msgstr "모든 계좌"
 
-#: src/app/(tabs)/(trades)/index.tsx:285
+#: src/app/(tabs)/(trades)/index.tsx:316
 msgid "All markets"
 msgstr "전체 시장"
 
@@ -939,7 +939,7 @@ msgstr "전체 시장"
 msgid "All sides"
 msgstr "모든 방향"
 
-#: src/app/(tabs)/(trades)/index.tsx:277
+#: src/app/(tabs)/(trades)/index.tsx:297
 msgid "All time"
 msgstr "전체 기간"
 
@@ -1057,6 +1057,10 @@ msgstr "화면 모드 다크 라이트 시스템 테마"
 #: src/app/(tabs)/(settings)/index.tsx:236
 #~ msgid "appearance theme dark mode hide amounts market timezone"
 #~ msgstr "테마 다크 모드 금액 숨기기 시장 시간대 통화"
+
+#: src/components/date-range-sheet.tsx:135
+msgid "Apply"
+msgstr "적용"
 
 #. placeholder {0}: formatTime(peak.at)
 #: src/app/(tabs)/(calendar)/day/[date].tsx:128
@@ -1588,7 +1592,7 @@ msgstr "체크리스트"
 msgid "Choose CSV or JSON file"
 msgstr "CSV 또는 JSON 파일 선택"
 
-#: src/app/(tabs)/(calendar)/index.tsx:991
+#: src/app/(tabs)/(calendar)/index.tsx:1071
 msgid "Choose month"
 msgstr "월 선택"
 
@@ -1600,7 +1604,7 @@ msgstr "트레이드 목록에 필터 칩으로 표시할 저널 옵션을 선�
 #~ msgid "Choose which journal tags show as quick filters. Tags are created in the trade form."
 #~ msgstr "빠른 필터로 표시할 저널 태그를 선택하세요. 태그는 트레이드 폼에서 생성합니다."
 
-#: src/app/(tabs)/(calendar)/index.tsx:956
+#: src/app/(tabs)/(calendar)/index.tsx:1034
 msgid "Choose year"
 msgstr "연도 선택"
 
@@ -2149,7 +2153,7 @@ msgstr "저널용으로 만들어집니다. 나중에 설정에서 바꿀 수 �
 #~ msgstr "만드는 중…"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:85
-#: src/app/(tabs)/(trades)/index.tsx:288
+#: src/app/(tabs)/(trades)/index.tsx:319
 #: src/components/symbol-journal.tsx:305
 #: src/components/trade-form.tsx:281
 msgid "Crypto"
@@ -2216,6 +2220,14 @@ msgstr "사용자 지정 색상"
 #: src/app/(tabs)/(settings)/ai.tsx:162
 #~ msgid "Custom prompt (optional)"
 #~ msgstr "사용자 지정 프롬프트 (선택)"
+
+#: src/components/date-range-sheet.tsx:51
+msgid "Custom range"
+msgstr "사용자 지정 기간"
+
+#: src/app/(tabs)/(trades)/index.tsx:312
+msgid "Custom range…"
+msgstr "사용자 지정 기간…"
 
 #: src/components/replay-controls.tsx:190
 msgid "Cycles to the next speed"
@@ -2295,7 +2307,7 @@ msgstr "다크"
 msgid "Data & backup"
 msgstr "데이터 및 백업"
 
-#: src/app/(tabs)/(trades)/index.tsx:377
+#: src/app/(tabs)/(trades)/index.tsx:412
 #: src/app/cash-form.tsx:192
 #: src/components/trade-form.tsx:595
 msgid "Date"
@@ -3194,7 +3206,7 @@ msgstr "예상"
 #~ msgstr "예상 {0}"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:86
-#: src/app/(tabs)/(trades)/index.tsx:290
+#: src/app/(tabs)/(trades)/index.tsx:321
 #: src/components/symbol-journal.tsx:306
 #: src/components/trade-form.tsx:283
 msgid "Forex"
@@ -3286,7 +3298,7 @@ msgid "Funding"
 msgstr "자금"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:87
-#: src/app/(tabs)/(trades)/index.tsx:289
+#: src/app/(tabs)/(trades)/index.tsx:320
 #: src/components/symbol-journal.tsx:307
 #: src/components/trade-form.tsx:282
 msgid "Futures"
@@ -3433,7 +3445,7 @@ msgstr "비밀번호 숨기기"
 msgid "High"
 msgstr "높음"
 
-#: src/app/(tabs)/(trades)/index.tsx:295
+#: src/app/(tabs)/(trades)/index.tsx:326
 msgid "Highest P&L"
 msgstr "손익 높은 순"
 
@@ -3717,7 +3729,7 @@ msgstr "최대 손실"
 msgid "Largest win"
 msgstr "최대 수익"
 
-#: src/app/(tabs)/(trades)/index.tsx:281
+#: src/app/(tabs)/(trades)/index.tsx:301
 msgid "Last 30 days"
 msgstr "최근 30일"
 
@@ -3805,7 +3817,7 @@ msgstr "링크를 복사했습니다"
 msgid "Loading behavior report"
 msgstr "행동 리포트 불러오는 중"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1032
+#: src/app/(tabs)/(calendar)/index.tsx:1117
 msgid "Loading calendar"
 msgstr "캘린더 불러오는 중"
 
@@ -3841,7 +3853,7 @@ msgstr "캘린더 불러오는 중"
 msgid "Loading trade"
 msgstr "거래 불러오는 중"
 
-#: src/app/(tabs)/(trades)/index.tsx:325
+#: src/app/(tabs)/(trades)/index.tsx:359
 msgid "Loading trades"
 msgstr "거래 목록 불러오는 중"
 
@@ -3970,7 +3982,7 @@ msgstr "연속 손실"
 msgid "losses"
 msgstr "연패"
 
-#: src/app/(tabs)/(trades)/index.tsx:273
+#: src/app/(tabs)/(trades)/index.tsx:293
 #: src/components/performance-card.tsx:93
 #: src/components/reports/overview-section.tsx:106
 msgid "Losses"
@@ -3988,7 +4000,7 @@ msgstr "낮음"
 msgid "Low setup grade on a loser"
 msgstr "손실 거래의 셋업 등급이 낮음"
 
-#: src/app/(tabs)/(trades)/index.tsx:296
+#: src/app/(tabs)/(trades)/index.tsx:327
 msgid "Lowest P&L"
 msgstr "손익 낮은 순"
 
@@ -4008,7 +4020,7 @@ msgstr "주요 실수"
 msgid "Manage accounts"
 msgstr "계좌 관리"
 
-#: src/app/(tabs)/(trades)/index.tsx:186
+#: src/app/(tabs)/(trades)/index.tsx:203
 msgid "Manage tags"
 msgstr "태그 관리"
 
@@ -4035,7 +4047,7 @@ msgid "Mark key S/R levels"
 msgstr "핵심 지지·저항선 표시"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:142
-#: src/app/(tabs)/(trades)/index.tsx:393
+#: src/app/(tabs)/(trades)/index.tsx:433
 #: src/components/trade-form.tsx:331
 #: src/components/trade-form.tsx:334
 msgid "Market"
@@ -4302,7 +4314,7 @@ msgstr "초기 설정 필요"
 msgid "Negative Kelly means this win rate and payoff have no positive edge."
 msgstr "켈리가 음수 — 이 승률과 손익비에는 우위가 없습니다."
 
-#: src/app/(tabs)/(trades)/index.tsx:453
+#: src/app/(tabs)/(trades)/index.tsx:493
 #: src/components/performance-card.tsx:64
 msgid "Net"
 msgstr "순손익"
@@ -4313,8 +4325,8 @@ msgstr "순액 (수수료 후)"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:330
 #: src/app/(tabs)/(calendar)/index.tsx:250
-#: src/app/(tabs)/(calendar)/index.tsx:1186
-#: src/app/(tabs)/(calendar)/index.tsx:1504
+#: src/app/(tabs)/(calendar)/index.tsx:1271
+#: src/app/(tabs)/(calendar)/index.tsx:1589
 #: src/app/(tabs)/(dashboard)/playbook.tsx:130
 #: src/app/(tabs)/(dashboard)/playbook.tsx:240
 #: src/app/(tabs)/(trades)/[id].tsx:301
@@ -4406,11 +4418,11 @@ msgstr "새 트레이드"
 #~ msgid "New user"
 #~ msgstr "새 사용자"
 
-#: src/app/(tabs)/(trades)/index.tsx:293
+#: src/app/(tabs)/(trades)/index.tsx:324
 msgid "Newest first"
 msgstr "최신순"
 
-#: src/app/(tabs)/(calendar)/index.tsx:604
+#: src/app/(tabs)/(calendar)/index.tsx:625
 msgid "Next"
 msgstr "다음"
 
@@ -4422,7 +4434,7 @@ msgstr "다음 행동"
 msgid "Next day"
 msgstr "다음 날"
 
-#: src/app/(tabs)/(calendar)/index.tsx:996
+#: src/app/(tabs)/(calendar)/index.tsx:1076
 msgid "Next decade"
 msgstr "다음 10년"
 
@@ -4430,7 +4442,7 @@ msgstr "다음 10년"
 #~ msgid "Next week"
 #~ msgstr "다음 주"
 
-#: src/app/(tabs)/(calendar)/index.tsx:963
+#: src/app/(tabs)/(calendar)/index.tsx:1041
 msgid "Next year"
 msgstr "다음 해"
 
@@ -4620,9 +4632,9 @@ msgid "No tokens yet"
 msgstr "아직 토큰이 없습니다"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:337
-#: src/app/(tabs)/(calendar)/index.tsx:1275
-#: src/app/(tabs)/(calendar)/index.tsx:1455
-#: src/app/(tabs)/(calendar)/index.tsx:1602
+#: src/app/(tabs)/(calendar)/index.tsx:1360
+#: src/app/(tabs)/(calendar)/index.tsx:1540
+#: src/app/(tabs)/(calendar)/index.tsx:1687
 msgid "No trades"
 msgstr "거래 없음"
 
@@ -4635,11 +4647,11 @@ msgstr "거래 없음"
 msgid "No trades in this range."
 msgstr "이 기간의 트레이드가 없습니다."
 
-#: src/app/(tabs)/(trades)/index.tsx:468
+#: src/app/(tabs)/(trades)/index.tsx:508
 msgid "No trades match this filter."
 msgstr "이 필터에 해당하는 트레이드가 없습니다."
 
-#: src/app/(tabs)/(trades)/index.tsx:466
+#: src/app/(tabs)/(trades)/index.tsx:506
 msgid "No trades matching \"{search}\""
 msgstr "\"{search}\" 와 일치하는 거래가 없습니다"
 
@@ -4822,7 +4834,7 @@ msgstr "기본값은 꺼짐 — 카드에는 승률과 비율만 표시됩니다
 msgid "Off shares only win rate and ratios — account size stays private."
 msgstr "끄면 승률과 비율만 공유됩니다 — 계좌 규모는 비공개로 유지됩니다."
 
-#: src/app/(tabs)/(trades)/index.tsx:294
+#: src/app/(tabs)/(trades)/index.tsx:325
 msgid "Oldest first"
 msgstr "오래된 순"
 
@@ -4875,7 +4887,7 @@ msgstr "한도 내에는 처음 {0}개 파일만 들어갑니다."
 
 #: src/app/(tabs)/(trades)/[id].tsx:231
 #: src/app/(tabs)/(trades)/[id].tsx:338
-#: src/app/(tabs)/(trades)/index.tsx:274
+#: src/app/(tabs)/(trades)/index.tsx:294
 #: src/app/quick-journal.tsx:155
 #: src/app/trade-preview.tsx:147
 #: src/components/performance-card.tsx:99
@@ -4937,7 +4949,7 @@ msgstr "진입"
 msgid "Opens your password manager or whichever authenticator you use. Nothing is saved until you enter a code below."
 msgstr "비밀번호 관리자 또는 사용 중인 인증 앱을 엽니다. 아래에 코드를 입력하기 전까지는 아무것도 저장되지 않습니다."
 
-#: src/app/(tabs)/(trades)/index.tsx:287
+#: src/app/(tabs)/(trades)/index.tsx:318
 #: src/components/trade-form.tsx:280
 msgid "Option"
 msgstr "옵션"
@@ -5220,6 +5232,10 @@ msgstr "PF"
 msgid "Photo Library"
 msgstr "사진 보관함"
 
+#: src/components/date-range-sheet.tsx:89
+msgid "Pick a start and an end"
+msgstr "시작일과 종료일 선택"
+
 #: src/components/symbol-journal.tsx:372
 msgid "Pick a symbol"
 msgstr "종목 선택"
@@ -5358,7 +5374,7 @@ msgstr "미리 보기"
 msgid "Preview import"
 msgstr "가져오기 미리보기"
 
-#: src/app/(tabs)/(calendar)/index.tsx:595
+#: src/app/(tabs)/(calendar)/index.tsx:616
 msgid "Previous"
 msgstr "이전"
 
@@ -5366,7 +5382,7 @@ msgstr "이전"
 msgid "Previous day"
 msgstr "이전 날"
 
-#: src/app/(tabs)/(calendar)/index.tsx:996
+#: src/app/(tabs)/(calendar)/index.tsx:1076
 msgid "Previous decade"
 msgstr "이전 10년"
 
@@ -5374,7 +5390,7 @@ msgstr "이전 10년"
 #~ msgid "Previous week"
 #~ msgstr "지난 주"
 
-#: src/app/(tabs)/(calendar)/index.tsx:963
+#: src/app/(tabs)/(calendar)/index.tsx:1041
 msgid "Previous year"
 msgstr "이전 해"
 
@@ -6283,8 +6299,8 @@ msgstr "설정 검색"
 msgid "Search symbol"
 msgstr "종목 검색"
 
-#: src/app/(tabs)/(trades)/index.tsx:412
-#: src/app/(tabs)/(trades)/index.tsx:477
+#: src/app/(tabs)/(trades)/index.tsx:452
+#: src/app/(tabs)/(trades)/index.tsx:517
 msgid "Search symbol or tag"
 msgstr "종목 또는 태그 검색"
 
@@ -6631,7 +6647,7 @@ msgid "Something went wrong"
 msgstr "문제가 발생했습니다"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:151
-#: src/app/(tabs)/(trades)/index.tsx:401
+#: src/app/(tabs)/(trades)/index.tsx:441
 msgid "Sort"
 msgstr "정렬"
 
@@ -6666,7 +6682,7 @@ msgstr "고정 — 하한이 움직이지 않음"
 
 #: src/app/(tabs)/(settings)/about.tsx:64
 #: src/app/(tabs)/(settings)/flex-sync.tsx:154
-#: src/app/(tabs)/(trades)/index.tsx:385
+#: src/app/(tabs)/(trades)/index.tsx:425
 msgid "Status"
 msgstr "상태"
 
@@ -6680,7 +6696,7 @@ msgstr "한 봉 앞으로"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:84
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:281
-#: src/app/(tabs)/(trades)/index.tsx:286
+#: src/app/(tabs)/(trades)/index.tsx:317
 #: src/components/symbol-journal.tsx:304
 #: src/components/trade-form.tsx:279
 msgid "Stock"
@@ -6840,7 +6856,7 @@ msgstr "종목"
 msgid "Symbol {0}"
 msgstr "종목 {0}"
 
-#: src/app/(tabs)/(trades)/index.tsx:297
+#: src/app/(tabs)/(trades)/index.tsx:328
 msgid "Symbol A–Z"
 msgstr "종목 A–Z"
 
@@ -6951,7 +6967,7 @@ msgstr "+ 를 눌러 생성하면 스크립트로 서버를 인증할 수 있습
 msgid "Tap + to log a deposit, withdrawal, or fee — they drive the equity curve alongside trade P&L."
 msgstr "+를 눌러 입금, 출금, 수수료를 기록하세요. 거래 손익과 함께 자산 곡선에 반영됩니다."
 
-#: src/app/(tabs)/(trades)/index.tsx:469
+#: src/app/(tabs)/(trades)/index.tsx:509
 msgid "Tap + to log a trade, or import from Settings → Import trades."
 msgstr "+를 눌러 거래를 기록하거나, 설정 → 매매 가져오기에서 가져오세요."
 
@@ -7230,7 +7246,7 @@ msgstr "일반적인 스톱아웃을 넘어섰습니다. 과도한 규모, 스�
 msgid "This item no longer exists. It may have been deleted."
 msgstr "이 항목은 더 이상 존재하지 않습니다. 삭제되었을 수 있습니다."
 
-#: src/app/(tabs)/(trades)/index.tsx:280
+#: src/app/(tabs)/(trades)/index.tsx:300
 msgid "This month"
 msgstr "이번 달"
 
@@ -7259,11 +7275,11 @@ msgstr "세션이 만료되었습니다. 계속하려면 다시 로그인하세�
 msgid "This trade already has {0} screenshots — raise the cap under Settings → Display."
 msgstr "이 거래에는 이미 스크린샷이 {0}장 있습니다 — 설정 → 표시에서 한도를 올리세요."
 
-#: src/app/(tabs)/(trades)/index.tsx:279
+#: src/app/(tabs)/(trades)/index.tsx:299
 msgid "This week"
 msgstr "이번 주"
 
-#: src/app/(tabs)/(trades)/index.tsx:282
+#: src/app/(tabs)/(trades)/index.tsx:302
 msgid "This year"
 msgstr "올해"
 
@@ -7334,11 +7350,11 @@ msgstr "변환 후"
 msgid "To date: {0} win rate · PF {1} · {2} cumulative"
 msgstr "현재까지: 승률 {0} · PF {1} · 누적 {2}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:925
+#: src/app/(tabs)/(calendar)/index.tsx:1003
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:145
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:163
 #: src/app/(tabs)/(dashboard)/notes.tsx:45
-#: src/app/(tabs)/(trades)/index.tsx:278
+#: src/app/(tabs)/(trades)/index.tsx:298
 msgid "Today"
 msgstr "오늘"
 
@@ -7785,19 +7801,19 @@ msgid "Wed"
 msgstr "수"
 
 #: src/app/(tabs)/(calendar)/index.tsx:433
-#: src/app/(tabs)/(calendar)/index.tsx:1214
+#: src/app/(tabs)/(calendar)/index.tsx:1299
 #: src/components/reports/winloss-section.tsx:81
 msgid "Week"
 msgstr "주"
 
 #. placeholder {0}: wi + 1
 #. placeholder {1}: formatPnlCompact(weekPnl, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:1234
+#: src/app/(tabs)/(calendar)/index.tsx:1319
 msgid "Week {0}, {1}"
 msgstr "주 {0}, {1}"
 
 #. placeholder {0}: wi + 1
-#: src/app/(tabs)/(calendar)/index.tsx:1235
+#: src/app/(tabs)/(calendar)/index.tsx:1320
 msgid "Week {0}, No trades"
 msgstr "주 {0}, 거래 없음"
 
@@ -7901,7 +7917,7 @@ msgstr "수익 보유 시간"
 msgid "wins"
 msgstr "연승"
 
-#: src/app/(tabs)/(trades)/index.tsx:272
+#: src/app/(tabs)/(trades)/index.tsx:292
 #: src/components/performance-card.tsx:87
 #: src/components/reports/overview-section.tsx:105
 msgid "Wins"

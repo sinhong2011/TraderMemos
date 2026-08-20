@@ -2,6 +2,12 @@
 
 Self-hosted trading journal (Go API + React web + Expo mobile).
 
+## Shipping UI
+
+Read `AGENTS.md` before calling any UI work done. Every new or changed UI feature is
+driven end to end — real taps on a device or emulator, every case passing — before the
+work is finished or a PR is opened. `tsc`, `eslint` and a screenshot do not cover it.
+
 ## Design System
 
 Always read `DESIGN.md` before making any visual or UI decisions.
