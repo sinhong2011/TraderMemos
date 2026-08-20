@@ -91,7 +91,7 @@ msgstr "{0} closed trades excluded (no stop recorded)."
 #~ msgstr "{0} daily-loss"
 
 #. placeholder {0}: traded.length
-#: src/app/(tabs)/(calendar)/index.tsx:1010
+#: src/app/(tabs)/(calendar)/index.tsx:1198
 msgid "{0} days"
 msgstr "{0} days"
 
@@ -307,8 +307,8 @@ msgstr "{charts} charts"
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
 #~ msgstr "{count, plural, one {# trade} other {# trades}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1251
-#: src/app/(tabs)/(calendar)/index.tsx:1414
+#: src/app/(tabs)/(calendar)/index.tsx:1439
+#: src/app/(tabs)/(calendar)/index.tsx:1602
 #: src/app/(tabs)/(trades)/index.tsx:450
 msgid "{count} trades"
 msgstr "{count} trades"
@@ -393,7 +393,7 @@ msgstr "{tzCity} clock"
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, one {# trade} other {# trades}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:256
+#: src/app/(tabs)/(calendar)/index.tsx:280
 msgid "{weekCount} trades"
 msgstr "{weekCount} trades"
 
@@ -428,7 +428,7 @@ msgstr "{year} P&L goal"
 #~ msgid "{yearCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{yearCount, plural, one {# trade} other {# trades}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1328
+#: src/app/(tabs)/(calendar)/index.tsx:1516
 msgid "{yearCount} trades"
 msgstr "{yearCount} trades"
 
@@ -488,7 +488,7 @@ msgstr "1 change queued"
 msgid "1 chart"
 msgstr "1 chart"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1010
+#: src/app/(tabs)/(calendar)/index.tsx:1198
 msgid "1 day"
 msgstr "1 day"
 
@@ -517,10 +517,10 @@ msgstr "1 screenshot uploads after saving."
 msgid "1 symbol found"
 msgstr "1 symbol found"
 
-#: src/app/(tabs)/(calendar)/index.tsx:256
-#: src/app/(tabs)/(calendar)/index.tsx:1251
-#: src/app/(tabs)/(calendar)/index.tsx:1328
-#: src/app/(tabs)/(calendar)/index.tsx:1414
+#: src/app/(tabs)/(calendar)/index.tsx:280
+#: src/app/(tabs)/(calendar)/index.tsx:1439
+#: src/app/(tabs)/(calendar)/index.tsx:1516
+#: src/app/(tabs)/(calendar)/index.tsx:1602
 msgid "1 trade"
 msgstr "1 trade"
 
@@ -693,7 +693,7 @@ msgstr "Active limits"
 #~ msgid "Active tokens"
 #~ msgstr "Active tokens"
 
-#: src/app/(tabs)/(calendar)/index.tsx:249
+#: src/app/(tabs)/(calendar)/index.tsx:273
 msgid "Activity"
 msgstr "Activity"
 
@@ -1214,19 +1214,19 @@ msgstr "Backtest"
 #~ msgid "Backup or restore local app preferences."
 #~ msgstr "Backup or restore local app preferences."
 
-#: src/app/(tabs)/(calendar)/index.tsx:286
+#: src/app/(tabs)/(calendar)/index.tsx:310
 #: src/app/trade-preview.tsx:185
 msgid "Balance"
 msgstr "Balance"
 
 #. placeholder {0}: formatCurrency(0, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:283
+#: src/app/(tabs)/(calendar)/index.tsx:307
 msgid "Balance, {0}"
 msgstr "Balance, {0}"
 
 #. placeholder {0}: formatCurrency(endBalance, currency)
 #. placeholder {1}: formatCurrency(startBalance, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:282
+#: src/app/(tabs)/(calendar)/index.tsx:306
 msgid "Balance, {0}, from {1}"
 msgstr "Balance, {0}, from {1}"
 
@@ -1398,7 +1398,7 @@ msgstr "Buy"
 msgid "BUY"
 msgstr "BUY"
 
-#: src/app/(tabs)/_layout.tsx:83
+#: src/app/(tabs)/_layout.tsx:93
 #: src/app/(tabs)/(calendar)/_layout.tsx:38
 msgid "Calendar"
 msgstr "Calendar"
@@ -1588,6 +1588,10 @@ msgstr "Checklist"
 msgid "Choose CSV or JSON file"
 msgstr "Choose CSV or JSON file"
 
+#: src/app/(tabs)/(calendar)/index.tsx:991
+msgid "Choose month"
+msgstr "Choose month"
+
 #: src/app/manage-tags.tsx:71
 msgid "Choose which journal options show as filter chips on the trades list."
 msgstr "Choose which journal options show as filter chips on the trades list."
@@ -1595,6 +1599,10 @@ msgstr "Choose which journal options show as filter chips on the trades list."
 #: src/app/manage-tags.tsx:36
 #~ msgid "Choose which journal tags show as quick filters. Tags are created in the trade form."
 #~ msgstr "Choose which journal tags show as quick filters. Tags are created in the trade form."
+
+#: src/app/(tabs)/(calendar)/index.tsx:956
+msgid "Choose year"
+msgstr "Choose year"
 
 #: src/components/share-card.tsx:21
 msgid "Classic"
@@ -2946,7 +2954,7 @@ msgstr "exp"
 msgid "Expect"
 msgstr "Expect"
 
-#: src/app/(tabs)/(calendar)/index.tsx:270
+#: src/app/(tabs)/(calendar)/index.tsx:294
 #: src/app/(tabs)/(dashboard)/playbook.tsx:134
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:394
 msgid "Expectancy"
@@ -3445,7 +3453,7 @@ msgstr "Hold time on a log scale · dashed line marks the median hold"
 msgid "Holiday"
 msgstr "Holiday"
 
-#: src/app/(tabs)/_layout.tsx:73
+#: src/app/(tabs)/_layout.tsx:83
 #: src/app/(tabs)/(dashboard)/_layout.tsx:86
 msgid "Home"
 msgstr "Home"
@@ -3667,9 +3675,9 @@ msgstr "JSON backup"
 msgid "JSON must be an array of fills, or an object with a fills/rows/executions array."
 msgstr "JSON must be an array of fills, or an object with a fills/rows/executions array."
 
-#: src/app/(tabs)/(calendar)/index.tsx:820
-msgid "Jump to"
-msgstr "Jump to"
+#: src/app/(tabs)/(calendar)/index.tsx:912
+#~ msgid "Jump to"
+#~ msgstr "Jump to"
 
 #: src/components/reports/overview-section.tsx:201
 msgid "Kelly (half)"
@@ -3797,7 +3805,7 @@ msgstr "Link copied"
 msgid "Loading behavior report"
 msgstr "Loading behavior report"
 
-#: src/app/(tabs)/(calendar)/index.tsx:844
+#: src/app/(tabs)/(calendar)/index.tsx:1032
 msgid "Loading calendar"
 msgstr "Loading calendar"
 
@@ -4212,7 +4220,7 @@ msgstr "Mon"
 msgid "Monte Carlo"
 msgstr "Monte Carlo"
 
-#: src/app/(tabs)/(calendar)/index.tsx:410
+#: src/app/(tabs)/(calendar)/index.tsx:434
 #: src/components/mini-calendar-card.tsx:57
 #: src/components/reports/winloss-section.tsx:82
 msgid "Month"
@@ -4304,9 +4312,9 @@ msgid "Net (after fees)"
 msgstr "Net (after fees)"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:330
-#: src/app/(tabs)/(calendar)/index.tsx:226
-#: src/app/(tabs)/(calendar)/index.tsx:998
-#: src/app/(tabs)/(calendar)/index.tsx:1316
+#: src/app/(tabs)/(calendar)/index.tsx:250
+#: src/app/(tabs)/(calendar)/index.tsx:1186
+#: src/app/(tabs)/(calendar)/index.tsx:1504
 #: src/app/(tabs)/(dashboard)/playbook.tsx:130
 #: src/app/(tabs)/(dashboard)/playbook.tsx:240
 #: src/app/(tabs)/(trades)/[id].tsx:301
@@ -4402,7 +4410,7 @@ msgstr "New trade"
 msgid "Newest first"
 msgstr "Newest first"
 
-#: src/app/(tabs)/(calendar)/index.tsx:596
+#: src/app/(tabs)/(calendar)/index.tsx:604
 msgid "Next"
 msgstr "Next"
 
@@ -4414,13 +4422,17 @@ msgstr "Next action"
 msgid "Next day"
 msgstr "Next day"
 
+#: src/app/(tabs)/(calendar)/index.tsx:996
+msgid "Next decade"
+msgstr "Next decade"
+
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:290
 #~ msgid "Next week"
 #~ msgstr "Next week"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:106
-#~ msgid "Next year"
-#~ msgstr "Next year"
+#: src/app/(tabs)/(calendar)/index.tsx:963
+msgid "Next year"
+msgstr "Next year"
 
 #: src/app/new-trade.tsx:111
 #: src/app/new-trade.tsx:154
@@ -4608,9 +4620,9 @@ msgid "No tokens yet"
 msgstr "No tokens yet"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:337
-#: src/app/(tabs)/(calendar)/index.tsx:1087
-#: src/app/(tabs)/(calendar)/index.tsx:1267
-#: src/app/(tabs)/(calendar)/index.tsx:1414
+#: src/app/(tabs)/(calendar)/index.tsx:1275
+#: src/app/(tabs)/(calendar)/index.tsx:1455
+#: src/app/(tabs)/(calendar)/index.tsx:1602
 msgid "No trades"
 msgstr "No trades"
 
@@ -5354,7 +5366,7 @@ msgstr "Preview"
 msgid "Preview import"
 msgstr "Preview import"
 
-#: src/app/(tabs)/(calendar)/index.tsx:587
+#: src/app/(tabs)/(calendar)/index.tsx:595
 msgid "Previous"
 msgstr "Previous"
 
@@ -5362,13 +5374,17 @@ msgstr "Previous"
 msgid "Previous day"
 msgstr "Previous day"
 
+#: src/app/(tabs)/(calendar)/index.tsx:996
+msgid "Previous decade"
+msgstr "Previous decade"
+
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:278
 #~ msgid "Previous week"
 #~ msgstr "Previous week"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:82
-#~ msgid "Previous year"
-#~ msgstr "Previous year"
+#: src/app/(tabs)/(calendar)/index.tsx:963
+msgid "Previous year"
+msgstr "Previous year"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:46
 #: src/components/trade-form.tsx:159
@@ -5435,7 +5451,7 @@ msgstr "profile email password sign in owner admin security"
 msgid "Profit at target"
 msgstr "Profit at target"
 
-#: src/app/(tabs)/(calendar)/index.tsx:266
+#: src/app/(tabs)/(calendar)/index.tsx:290
 #: src/app/(tabs)/(dashboard)/playbook.tsx:133
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:389
 #: src/components/reports/overview-section.tsx:134
@@ -6402,7 +6418,7 @@ msgstr "Set up Vision scan first"
 msgid "Sets a new password for {0} without their current one."
 msgstr "Sets a new password for {0} without their current one."
 
-#: src/app/(tabs)/_layout.tsx:92
+#: src/app/(tabs)/_layout.tsx:102
 #: src/app/(tabs)/(settings)/_layout.tsx:34
 msgid "Settings"
 msgstr "Settings"
@@ -7326,6 +7342,7 @@ msgstr "To"
 msgid "To date: {0} win rate · PF {1} · {2} cumulative"
 msgstr "To date: {0} win rate · PF {1} · {2} cumulative"
 
+#: src/app/(tabs)/(calendar)/index.tsx:925
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:145
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:163
 #: src/app/(tabs)/(dashboard)/notes.tsx:45
@@ -7462,7 +7479,7 @@ msgstr "TraderMemos is self-hosted: this app is the client for a server you run,
 msgid "TraderMemos mark"
 msgstr "TraderMemos mark"
 
-#: src/app/(tabs)/_layout.tsx:77
+#: src/app/(tabs)/_layout.tsx:87
 #: src/app/(tabs)/(calendar)/day/[date].tsx:334
 #: src/app/(tabs)/(calendar)/day/[date].tsx:365
 #: src/app/(tabs)/(dashboard)/playbook.tsx:131
@@ -7775,20 +7792,20 @@ msgstr "Web Service token"
 msgid "Wed"
 msgstr "Wed"
 
-#: src/app/(tabs)/(calendar)/index.tsx:409
-#: src/app/(tabs)/(calendar)/index.tsx:1026
+#: src/app/(tabs)/(calendar)/index.tsx:433
+#: src/app/(tabs)/(calendar)/index.tsx:1214
 #: src/components/reports/winloss-section.tsx:81
 msgid "Week"
 msgstr "Week"
 
 #. placeholder {0}: wi + 1
 #. placeholder {1}: formatPnlCompact(weekPnl, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:1046
+#: src/app/(tabs)/(calendar)/index.tsx:1234
 msgid "Week {0}, {1}"
 msgstr "Week {0}, {1}"
 
 #. placeholder {0}: wi + 1
-#: src/app/(tabs)/(calendar)/index.tsx:1047
+#: src/app/(tabs)/(calendar)/index.tsx:1235
 msgid "Week {0}, No trades"
 msgstr "Week {0}, No trades"
 
@@ -7865,7 +7882,7 @@ msgid "win ÷ loss"
 msgstr "win ÷ loss"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:336
-#: src/app/(tabs)/(calendar)/index.tsx:262
+#: src/app/(tabs)/(calendar)/index.tsx:286
 #: src/app/(tabs)/(dashboard)/playbook.tsx:132
 #: src/app/(tabs)/(dashboard)/playbook.tsx:235
 #: src/components/reports/behavior-section.tsx:41
@@ -7936,8 +7953,7 @@ msgstr "Write review"
 msgid "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
 msgstr "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
 
-#: src/app/(tabs)/(calendar)/index.tsx:411
-#: src/app/(tabs)/(calendar)/index.tsx:820
+#: src/app/(tabs)/(calendar)/index.tsx:435
 msgid "Year"
 msgstr "Year"
 
