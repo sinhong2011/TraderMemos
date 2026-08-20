@@ -2180,7 +2180,7 @@ msgstr "貨幣換算"
 
 #: src/components/reports/risk-section.tsx:124
 msgid "Current"
-msgstr ""
+msgstr "目前"
 
 #: src/components/reports/risk-section.tsx:112
 #~ msgid "Current drawdown"
@@ -2267,7 +2267,7 @@ msgstr "單日虧損上限"
 
 #: src/components/reports/risk-section.tsx:84
 msgid "daily-loss"
-msgstr ""
+msgstr "單日虧損"
 
 #: src/app/(tabs)/(settings)/display.tsx:130
 #~ msgid "dark"
@@ -3855,7 +3855,7 @@ msgstr "正在載入策略手冊"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:472
 msgid "Loading your recap"
-msgstr ""
+msgstr "載入緊你嘅年度回顧"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:246
 #: src/app/(tabs)/(settings)/account-form.tsx:70
@@ -3956,7 +3956,7 @@ msgstr "連敗超限"
 
 #: src/components/reports/risk-section.tsx:86
 msgid "loss-streak"
-msgstr ""
+msgstr "連續虧損"
 
 #: src/components/insights-card.tsx:72
 msgid "losses"
@@ -4047,7 +4047,7 @@ msgstr "將每個欄位對應到檔案中的欄。"
 
 #: src/components/reports/risk-section.tsx:118
 msgid "Max"
-msgstr ""
+msgstr "最大"
 
 #: src/lib/risk-rules.ts:59
 msgid "Max consecutive losses"
@@ -4989,7 +4989,7 @@ msgstr "未來 {0} 筆交易"
 
 #: src/components/reports/risk-section.tsx:83
 msgid "over-risked"
-msgstr ""
+msgstr "風險超標"
 
 #. placeholder {0}: day.risk_violations
 #: src/app/(tabs)/(calendar)/day/[date].tsx:162
@@ -7111,7 +7111,7 @@ msgstr "雷達圖需要至少三個有分嘅軸 — 記低初始風險同開自�
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:488
 msgid "The recap appears once a year has closed trades."
-msgstr ""
+msgstr "該年度有已平倉交易之後就會顯示回顧。"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:201
 #~ msgid "The recap appears once the year has closed trades."
@@ -7730,7 +7730,7 @@ msgstr "影像掃描在匯入時把券商截圖讀成成交紀錄；AI 教練檢
 
 #: src/app/(tabs)/(dashboard)/reports.tsx:84
 msgid "W/L"
-msgstr ""
+msgstr "勝敗"
 
 #: src/components/trade-scan-overlay.tsx:63
 msgid "Waiting"

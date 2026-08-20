@@ -2180,7 +2180,7 @@ msgstr "환율 변환기"
 
 #: src/components/reports/risk-section.tsx:124
 msgid "Current"
-msgstr ""
+msgstr "현재"
 
 #: src/components/reports/risk-section.tsx:112
 #~ msgid "Current drawdown"
@@ -2267,7 +2267,7 @@ msgstr "일일 손실 한도"
 
 #: src/components/reports/risk-section.tsx:84
 msgid "daily-loss"
-msgstr ""
+msgstr "일일 손실"
 
 #: src/app/(tabs)/(settings)/display.tsx:130
 #~ msgid "dark"
@@ -3855,7 +3855,7 @@ msgstr "플레이북 불러오는 중"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:472
 msgid "Loading your recap"
-msgstr ""
+msgstr "리캡 불러오는 중"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:246
 #: src/app/(tabs)/(settings)/account-form.tsx:70
@@ -3956,7 +3956,7 @@ msgstr "연패 초과"
 
 #: src/components/reports/risk-section.tsx:86
 msgid "loss-streak"
-msgstr ""
+msgstr "연속 손실"
 
 #: src/components/insights-card.tsx:72
 msgid "losses"
@@ -4047,7 +4047,7 @@ msgstr "각 필드를 파일의 열과 연결하세요."
 
 #: src/components/reports/risk-section.tsx:118
 msgid "Max"
-msgstr ""
+msgstr "최대"
 
 #: src/lib/risk-rules.ts:59
 msgid "Max consecutive losses"
@@ -4989,7 +4989,7 @@ msgstr "향후 {0}건 기준"
 
 #: src/components/reports/risk-section.tsx:83
 msgid "over-risked"
-msgstr ""
+msgstr "리스크 초과"
 
 #. placeholder {0}: day.risk_violations
 #: src/app/(tabs)/(calendar)/day/[date].tsx:162
@@ -7111,7 +7111,7 @@ msgstr "레이더에는 3개 이상의 축 점수가 필요합니다. 초기 리
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:488
 msgid "The recap appears once a year has closed trades."
-msgstr ""
+msgstr "해당 연도에 청산된 거래가 있으면 리캡이 표시됩니다."
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:201
 #~ msgid "The recap appears once the year has closed trades."
@@ -7730,7 +7730,7 @@ msgstr "비전 스캔은 가져오기에서 브로커 스크린샷을 체결 내
 
 #: src/app/(tabs)/(dashboard)/reports.tsx:84
 msgid "W/L"
-msgstr ""
+msgstr "승패"
 
 #: src/components/trade-scan-overlay.tsx:63
 msgid "Waiting"

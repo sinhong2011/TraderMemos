@@ -33,6 +33,16 @@ export default function TabsLayout() {
     );
   }
 
+  // Signed out, so send the user to the auth stack. `/setup` is a sibling of
+  // `/login` presented *over* this layout, and a <Redirect> fires whenever it
+  // renders — so any re-render of this component while signed out would yank a
+  // first-time owner off a half-filled Setup form and back to Sign in.
+  //
+  // It holds today only because nothing above `session` changes between the
+  // Setup screen mounting and the user submitting it. Keep it that way: do not
+  // add state, context or a query to this layout that can settle while signed
+  // out. If that ever becomes unavoidable, gate the redirect on the active
+  // route (`usePathname() === '/setup'`) instead of removing this note.
   if (!session) return <Redirect href="/login" />;
 
   // Neutral foreground tint: the selected tab shouldn't pick up the system accent color.
