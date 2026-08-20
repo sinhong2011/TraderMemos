@@ -6,7 +6,6 @@ import Animated, {
   FadeIn,
   FadeOut,
   interpolate,
-  interpolateColor,
   LinearTransition,
   ReduceMotion,
   useAnimatedStyle,
@@ -97,7 +96,7 @@ function YearDot({
   selected: boolean;
   label: string;
   onPress: () => void;
-  palette: { muted: string; foreground: string };
+  palette: { foreground: string };
 }) {
   const style = useAnimatedStyle(() => {
     // 0 when this page fills the screen, 1 once it is a full page away.
@@ -106,7 +105,11 @@ function YearDot({
       width: interpolate(distance, [0, 1], [DOT_ACTIVE_W, DOT]),
       height: DOT,
       borderRadius: DOT / 2,
-      backgroundColor: interpolateColor(distance, [0, 1], [palette.foreground, palette.muted]),
+      backgroundColor: palette.foreground,
+      // One colour at two strengths, not two colours: `muted` is nearly the
+      // page itself on dark, which left the inactive dots invisible and the
+      // centred group reading as a lone capsule sitting off to one side.
+      opacity: interpolate(distance, [0, 1], [1, 0.32]),
     };
   });
 
@@ -149,11 +152,8 @@ function YearIndicator({
   progress: SharedValue<number>;
   onSelect: (index: number) => void;
 }) {
-  // Colour has to reach a worklet as values, not classes.
-  const [muted, foreground] = useCSSVariable(['--color-muted', '--color-foreground']) as [
-    string,
-    string,
-  ];
+  // Colour has to reach a worklet as a value, not a class.
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   // Sliding window of at most 7 dots so a 2000→now range doesn't paint a grid.
   const windowSize = Math.min(7, years.length);
   const windowStart = Math.max(
@@ -179,7 +179,7 @@ function YearIndicator({
               selected={pageIndex === index}
               label={String(years[pageIndex])}
               onPress={() => onSelect(pageIndex)}
-              palette={{ muted, foreground }}
+              palette={{ foreground }}
             />
           </Animated.View>
         );
