@@ -54,20 +54,16 @@ jobs:
       version: ${{ needs.release-please.outputs.version }}
     secrets: inherit
 
-  # The release commit already bumped mobile/app.json, so the EAS build carries
-  # the released marketing version; EAS assigns the build number. Gated on the
-  # app-store environment because it submits to TestFlight.
-  build-mobile:
-    name: Build iOS app
-    needs: release-please
-    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
-    uses: ./.github/workflows/mobile-eas.yml
-    with:
-      profile: production
-      platform: ios
-      submit: true
-      message: v${{ needs.release-please.outputs.version }}
-    secrets: inherit
+  # iOS is not built here any more. EAS cloud builds are metered and a release
+  # spent two of them — one per platform — so the month's quota ran out and the
+  # iOS build of v0.12.0 failed while the Android one squeaked through. iOS now
+  # builds on the self-hosted M1 Pro, which is unmetered and runs the same
+  # Xcode EAS would (26.6 GM); see the ios-release workflow on the private
+  # Forgejo remote, where the App Store Connect key lives.
+  #
+  # `mobile-eas.yml` is deliberately still here and still works by manual
+  # dispatch: the quota resets monthly, and a single self-hosted Mac is a
+  # single point of failure worth having a spare for.
 
   # Android has no store presence: the release-signed APK attached to the
   # GitHub Release page IS the distribution channel (sideload / self-hosters),
