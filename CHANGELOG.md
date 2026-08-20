@@ -5,6 +5,14 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.12.0](https://github.com/sinhong2011/TraderMemos/compare/v0.11.0...v0.12.0) (2026-08-20)
+
+
+### Features
+
+* **mobile:** custom date range on the trades filter ([#264](https://github.com/sinhong2011/TraderMemos/issues/264)) ([9aea51d](https://github.com/sinhong2011/TraderMemos/commit/9aea51d30e6ab60276a38ce0d14140565dd281b1))
+* **mobile:** month-year picker for the calendar jump sheet ([#263](https://github.com/sinhong2011/TraderMemos/issues/263)) ([8a970a1](https://github.com/sinhong2011/TraderMemos/commit/8a970a1938d181966ec45e1666602bfe73bbd62f))
+
 ## [0.11.0](https://github.com/sinhong2011/TraderMemos/compare/v0.10.0...v0.11.0) (2026-08-20)
 
 
