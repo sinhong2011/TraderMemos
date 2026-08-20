@@ -104,6 +104,7 @@ function WrappedYear({
   active,
   inProgress,
   indicator,
+  headerHeight,
 }: {
   year: number;
   active: boolean;
@@ -111,6 +112,8 @@ function WrappedYear({
   inProgress: boolean;
   /** Rendered at the top of this page's scroll content — see the screen below. */
   indicator: ReactNode;
+  /** Measured once by the screen — never per page (see the note there). */
+  headerHeight: number;
 }) {
   // The month bars are drawn views, so their fills are token values.
   const palette = usePnlPalette();
@@ -133,9 +136,6 @@ function WrappedYear({
   // (see lib/pager-insets.ts) — the last card needs explicit clearance.
   const bottomInset = usePagerBottomInset();
   const softTopEdge = useSoftTopEdge();
-  // Captured at mount: the live value shrinks with the bar, and a padding that
-  // tracked it would drag the content mid-scroll (same as Reports).
-  const [headerHeight] = useState(useHeaderHeight());
 
   const wrapped = useMemo(() => computeYearWrapped(trades.data ?? [], year), [trades.data, year]);
   const money = (v: number) => formatPnl(v * rate, currency);
@@ -354,6 +354,13 @@ export default function WrappedScreen() {
   const initialIndex = years.length - 1;
   const [index, setIndex] = useState(initialIndex);
   const pagerRef = useRef<PagerView>(null);
+  // Measured here, once, and handed to every page. UIKit's automatic inset
+  // adjustment does not reach a scroll view nested in a pager (the same gap
+  // `usePagerBottomInset` covers at the bottom), so the pages pad by hand —
+  // but a page measuring on its own clock reads whatever bar happened to be
+  // on top when the pager got round to mounting it, and a year mounted while
+  // a large-title screen was still up padded itself 68pt too far.
+  const [headerHeight] = useState(useHeaderHeight());
 
   const selectIndex = (next: number) => {
     const clamped = Math.max(0, Math.min(years.length - 1, next));
@@ -400,6 +407,7 @@ export default function WrappedScreen() {
                 year={year}
                 active={Math.abs(pageIndex - index) <= 1}
                 inProgress={year === currentYear}
+                headerHeight={headerHeight}
                 indicator={
                   <YearIndicator years={years} index={index} onSelect={selectIndex} />
                 }
