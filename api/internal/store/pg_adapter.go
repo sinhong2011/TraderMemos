@@ -707,6 +707,14 @@ func (p *PG) ListOptionExecutionDetailsForUser(ctx context.Context, userID strin
 	return func() []ListOptionExecutionDetailsForUserRow { in := v; out := make([]ListOptionExecutionDetailsForUserRow, len(in)); for i := range in { out[i] = ListOptionExecutionDetailsForUserRow(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListOptionExecutions(ctx context.Context) ([]Execution, error) {
+	v, err := p.q.ListOptionExecutions(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return func() []Execution { in := v; out := make([]Execution, len(in)); for i := range in { out[i] = Execution(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListPropSettingsForUser(ctx context.Context, userID string) ([]PropSetting, error) {
 	v, err := p.q.ListPropSettingsForUser(ctx, userID)
 	if err != nil {
@@ -877,6 +885,10 @@ func (p *PG) UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactio
 
 func (p *PG) UpdateExecution(ctx context.Context, arg UpdateExecutionParams) (int64, error) {
 	return p.q.UpdateExecution(ctx, storepg.UpdateExecutionParams(arg))
+}
+
+func (p *PG) UpdateExecutionContract(ctx context.Context, arg UpdateExecutionContractParams) error {
+	return p.q.UpdateExecutionContract(ctx, storepg.UpdateExecutionContractParams(arg))
 }
 
 func (p *PG) UpdateFlexSyncStatus(ctx context.Context, arg UpdateFlexSyncStatusParams) error {

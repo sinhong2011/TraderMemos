@@ -15,6 +15,7 @@ import (
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/econdata"
 	"github.com/tradermemos/api/internal/flexsync"
+	"github.com/tradermemos/api/internal/importer"
 	"github.com/tradermemos/api/internal/jobs"
 	"github.com/tradermemos/api/internal/logging"
 	"github.com/tradermemos/api/internal/marketdata"
@@ -61,6 +62,9 @@ func main() {
 	q := store.NewForDriver(conn, cfg.Driver)
 	if err := store.SeedInstrumentSpecs(context.Background(), q); err != nil {
 		logger.Warn("could not seed instrument specs", "err", err)
+	}
+	if err := importer.NormalizeOCCOptionExecutions(context.Background(), q, logger); err != nil {
+		logger.Warn("could not normalize OCC option symbols", "err", err)
 	}
 	jwt := auth.NewJWT(cfg.JWTSecret)
 	attachDir := cfg.AttachDir

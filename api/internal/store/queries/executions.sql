@@ -39,3 +39,13 @@ DELETE FROM executions WHERE account_id = ? AND user_id = ?;
 
 -- name: ExecutionExists :one
 SELECT EXISTS(SELECT 1 FROM executions WHERE account_id = ? AND dedup_hash = ?);
+
+-- name: ListOptionExecutions :many
+SELECT * FROM executions WHERE instrument_type = 'option' ORDER BY user_id, account_id, executed_at, id;
+
+-- name: UpdateExecutionContract :exec
+UPDATE executions
+SET symbol = ?,
+    details = ?,
+    dedup_hash = ?
+WHERE id = ? AND user_id = ?;
