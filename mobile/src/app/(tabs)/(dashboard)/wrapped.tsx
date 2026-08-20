@@ -47,8 +47,10 @@ function monthShort(month: number): string {
 }
 
 /**
- * Compact year chrome above the pager — centered year with carousel peeks for
- * neighbors and a sliding window of page dots. No boxed bar; swipe is primary.
+ * Page dots only. Every label this strip used to carry — the neighbouring
+ * years as peeks, then the year itself — repeated something already on
+ * screen: the recap's own caption right below states the year. What is left
+ * is the one thing nothing else says, which page of the range you are on.
  */
 function YearIndicator({
   years,
@@ -59,9 +61,6 @@ function YearIndicator({
   index: number;
   onSelect: (index: number) => void;
 }) {
-  const year = years[index]!;
-  const prev = index > 0 ? years[index - 1] : null;
-  const next = index < years.length - 1 ? years[index + 1] : null;
   // Sliding window of at most 7 dots so a 2000→now range doesn't paint a grid.
   const windowSize = Math.min(7, years.length);
   const windowStart = Math.max(
@@ -70,44 +69,9 @@ function YearIndicator({
   );
 
   return (
-    <View className="gap-2 bg-background px-4 py-2">
-      <View className="flex-row items-center justify-between">
-        <Pressable
-          onPress={() => prev != null && onSelect(index - 1)}
-          disabled={prev == null}
-          hitSlop={10}
-          accessibilityRole="button"
-          accessibilityLabel={t`Previous year`}
-          className={cn(SIDE_YEAR, prev == null && 'opacity-0')}
-        >
-          <Text className="text-sm font-medium text-muted-foreground tabular-nums">
-            {prev ?? ' '}
-          </Text>
-        </Pressable>
-        {/* The year alone. An "· in progress" tail here sat at the same
-            weight as the subject and read as half a sentence; the hero card's
-            caption below says it in words instead. */}
-        <Text
-          className="text-center text-lg font-semibold text-foreground tabular-nums"
-          accessibilityRole="header"
-        >
-          {year}
-        </Text>
-        <Pressable
-          onPress={() => next != null && onSelect(index + 1)}
-          disabled={next == null}
-          hitSlop={10}
-          accessibilityRole="button"
-          accessibilityLabel={t`Next year`}
-          className={cn(SIDE_YEAR, next == null && 'opacity-0')}
-        >
-          <Text className="text-sm font-medium text-muted-foreground tabular-nums">
-            {next ?? ' '}
-          </Text>
-        </Pressable>
-      </View>
+    <View className="items-center bg-background px-4 py-2">
       {years.length > 1 ? (
-        <View className="flex-row items-center justify-center gap-1.5" accessibilityElementsHidden>
+        <View className="flex-row items-center justify-center gap-1.5">
           {Array.from({ length: windowSize }, (_, i) => {
             const pageIndex = windowStart + i;
             const active = pageIndex === index;
@@ -116,6 +80,9 @@ function YearIndicator({
                 key={years[pageIndex]}
                 onPress={() => onSelect(pageIndex)}
                 hitSlop={6}
+                accessibilityRole="button"
+                accessibilityLabel={String(years[pageIndex])}
+                accessibilityState={{ selected: active }}
                 // Capsule chip dots — trade-form pager language, without a
                 // bordered track.
                 className={cn(
@@ -444,9 +411,6 @@ export default function WrappedScreen() {
     </>
   );
 }
-
-/** The tappable neighbour-year peek beside the centred label. */
-const SIDE_YEAR = 'min-w-[56px] items-center py-1 active:opacity-60';
 
 /** `PagerView` is a native component, not one Uniwind styles by class. */
 const FILL = { flex: 1 } as const;
