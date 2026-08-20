@@ -55,10 +55,7 @@ export const unstable_settings = { initialRouteName: 'index' };
 
 export default function DashboardLayout() {
   // Navigation options take colors as values, not classes.
-  const [foreground, background] = useCSSVariable(['--color-foreground', '--color-background']) as [
-    string,
-    string,
-  ];
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   return (
     <Stack
       screenOptions={{
@@ -142,15 +139,15 @@ export default function DashboardLayout() {
           sheetCornerRadius: 24,
         }}
       />
-      {/* Same opaque-bar reasoning as Reports: the year pager's root is a plain
-          View, so a transparent header would sit on top of the year switcher. */}
+      {/* Keeps the stack's transparent (blurred) bar: like Reports, the year
+          pages nominate their scroll view through soft-scroll-edge and carry
+          the switcher in their own content, so nothing needs a fixed spot
+          under the bar. Compact bar — a recap page has its own year heading. */}
       <Stack.Screen
         name="wrapped"
         options={{
           title: t`Year Wrapped`,
           headerLargeTitle: false,
-          headerTransparent: false,
-          headerStyle: { backgroundColor: background },
         }}
       />
     </Stack>

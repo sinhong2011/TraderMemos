@@ -5,8 +5,9 @@ import PagerView from 'react-native-pager-view';
 
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { useHeaderHeight } from 'expo-router/react-navigation';
 import { Skeleton, cn } from 'panelui-native';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
@@ -21,6 +22,7 @@ import { useSelectedAccountId } from '@/lib/account-store';
 import { formatDuration, formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
 import { usePagerBottomInset } from '@/lib/pager-insets';
+import { useSoftTopEdge } from '@/lib/soft-scroll-edge';
 import { accountBaseCurrency } from '@/lib/prefs';
 import { computeYearWrapped } from '@/lib/wrapped';
 import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
@@ -137,7 +139,16 @@ function YearIndicator({
 }
 
 /** One year's recap — own query + scroll so the pager can keep pages independent. */
-function WrappedYear({ year, active }: { year: number; active: boolean }) {
+function WrappedYear({
+  year,
+  active,
+  indicator,
+}: {
+  year: number;
+  active: boolean;
+  /** Rendered at the top of this page's scroll content — see the screen below. */
+  indicator: ReactNode;
+}) {
   // The month bars are drawn views, so their fills are token values.
   const palette = usePnlPalette();
   const selectedAccountId = useSelectedAccountId();
@@ -158,6 +169,10 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
   // Nested in the pager, `automatic` never gets the tab-bar bottom inset
   // (see lib/pager-insets.ts) — the last card needs explicit clearance.
   const bottomInset = usePagerBottomInset();
+  const softTopEdge = useSoftTopEdge();
+  // Captured at mount: the live value shrinks with the bar, and a padding that
+  // tracked it would drag the content mid-scroll (same as Reports).
+  const [headerHeight] = useState(useHeaderHeight());
 
   const wrapped = useMemo(() => computeYearWrapped(trades.data ?? [], year), [trades.data, year]);
   const money = (v: number) => formatPnl(v * rate, currency);
@@ -167,9 +182,15 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
   return (
     <ScrollView
       className="bg-background"
-      contentInsetAdjustmentBehavior="automatic"
+      // Nominated so UIKit drives the (transparent, blurred) bar from the page
+      // being read: neither its nor screens' own discovery reaches a scroll
+      // view nested in a pager. See lib/soft-scroll-edge.
+      ref={softTopEdge}
+      // Both insets manual for the same reason — `automatic` never reaches in
+      // here (lib/pager-insets.ts), so it would leave the content under the bar.
+      contentInsetAdjustmentBehavior="never"
       contentContainerClassName="gap-4 p-4"
-      contentContainerStyle={{ paddingBottom: 48 + bottomInset }}
+      contentContainerStyle={{ paddingTop: headerHeight, paddingBottom: 48 + bottomInset }}
       refreshControl={
         <RefreshControl
           refreshing={trades.isRefetching}
@@ -177,6 +198,7 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
         />
       }
     >
+      {indicator}
       {trades.isLoading || (!active && trades.data == null) ? (
         <>
           <Skeleton className={SKELETON_TALL} label={t`Loading ${year}`} />
@@ -399,12 +421,10 @@ export default function WrappedScreen() {
         }}
       />
       <View className="flex-1 bg-background">
-        <YearIndicator
-          years={years}
-          index={index}
-          currentYear={currentYear}
-          onSelect={selectIndex}
-        />
+        {/* The year switcher rides at the top of each page's scroll content
+            rather than sitting above the pager: in flow above it, it would be
+            the thing a transparent (blurred) bar covers — which is why this
+            screen used to opt out of that bar and lose its blur. */}
         <PagerView
           ref={pagerRef}
           initialPage={initialIndex}
@@ -413,7 +433,18 @@ export default function WrappedScreen() {
         >
           {years.map((year, pageIndex) => (
             <View key={year} className="flex-1" collapsable={false}>
-              <WrappedYear year={year} active={Math.abs(pageIndex - index) <= 1} />
+              <WrappedYear
+                year={year}
+                active={Math.abs(pageIndex - index) <= 1}
+                indicator={
+                  <YearIndicator
+                    years={years}
+                    index={index}
+                    currentYear={currentYear}
+                    onSelect={selectIndex}
+                  />
+                }
+              />
             </View>
           ))}
         </PagerView>
