@@ -878,21 +878,25 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                   <Smartphone className="size-4" />
                   {d('appLead')}
                 </span>
+                {/* Both buttons land on the install guide, each at its own
+                    section — not on a raw download. Sideloading needs the
+                    unknown-apps step and the checksum beside it, and a 127MB
+                    APK that starts downloading on tap from a landing page
+                    reads as a hijack. The direct link lives on that page. */}
                 <Link
-                  href={`/${lang}/docs/getting-started/mobile-app`}
+                  href={`/${lang}/docs/getting-started/mobile-app#ios`}
                   className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition hover:-translate-y-0.5 hover:bg-fd-accent ${focusRing}`}
                 >
                   {d('appIos')}
                   <ArrowRight className="size-3.5 opacity-60" />
                 </Link>
-                <a
-                  href={`${repoUrl}/releases/latest`}
-                  rel="noreferrer"
+                <Link
+                  href={`/${lang}/docs/getting-started/mobile-app#android`}
                   className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition hover:-translate-y-0.5 hover:bg-fd-accent ${focusRing}`}
                 >
                   {d('appAndroid')}
-                  <ArrowUpRight className="size-3.5 opacity-60" />
-                </a>
+                  <ArrowRight className="size-3.5 opacity-60" />
+                </Link>
               </div>
             </div>
             <div className="relative self-center">

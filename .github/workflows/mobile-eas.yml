@@ -298,5 +298,13 @@ jobs:
           ASSET="TraderMemos-${VERSION}.apk"
           curl -fsSL --retry 3 -o "$ASSET" "$url"
           sha256sum "$ASSET" > "$ASSET.sha256"
-          gh release upload "v$VERSION" "$ASSET" "$ASSET.sha256" \
+          # Second copy under a version-less name. GitHub's permanent
+          # /releases/latest/download/<asset> link resolves by exact filename,
+          # so a versioned asset can never back a stable URL — the docs page
+          # links TraderMemos.apk and it has to mean "whatever shipped last".
+          # The versioned copy stays as the per-release archive.
+          cp "$ASSET" TraderMemos.apk
+          sha256sum TraderMemos.apk > TraderMemos.apk.sha256
+          gh release upload "v$VERSION" \
+            "$ASSET" "$ASSET.sha256" TraderMemos.apk TraderMemos.apk.sha256 \
             --clobber --repo "$GITHUB_REPOSITORY"
