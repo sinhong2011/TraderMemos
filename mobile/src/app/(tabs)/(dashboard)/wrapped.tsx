@@ -163,7 +163,7 @@ function YearIndicator({
   if (years.length < 2) return null;
 
   return (
-    <View className="flex-row items-center justify-center gap-2 bg-background px-4 py-3">
+    <View className="flex-row items-center justify-center gap-2 px-4 py-3">
       {Array.from({ length: windowSize }, (_, i) => {
         const pageIndex = windowStart + i;
         return (
@@ -509,8 +509,9 @@ export default function WrappedScreen() {
           </AnimatedPagerView>
         )}
         {/* Pinned over the pages, below the bar: one switcher for every page,
-            and it stays put while a year scrolls under it. Opaque, so the rows
-            passing beneath disappear rather than showing through. */}
+            and it stays put while a year scrolls under it. No surface of its
+            own — a filled strip reads as a slab cutting the card behind it,
+            and these are small enough to sit straight on the content. */}
         <View
           className="absolute inset-x-0 z-10"
           style={{ top: headerHeight }}
