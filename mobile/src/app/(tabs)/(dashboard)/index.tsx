@@ -131,7 +131,7 @@ export default function DashboardScreen() {
         <EmptyState
           title={t`No trades yet`}
           systemImage="chart.line.uptrend.xyaxis"
-          description={t`Import broker history or log a trade on the web app to see performance here.`}
+          description={t`Log a trade from the Trades tab, or import from Settings → Import trades.`}
         />
       </View>
     );

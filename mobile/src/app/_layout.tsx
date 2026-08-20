@@ -257,6 +257,11 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false, headerTitleAlign: 'center' }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
+            {/* First-user bootstrap, sibling of login: the session gate still
+                sends signed-out users to /login because the server URL is
+                unknown until they type it. Login replaces here once
+                /setup/status says needs_setup. */}
+            <Stack.Screen name="setup" options={{ presentation: 'modal', headerShown: false }} />
             {/* New trade and edit trade are destinations, not interruptions:
                 real pushes with the standard back gesture (not formSheet:
                 react-native-screens' formSheet lays the ScrollView out over

@@ -27,6 +27,27 @@ export type Credentials = {
   totp_code?: string;
 };
 
+/** GET /setup/status (api/internal/api/auth_handlers.go handleSetupStatus). */
+export type SetupStatus = {
+  needs_setup: boolean;
+  registration_open: boolean;
+  user_count: number;
+  min_password_length: number;
+};
+
+/**
+ * Optional first trading account on POST /setup. `account` may be omitted or
+ * null to skip; a non-empty `name` creates the account and an opening deposit
+ * when `starting_balance` is set.
+ */
+export type SetupAccountInput = {
+  name: string;
+  broker?: string;
+  account_type?: string;
+  base_currency?: string;
+  starting_balance?: number;
+};
+
 export type Tag = {
   id: string;
   user_id: string;
@@ -269,6 +290,14 @@ export type Account = {
   account_type: string;
   base_currency: string;
   starting_balance: number;
+};
+
+/** POST /setup 201 (handleSetupComplete). Adopt the token pair as the session. */
+export type SetupResult = TokenPair & {
+  id: string;
+  email: string;
+  is_admin: boolean;
+  account?: Account | null;
 };
 
 /** GET /settings/ocr | /settings/coach (web llmApiSettings.ts). */
