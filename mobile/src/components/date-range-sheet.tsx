@@ -59,21 +59,23 @@ export function DateRangeSheet({
           key={`${open}:${value?.from ?? ''}:${value?.to ?? ''}`}
           value={value}
           onApply={onApply}
-          onDone={() => onOpenChange(false)}
         />
       </BottomSheet.Content>
     </BottomSheet>
   );
 }
 
+/**
+ * `onApply` is the whole handoff — closing is the caller's to do, and doing it
+ * from here as a second call made the sheet report a dismissal the caller
+ * could not tell apart from the user walking away.
+ */
 function RangeBody({
   value,
   onApply,
-  onDone,
 }: {
   value: DayRange | null;
   onApply: (range: DayRange) => void;
-  onDone: () => void;
 }) {
   const { formatDayKey } = useFormatters();
   const [range, setRange] = useState<DateRange | undefined>(() =>
@@ -116,7 +118,6 @@ function RangeBody({
           onPress={() => {
             if (!ready) return;
             onApply({ from: dayKeyOf(from), to: dayKeyOf(to) });
-            onDone();
           }}
           hitSlop={8}
           accessibilityRole="button"

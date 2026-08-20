@@ -527,14 +527,20 @@ export default function TradesScreen() {
         open={rangeSheet}
         onOpenChange={(next) => {
           setRangeSheet(next);
-          // Dismissed before a span was picked: `custom` would sit in the menu
-          // filtering nothing, so the filter goes back to where it was.
+          /*
+           * Only the sheet reports its own dismissal here, never `onApply` —
+           * which is why applying closes it from this side instead. Routing
+           * the apply through this handler read `customRange` from the render
+           * that opened the sheet, so the state set a line earlier was still
+           * `null` here and every apply reverted itself to "All time".
+           */
           if (!next && customRange == null) setDateFilter('all');
         }}
         value={customRange}
         onApply={(range) => {
           setCustomRange(range);
           setDateFilter('custom');
+          setRangeSheet(false);
         }}
       />
     </>
