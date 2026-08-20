@@ -99,3 +99,41 @@ func TestUpdateExecutionNotFound(t *testing.T) {
 	rec := do(s, http.MethodPatch, "/api/v1/executions/00000000-0000-0000-0000-000000000000", patch, tok)
 	require.Equal(t, http.StatusNotFound, rec.Code)
 }
+
+// Two strikes of one underlying, filled at the same time/price/quantity, are
+// different fills. Hashing on the bare symbol made the second one dedup into
+// the first and hand back the wrong trade; the key now carries the contract.
+func TestCreateExecutionSeparatesOptionContracts(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "option-fills@x.com")
+	acc := accountID(t, s, tok)
+
+	fill := func(strike string) string {
+		return `{"account_id":"` + acc + `","symbol":"MU","instrument_type":"option",` +
+			`"side":"buy","quantity":5,"price":3.84,"executed_at":"2026-08-17T13:45:00Z",` +
+			`"details":{"option_right":"call","strike":"` + strike + `","expiry":"2026-08-17"}}`
+	}
+
+	first := do(s, http.MethodPost, "/api/v1/executions", fill("1030"), tok)
+	require.Equal(t, http.StatusCreated, first.Code, first.Body.String())
+	second := do(s, http.MethodPost, "/api/v1/executions", fill("1040"), tok)
+	require.Equal(t, http.StatusCreated, second.Code, second.Body.String())
+
+	var a, b struct {
+		ExecutionID string `json:"execution_id"`
+	}
+	require.NoError(t, json.Unmarshal(first.Body.Bytes(), &a))
+	require.NoError(t, json.Unmarshal(second.Body.Bytes(), &b))
+	require.NotEqual(t, a.ExecutionID, b.ExecutionID)
+
+	// The same contract twice still dedups.
+	again := do(s, http.MethodPost, "/api/v1/executions", fill("1030"), tok)
+	require.Equal(t, http.StatusOK, again.Code, again.Body.String())
+	var duped struct {
+		ExecutionID string `json:"execution_id"`
+		Deduped     string `json:"deduped"`
+	}
+	require.NoError(t, json.Unmarshal(again.Body.Bytes(), &duped))
+	require.Equal(t, "true", duped.Deduped)
+	require.Equal(t, a.ExecutionID, duped.ExecutionID)
+}
