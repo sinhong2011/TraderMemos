@@ -68,9 +68,9 @@ function monthShort(month: number): string {
   });
 }
 
-/** Dot diameters: the page you are on is simply a bigger circle. */
+/** Dots stay 6pt tall; the page you are on stretches into a capsule. */
 const DOT = 6;
-const DOT_ACTIVE = 11;
+const DOT_ACTIVE_W = 18;
 
 /** Window dots slide in and out rather than cutting as the range re-centres. */
 const DOT_MOTION = LinearTransition.springify()
@@ -79,10 +79,10 @@ const DOT_MOTION = LinearTransition.springify()
   .reduceMotion(ReduceMotion.System);
 
 /**
- * One dot: a quiet 6pt mark that grows into an 11pt circle as its page
- * arrives. Size and colour ride the pager's *live* position rather than the
- * settled page, so the strip tracks the finger through the swipe instead of
- * jumping once the page lands.
+ * One dot: a quiet 6pt circle that stretches into a capsule as its page
+ * arrives and rounds back off as it leaves. Width and colour ride the pager's
+ * *live* position rather than the settled page, so the strip tracks the finger
+ * through the swipe instead of jumping once the page lands.
  */
 function YearDot({
   pageIndex,
@@ -102,11 +102,10 @@ function YearDot({
   const style = useAnimatedStyle(() => {
     // 0 when this page fills the screen, 1 once it is a full page away.
     const distance = Math.min(Math.abs(pageIndex - progress.value), 1);
-    const size = interpolate(distance, [0, 1], [DOT_ACTIVE, DOT]);
     return {
-      width: size,
-      height: size,
-      borderRadius: size / 2,
+      width: interpolate(distance, [0, 1], [DOT_ACTIVE_W, DOT]),
+      height: DOT,
+      borderRadius: DOT / 2,
       backgroundColor: interpolateColor(distance, [0, 1], [palette.foreground, palette.muted]),
     };
   });
@@ -126,10 +125,10 @@ function YearDot({
   );
 }
 
-/** Each dot sits in a constant-width cell and grows inside it. */
+/** A tap target the dot can grow inside without shoving its neighbours. */
 const CELL = {
-  width: DOT_ACTIVE,
-  height: DOT_ACTIVE,
+  minWidth: DOT,
+  height: DOT_ACTIVE_W,
   alignItems: 'center',
   justifyContent: 'center',
 } as const;
