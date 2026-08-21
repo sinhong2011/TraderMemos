@@ -12,8 +12,8 @@ flowchart TD
     G -->|"not yet"| C
     G -->|"merge the Release PR"| E["tag vX.Y.Z<br/>GitHub Release published"]
     E --> F["docker-publish.yml"]
-    E --> H["mobile-eas.yml (ios)<br/>EAS build + TestFlight"]
     E --> I["mobile-eas.yml (android)<br/>EAS build → APK on the Release page"]
+    E -.->|"not automatic"| H["iOS: self-hosted M1 Pro<br/>Forgejo ios-release.yml → TestFlight"]
 ```
 
 There is no hand-cut release branch: `release-please--branches--main` **is** the
@@ -37,10 +37,10 @@ lines release-please reads to build the changelog.
 3. Review the changelog and version bumps (`VERSION`, `web/package.json`, `CHANGELOG.md`).
 4. Merge the Release PR → GitHub Release `vX.Y.Z` is created.
 5. Approve the `docker-hub` deployment → Docker images are published.
-6. Approve the `app-store` deployment → the iOS app builds on EAS and goes to
-   TestFlight (see [Mobile releases](#mobile-releases)).
-7. The Android APK builds on EAS in parallel — no approval needed — and lands on
-   the GitHub Release page as `TraderMemos-<version>.apk` (+ `.sha256`).
+6. The Android APK builds on EAS — no approval needed — and lands on the GitHub
+   Release page as `TraderMemos-<version>.apk` (+ `.sha256`).
+7. Build iOS separately: dispatch `ios-release` on the private Forgejo remote
+   (see [Mobile releases](#mobile-releases)). It is **not** part of this chain.
 
 ## Commit messages
 
@@ -120,26 +120,37 @@ file. `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` remain repo secrets.
 
 ## Mobile releases
 
-The Expo app builds on [EAS Build](https://docs.expo.dev/build/introduction/).
-iOS is submitted by EAS Submit — no local Xcode archive, no manual upload.
-Android has no store presence: the release-signed APK is attached to the GitHub
-Release page, which is the Android distribution channel (same shape as the
-tm-sync binaries).
+Android builds on [EAS Build](https://docs.expo.dev/build/introduction/) and has
+no store presence: the release-signed APK is attached to the GitHub Release page,
+which is the Android distribution channel (same shape as the tm-sync binaries).
+
+**iOS does not build here.** EAS cloud builds are metered, and a release spent
+two of them — one per platform — so the month's quota ran out and the iOS build
+of v0.12.0 failed while Android squeaked through. iOS now builds on the
+self-hosted M1 Pro via `ios-release.yml` on the private Forgejo remote: same
+Xcode EAS uses (26.6 GM), unmetered, with the App Store Connect key in that
+repo's secrets and the upload done by `fastlane pilot`.
+
+`mobile-eas.yml` still accepts `platform: ios` by manual dispatch, and is worth
+keeping for it: the quota resets monthly, and one self-hosted Mac is a single
+point of failure.
 
 ```mermaid
 flowchart TD
-    A["Release published<br/>· workflow_call from release-please<br/>· workflow_dispatch"] --> B["Test mobile<br/>lint · tsc · catalogs · prebuild"]
-    B --> C{"app-store environment<br/>required reviewer<br/>(only when submitting)"}
+    A["Release published<br/>· workflow_call from release-please (android only)<br/>· workflow_dispatch"] --> B["Test mobile<br/>lint · tsc · catalogs · prebuild"]
+    B -.->|"manual dispatch only<br/>(quota fallback)"| C{"app-store environment<br/>required reviewer<br/>(only when submitting)"}
     C -->|"approve"| D["eas build --platform ios --profile production --auto-submit"]
     D --> E["EAS: prebuild → archive → sign"]
     E --> F["App Store Connect · TestFlight"]
+    J["Forgejo ios-release.yml<br/>self-hosted M1 Pro · Xcode 26.6 GM"] --> K["eas build --local → IPA"]
+    K --> L["fastlane pilot upload"]
+    L --> F
     B --> G["eas build --platform android --profile production-apk"]
     G --> H["download APK · sha256"]
     H --> I["gh release upload vX.Y.Z<br/>GitHub Release assets"]
 ```
 
-The release-please chain calls `mobile-eas.yml` once per platform: iOS through
-the `app-store` reviewer gate (submitting is irreversible), Android ungated (a
+The release-please chain calls `mobile-eas.yml` for Android only, ungated (a
 release asset is replaceable with `--clobber`). A missed or failed APK is
 backfilled via `workflow_dispatch`: platform `android`, profile
 `production-apk`, *attach-to-release* set to the bare version (`0.8.4`).
