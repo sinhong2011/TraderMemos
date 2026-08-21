@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.12.1](https://github.com/sinhong2011/TraderMemos/compare/v0.12.0...v0.12.1) (2026-08-21)
+
+
+### Bug Fixes
+
+* **mobile:** name the app icon so Apple can find it ([#266](https://github.com/sinhong2011/TraderMemos/issues/266)) ([a43b6ab](https://github.com/sinhong2011/TraderMemos/commit/a43b6ab8b2e619ab3990ab9040fca4ef65303b29))
+
 ## [0.12.0](https://github.com/sinhong2011/TraderMemos/compare/v0.11.0...v0.12.0) (2026-08-20)
 
 
