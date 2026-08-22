@@ -599,6 +599,16 @@ function ExecutionScoreCard() {
   const tone = (value: number) =>
     value >= 70 ? palette.profit : value < 40 ? palette.loss : undefined;
 
+  // A mid-range score has no tone and must fall through to `text-foreground`.
+  // Returning `{ color: undefined }` does not do that — the style object still
+  // wins over the class and the text lands on the platform default (black),
+  // which is invisible on the card. Pass no style at all instead.
+  const toneStyle = (value: number | null) => {
+    if (value == null) return { color: mutedForeground };
+    const c = tone(value);
+    return c ? { color: c } : undefined;
+  };
+
   return (
     <DashboardCard
       title={t`Execution score`}
@@ -631,7 +641,7 @@ function ExecutionScoreCard() {
           <View className="items-center gap-0.5">
             <Text
               className="text-[40px] font-semibold tabular-nums tracking-tighter text-foreground"
-              style={{ color: tone(report.composite) }}
+              style={toneStyle(report.composite)}
             >
               {Math.round(report.composite)}
             </Text>
@@ -689,13 +699,7 @@ function ExecutionScoreCard() {
                     </Text>
                     <Text
                       className="text-[11px] font-semibold tabular-nums text-foreground"
-                      style={
-                        value == null
-                          ? { color: mutedForeground }
-                          : tone(value) != null
-                            ? { color: tone(value) }
-                            : undefined
-                      }
+                      style={toneStyle(value)}
                     >
                       {value == null ? t`n/a` : String(Math.round(value))}
                     </Text>
