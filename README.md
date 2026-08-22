@@ -56,13 +56,13 @@
 <p align="center"><strong>Light theme</strong><br/><sub>Dark by default; both themes ship from the same token set.</sub></p>
 </td>
 <td width="26%" valign="top">
-<img src="docs/screenshots/mobile-home.png" alt="The native mobile app's home screen — equity curve, daily checklist, and performance stats" />
+<img src="docs/screenshots/mobile-home.png" alt="The native mobile app's home screen — equity curve, net P&L, and win/loss stats" />
 <p align="center"><strong>Mobile app</strong> <em>(beta)</em><br/><sub>Native iOS & Android companion — same journal, same server.</sub></p>
 </td>
 </tr>
 </table>
 
-<p align="center"><sub><em>Screenshots show a generated demo dataset, not real trading results. Reproduce it with <code>scripts/seed-demo.py</code>.</em></sub></p>
+<p align="center"><sub><em>Screenshots show a generated demo dataset, not real trading results. Reproduce it by importing <code>docs/demo/tradermemos-demo-trades.json</code>.</em></sub></p>
 
 ---
 
@@ -70,7 +70,7 @@
 
 Try TraderMemos without installing anything: **[tradermemos.netlify.app](https://tradermemos.netlify.app)**
 
-Sign in with `tradermemosdemo` / `demopassword`. The demo account carries the same seeded dataset as the screenshots — treat it as a shared sandbox, and don't store anything real in it.
+Sign in with `tradermemosdemo` / `demopassword`. The demo account carries a seeded dataset — treat it as a shared sandbox, and don't store anything real in it.
 
 If TraderMemos is part of your daily review, consider [sponsoring its development](https://github.com/sponsors/sinhong2011) — it keeps the project free and self-hosted for everyone.
 
@@ -191,13 +191,21 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for targets, Vite+ commands, and project 
 
 ### Demo data
 
-Fill any instance with ~200 generated trades over the last three months — the dataset in the screenshots above:
+Fill any instance with ~200 generated trades over the last three months:
 
 ```bash
 make demo-seed API=http://localhost:3000/api/v1 EMAIL=you@example.com PASSWORD='…'
 ```
 
 It talks to the public API only, so it works against a local stack or a deployed demo. Re-running is a no-op — fills are deduplicated server-side.
+
+For the exact book in the screenshots above — 172 trades across 13 months, with
+notes, setups and mistake tags — import [`docs/demo/tradermemos-demo-trades.json`](docs/demo/)
+instead, either from **Import** in the web app or with the CLI:
+
+```bash
+tradermemos import --account <account-id> --file docs/demo/tradermemos-demo-trades.json
+```
 
 ## Docs
 

@@ -55,6 +55,9 @@ web/.playwright-mcp/
 !mobile/assets/expo.icon/Assets/*.png
 !web/src/assets/*.png
 !docs/screenshots/*.png
+# store listing art: raw device captures and the composed artboards we upload
+!scripts/appstore/captures/*/*.png
+!scripts/appstore/out/*/*.png
 # ...except the Expo starter-template art the exemption above lets back in
 mobile/assets/images/expo-badge.png
 mobile/assets/images/expo-badge-white.png
