@@ -5,6 +5,19 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.13.0](https://github.com/sinhong2011/TraderMemos/compare/v0.12.1...v0.13.0) (2026-08-23)
+
+
+### Features
+
+* **appstore:** rebuild the store listing art and refresh the README shots ([#270](https://github.com/sinhong2011/TraderMemos/issues/270)) ([2acc9e8](https://github.com/sinhong2011/TraderMemos/commit/2acc9e8d285a5d431ea7b3101b0f06a0ca84cfd5))
+* **mobile:** draw every action sheet as grouped cards ([#273](https://github.com/sinhong2011/TraderMemos/issues/273)) ([81c7d82](https://github.com/sinhong2011/TraderMemos/commit/81c7d82639f64e561372bd75422f8c432ade4659))
+
+
+### Bug Fixes
+
+* **mobile:** keep a mid-range execution score legible ([#269](https://github.com/sinhong2011/TraderMemos/issues/269)) ([2a2ac97](https://github.com/sinhong2011/TraderMemos/commit/2a2ac977c650346855fcb73d0775c0d36dd22828))
+
 ## [0.12.1](https://github.com/sinhong2011/TraderMemos/compare/v0.12.0...v0.12.1) (2026-08-21)
 
 
