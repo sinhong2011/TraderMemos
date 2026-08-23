@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"path/filepath"
 	"testing"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/store"
@@ -19,7 +19,7 @@ func TestSeedDefaultSetups(t *testing.T) {
 	q := store.New(conn)
 	ctx := context.Background()
 
-	userID := uuid.NewString()
+	userID := uuid.New().String()
 	_, err = q.CreateUser(ctx, store.CreateUserParams{
 		ID: userID, Email: "seed@x.com", PasswordHash: "x",
 	})
@@ -37,13 +37,13 @@ func TestSeedDefaultSetups(t *testing.T) {
 	require.Len(t, setups, len(store.DefaultSetupNames))
 
 	// Skips a pre-existing name (case-insensitive).
-	otherID := uuid.NewString()
+	otherID := uuid.New().String()
 	_, err = q.CreateUser(ctx, store.CreateUserParams{
 		ID: otherID, Email: "partial@x.com", PasswordHash: "x",
 	})
 	require.NoError(t, err)
 	_, err = q.CreateSetup(ctx, store.CreateSetupParams{
-		ID: uuid.NewString(), UserID: otherID, Name: "Pullback",
+		ID: uuid.New().String(), UserID: otherID, Name: "Pullback",
 		Description: "", Thesis: "", Symbol: "", Direction: "",
 		TargetPrice: sql.NullFloat64{}, StopPrice: sql.NullFloat64{}, Checklist: "[]",
 	})

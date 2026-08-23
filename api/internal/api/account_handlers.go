@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -52,7 +52,7 @@ func (s *Server) handleCreateAccount(c *echo.Context) error {
 		in.BaseCurrency = "USD"
 	}
 	acc, err := s.deps.Store.CreateAccount(ctx, store.CreateAccountParams{
-		ID: uuid.NewString(), UserID: uid, Name: in.Name, Broker: in.Broker,
+		ID: uuid.New().String(), UserID: uid, Name: in.Name, Broker: in.Broker,
 		AccountType: in.AccountType, BaseCurrency: in.BaseCurrency, StartingBalance: in.StartingBalance,
 	})
 	if err != nil {
@@ -88,7 +88,7 @@ func (s *Server) ensureOpeningDeposit(ctx context.Context, q store.Querier, user
 		occurred = time.Now().UTC()
 	}
 	_, err = q.InsertCashTransaction(ctx, store.InsertCashTransactionParams{
-		ID: uuid.NewString(), UserID: userID, AccountID: acc.ID,
+		ID: uuid.New().String(), UserID: userID, AccountID: acc.ID,
 		Type: "deposit", Amount: acc.StartingBalance, Currency: currency,
 		OccurredAt: occurred, Note: "Opening balance",
 	})

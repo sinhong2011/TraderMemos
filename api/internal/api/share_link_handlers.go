@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
 	"github.com/tradermemos/api/internal/auth"
@@ -160,7 +160,7 @@ func (s *Server) handleCreateShareLink(c *echo.Context) error {
 	}
 
 	row, err := s.deps.Store.CreateShareLink(c.Request().Context(), store.CreateShareLinkParams{
-		ID:        uuid.NewString(),
+		ID:        uuid.New().String(),
 		UserID:    auth.UserID(c),
 		Token:     token,
 		ScopeJson: string(scopeJSON),

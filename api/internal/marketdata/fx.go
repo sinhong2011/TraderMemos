@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -193,9 +194,9 @@ func yahooFxPair(ctx context.Context, p *YahooProvider, pair string) (float64, t
 	closes := result.Indicators.Quote[0].Close
 	var rate float64
 	var ts int64
-	for i := len(closes) - 1; i >= 0; i-- {
-		if closes[i] != nil && *closes[i] > 0 {
-			rate = *closes[i]
+	for i, c := range slices.Backward(closes) {
+		if c != nil && *c > 0 {
+			rate = *c
 			if i < len(result.Timestamp) {
 				ts = result.Timestamp[i]
 			}

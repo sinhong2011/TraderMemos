@@ -15,7 +15,7 @@ func InferOptionRight(symbol string) string {
 	if s == "" {
 		return ""
 	}
-	for _, part := range strings.Fields(s) {
+	for part := range strings.FieldsSeq(s) {
 		switch strings.ToLower(strings.TrimSpace(part)) {
 		case "call":
 			return "call"

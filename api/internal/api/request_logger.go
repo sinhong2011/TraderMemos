@@ -86,13 +86,11 @@ func errAttrs(err error) []any {
 	// A recovered panic arrives with the trace attached. Keep it as its own
 	// attribute — PanicStackError.Error() inlines the whole stack into the
 	// message, which is unreadable in a log line.
-	var panicErr *middleware.PanicStackError
-	if errors.As(err, &panicErr) {
+	if panicErr, ok := errors.AsType[*middleware.PanicStackError](err); ok {
 		return []any{"err", panicErr.Err.Error(), "stack", string(panicErr.Stack)}
 	}
 
-	var apiErr *Error
-	if errors.As(err, &apiErr) {
+	if apiErr, ok := errors.AsType[*Error](err); ok {
 		attrs := []any{"err_code", apiErr.Payload.Code, "err", apiErr.Payload.Message}
 		if apiErr.Payload.Details != nil {
 			attrs = append(attrs, "err_details", apiErr.Payload.Details)
@@ -103,8 +101,7 @@ func errAttrs(err error) []any {
 		return attrs
 	}
 
-	var he *echo.HTTPError
-	if errors.As(err, &he) {
+	if he, ok := errors.AsType[*echo.HTTPError](err); ok {
 		attrs := []any{"err", he.Message}
 		if cause := he.Unwrap(); cause != nil {
 			attrs = append(attrs, "err_internal", cause.Error())

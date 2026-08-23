@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -91,7 +91,7 @@ func (s *Server) handleSetupComplete(c *echo.Context) error {
 			cur = "USD"
 		}
 		acc, aerr := s.deps.Store.CreateAccount(c.Request().Context(), store.CreateAccountParams{
-			ID:              uuid.NewString(),
+			ID:              uuid.New().String(),
 			UserID:          u.ID,
 			Name:            in.Account.Name,
 			Broker:          in.Account.Broker,

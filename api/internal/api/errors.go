@@ -62,14 +62,12 @@ func errorHandler(c *echo.Context, err error) {
 		return
 	}
 
-	var apiErr *Error
-	if errors.As(err, &apiErr) {
+	if apiErr, ok := errors.AsType[*Error](err); ok {
 		_ = c.JSON(apiErr.Status, errEnvelope{apiErr.Payload})
 		return
 	}
 
-	var he *echo.HTTPError
-	if errors.As(err, &he) {
+	if he, ok := errors.AsType[*echo.HTTPError](err); ok {
 		_ = c.JSON(he.Code, errEnvelope{APIError{Code: "error", Message: he.Message}})
 		return
 	}

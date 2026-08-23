@@ -9,10 +9,10 @@ import (
 func mcSample() []float64 {
 	// 5 losing, 15 winning trades with a positive edge.
 	pnls := make([]float64, 0, 20)
-	for i := 0; i < 15; i++ {
+	for range 15 {
 		pnls = append(pnls, 100)
 	}
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		pnls = append(pnls, -150)
 	}
 	return pnls

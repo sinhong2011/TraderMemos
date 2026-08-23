@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/importer"
@@ -21,24 +21,24 @@ func TestCommitSkipsJournalExitWhenEntryAlreadyExists(t *testing.T) {
 	q := store.New(conn)
 	ctx := context.Background()
 
-	u, err := q.CreateUser(ctx, store.CreateUserParams{ID: uuid.NewString(), Email: "j@x.com", PasswordHash: "x"})
+	u, err := q.CreateUser(ctx, store.CreateUserParams{ID: uuid.New().String(), Email: "j@x.com", PasswordHash: "x"})
 	require.NoError(t, err)
 	acc, err := q.CreateAccount(ctx, store.CreateAccountParams{
-		ID: uuid.NewString(), UserID: u.ID, Name: "M", BaseCurrency: "USD",
+		ID: uuid.New().String(), UserID: u.ID, Name: "M", BaseCurrency: "USD",
 	})
 	require.NoError(t, err)
 
 	// Existing fill-level round trip (partial exits) — entry matches journal buy.
 	openAt, _ := time.Parse(time.RFC3339, "2026-07-21T13:49:30Z")
 	_, err = q.InsertExecution(ctx, store.InsertExecutionParams{
-		ID: uuid.NewString(), UserID: u.ID, AccountID: acc.ID, Symbol: "AMD",
+		ID: uuid.New().String(), UserID: u.ID, AccountID: acc.ID, Symbol: "AMD",
 		InstrumentType: "option", Side: "buy", Quantity: 2, Price: 5.97,
 		ExecutedAt: openAt, Multiplier: 100, DedupHash: importer.DedupHash("AMD", "buy", 2, 5.97, openAt),
 		Details: sql.NullString{String: `{"lot":"existing","option_right":"call"}`, Valid: true},
 	})
 	require.NoError(t, err)
 
-	lot := uuid.NewString()
+	lot := uuid.New().String()
 	closeAt, _ := time.Parse(time.RFC3339, "2026-07-21T13:56:20Z")
 	parsed := importer.ParseResult{
 		Format: "journal_trades",

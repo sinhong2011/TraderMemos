@@ -7,6 +7,7 @@ package alerts
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"time"
 
@@ -112,8 +113,8 @@ func Evaluate(cfg Config, trades []Trade, now time.Time, loc *time.Location) []E
 
 	if cfg.LossStreakEnabled && cfg.LossStreakN > 0 && len(sorted) > 0 {
 		streak := 0
-		for i := len(sorted) - 1; i >= 0; i-- {
-			if sorted[i].NetPnl >= 0 {
+		for _, s := range slices.Backward(sorted) {
+			if s.NetPnl >= 0 {
 				break
 			}
 			streak++

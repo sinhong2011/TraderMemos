@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -178,7 +178,7 @@ func (s *Server) handleCreateAlertChannel(c *echo.Context) error {
 		return Fail(http.StatusBadRequest, "bad_request", "target must be an http(s) URL", nil)
 	}
 	ch, err := s.deps.Store.UpsertAlertChannel(c.Request().Context(), store.UpsertAlertChannelParams{
-		ID: uuid.NewString(), UserID: uid, Kind: "webhook", Target: u.String(), Label: in.Label,
+		ID: uuid.New().String(), UserID: uid, Kind: "webhook", Target: u.String(), Label: in.Label,
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not save alert channel", nil)
@@ -291,7 +291,7 @@ func (s *Server) handleRegisterPushToken(c *echo.Context) error {
 		return Fail(http.StatusBadRequest, "bad_request", "token must be an Expo push token", nil)
 	}
 	ch, err := s.deps.Store.UpsertAlertChannel(c.Request().Context(), store.UpsertAlertChannelParams{
-		ID: uuid.NewString(), UserID: uid, Kind: "expo", Target: in.Token, Label: in.Label,
+		ID: uuid.New().String(), UserID: uid, Kind: "expo", Target: in.Token, Label: in.Label,
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not register push token", nil)

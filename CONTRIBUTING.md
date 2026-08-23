@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-- **Go** 1.26+ (via [mise](https://mise.jdx.dev/) — see `mise.toml`)
+- **Go** 1.27+ (via [mise](https://mise.jdx.dev/) — see `mise.toml`)
 - **Node** 24 LTS (via Vite+ `web/.node-version` or mise) + **pnpm** 11 + **Vite+** (`vp` CLI)
 - **sqlc** (optional; for regenerating store code)
 

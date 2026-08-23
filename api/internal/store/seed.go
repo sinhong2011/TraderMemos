@@ -2,8 +2,7 @@ package store
 
 import (
 	"context"
-
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type specSeed struct {
@@ -45,7 +44,7 @@ var futuresSeed = []specSeed{
 func SeedInstrumentSpecs(ctx context.Context, q Querier) error {
 	for _, s := range futuresSeed {
 		err := q.UpsertInstrumentSpec(ctx, UpsertInstrumentSpecParams{
-			ID: uuid.NewString(), SymbolRoot: s.root, InstrumentType: s.itype,
+			ID: uuid.New().String(), SymbolRoot: s.root, InstrumentType: s.itype,
 			TickSize: s.tickSize, TickValue: s.tickVal, Multiplier: s.mult, Currency: "USD",
 		})
 		if err != nil {

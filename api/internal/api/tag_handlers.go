@@ -2,8 +2,8 @@ package api
 
 import (
 	"net/http"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -39,7 +39,7 @@ func (s *Server) handleCreateTag(c *echo.Context) error {
 		in.Color = "#CBD5E1"
 	}
 	tag, err := s.deps.Store.CreateTag(c.Request().Context(), store.CreateTagParams{
-		ID: uuid.NewString(), UserID: auth.UserID(c), Name: in.Name,
+		ID: uuid.New().String(), UserID: auth.UserID(c), Name: in.Name,
 		Color: in.Color, Description: in.Description, Kind: normalizeTagKind(in.Kind),
 	})
 	if err != nil {

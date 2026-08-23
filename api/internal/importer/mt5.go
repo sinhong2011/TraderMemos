@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -135,12 +136,7 @@ func mtFromGrid(grid [][]string) (*MTStatement, bool) {
 			norm[j] = strings.ToLower(strings.Join(strings.Fields(c), " "))
 		}
 		has := func(name string) bool {
-			for _, c := range norm {
-				if c == name {
-					return true
-				}
-			}
-			return false
+			return slices.Contains(norm, name)
 		}
 		switch {
 		// MT5 Deals header: "Deal" only appears in the deals section

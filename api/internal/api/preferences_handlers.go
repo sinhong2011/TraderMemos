@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"maps"
 	"net/http"
 	"time"
 
@@ -84,9 +85,7 @@ func (s *Server) handlePatchPreferences(c *echo.Context) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range patch {
-		prefs[k] = v
-	}
+	maps.Copy(prefs, patch)
 	if len(prefs) > maxPrefsKeys {
 		return Fail(http.StatusRequestEntityTooLarge, "too_large", "too many preferences", nil)
 	}

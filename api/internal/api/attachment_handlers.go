@@ -8,8 +8,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -118,7 +118,7 @@ func (s *Server) handleUploadAttachment(c *echo.Context) error {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
 
-	id := uuid.NewString()
+	id := uuid.New().String()
 	key := uid + "/" + id
 	if err := s.deps.Storage.Put(key, body); err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not store attachment", nil)
@@ -223,7 +223,7 @@ func (s *Server) handleUploadMedia(c *echo.Context) error {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
 
-	id := uuid.NewString()
+	id := uuid.New().String()
 	key := uid + "/media/" + id
 	if err := s.deps.Storage.Put(key, body); err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not store media", nil)

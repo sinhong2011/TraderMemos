@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -86,7 +86,7 @@ func (s *Server) handleCreateCash(c *echo.Context) error {
 		in.Currency = "USD"
 	}
 	tx, err := s.deps.Store.InsertCashTransaction(c.Request().Context(), store.InsertCashTransactionParams{
-		ID: uuid.NewString(), UserID: uid, AccountID: in.AccountID,
+		ID: uuid.New().String(), UserID: uid, AccountID: in.AccountID,
 		Type: in.Type, Amount: in.Amount, Currency: in.Currency,
 		OccurredAt: in.OccurredAt, Note: in.Note, TradeID: tradeID,
 	})

@@ -8,8 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/google/uuid"
+	"uuid"
 )
 
 // JSONImport bundles a parsed JSON upload for preview/commit.
@@ -317,7 +316,7 @@ func buildJSONTradesImport(trades []jsonTrade) (JSONImport, error) {
 		if len(exs) == 0 {
 			continue
 		}
-		lot := uuid.NewString()
+		lot := uuid.New().String()
 		for j := range exs {
 			exs[j].LotKey = lot
 		}

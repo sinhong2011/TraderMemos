@@ -167,10 +167,7 @@ func (s *Server) Start(addr string) error {
 
 // bodyLimit returns the larger of the configured upload caps (0 = no limit).
 func bodyLimit(deps Deps) int64 {
-	lim := deps.AttachMaxBytes
-	if deps.ImportMaxBytes > lim {
-		lim = deps.ImportMaxBytes
-	}
+	lim := max(deps.ImportMaxBytes, deps.AttachMaxBytes)
 	if deps.OCRMaxBytes > lim {
 		lim = deps.OCRMaxBytes
 	}
@@ -185,10 +182,7 @@ func (s *Server) routes() {
 
 	limited := v1.Group("")
 	if lim := s.deps.AuthRateLimit; lim > 0 {
-		burst := int(lim) * 3
-		if burst < 5 {
-			burst = 5
-		}
+		burst := max(int(lim)*3, 5)
 		rlStore := middleware.NewRateLimiterMemoryStoreWithConfig(middleware.RateLimiterMemoryStoreConfig{
 			Rate:      lim,
 			Burst:     burst,
@@ -204,10 +198,7 @@ func (s *Server) routes() {
 	// brute force should be as hard as password guessing).
 	public := v1.Group("/public")
 	if lim := s.deps.AuthRateLimit; lim > 0 {
-		burst := int(lim) * 3
-		if burst < 5 {
-			burst = 5
-		}
+		burst := max(int(lim)*3, 5)
 		publicStore := middleware.NewRateLimiterMemoryStoreWithConfig(middleware.RateLimiterMemoryStoreConfig{
 			Rate:      lim,
 			Burst:     burst,

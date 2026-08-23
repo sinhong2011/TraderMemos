@@ -243,10 +243,7 @@ func revenge(byOpen []BehaviorTrade, cfg BehaviorConfig, loc *time.Location) Rev
 // trailingMedianSize is the median size of up to BaselineTrades trades opened
 // before index i, or 0 when fewer than MinBaseline exist.
 func trailingMedianSize(byOpen []BehaviorTrade, i int, cfg BehaviorConfig) float64 {
-	lo := i - cfg.BaselineTrades
-	if lo < 0 {
-		lo = 0
-	}
+	lo := max(i-cfg.BaselineTrades, 0)
 	if i-lo < cfg.MinBaseline {
 		return 0
 	}

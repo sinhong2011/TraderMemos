@@ -94,7 +94,7 @@ type Config struct {
 
 func Load() (Config, error) {
 	k := koanf.New(".")
-	_ = k.Load(confmap.Provider(map[string]interface{}{
+	_ = k.Load(confmap.Provider(map[string]any{
 		"http_port":                     "8080",
 		"database_url":                  "",
 		"db_path":                       "data/tradermemos.db",

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/importer"
@@ -57,7 +57,7 @@ func TestDeleteTradesNotInAccountConformance(t *testing.T) {
 
 		ids := make([]string, 4)
 		for i := range ids {
-			ids[i] = uuid.NewString()
+			ids[i] = uuid.New().String()
 			require.NoError(t, q.UpsertTrade(ctx, tradeParams(ids[i], userID, accountID, "KEEP", float64(i))))
 		}
 
@@ -175,13 +175,13 @@ func exportFixture(n int) string {
 func seedUserAccount(t *testing.T, q store.Querier) (userID, accountID string) {
 	t.Helper()
 	ctx := context.Background()
-	id := uuid.NewString()
+	id := uuid.New().String()
 	u, err := q.CreateUser(ctx, store.CreateUserParams{
 		ID: id, Email: id + "@conformance.test", PasswordHash: "x",
 	})
 	require.NoError(t, err)
 	acc, err := q.CreateAccount(ctx, store.CreateAccountParams{
-		ID: uuid.NewString(), UserID: u.ID, Name: "Conformance", Broker: "test",
+		ID: uuid.New().String(), UserID: u.ID, Name: "Conformance", Broker: "test",
 		AccountType: "cash", BaseCurrency: "USD", StartingBalance: 10000,
 	})
 	require.NoError(t, err)

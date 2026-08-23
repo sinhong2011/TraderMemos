@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 	"testing"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/store"
@@ -22,7 +22,7 @@ func TestPostgresQuerier_CreateUser(t *testing.T) {
 	require.NoError(t, db.Migrate(conn, db.DriverPostgres))
 
 	q := store.NewForDriver(conn, db.DriverPostgres)
-	id := uuid.NewString()
+	id := uuid.New().String()
 	u, err := q.CreateUser(context.Background(), store.CreateUserParams{
 		ID:           id,
 		Email:        id + "@pg.test",

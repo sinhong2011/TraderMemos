@@ -161,7 +161,7 @@ func TestExecScoreTempoOvertradedDay(t *testing.T) {
 		trades = append(trades, est(sym, sym, i+1, 10, 10, 50, nil, nil))
 	}
 	// Day 5 trades 5× the median of 1 → over 2× baseline, all five flagged.
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		trades = append(trades, est(string(rune('a'+i)), "TSLA", 5, 9+i, 10, 50, nil, nil))
 	}
 	rep := ExecScore(trades, ComplianceRules{}, cfg, time.UTC, "week")

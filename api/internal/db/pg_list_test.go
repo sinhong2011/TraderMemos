@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 	"testing"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/store"
@@ -26,7 +26,7 @@ func TestPostgresListQueries(t *testing.T) {
 	u, err := q.GetUserByEmail(context.Background(), "local@pg.test")
 	if err != nil {
 		u, err = q.CreateUser(context.Background(), store.CreateUserParams{
-			ID: uuid.NewString(), Email: "local@pg.test", PasswordHash: "x",
+			ID: uuid.New().String(), Email: "local@pg.test", PasswordHash: "x",
 		})
 	}
 	require.NoError(t, err)

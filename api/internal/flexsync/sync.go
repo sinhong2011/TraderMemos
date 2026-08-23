@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/tradermemos/api/internal/importer"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -48,7 +48,7 @@ func Sync(ctx context.Context, q store.Querier, client *Client, s store.FlexSync
 
 	mappingJSON, _ := json.Marshal(mapping)
 	batch, err := q.CreateImportBatch(ctx, store.CreateImportBatchParams{
-		ID: uuid.NewString(), UserID: s.UserID, AccountID: s.AccountID,
+		ID: uuid.New().String(), UserID: s.UserID, AccountID: s.AccountID,
 		Source: "ibkr-flex-sync",
 		Filename: sql.NullString{
 			String: fmt.Sprintf("flex-%s-%s.csv", s.QueryID, time.Now().UTC().Format("20060102-150405")),
