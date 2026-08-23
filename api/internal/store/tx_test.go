@@ -5,8 +5,8 @@ import (
 	"errors"
 	"path/filepath"
 	"testing"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/store"
@@ -24,7 +24,7 @@ func TestInTxCommitsOnSuccess(t *testing.T) {
 	q := newDriverStore(t)
 	ctx := context.Background()
 
-	uid := uuid.NewString()
+	uid := uuid.New().String()
 	err := store.InTx(ctx, q, func(tq store.Querier) error {
 		_, err := tq.CreateUser(ctx, store.CreateUserParams{ID: uid, Email: "a@b.com", PasswordHash: "x"})
 		return err
@@ -39,7 +39,7 @@ func TestInTxRollsBackOnError(t *testing.T) {
 	q := newDriverStore(t)
 	ctx := context.Background()
 
-	uid := uuid.NewString()
+	uid := uuid.New().String()
 	boom := errors.New("boom")
 	err := store.InTx(ctx, q, func(tq store.Querier) error {
 		if _, err := tq.CreateUser(ctx, store.CreateUserParams{ID: uid, Email: "a@b.com", PasswordHash: "x"}); err != nil {
@@ -58,7 +58,7 @@ func TestInTxFallsBackWithoutTxRunner(t *testing.T) {
 	defer done()
 	ctx := context.Background()
 
-	uid := uuid.NewString()
+	uid := uuid.New().String()
 	err := store.InTx(ctx, plain, func(tq store.Querier) error {
 		_, err := tq.CreateUser(ctx, store.CreateUserParams{ID: uid, Email: "a@b.com", PasswordHash: "x"})
 		return err

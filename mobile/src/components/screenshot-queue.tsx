@@ -1,12 +1,13 @@
 import * as DocumentPicker from 'expo-document-picker';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { Button, Menu } from 'panelui-native';
+import { Button } from 'panelui-native';
 import { Alert, Pressable, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
 import { Icon } from '@/components/icon';
+import { Menu } from '@/components/sheet-menu';
 import { getJournalPrefs } from '@/lib/journal-prefs';
 import type { QueuedScreenshot } from '@/lib/trade-form';
 
@@ -116,7 +117,7 @@ export function ScreenshotQueue({
           ))}
         </View>
       ) : null}
-      <Menu presentation="bottom-sheet">
+      <Menu>
         <Menu.Trigger>
           <Button
             variant="outline"
@@ -126,7 +127,7 @@ export function ScreenshotQueue({
             {t`Add screenshot`}
           </Button>
         </Menu.Trigger>
-        <Menu.Content width="full" className="shadow-none rounded-none">
+        <Menu.Content>
           <Menu.Item
             icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
             onSelect={() => void pickFromPhotos()}

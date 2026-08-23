@@ -1,12 +1,12 @@
 import { t } from '@lingui/core/macro';
 import { useRouter } from 'expo-router';
-import { Menu } from 'panelui-native';
 import { Pressable, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { useAccounts } from '@/api/hooks';
 import type { Account } from '@/api/types';
 import { Icon } from '@/components/icon';
+import { Menu } from '@/components/sheet-menu';
 import { setSelectedAccountId, useSelectedAccountId } from '@/lib/account-store';
 
 const CHART_TOKENS = [
@@ -103,7 +103,7 @@ export function AccountMenu() {
   const icon = scoped ? 'person.crop.circle.fill' : 'person.crop.circle';
 
   return (
-    <Menu presentation="bottom-sheet">
+    <Menu>
       <Menu.Trigger>
         <Pressable
           hitSlop={10}
@@ -114,12 +114,7 @@ export function AccountMenu() {
           <Icon name={icon} size={18} tintColor={foreground} />
         </Pressable>
       </Menu.Trigger>
-      {/* width="full": a sheet centres content-fit panels, which strands short
-          rows in a narrow card — rows span the sheet instead. */}
-      {/* shadow-none: the sheet is already the surface, but Menu.Content
-          always adds its popover panel chrome (shadow-lg halo + rounded
-          box) which reads as a second card floating inside the sheet. */}
-      <Menu.Content width="full" className="shadow-none rounded-none">
+      <Menu.Content>
         <Menu.Label>{t`Account`}</Menu.Label>
         <Menu.Item
           accessibilityState={{ selected: !scoped }}

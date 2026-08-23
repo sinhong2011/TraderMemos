@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/pquerna/otp/totp"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -105,7 +105,7 @@ func (s *Service) createUser(ctx context.Context, email, password string, isAdmi
 		admin = 1
 	}
 	u, err := s.q.CreateUser(ctx, store.CreateUserParams{
-		ID:           uuid.NewString(),
+		ID:           uuid.New().String(),
 		Email:        email,
 		PasswordHash: h,
 		IsAdmin:      admin,

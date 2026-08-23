@@ -20,7 +20,7 @@ func TestNoDuplicateTimeKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("child failed: %v\n%s", err, out)
 	}
-	line := strings.SplitN(string(out), "\n", 2)[0]
+	line, _, _ := strings.Cut(string(out), "\n")
 	if n := strings.Count(line, `"time":`); n != 1 {
 		t.Fatalf("want exactly one time key, got %d in %q", n, line)
 	}

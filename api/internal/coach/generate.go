@@ -352,8 +352,8 @@ func stripJSONFence(s string) string {
 		s = strings.TrimPrefix(s, "```json")
 		s = strings.TrimPrefix(s, "```JSON")
 		s = strings.TrimPrefix(s, "```")
-		if i := strings.LastIndex(s, "```"); i >= 0 {
-			s = s[:i]
+		if before, _, ok := strings.CutLast(s, "```"); ok {
+			s = before
 		}
 		s = strings.TrimSpace(s)
 	}

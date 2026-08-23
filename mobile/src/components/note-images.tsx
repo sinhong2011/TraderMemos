@@ -2,7 +2,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { File as FsFile } from 'expo-file-system';
 import { Image, type ImageSource } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { Button, Menu, Spinner } from 'panelui-native';
+import { Button, Spinner } from 'panelui-native';
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
@@ -12,6 +12,7 @@ import { useApiRaw, useApiRequest } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import type { MediaFile } from '@/api/types';
 import { t } from '@lingui/core/macro';
+import { Menu } from '@/components/sheet-menu';
 import { errorMessage } from '@/lib/errors';
 import { appendNoteImage, noteMediaIds, removeNoteImage } from '@/lib/note-media';
 
@@ -203,7 +204,7 @@ export function NoteImageButton({ images }: { images: NoteImagesController }) {
     );
   }
   return (
-    <Menu presentation="bottom-sheet">
+    <Menu>
       <Menu.Trigger>
         <Button
           variant="outline"
@@ -213,7 +214,7 @@ export function NoteImageButton({ images }: { images: NoteImagesController }) {
           {t`Chart`}
         </Button>
       </Menu.Trigger>
-      <Menu.Content width="full" className="shadow-none rounded-none">
+      <Menu.Content>
         <Menu.Item
           icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
           onSelect={() => void images.pickFromPhotos()}

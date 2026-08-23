@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -98,7 +98,7 @@ func (s *Server) handleCreateAccessToken(c *echo.Context) error {
 	}
 
 	row, err := s.deps.Store.CreateAccessToken(c.Request().Context(), store.CreateAccessTokenParams{
-		ID:          uuid.NewString(),
+		ID:          uuid.New().String(),
 		UserID:      auth.UserID(c),
 		Name:        name,
 		TokenPrefix: auth.DisplayPrefix(secret),

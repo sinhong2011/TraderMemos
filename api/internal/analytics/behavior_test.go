@@ -202,7 +202,7 @@ func TestLossAversionHoldAndGiveBacks(t *testing.T) {
 
 func TestLossAversionTopFiveTrimmed(t *testing.T) {
 	var trades []BehaviorTrade
-	for i := 0; i < 7; i++ {
+	for i := range 7 {
 		tr := bt(string(rune('a'+i)), "AAPL", 10, 10, -10, i*30, 60)
 		tr.Mfe = f(float64(10 * (i + 1)))
 		trades = append(trades, tr)

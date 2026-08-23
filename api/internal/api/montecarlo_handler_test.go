@@ -13,7 +13,7 @@ import (
 // seedRoundTrips posts n winning one-share round-trips a day apart.
 func seedRoundTrips(t *testing.T, s *api.Server, tok, acc string, n int) {
 	t.Helper()
-	for i := 0; i < n; i++ {
+	for i := range n {
 		day := fmt.Sprintf("2026-01-%02d", i+1)
 		buy := `{"account_id":"` + acc + `","symbol":"AAPL","instrument_type":"stock","side":"buy","quantity":1,"price":10,"executed_at":"` + day + `T10:00:00Z"}`
 		sell := `{"account_id":"` + acc + `","symbol":"AAPL","instrument_type":"stock","side":"sell","quantity":1,"price":12,"executed_at":"` + day + `T11:00:00Z"}`

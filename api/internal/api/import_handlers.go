@@ -8,13 +8,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"mime/multipart"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/importer"
@@ -186,9 +187,7 @@ func (s *Server) handleImportPreview(c *echo.Context) error {
 	default:
 		if name, presetMap, presetTZ, ok := importer.MatchBroker(loaded.Headers); ok {
 			// A recognized broker export beats header-substring guessing.
-			for field, header := range presetMap {
-				suggested[field] = header
-			}
+			maps.Copy(suggested, presetMap)
 			detectedBroker = name
 			suggestedTZ = presetTZ
 		}
@@ -295,7 +294,7 @@ func (s *Server) createAccountFromJSONMeta(ctx context.Context, userID string, m
 		startingBalance = *meta.StartingBalance
 	}
 	acc, err := s.deps.Store.CreateAccount(ctx, store.CreateAccountParams{
-		ID: uuid.NewString(), UserID: userID, Name: name, Broker: broker,
+		ID: uuid.New().String(), UserID: userID, Name: name, Broker: broker,
 		AccountType: accountType, BaseCurrency: baseCurrency, StartingBalance: startingBalance,
 	})
 	if err != nil {
@@ -363,7 +362,7 @@ func (s *Server) handleImportCommitFresh(c *echo.Context) error {
 		}
 	}
 	batch, err := s.deps.Store.CreateImportBatch(ctx, store.CreateImportBatchParams{
-		ID: uuid.NewString(), UserID: uid, AccountID: accountID, Source: loaded.Source,
+		ID: uuid.New().String(), UserID: uid, AccountID: accountID, Source: loaded.Source,
 		Filename: sql.NullString{String: fh.Filename, Valid: true},
 		RowCount: int64(rowCount), Status: "pending",
 	})
@@ -570,7 +569,7 @@ func (s *Server) applyJSONCashTransactions(
 			continue
 		}
 		if _, err := q.InsertCashTransaction(ctx, store.InsertCashTransactionParams{
-			ID: uuid.NewString(), UserID: userID, AccountID: accountID,
+			ID: uuid.New().String(), UserID: userID, AccountID: accountID,
 			Type: row.Type, Amount: row.Amount, Currency: row.Currency,
 			OccurredAt: row.OccurredAt, Note: row.Note, ImportBatchID: batchID,
 		}); err != nil {

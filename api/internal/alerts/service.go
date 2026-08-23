@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/tradermemos/api/internal/prop"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -173,7 +173,7 @@ func (s *Service) EvaluateUser(ctx context.Context, userID string) error {
 	var fresh []Event
 	for _, ev := range events {
 		n, ierr := s.q.InsertAlertEvent(ctx, store.InsertAlertEventParams{
-			ID: uuid.NewString(), UserID: userID,
+			ID: uuid.New().String(), UserID: userID,
 			Rule: ev.Rule, DedupeKey: ev.DedupeKey, Title: ev.Title, Body: ev.Body,
 		})
 		if ierr != nil {

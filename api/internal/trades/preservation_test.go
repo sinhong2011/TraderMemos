@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/store"
@@ -20,15 +20,15 @@ func TestRegroupPreservesJournalAndTags(t *testing.T) {
 	q := store.New(conn)
 	ctx := context.Background()
 
-	u, _ := q.CreateUser(ctx, store.CreateUserParams{ID: uuid.NewString(), Email: "a@b.com", PasswordHash: "x"})
-	acc, _ := q.CreateAccount(ctx, store.CreateAccountParams{ID: uuid.NewString(), UserID: u.ID, Name: "M", BaseCurrency: "USD"})
+	u, _ := q.CreateUser(ctx, store.CreateUserParams{ID: uuid.New().String(), Email: "a@b.com", PasswordHash: "x"})
+	acc, _ := q.CreateAccount(ctx, store.CreateAccountParams{ID: uuid.New().String(), UserID: u.ID, Name: "M", BaseCurrency: "USD"})
 
 	mk := func(side string, qty, price float64, ts string) {
 		tt, _ := time.Parse(time.RFC3339, ts)
 		_, err := q.InsertExecution(ctx, store.InsertExecutionParams{
-			ID: uuid.NewString(), UserID: u.ID, AccountID: acc.ID, Symbol: "AAPL",
+			ID: uuid.New().String(), UserID: u.ID, AccountID: acc.ID, Symbol: "AAPL",
 			InstrumentType: "stock", Side: side, Quantity: qty, Price: price,
-			ExecutedAt: tt, Multiplier: 1, DedupHash: uuid.NewString(),
+			ExecutedAt: tt, Multiplier: 1, DedupHash: uuid.New().String(),
 		})
 		require.NoError(t, err)
 	}

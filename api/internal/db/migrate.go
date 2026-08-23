@@ -59,10 +59,7 @@ func migrateSQLite(conn *sql.DB) error {
 	// This rewinds one version, so every up migration must be safe to re-run
 	// against a database that already has it (CREATE TABLE/INDEX IF NOT EXISTS).
 	if ver, dirty, vErr := drv.Version(); vErr == nil && dirty {
-		prev := ver - 1
-		if prev < 0 {
-			prev = 0
-		}
+		prev := max(ver-1, 0)
 		if err := drv.SetVersion(prev, false); err != nil {
 			return fmt.Errorf("dirty migration at version %d: could not reset: %w", ver, err)
 		}

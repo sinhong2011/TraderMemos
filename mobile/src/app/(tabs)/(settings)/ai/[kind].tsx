@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { cn, Frame, Menu, Text, Textarea } from 'panelui-native';
+import { cn, Frame, Text, Textarea } from 'panelui-native';
 import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -17,6 +17,7 @@ import { Icon } from '@/components/icon';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
 import { SettingsSection, SettingsToggle } from '@/components/settings-rows';
+import { Menu } from '@/components/sheet-menu';
 import { usePrompt } from '@/components/use-prompt';
 import { errorMessage } from '@/lib/errors';
 import { notify } from '@/lib/haptics';
@@ -287,7 +288,7 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
           {/* The model row is a pull-down rather than a picker: besides the
               models the endpoint listed, it carries the two actions that
               produce that list in the first place. */}
-          <Menu presentation="bottom-sheet">
+          <Menu>
             <Menu.Trigger>
               <Frame.Row accessibilityRole="button" accessibilityLabel={t`Model`}>
                 <Frame.Content>
@@ -301,7 +302,7 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
                 </Frame.Actions>
               </Frame.Row>
             </Menu.Trigger>
-            <Menu.Content width="full" className="shadow-none rounded-none">
+            <Menu.Content>
               {models.map((name) => (
                 <Menu.Item
                   key={name}

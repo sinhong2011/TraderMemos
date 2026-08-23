@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
 )
@@ -75,7 +75,7 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 		if pe.ExternalID != "" {
 			ext = sql.NullString{String: pe.ExternalID, Valid: true}
 		}
-		id := uuid.NewString()
+		id := uuid.New().String()
 		details := sql.NullString{}
 		if pe.LotKey != "" || pe.OptionRight != "" || pe.Strike != "" || pe.Expiry != "" {
 			payload := map[string]string{}
@@ -283,7 +283,7 @@ func prepareAnnotation(
 		tag, ok := cache.tags[strings.ToLower(name)]
 		if !ok {
 			created, err := q.CreateTag(ctx, store.CreateTagParams{
-				ID: uuid.NewString(), UserID: userID, Name: name,
+				ID: uuid.New().String(), UserID: userID, Name: name,
 				Color: "#CBD5E1", Description: "", Kind: kind,
 			})
 			if err != nil {
@@ -321,7 +321,7 @@ func prepareAnnotation(
 			occurred = tr.ClosedAt.Time
 		}
 		if _, err := q.InsertCashTransaction(ctx, store.InsertCashTransactionParams{
-			ID: uuid.NewString(), UserID: userID, AccountID: accountID,
+			ID: uuid.New().String(), UserID: userID, AccountID: accountID,
 			Type: "dividend", Amount: ann.Dividends, Currency: acc.BaseCurrency,
 			OccurredAt: occurred, Note: tr.Symbol + " dividend",
 			ImportBatchID: sql.NullString{}, TradeID: sql.NullString{String: tradeID, Valid: true},
@@ -337,7 +337,7 @@ func ensureSetup(ctx context.Context, q store.Querier, cache *annotationCache, u
 		return s.ID, nil
 	}
 	created, err := q.CreateSetup(ctx, store.CreateSetupParams{
-		ID: uuid.NewString(), UserID: userID, Name: name,
+		ID: uuid.New().String(), UserID: userID, Name: name,
 		Description: "", Thesis: "", Symbol: "", Direction: "",
 		TargetPrice: sql.NullFloat64{}, StopPrice: sql.NullFloat64{}, Checklist: "[]",
 	})
@@ -402,7 +402,7 @@ func UpsertSetups(ctx context.Context, q store.Querier, userID string, catalog [
 			continue
 		}
 		created, err := q.CreateSetup(ctx, store.CreateSetupParams{
-			ID: uuid.NewString(), UserID: userID, Name: name,
+			ID: uuid.New().String(), UserID: userID, Name: name,
 			Description: item.Description, Thesis: item.Thesis, Symbol: item.Symbol,
 			Direction: dir, TargetPrice: target, StopPrice: stop, Checklist: string(checklistJSON),
 		})

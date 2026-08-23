@@ -20,12 +20,12 @@ type Filters struct {
 	// repeated and/or comma-separated `account_id` query params.
 	AccountIDs []string
 	From       *time.Time
-	To        *time.Time
-	Symbol    string
-	Status    string // "" = all, "open" | "closed"
-	Side      string // "" = all, "long" | "short"
-	Duration  string // "" = all, "scalp" | "day" | "swing"
-	DateBasis string // "" = legacy defaults, "close" | "open"
+	To         *time.Time
+	Symbol     string
+	Status     string // "" = all, "open" | "closed"
+	Side       string // "" = all, "long" | "short"
+	Duration   string // "" = all, "scalp" | "day" | "swing"
+	DateBasis  string // "" = legacy defaults, "close" | "open"
 	// Loc is the trader's clock for day / hour-of-day / weekday bucketing
 	// (`tz` query param, IANA name). UTC when unset — the legacy behavior.
 	// Session bucketing stays on the exchange clock (US Eastern) regardless.
@@ -88,7 +88,7 @@ func parseFilters(c *echo.Context) (Filters, error) {
 func parseAccountIDs(c *echo.Context) []string {
 	var ids []string
 	for _, v := range c.Request().URL.Query()["account_id"] {
-		for _, part := range strings.Split(v, ",") {
+		for part := range strings.SplitSeq(v, ",") {
 			if p := strings.TrimSpace(part); p != "" {
 				ids = append(ids, p)
 			}
@@ -98,7 +98,7 @@ func parseAccountIDs(c *echo.Context) []string {
 }
 
 // accountArg maps the account filter to the interface{} narg the store expects.
-func accountArg(accountID string) interface{} {
+func accountArg(accountID string) any {
 	if accountID == "" {
 		return nil
 	}
@@ -108,7 +108,7 @@ func accountArg(accountID string) interface{} {
 // accountNarg pushes a single-account filter to SQL. Multi-account selections
 // fetch all of the user's rows and narrow via matchAccount instead, since the
 // generated queries only take a scalar account narg.
-func (f Filters) accountNarg() interface{} {
+func (f Filters) accountNarg() any {
 	if len(f.AccountIDs) == 1 {
 		return f.AccountIDs[0]
 	}
@@ -123,7 +123,7 @@ func (f Filters) matchAccount(accountID string) bool {
 	return slices.Contains(f.AccountIDs, accountID)
 }
 
-func statusArg(status string) interface{} {
+func statusArg(status string) any {
 	if status == "" {
 		return nil
 	}
@@ -137,7 +137,7 @@ func (f Filters) matchSymbol(symbol string) bool {
 	if f.Symbol == "" {
 		return true
 	}
-	for _, part := range strings.Split(f.Symbol, ",") {
+	for part := range strings.SplitSeq(f.Symbol, ",") {
 		if strings.TrimSpace(part) == symbol {
 			return true
 		}

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"testing"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -35,7 +35,7 @@ func runBulkConformance(t *testing.T, q store.Querier) {
 	base := time.Date(2026, 3, 2, 14, 30, 0, 0, time.UTC)
 	for i := range execs {
 		execs[i] = store.InsertExecutionParams{
-			ID: uuid.NewString(), UserID: userID, AccountID: accountID,
+			ID: uuid.New().String(), UserID: userID, AccountID: accountID,
 			ExternalID: sql.NullString{String: fmt.Sprintf("ext-%d", i), Valid: true},
 			Symbol:     "AAPL", InstrumentType: "stock", Side: "buy",
 			Quantity: 10, Price: 100 + float64(i), Fees: 0.5, Commission: 1,
@@ -133,11 +133,11 @@ func runBulkConformance(t *testing.T, q store.Querier) {
 	require.False(t, j.UpdatedAt.IsZero(), "updated_at literal must be filled in")
 
 	tagA, err := q.CreateTag(ctx, store.CreateTagParams{
-		ID: uuid.NewString(), UserID: userID, Name: "Breakout", Color: "#fff", Kind: "custom",
+		ID: uuid.New().String(), UserID: userID, Name: "Breakout", Color: "#fff", Kind: "custom",
 	})
 	require.NoError(t, err)
 	tagB, err := q.CreateTag(ctx, store.CreateTagParams{
-		ID: uuid.NewString(), UserID: userID, Name: "Chased", Color: "#fff", Kind: "mistake",
+		ID: uuid.New().String(), UserID: userID, Name: "Chased", Color: "#fff", Kind: "mistake",
 	})
 	require.NoError(t, err)
 	tagLinks := []store.SetTradeTagsParams{

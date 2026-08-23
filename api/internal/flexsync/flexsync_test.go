@@ -9,8 +9,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/flexsync"
@@ -93,10 +93,10 @@ func newSyncFixture(t *testing.T) (*store.Queries, store.FlexSyncSetting) {
 	q := store.New(conn)
 	ctx := context.Background()
 
-	u, err := q.CreateUser(ctx, store.CreateUserParams{ID: uuid.NewString(), Email: "f@x.com", PasswordHash: "x"})
+	u, err := q.CreateUser(ctx, store.CreateUserParams{ID: uuid.New().String(), Email: "f@x.com", PasswordHash: "x"})
 	require.NoError(t, err)
 	acc, err := q.CreateAccount(ctx, store.CreateAccountParams{
-		ID: uuid.NewString(), UserID: u.ID, Name: "IB",
+		ID: uuid.New().String(), UserID: u.ID, Name: "IB",
 		Broker: "ibkr", AccountType: "margin", BaseCurrency: "USD", StartingBalance: 10000,
 	})
 	require.NoError(t, err)

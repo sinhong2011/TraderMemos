@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/importer"
@@ -95,7 +95,7 @@ func (s *Server) handleCreateExecution(c *echo.Context) error {
 		return Fail(http.StatusInternalServerError, "internal", "could not check execution", nil)
 	}
 
-	execID := uuid.NewString()
+	execID := uuid.New().String()
 	details := sql.NullString{}
 	if len(in.Details) > 0 {
 		if b, err := json.Marshal(in.Details); err == nil {

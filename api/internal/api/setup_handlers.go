@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -105,7 +105,7 @@ func (s *Server) handleCreateSetup(c *echo.Context) error {
 		return Fail(http.StatusBadRequest, "bad_request", "name is required", nil)
 	}
 	setup, err := s.deps.Store.CreateSetup(c.Request().Context(), store.CreateSetupParams{
-		ID:          uuid.NewString(),
+		ID:          uuid.New().String(),
 		UserID:      auth.UserID(c),
 		Name:        strings.TrimSpace(in.Name),
 		Description: in.Description,

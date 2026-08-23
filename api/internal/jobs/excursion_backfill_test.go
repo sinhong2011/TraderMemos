@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/jobs"
@@ -57,10 +57,10 @@ func missingParams(limit int64) store.ListTradesMissingExcursionParams {
 func seedClosedTrade(t *testing.T, q *store.Queries, symbol string) (userID, tradeID string) {
 	t.Helper()
 	ctx := context.Background()
-	u, err := q.CreateUser(ctx, store.CreateUserParams{ID: uuid.NewString(), Email: uuid.NewString() + "@x.com", PasswordHash: "x"})
+	u, err := q.CreateUser(ctx, store.CreateUserParams{ID: uuid.New().String(), Email: uuid.New().String() + "@x.com", PasswordHash: "x"})
 	require.NoError(t, err)
 	acc, err := q.CreateAccount(ctx, store.CreateAccountParams{
-		ID: uuid.NewString(), UserID: u.ID, Name: "Main",
+		ID: uuid.New().String(), UserID: u.ID, Name: "Main",
 		Broker: "manual", AccountType: "margin", BaseCurrency: "USD", StartingBalance: 10000,
 	})
 	require.NoError(t, err)
@@ -75,10 +75,10 @@ func seedClosedTrade(t *testing.T, q *store.Queries, symbol string) (userID, tra
 		{"sell", 12, opened.Add(30 * time.Minute)},
 	} {
 		_, err := q.InsertExecution(ctx, store.InsertExecutionParams{
-			ID: uuid.NewString(), UserID: u.ID, AccountID: acc.ID,
+			ID: uuid.New().String(), UserID: u.ID, AccountID: acc.ID,
 			Symbol: symbol, InstrumentType: "stock", Side: leg.side,
 			Quantity: 100, Price: leg.price, ExecutedAt: leg.at, Multiplier: 1,
-			DedupHash: uuid.NewString() + string(rune('a'+i)),
+			DedupHash: uuid.New().String() + string(rune('a'+i)),
 		})
 		require.NoError(t, err)
 	}

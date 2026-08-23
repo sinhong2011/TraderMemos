@@ -1,10 +1,10 @@
 import { useRouter } from 'expo-router';
-import { Menu } from 'panelui-native';
 import { Pressable } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
 import { Icon } from '@/components/icon';
+import { Menu } from '@/components/sheet-menu';
 
 /**
  * Header-right "+" — a pull-down fanning out to the creation flows.
@@ -29,7 +29,7 @@ export function AddMenu() {
   ] as const;
 
   return (
-    <Menu presentation="bottom-sheet">
+    <Menu>
       <Menu.Trigger>
         <Pressable
           hitSlop={10}
@@ -40,7 +40,7 @@ export function AddMenu() {
           <Icon name="plus" size={18} tintColor={foreground} weight="semibold" />
         </Pressable>
       </Menu.Trigger>
-      <Menu.Content width="full" className="shadow-none rounded-none">
+      <Menu.Content>
         {actions.map((action) => (
           <Menu.Item
             key={action.href}

@@ -4,8 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"strings"
-
-	"github.com/google/uuid"
+	"uuid"
 )
 
 // DefaultSetupNames are playbook presets seeded for every user.
@@ -36,7 +35,7 @@ func SeedDefaultSetups(ctx context.Context, q Querier, userID string) error {
 			continue
 		}
 		_, err := q.CreateSetup(ctx, CreateSetupParams{
-			ID: uuid.NewString(), UserID: userID, Name: name,
+			ID: uuid.New().String(), UserID: userID, Name: name,
 			Description: "", Thesis: "", Symbol: "", Direction: "",
 			TargetPrice: sql.NullFloat64{}, StopPrice: sql.NullFloat64{}, Checklist: "[]",
 		})

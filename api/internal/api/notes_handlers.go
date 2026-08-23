@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -164,7 +164,7 @@ func (s *Server) handleCreateNote(c *echo.Context) error {
 	}
 	title := defaultNoteTitle(noteType, in.Title)
 	n, err := s.deps.Store.CreateJournalNote(c.Request().Context(), store.CreateJournalNoteParams{
-		ID: uuid.NewString(), UserID: auth.UserID(c),
+		ID: uuid.New().String(), UserID: auth.UserID(c),
 		OccurredAt: in.OccurredAt, Title: title,
 		Body: strings.TrimSpace(in.Body), Symbols: encodeNoteSymbols(symbols),
 		NoteType: noteType,
@@ -292,7 +292,7 @@ func itemsFromChecklistMarkdown(content string) []string {
 	if len(matches) == 0 {
 		// Fallback: one non-empty line per item when not written as tasks.
 		out := []string{}
-		for _, line := range strings.Split(content, "\n") {
+		for line := range strings.SplitSeq(content, "\n") {
 			line = strings.TrimSpace(line)
 			line = strings.TrimLeft(line, "#*-+ ")
 			if line == "" {

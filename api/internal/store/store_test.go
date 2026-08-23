@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/store"
@@ -25,12 +25,12 @@ func TestUserAccountRoundTrip(t *testing.T) {
 	ctx := context.Background()
 
 	u, err := q.CreateUser(ctx, store.CreateUserParams{
-		ID: uuid.NewString(), Email: "a@b.com", PasswordHash: "x",
+		ID: uuid.New().String(), Email: "a@b.com", PasswordHash: "x",
 	})
 	require.NoError(t, err)
 
 	acc, err := q.CreateAccount(ctx, store.CreateAccountParams{
-		ID: uuid.NewString(), UserID: u.ID, Name: "Main",
+		ID: uuid.New().String(), UserID: u.ID, Name: "Main",
 		Broker: "ibkr", AccountType: "margin", BaseCurrency: "USD", StartingBalance: 10000,
 	})
 	require.NoError(t, err)

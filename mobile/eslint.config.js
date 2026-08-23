@@ -35,6 +35,12 @@ module.exports = defineConfig([
               'Use useFormatters() — these read display prefs at call time and React Compiler caches their results past a privacy/timezone change (see src/lib/format.ts).',
           },
           {
+            name: 'panelui-native',
+            importNames: ['Menu'],
+            message:
+              "Use @/components/sheet-menu — every menu in the app is a sheet, and that wrapper is where its rows are drawn (see src/components/sheet-menu.tsx).",
+          },
+          {
             name: '@/lib/prefs',
             importNames: ['formatHourKeyLabel'],
             message:
@@ -43,5 +49,10 @@ module.exports = defineConfig([
         ],
       }],
     },
+  },
+  {
+    // The one file allowed to reach for PanelUI's Menu — it is the wrapper.
+    files: ['src/components/sheet-menu.tsx'],
+    rules: { 'no-restricted-imports': 'off' },
   },
 ]);

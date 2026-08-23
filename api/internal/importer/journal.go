@@ -6,8 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/google/uuid"
+	"uuid"
 )
 
 // Journal trade CSV (e.g. Stonk Journal export) columns we recognize.
@@ -71,7 +70,7 @@ func (j *Journal) ParseRowsWithOptions(rows []map[string]string, opts *JournalPa
 		if len(exs) == 0 {
 			continue
 		}
-		lot := uuid.NewString()
+		lot := uuid.New().String()
 		for i := range exs {
 			exs[i].LotKey = lot
 		}
@@ -312,7 +311,7 @@ func parseJournalTags(raw string) ([]TagRef, string) {
 	}
 	var tags []TagRef
 	emotion := ""
-	for _, part := range strings.Split(raw, ";") {
+	for part := range strings.SplitSeq(raw, ";") {
 		part = strings.TrimSpace(part)
 		if part == "" {
 			continue

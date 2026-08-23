@@ -1,10 +1,11 @@
 import { t } from '@lingui/core/macro';
-import { Menu, Text } from 'panelui-native';
+import { Text } from 'panelui-native';
 import { Pressable, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import type { Account } from '@/api/types';
 import { Icon } from '@/components/icon';
+import { Menu } from '@/components/sheet-menu';
 
 /**
  * The trade form's account scope as a single control: one capsule carrying the
@@ -47,7 +48,7 @@ export function AccountPill({
   }
 
   return (
-    <Menu presentation="bottom-sheet">
+    <Menu>
       <Menu.Trigger>
         <Pressable
           accessibilityRole="button"
@@ -66,7 +67,7 @@ export function AccountPill({
           </View>
         </Pressable>
       </Menu.Trigger>
-      <Menu.Content width="full" className="shadow-none rounded-none">
+      <Menu.Content>
         <Menu.RadioGroup value={value} onValueChange={onChange}>
           {accounts.map((account) => (
             <Menu.RadioItem key={account.id} value={account.id}>

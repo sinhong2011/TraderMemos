@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -106,7 +106,7 @@ func recordUse(ctx context.Context, tokens TokenStore, tokenID, ip, agent string
 		return
 	}
 	if err := rec.RecordAccessTokenUse(ctx, store.RecordAccessTokenUseParams{
-		ID:        uuid.NewString(),
+		ID:        uuid.New().String(),
 		TokenID:   tokenID,
 		Ip:        ip,
 		UserAgent: agent,

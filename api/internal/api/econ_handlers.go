@@ -97,7 +97,7 @@ func csvSet(raw string) map[string]bool {
 		return nil
 	}
 	set := make(map[string]bool)
-	for _, p := range strings.Split(raw, ",") {
+	for p := range strings.SplitSeq(raw, ",") {
 		p = strings.ToLower(strings.TrimSpace(p))
 		if p != "" {
 			set[p] = true

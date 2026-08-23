@@ -7,8 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type Generic struct {
@@ -72,7 +71,7 @@ func (g *Generic) ParseRows(rows []map[string]string) ParseResult {
 			}
 			// One lot per row: overlapping same-symbol positions (FX hedging)
 			// stay separate trades through Regroup, like journal imports.
-			lot := uuid.NewString()
+			lot := uuid.New().String()
 			for j := range exs {
 				exs[j].LotKey = lot
 			}
@@ -200,8 +199,8 @@ func rowHasSkipStatus(row map[string]string) bool {
 // constant (broker presets use this, e.g. instrument_type -> "=future").
 func (g *Generic) col(row map[string]string, field string) string {
 	h := g.mapping[field]
-	if strings.HasPrefix(h, "=") {
-		return strings.TrimPrefix(h, "=")
+	if after, ok := strings.CutPrefix(h, "="); ok {
+		return after
 	}
 	return strings.TrimSpace(row[h])
 }
