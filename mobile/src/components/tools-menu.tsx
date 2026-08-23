@@ -1,12 +1,12 @@
 import { useRouter, type Href } from 'expo-router';
 import { type SFSymbol } from 'expo-symbols';
-import { Menu } from 'panelui-native';
 import { Fragment } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
 import { Icon } from '@/components/icon';
+import { Menu } from '@/components/sheet-menu';
 import { useTradingSession } from '@/lib/live-activity';
 
 /**
@@ -78,7 +78,7 @@ export function ToolsMenu() {
   );
 
   return (
-    <Menu presentation="bottom-sheet">
+    <Menu>
       <Menu.Trigger>
         <Pressable
           hitSlop={10}
@@ -89,10 +89,7 @@ export function ToolsMenu() {
           <Icon name="wrench.and.screwdriver" size={17} tintColor={foreground} />
         </Pressable>
       </Menu.Trigger>
-      {/* shadow-none: the sheet is already the surface, but Menu.Content
-          always adds its popover panel chrome (shadow-lg halo + rounded
-          box) which reads as a second card floating inside the sheet. */}
-      <Menu.Content width="full" className="shadow-none rounded-none pb-0">
+      <Menu.Content className="pb-0">
         {tradingSession.supported ? (
           <Fragment>
             <Menu.Label>{t`Session`}</Menu.Label>

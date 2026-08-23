@@ -4,7 +4,7 @@ import { type SFSymbol } from 'expo-symbols';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import * as Sharing from 'expo-sharing';
-import { cn, LineChart, Menu, Spinner } from 'panelui-native';
+import { cn, LineChart, Spinner } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, Text, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,6 +20,7 @@ import { GlassButton } from '@/components/glass-button';
 import { NumericField } from '@/components/numeric-field';
 import { ReplayControls } from '@/components/replay-controls';
 import { Segmented } from '@/components/segmented';
+import { Menu } from '@/components/sheet-menu';
 import { Skeleton } from '@/components/skeleton';
 import { ValueToggle } from '@/components/value-toggle';
 import { t } from '@lingui/core/macro';
@@ -442,7 +443,7 @@ function Stage({
                   value={bars.interval}
                   onChange={bars.pickInterval}
                 />
-                <Menu presentation="bottom-sheet">
+                <Menu>
                   <Menu.Trigger>
                     <Pressable
                       hitSlop={10}
@@ -453,7 +454,7 @@ function Stage({
                       <Icon name="ellipsis.circle" size={17} tintColor={foreground} />
                     </Pressable>
                   </Menu.Trigger>
-                  <Menu.Content width="full" className="shadow-none rounded-none">
+                  <Menu.Content>
                     <Menu.Item
                       icon={<Icon name="note.text.badge.plus" size={16} tintColor={foreground} />}
                       onSelect={() => void saveFrameToNote()}
@@ -959,7 +960,7 @@ function BacktestStage({
             ) : // Nothing traded yet, nothing to save or throw away — an empty
             // pull-down would be a dead affordance in the nav bar.
             sessionActions.length === 0 ? null : (
-              <Menu presentation="bottom-sheet">
+              <Menu>
                 <Menu.Trigger>
                   <Pressable
                     hitSlop={10}
@@ -970,7 +971,7 @@ function BacktestStage({
                     <Icon name="ellipsis.circle" size={17} tintColor={foreground} />
                   </Pressable>
                 </Menu.Trigger>
-                <Menu.Content width="full" className="shadow-none rounded-none">
+                <Menu.Content>
                   {sessionActions.map((action) => (
                     <Menu.Item
                       key={action.label}

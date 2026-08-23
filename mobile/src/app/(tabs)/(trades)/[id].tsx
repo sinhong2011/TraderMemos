@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { cn, Menu, Skeleton } from 'panelui-native';
+import { cn, Skeleton } from 'panelui-native';
 import { useState, type ReactNode } from 'react';
 import {
   Alert,
@@ -24,6 +24,7 @@ import { DashboardCard } from '@/components/dashboard-card';
 import { ErrorState } from '@/components/error-state';
 import { GlassButton } from '@/components/glass-button';
 import { Pill } from '@/components/pill';
+import { Menu } from '@/components/sheet-menu';
 import { TradeChart } from '@/components/trade-chart';
 import { t } from '@lingui/core/macro';
 import { errorMessage, isUnreachable } from '@/lib/errors';
@@ -614,7 +615,7 @@ function TradeDetailBody({
           // PanelUI `Menu`, so the same rows draw on both platforms — Android
           // has no pull-down view manager to fall back to.
           headerRight: () => (
-            <Menu presentation="bottom-sheet">
+            <Menu>
               <Menu.Trigger>
                 <Pressable
                   hitSlop={10}
@@ -625,7 +626,7 @@ function TradeDetailBody({
                   <Icon name="ellipsis.circle" size={17} tintColor={foreground} />
                 </Pressable>
               </Menu.Trigger>
-              <Menu.Content width="full" className="shadow-none rounded-none">
+              <Menu.Content>
                 <Menu.Item
                   icon={<Icon name="pencil" size={16} tintColor={popoverForeground} />}
                   onSelect={() =>

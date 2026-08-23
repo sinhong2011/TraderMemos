@@ -1,6 +1,5 @@
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
-import { Menu } from 'panelui-native';
 import { Alert } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
@@ -8,6 +7,7 @@ import { useLlmSettings } from '@/api/hooks';
 import { Icon } from '@/components/icon';
 import { GlassIconButton } from '@/components/glass-button';
 import { t } from '@lingui/core/macro';
+import { Menu } from '@/components/sheet-menu';
 import { isVisionReady, SCAN_MAX_IMAGES, type ImportSource } from '@/lib/trade-import';
 
 /**
@@ -84,13 +84,13 @@ export function TradePrefillBar({
   }
 
   return (
-    <Menu presentation="bottom-sheet">
+    <Menu>
       {/* `Menu.Trigger` clones its child with its own `onPress`, so the button
           keeps its chrome and only needs a placeholder handler. */}
       <Menu.Trigger>
         <GlassIconButton systemImage="text.viewfinder" label={t`Scan to fill`} onPress={() => {}} />
       </Menu.Trigger>
-      <Menu.Content width="full" className="shadow-none rounded-none">
+      <Menu.Content>
         <Menu.Item
           icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
           onSelect={() => void pickFromPhotos()}

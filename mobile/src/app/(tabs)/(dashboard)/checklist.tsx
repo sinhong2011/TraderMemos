@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
-import { Frame, Menu, Sortable, Text as UIText, reorderItems } from 'panelui-native';
+import { Frame, Sortable, Text as UIText, reorderItems } from 'panelui-native';
 import { Alert, Pressable } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
@@ -10,6 +10,7 @@ import { t } from '@lingui/core/macro';
 import { Icon } from '@/components/icon';
 import { SettingsButton, SettingsSection, SettingsToggle } from '@/components/settings-rows';
 import { SettingsForm } from '@/components/settings-form';
+import { Menu } from '@/components/sheet-menu';
 import { Swipe } from '@/components/swipe';
 import { usePrompt } from '@/components/use-prompt';
 import { DateField } from '@/components/date-field';
@@ -170,7 +171,7 @@ export default function ChecklistScreen() {
    */
   const suggestionsMenu =
     suggestions.length === 0 ? null : (
-      <Menu presentation="bottom-sheet">
+      <Menu>
         <Menu.Trigger>
           <Pressable
             hitSlop={10}
@@ -181,7 +182,7 @@ export default function ChecklistScreen() {
             <Icon name="sparkles" size={17} tintColor={foreground} />
           </Pressable>
         </Menu.Trigger>
-        <Menu.Content width="full" className="shadow-none rounded-none">
+        <Menu.Content>
           {suggestions.map((item) => (
             <Menu.Item key={item} onSelect={() => commit([...items, item], item, items.length)}>
               {item}

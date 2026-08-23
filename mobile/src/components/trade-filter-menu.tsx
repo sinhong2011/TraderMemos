@@ -1,4 +1,4 @@
-import { Item, Menu } from 'panelui-native';
+import { Item } from 'panelui-native';
 import { useState } from 'react';
 import type { SFSymbol } from 'sf-symbols-typescript';
 import { Pressable, Text } from 'react-native';
@@ -7,6 +7,7 @@ import { useCSSVariable } from 'uniwind';
 import { t } from '@lingui/core/macro';
 import { PickerSheet } from '@/components/form-kit';
 import { Icon } from '@/components/icon';
+import { Menu } from '@/components/sheet-menu';
 
 export type FilterGroup = {
   key: string;
@@ -111,9 +112,9 @@ export function TradeFilterMenu({
   }
 
   return (
-    <Menu presentation="bottom-sheet">
+    <Menu>
       <Menu.Trigger>{trigger()}</Menu.Trigger>
-      <Menu.Content width="full" className="shadow-none rounded-none">
+      <Menu.Content>
         {groups.map((group) => (
           <Menu.Sub key={group.key}>
             <Menu.SubTrigger

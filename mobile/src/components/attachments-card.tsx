@@ -3,7 +3,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { File as FsFile } from 'expo-file-system';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { Button, Menu, Spinner } from 'panelui-native';
+import { Button, Spinner } from 'panelui-native';
 import { useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
@@ -14,6 +14,7 @@ import type { TradeDetail } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { Icon } from '@/components/icon';
 import { t } from '@lingui/core/macro';
+import { Menu } from '@/components/sheet-menu';
 import { errorMessage } from '@/lib/errors';
 import { getJournalPrefs } from '@/lib/journal-prefs';
 
@@ -187,7 +188,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
         {uploading ? (
           <Spinner />
         ) : (
-          <Menu presentation="bottom-sheet">
+          <Menu>
             <Menu.Trigger>
               <Button
                 variant="outline"
@@ -197,7 +198,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
                 {t`Add screenshot`}
               </Button>
             </Menu.Trigger>
-            <Menu.Content width="full" className="shadow-none rounded-none">
+            <Menu.Content>
               <Menu.Item
                 icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
                 onSelect={() => void pickFromPhotos()}

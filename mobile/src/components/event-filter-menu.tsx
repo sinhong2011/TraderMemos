@@ -1,10 +1,10 @@
-import { Menu } from 'panelui-native';
 import { Pressable } from 'react-native';
 import type { SFSymbol } from 'sf-symbols-typescript';
 import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
 import { Icon } from '@/components/icon';
+import { Menu } from '@/components/sheet-menu';
 
 export type FilterToggleGroup = {
   key: string;
@@ -52,7 +52,7 @@ export function EventFilterMenu({
   const active = groups.some((group) => group.selected.length > 0);
 
   return (
-    <Menu presentation="bottom-sheet">
+    <Menu>
       <Menu.Trigger>
         <Pressable
           hitSlop={10}
@@ -73,7 +73,7 @@ export function EventFilterMenu({
           />
         </Pressable>
       </Menu.Trigger>
-      <Menu.Content width="full" className="shadow-none rounded-none">
+      <Menu.Content>
         {groups.map((group) => (
           <Menu.Sub key={group.key}>
             <Menu.SubTrigger
@@ -95,13 +95,17 @@ export function EventFilterMenu({
           </Menu.Sub>
         ))}
         {active ? (
-          <Menu.Item
-            variant="destructive"
-            icon={<Icon name="arrow.counterclockwise" size={16} tintColor={destructive} />}
-            onSelect={onReset}
-          >
-            {t`Clear filters`}
-          </Menu.Item>
+          <>
+            {/* Its own card: a reset is not one of the filters above it. */}
+            <Menu.Separator />
+            <Menu.Item
+              variant="destructive"
+              icon={<Icon name="arrow.counterclockwise" size={16} tintColor={destructive} />}
+              onSelect={onReset}
+            >
+              {t`Clear filters`}
+            </Menu.Item>
+          </>
         ) : null}
       </Menu.Content>
     </Menu>
