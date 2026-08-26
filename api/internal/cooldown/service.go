@@ -49,10 +49,13 @@ func NewService(q store.Querier, notify Notifier, log *slog.Logger) *Service {
 		log = slog.Default()
 	}
 	return &Service{
-		q:        q,
-		log:      log,
-		notify:   notify,
-		now:      time.Now,
+		q:      q,
+		log:    log,
+		notify: notify,
+		// UTC like the handlers: SQLite keeps timestamps as text, so a
+		// local-offset stamp from here would sort against the handlers'
+		// "Z" stamps by string, not by instant.
+		now:      func() time.Time { return time.Now().UTC() },
 		debounce: 2 * time.Second,
 		inflight: map[string]bool{},
 	}
