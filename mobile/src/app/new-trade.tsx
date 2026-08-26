@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
 
@@ -9,6 +9,7 @@ import { useSession } from '@/api/session';
 import { useAccounts, useApiRaw, useLlmSettings, useSetups, useTags } from '@/api/hooks';
 import { TradeForm } from '@/components/trade-form';
 import { t } from '@lingui/core/macro';
+import { useCooldownLock } from '@/lib/cooldown';
 import { errorMessage } from '@/lib/errors';
 import {
   clearDroppedSources,
@@ -93,6 +94,12 @@ export default function NewTradeScreen() {
   const { data: setups } = useSetups();
   const { data: tags } = useTags();
   const prefill = useDroppedPrefill(accounts?.[0]?.id, apiRaw);
+  const { locked } = useCooldownLock();
+
+  // The lock: while a cooldown is open there is no trade form, only the
+  // cooldown screen (every entry point — the "+", a widget, a deep link —
+  // lands here, so the gate is checked here rather than on each of them).
+  if (locked) return <Redirect href="/cooldown" />;
 
   /**
    * "Preview" on the form: validate, stash the draft, and push the

@@ -21,12 +21,14 @@ import type {
   AccessTokenUse,
   Account,
   AdminUser,
+  ActiveCooldown,
   AlertSettings,
   AnnualGoal,
   ApiHealth,
   BehaviorReport,
   BreakGroup,
   ComplianceReport,
+  CooldownStats,
   DailyPnl,
   EconomicEvent,
   EquityCurve,
@@ -92,6 +94,8 @@ export const queryKeys = {
   annualGoal: (year: number) => ['settings', 'annual-goal', year] as const,
   riskRules: () => ['settings', 'risk-rules'] as const,
   alertSettings: () => ['settings', 'alerts'] as const,
+  activeCooldown: () => ['cooldowns', 'active'] as const,
+  cooldownStats: (filters: Filters) => ['analytics', 'cooldowns', filters] as const,
   cash: (filters: Filters) => ['cash', filters] as const,
   checklistTemplate: () => ['settings', 'checklist-template'] as const,
   llmSettings: (kind: LlmKind) => ['settings', kind] as const,
@@ -165,6 +169,8 @@ function useApiQuery<T>(
     /** Hold the last result while a new key loads — for keys that change as you
      *  page through a range and shouldn't blank the screen on every step. */
     keepPrevious?: boolean;
+    /** Poll while mounted — for state the server changes on its own. */
+    refetchInterval?: number;
   },
 ): UseQueryResult<T> {
   const { session, signIn } = useSession();
@@ -173,6 +179,7 @@ function useApiQuery<T>(
     enabled: session != null && (options?.enabled ?? true),
     staleTime: options?.staleTime,
     retry: options?.retry,
+    refetchInterval: options?.refetchInterval,
     // Cast: TanStack's NonFunctionGuard can't see that no API response type is
     // itself a function, so the generic helper never type-checks against it.
     placeholderData: options?.keepPrevious ? (keepPreviousData as never) : undefined,
@@ -234,6 +241,24 @@ export function useRiskRules() {
 
 export function useAlertSettings() {
   return useApiQuery<AlertSettings>(queryKeys.alertSettings(), '/settings/alerts');
+}
+
+/**
+ * The cooldown currently locking trade entry. `staleTime: 0` so a cold start
+ * asks the server instead of trusting the MMKV copy, and a slow poll while
+ * the app is open — the server starts sessions on its own when a risk rule
+ * trips (a broker sync can land the losing fill), and the lock has to show
+ * up without a tap.
+ */
+export function useActiveCooldown() {
+  return useApiQuery<ActiveCooldown>(queryKeys.activeCooldown(), '/cooldowns/active', undefined, {
+    staleTime: 0,
+    refetchInterval: 30_000,
+  });
+}
+
+export function useCooldownStats(filters: Filters = {}) {
+  return useApiQuery<CooldownStats>(queryKeys.cooldownStats(filters), '/analytics/cooldowns', filters);
 }
 
 export function useTrades(filters: Filters = {}, options?: { enabled?: boolean }) {

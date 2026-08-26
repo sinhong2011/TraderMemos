@@ -61,6 +61,9 @@ export function ToolsMenu() {
   ];
 
   const journal: { label: string; systemImage: SFSymbol; href: Href }[] = [
+    // The circuit breaker sits first: it is the one thing here you reach for
+    // in a hurry, and the menu is one tap from any Home scroll position.
+    { label: t`Cooldown`, systemImage: 'wind', href: '/cooldown' },
     { label: t`Notes`, systemImage: 'note.text', href: '/(tabs)/(dashboard)/notes' },
     { label: t`Playbook`, systemImage: 'bookmark', href: '/(tabs)/(dashboard)/playbook' },
     // The routine is a start-of-day thing and this menu is where the day

@@ -15,7 +15,7 @@ export type RiskRuleDef = {
   key: RiskRuleKey;
   label: () => string;
   detail: () => string;
-  unit: '$' | '%' | 'count';
+  unit: '$' | '%' | 'count' | 'min';
   placeholder: string;
   /** Leading badge glyph in the rule pickers. */
   icon: SFSymbol;
@@ -70,6 +70,14 @@ export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
     placeholder: 'e.g. 1',
     icon: 'slider.horizontal.3',
   },
+  {
+    key: 'cooldown_minutes',
+    label: () => t`Auto cooldown`,
+    detail: () => t`Start a cooldown this long when the daily loss, loss streak or trade cap trips.`,
+    unit: 'min',
+    placeholder: 'e.g. 15',
+    icon: 'wind',
+  },
 ];
 
 export function emptyRiskRules(): RiskRules {
@@ -80,6 +88,7 @@ export function emptyRiskRules(): RiskRules {
     default_account_risk_pct: null,
     max_trades_per_day: null,
     max_consecutive_losses: null,
+    cooldown_minutes: null,
   };
 }
 
@@ -110,6 +119,9 @@ export function formatRiskRuleValue(def: RiskRuleDef, value: number): string {
   if (def.unit === 'count') {
     return value.toLocaleString('en-US', { maximumFractionDigits: 0 });
   }
+  if (def.unit === 'min') {
+    return t`${value.toLocaleString('en-US', { maximumFractionDigits: 0 })} min`;
+  }
   const num = value.toLocaleString('en-US', { maximumFractionDigits: 2 });
   return def.unit === '%' ? `${num}%` : `$${num}`;
 }
@@ -123,6 +135,10 @@ export function validateRiskRuleValue(def: RiskRuleDef, raw: string): string | u
   if (def.unit === '%' && value > 100) return t`Percent must be between 0 and 100.`;
   if (def.unit === 'count' && !Number.isInteger(value)) {
     return t`Enter a whole number of trades.`;
+  }
+  if (def.unit === 'min') {
+    if (!Number.isInteger(value)) return t`Enter a whole number of minutes.`;
+    if (value < 1 || value > 1440) return t`Minutes must be between 1 and 1440.`;
   }
   return undefined;
 }

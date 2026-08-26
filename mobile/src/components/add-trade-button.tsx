@@ -5,9 +5,13 @@ import { useCSSVariable } from 'uniwind';
 import { t } from '@lingui/core/macro';
 
 import { Icon } from '@/components/icon';
+import { useCooldownLock } from '@/lib/cooldown';
+import { notify } from '@/lib/haptics';
 
 /**
- * Header-right "+" on Trades — straight to the trade form.
+ * Header-right "+" on Trades — straight to the trade form, unless a cooldown
+ * is open: then it lands on the cooldown screen instead, with a warning
+ * haptic, so the lock is felt at the exact moment of the impulse.
  *
  * It used to be a pull-down fanning out to notes and setups as well, which put
  * a menu in front of the action this app exists for: the tab you log trades
@@ -22,10 +26,18 @@ import { Icon } from '@/components/icon';
 export function AddTradeButton() {
   const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const router = useRouter();
+  const { locked } = useCooldownLock();
 
   return (
     <Pressable
-      onPress={() => router.push('/new-trade')}
+      onPress={() => {
+        if (locked) {
+          notify('warning');
+          router.push('/cooldown');
+          return;
+        }
+        router.push('/new-trade');
+      }}
       hitSlop={10}
       accessibilityRole="button"
       accessibilityLabel={t`New trade`}
