@@ -106,12 +106,12 @@ msgid "{0} fills"
 msgstr "{0}回の約定"
 
 #. placeholder {0}: lossAversion.give_back_count
-#: src/components/reports/behavior-section.tsx:289
+#: src/components/reports/behavior-section.tsx:373
 msgid "{0} green at peak"
 msgstr "{0}件がピーク時は含み益"
 
 #. placeholder {0}: lossAversion.excluded
-#: src/components/reports/behavior-section.tsx:296
+#: src/components/reports/behavior-section.tsx:380
 msgid "{0} losers without recorded MAE/MFE could not be checked — recompute excursion on the trade to fill them."
 msgstr "MAE/MFE未記録の損失トレード{0}件は判定できませんでした — トレード画面でエクスカーションを再計算してください。"
 
@@ -184,7 +184,7 @@ msgid "{0} per +1R"
 msgstr "+1Rごとに{0}"
 
 #. placeholder {0}: formatCountdown(remaining)
-#: src/app/cooldown.tsx:328
+#: src/app/cooldown.tsx:329
 msgid "{0} remaining"
 msgstr "残り {0}"
 
@@ -228,6 +228,15 @@ msgstr "{0}銘柄が見つかりました"
 msgid "{0} trades"
 msgstr "{0}件のトレード"
 
+#. placeholder {0}: after.trades
+#. placeholder {0}: without.trades
+#. placeholder {1}: formatPercent(after.win_rate, 0)
+#. placeholder {1}: formatPercent(without.win_rate, 0)
+#: src/components/reports/behavior-section.tsx:175
+#: src/components/reports/behavior-section.tsx:186
+msgid "{0} trades · {1} win"
+msgstr "{0} 件 · 勝率 {1}"
+
 #. placeholder {0}: summary.total_trades
 #. placeholder {1}: money.format(-summary.total_fees)
 #. placeholder {2}: money.format(summary.expectancy)
@@ -258,8 +267,13 @@ msgstr "{1}行から{0}件のトレード — {2}件の約定を挿入、重複{
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "初期リスク未記録のトレードが{0}件あり、1トレードあたりのルールで採点できませんでした。"
 
+#. placeholder {0}: stats.early_releases
+#: src/components/reports/behavior-section.tsx:165
+msgid "{0} unlocked early"
+msgstr "{0} 回早期解除"
+
 #. placeholder {0}: streaks.streaks
-#: src/components/reports/behavior-section.tsx:242
+#: src/components/reports/behavior-section.tsx:326
 msgid "{0} winning streaks scanned."
 msgstr "{0}回の連勝を走査しました。"
 
@@ -469,7 +483,7 @@ msgstr "ほか{0}件"
 msgid "+{0} more trades in this file."
 msgstr "このファイルにはほかに{0}件のトレードがあります。"
 
-#: src/app/cooldown.tsx:339
+#: src/app/cooldown.tsx:340
 msgid "+{EXTEND_MINUTES} min"
 msgstr "+{EXTEND_MINUTES} 分"
 
@@ -848,7 +862,7 @@ msgid "Add user"
 msgstr "ユーザーを追加"
 
 #: src/app/(tabs)/(settings)/user-form.tsx:89
-#: src/app/cooldown.tsx:339
+#: src/app/cooldown.tsx:340
 msgid "Adding…"
 msgstr "追加中…"
 
@@ -881,6 +895,15 @@ msgstr "調整"
 #: src/lib/trade-insights.ts:295
 msgid "Adverse excursion exceeded planned risk"
 msgstr "逆行が計画リスクを超えました"
+
+#. placeholder {0}: stats.streak_n
+#: src/components/reports/behavior-section.tsx:182
+msgid "After {0} losses, no cooldown"
+msgstr "{0} 連敗後・クールダウンなし"
+
+#: src/components/reports/behavior-section.tsx:171
+msgid "After a cooldown"
+msgstr "クールダウン後"
 
 #: src/components/reports/detailed-section.tsx:249
 msgid "After hours"
@@ -1154,6 +1177,11 @@ msgstr "平均保有時間"
 msgid "avg"
 msgstr "平均"
 
+#. placeholder {0}: formatDuration(stats.avg_minutes * 60)
+#: src/components/reports/behavior-section.tsx:166
+msgid "avg {0}"
+msgstr "平均 {0}"
+
 #: src/components/reports/overview-section.tsx:497
 msgid "avg / traded day"
 msgstr "取引日あたり平均"
@@ -1181,7 +1209,7 @@ msgstr "平均エグジット価格"
 msgid "Avg hold"
 msgstr "平均保有時間"
 
-#: src/components/reports/behavior-section.tsx:271
+#: src/components/reports/behavior-section.tsx:355
 msgid "Avg loser hold"
 msgstr "損失平均保有"
 
@@ -1211,7 +1239,7 @@ msgstr "平均トレード"
 msgid "Avg win"
 msgstr "平均利益"
 
-#: src/components/reports/behavior-section.tsx:264
+#: src/components/reports/behavior-section.tsx:348
 msgid "Avg winner hold"
 msgstr "利益平均保有"
 
@@ -1346,7 +1374,7 @@ msgstr "最高のトレード"
 msgid "Bias"
 msgstr "バイアス"
 
-#: src/components/reports/behavior-section.tsx:302
+#: src/components/reports/behavior-section.tsx:386
 msgid "Biggest give-backs"
 msgstr "最大の利益吐き出し"
 
@@ -1781,6 +1809,10 @@ msgstr "手数料(コミッション)"
 msgid "Commissions and fees were {pct}% of gross — that materially changes the outcome. Fewer legs or lower-cost fills would help."
 msgstr "手数料がグロスの{pct}%を占め、結果を大きく左右しています。レッグを減らすか低コストの約定を検討しましょう。"
 
+#: src/components/reports/behavior-section.tsx:200
+msgid "Compares trades opened within an hour of a release with trades opened within an hour of a loss streak on days you did not cool down."
+msgstr "解除後 1 時間以内に建てたトレードと、クールダウンしなかった日の連敗後 1 時間以内に建てたトレードを比較します。"
+
 #: src/components/reports/overview-section.tsx:546
 msgid "Composite"
 msgstr "総合"
@@ -1925,7 +1957,12 @@ msgstr "クールダウン"
 msgid "Cooldown over — answer the gate"
 msgstr "クールダウン終了 — ゲートに答える"
 
-#: src/app/cooldown.tsx:323
+#: src/components/reports/behavior-section.tsx:151
+#: src/components/reports/behavior-section.tsx:161
+msgid "Cooldowns"
+msgstr "クールダウン"
+
+#: src/app/cooldown.tsx:324
 #: src/components/cooldown-banner.tsx:44
 msgid "Cooling down"
 msgstr "クールダウン中"
@@ -2048,7 +2085,7 @@ msgstr "モデルを取得できませんでした"
 #~ msgid "Could not load your account."
 #~ msgstr "アカウント情報を読み込めませんでした。"
 
-#: src/app/_layout.tsx:78
+#: src/app/_layout.tsx:80
 msgid "Could not open file"
 msgstr "ファイルを開けませんでした"
 
@@ -2627,6 +2664,10 @@ msgstr "金額"
 #: src/components/time-picker.tsx:100
 msgid "Done"
 msgstr "完了"
+
+#: src/components/reports/behavior-section.tsx:143
+msgid "done for today"
+msgstr "今日はここまで"
 
 #: src/lib/cooldown.ts:58
 msgid "Done for today"
@@ -3504,6 +3545,10 @@ msgstr "確定フロア"
 msgid "Half Kelly"
 msgstr "ハーフケリー"
 
+#: src/components/reports/behavior-section.tsx:139
+msgid "half size"
+msgstr "半分のサイズ"
+
 #: src/lib/cooldown.ts:48
 msgid "Half size"
 msgstr "半分のサイズ"
@@ -3559,7 +3604,7 @@ msgstr "損益が高い順"
 msgid "Hold"
 msgstr "止めて"
 
-#: src/components/reports/behavior-section.tsx:278
+#: src/components/reports/behavior-section.tsx:362
 msgid "Hold ratio"
 msgstr "保有時間比"
 
@@ -3927,7 +3972,7 @@ msgstr "リンクをコピーしました"
 #~ msgid "Loading {year}"
 #~ msgstr "{year}を読み込み中"
 
-#: src/components/reports/behavior-section.tsx:187
+#: src/components/reports/behavior-section.tsx:269
 msgid "Loading behavior report"
 msgstr "行動レポートを読み込み中"
 
@@ -4063,7 +4108,7 @@ msgstr "最長連勝"
 #~ msgid "Loose"
 #~ msgstr ""
 
-#: src/components/reports/behavior-section.tsx:282
+#: src/components/reports/behavior-section.tsx:366
 msgid "losers vs winners"
 msgstr "損失 vs 利益"
 
@@ -4076,7 +4121,7 @@ msgstr "負け保有時間"
 msgid "LOSS"
 msgstr "負け"
 
-#: src/components/reports/behavior-section.tsx:254
+#: src/components/reports/behavior-section.tsx:338
 msgid "Loss aversion"
 msgstr "損失回避"
 
@@ -4238,8 +4283,8 @@ msgstr "中央値"
 #. placeholder {0}: formatDuration(lossAversion.median_loss_hold_secs)
 #. placeholder {0}: formatDuration(lossAversion.median_win_hold_secs)
 #. placeholder {0}: formatDuration(median)
-#: src/components/reports/behavior-section.tsx:266
-#: src/components/reports/behavior-section.tsx:273
+#: src/components/reports/behavior-section.tsx:350
+#: src/components/reports/behavior-section.tsx:357
 #: src/components/reports/duration-scatter-card.tsx:102
 msgid "median {0}"
 msgstr "中央値 {0}"
@@ -4641,6 +4686,10 @@ msgstr "決済済みトレードはまだありません"
 #~ msgid "No connection"
 #~ msgstr "接続できません"
 
+#: src/components/reports/behavior-section.tsx:154
+msgid "No cooldowns in this range — start one from the tools menu, or set Auto cooldown under Risk rules so a tripped limit starts it for you."
+msgstr "この期間にクールダウンはありません — ツールメニューから開始するか、リスクルールで「自動クールダウン」を設定すると上限到達時に自動で始まります。"
+
 #: src/components/equity-card.tsx:82
 #: src/components/reports/risk-section.tsx:110
 msgid "No equity data in this range."
@@ -4704,7 +4753,7 @@ msgstr "プレイブックのセットアップがまだありません — 追�
 msgid "No response from {0}. Check your connection, or that the server is running and reachable from this network."
 msgstr "{0} から応答がありません。接続、またはサーバーが起動していてこのネットワークから接続できることを確認してください。"
 
-#: src/components/reports/behavior-section.tsx:208
+#: src/components/reports/behavior-section.tsx:292
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "リベンジトレードのパターンは検出されませんでした — 損失決済から1時間以内のトレード（15分以内の同銘柄再エントリー、または直近中央値の1.5倍超のサイズ）をフラグします。"
 
@@ -4719,6 +4768,10 @@ msgstr "リスクルールが未設定です — 1トレードあたりの最大
 #: src/lib/cooldown.ts:45
 msgid "No rule"
 msgstr "ルールなし"
+
+#: src/components/reports/behavior-section.tsx:195
+msgid "no rules made yet"
+msgstr "まだルールなし"
 
 #. placeholder {0}: query.trim()
 #: src/app/(tabs)/(settings)/index.tsx:371
@@ -4738,7 +4791,7 @@ msgstr "セットアップはまだありません"
 msgid "no stops recorded"
 msgstr "ストップ未記録"
 
-#: src/components/reports/behavior-section.tsx:231
+#: src/components/reports/behavior-section.tsx:315
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "連勝パターンは検出されませんでした — 連勝直後にサイズを上げたトレードをフラグします。"
 
@@ -4770,6 +4823,8 @@ msgstr "トークンがまだありません"
 #: src/app/(tabs)/(calendar)/index.tsx:1360
 #: src/app/(tabs)/(calendar)/index.tsx:1540
 #: src/app/(tabs)/(calendar)/index.tsx:1687
+#: src/components/reports/behavior-section.tsx:172
+#: src/components/reports/behavior-section.tsx:183
 msgid "No trades"
 msgstr "取引なし"
 
@@ -4843,7 +4898,7 @@ msgstr "未接続"
 msgid "Not enough closed trades to draw a session curve."
 msgstr "セッションカーブを描くには決済トレードが足りません。"
 
-#: src/components/reports/behavior-section.tsx:257
+#: src/components/reports/behavior-section.tsx:341
 msgid "Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak."
 msgstr "決済済みトレードがまだ不足しています — 利益と損失の保有時間を比較し、ピーク時に含み益だった損失トレードを見つけます。"
 
@@ -5006,6 +5061,10 @@ msgstr "トレード前に確認するルールを1つ。"
 #: src/app/new-setup.tsx:246
 msgid "One thing that has to be true"
 msgstr "満たすべき条件をひとつ"
+
+#: src/components/reports/behavior-section.tsx:141
+msgid "one trade"
+msgstr "1 トレード"
 
 #: src/lib/cooldown.ts:53
 msgid "One trade"
@@ -5174,7 +5233,7 @@ msgstr "過剰リスク ×{0}"
 msgid "over-traded"
 msgstr "取引数超過"
 
-#: src/components/reports/behavior-section.tsx:228
+#: src/components/reports/behavior-section.tsx:312
 msgid "Overconfidence"
 msgstr "過信"
 
@@ -5303,7 +5362,7 @@ msgid "Peak"
 msgstr "最高益"
 
 #. placeholder {0}: money.formatCompact(giveBack.mfe)
-#: src/components/reports/behavior-section.tsx:308
+#: src/components/reports/behavior-section.tsx:392
 msgid "peak {0}"
 msgstr "ピーク {0}"
 
@@ -5617,7 +5676,7 @@ msgstr "目標到達時利益"
 msgid "Profit factor"
 msgstr "プロフィットファクター"
 
-#: src/components/reports/behavior-section.tsx:287
+#: src/components/reports/behavior-section.tsx:371
 msgid "Profit given back"
 msgstr "吐き出した利益"
 
@@ -5760,7 +5819,7 @@ msgstr "損益ではなく執行の質を評価しましょう。規律を守っ
 msgid "Rates come from your server's market data provider."
 msgstr "レートはサーバーのマーケットデータプロバイダーから取得しています。"
 
-#: src/components/reports/behavior-section.tsx:149
+#: src/components/reports/behavior-section.tsx:230
 msgid "re-entry"
 msgstr "再エントリー"
 
@@ -5812,7 +5871,7 @@ msgstr "まとめ"
 msgid "Recent breach days"
 msgstr "最近の違反日"
 
-#: src/components/reports/behavior-section.tsx:141
+#: src/components/reports/behavior-section.tsx:222
 msgid "Recent events"
 msgstr "最近のイベント"
 
@@ -6080,6 +6139,10 @@ msgstr "再試行中…"
 msgid "Return"
 msgstr "リターン"
 
+#: src/components/reports/behavior-section.tsx:193
+msgid "Return rule broken"
+msgstr "復帰ルール違反"
+
 #: src/lib/cooldown.ts:33
 msgid "Revenge"
 msgstr "リベンジ"
@@ -6089,7 +6152,7 @@ msgstr "リベンジ"
 msgid "revenge trades ×{0}"
 msgstr "リベンジトレード ×{0}"
 
-#: src/components/reports/behavior-section.tsx:205
+#: src/components/reports/behavior-section.tsx:289
 msgid "Revenge trading"
 msgstr "リベンジトレード"
 
@@ -6772,7 +6835,7 @@ msgid "Size"
 msgstr "サイズ"
 
 #. placeholder {0}: (event.size_ratio ?? 0).toFixed(1)
-#: src/components/reports/behavior-section.tsx:150
+#: src/components/reports/behavior-section.tsx:231
 msgid "size ×{0}"
 msgstr "サイズ ×{0}"
 
@@ -6788,8 +6851,8 @@ msgstr "スキップ（重複）"
 msgid "Skipped {skipped} row(s) without quantity/price."
 msgstr "数量・価格のない{skipped}行をスキップしました。"
 
-#: src/components/reports/behavior-section.tsx:220
-#: src/components/reports/behavior-section.tsx:246
+#: src/components/reports/behavior-section.tsx:304
+#: src/components/reports/behavior-section.tsx:330
 msgid "Small sample — patterns firm up as more closed trades accumulate."
 msgstr "サンプルが少数です — 決済済みトレードが増えるほどパターンは確かになります。"
 
@@ -7310,7 +7373,7 @@ msgstr "エンドポイントの表記どおりのモデルID（例: gpt-4o-mini
 msgid "The new passwords don't match."
 msgstr "新しいパスワードが一致しません。"
 
-#: src/app/cooldown.tsx:298
+#: src/app/cooldown.tsx:299
 msgid "The next trade doesn't have to fix the last one."
 msgstr "次のトレードで前の損失を取り返す必要はない。"
 
@@ -7855,8 +7918,8 @@ msgstr "不明なクライアント"
 msgid "Unknown symbol"
 msgstr "銘柄不明"
 
-#: src/app/cooldown.tsx:501
 #: src/app/cooldown.tsx:503
+#: src/app/cooldown.tsx:505
 msgid "Unlock"
 msgstr "ロック解除"
 
@@ -8161,6 +8224,14 @@ msgstr "連勝"
 msgid "Withdrawal"
 msgstr "出金"
 
+#: src/components/reports/behavior-section.tsx:187
+msgid "within an hour of the streak"
+msgstr "連敗から 1 時間以内"
+
+#: src/components/reports/behavior-section.tsx:176
+msgid "within an hour of unlocking"
+msgstr "解除から 1 時間以内"
+
 #: src/components/reports/risk-section.tsx:299
 msgid "Worst case"
 msgstr "最悪ケース"
@@ -8268,7 +8339,7 @@ msgstr "次回サインイン時から認証アプリのコードが必要にな
 #. placeholder {0}: worst.summary.total_trades
 #. placeholder {1}: worst.key
 #. placeholder {2}: formatPnl(worst.summary.expectancy * (fx.rate ?? 1), fx.currency)
-#: src/app/cooldown.tsx:297
+#: src/app/cooldown.tsx:298
 msgid "Your {0} “{1}” trades average {2} each."
 msgstr "あなたの「{1}」トレード {0} 件は平均 {2} です。"
 

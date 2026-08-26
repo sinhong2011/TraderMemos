@@ -24,7 +24,9 @@ import { i18n } from '@/i18n';
 import { t } from '@lingui/core/macro';
 import { useConnectivityStore } from '@/lib/connectivity';
 import { useResolvedScheme } from '@/lib/prefs';
+import { useCooldownLiveActivitySync } from '@/lib/cooldown-live-activity';
 import { useTradingSessionSync } from '@/lib/live-activity';
+import { useNotificationRouting } from '@/lib/notifications';
 import { usePrefsSync } from '@/lib/use-prefs-sync';
 import { useWidgetSnapshotSync } from '@/lib/widget-snapshot';
 import { ensureDropFolder, stageDroppedFile } from '@/lib/trade-import';
@@ -117,6 +119,18 @@ function WidgetSnapshotGate() {
  */
 function LiveActivityGate() {
   useTradingSessionSync();
+  return null;
+}
+
+/** The open cooldown's countdown on the Lock Screen (lib/cooldown-live-activity.ts). */
+function CooldownLiveActivityGate() {
+  useCooldownLiveActivitySync();
+  return null;
+}
+
+/** Push taps carrying an in-app URL route here (lib/notifications.ts). */
+function NotificationGate() {
+  useNotificationRouting();
   return null;
 }
 
@@ -251,6 +265,8 @@ export default function RootLayout() {
           <PrefsSyncGate />
           <WidgetSnapshotGate />
           <LiveActivityGate />
+          <CooldownLiveActivityGate />
+          <NotificationGate />
           <OutboxGate />
           <ReachabilityGate />
           <AppErrorBoundary>

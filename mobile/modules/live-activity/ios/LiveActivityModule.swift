@@ -34,6 +34,32 @@ public class LiveActivityModule: Module {
     return ActivityContent(state: payload.state, staleDate: staleDate)
   }
 
+  /// The JSON contract with `src/lib/cooldown-live-activity.ts`. Epoch ms
+  /// for the dates, as above.
+  private struct CooldownPayload: Codable {
+    let schema: Int
+    let sessionID: String
+    let trigger: String
+    let startedAt: Double
+    let endsAt: Double
+    let phase: String
+  }
+
+  private static func decodeCooldown(_ json: String) -> CooldownPayload? {
+    guard let data = json.data(using: .utf8) else { return nil }
+    return try? JSONDecoder().decode(CooldownPayload.self, from: data)
+  }
+
+  private static func cooldownContent(for payload: CooldownPayload) -> ActivityContent<CooldownAttributes.ContentState> {
+    let endsAt = Date(timeIntervalSince1970: payload.endsAt / 1000)
+    // Stale the moment the timer ends: the face flips to "answer the gate"
+    // without the app having to be alive to say so.
+    return ActivityContent(
+      state: CooldownAttributes.ContentState(endsAt: endsAt, phase: payload.phase),
+      staleDate: endsAt
+    )
+  }
+
   public func definition() -> ModuleDefinition {
     Name("LiveActivity")
 
@@ -87,6 +113,55 @@ public class LiveActivityModule: Module {
     Function("endSession") {
       Task {
         for activity in Activity<TradingSessionAttributes>.activities {
+          await activity.end(nil, dismissalPolicy: .immediate)
+        }
+      }
+    }
+
+    // MARK: Cooldown
+
+    /// The server session id the live cooldown belongs to, or nil.
+    Function("activeCooldownID") { () -> String? in
+      Activity<CooldownAttributes>.activities.first?.attributes.sessionID
+    }
+
+    Function("startCooldown") { (json: String) -> Bool in
+      guard let payload = Self.decodeCooldown(json) else { return false }
+      let orphans = Activity<CooldownAttributes>.activities
+      if !orphans.isEmpty {
+        Task {
+          for activity in orphans {
+            await activity.end(nil, dismissalPolicy: .immediate)
+          }
+        }
+      }
+      let attributes = CooldownAttributes(
+        sessionID: payload.sessionID,
+        trigger: payload.trigger,
+        startedAt: Date(timeIntervalSince1970: payload.startedAt / 1000)
+      )
+      do {
+        _ = try Activity.request(attributes: attributes, content: Self.cooldownContent(for: payload))
+        return true
+      } catch {
+        return false
+      }
+    }
+
+    Function("updateCooldown") { (json: String) in
+      guard let payload = Self.decodeCooldown(json) else { return }
+      let content = Self.cooldownContent(for: payload)
+      Task {
+        for activity in Activity<CooldownAttributes>.activities {
+          await activity.update(content)
+        }
+      }
+    }
+
+    // Release (or sign-out) takes the countdown off the Lock Screen at once.
+    Function("endCooldown") {
+      Task {
+        for activity in Activity<CooldownAttributes>.activities {
           await activity.end(nil, dismissalPolicy: .immediate)
         }
       }
