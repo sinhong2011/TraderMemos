@@ -145,6 +145,7 @@ function Shell({
 const TRIGGERS: readonly CooldownTrigger[] = ['loss_streak', 'daily_loss', 'trade_limit'];
 
 function StartFace({ suggest, onClose }: { suggest?: string; onClose: () => void }) {
+  const router = useRouter();
   const [primary] = useCSSVariable(['--color-primary']) as [string];
   const { start } = useCooldownActions();
   const [minutes, setMinutes] = useState(DEFAULT_COOLDOWN_MINUTES);
@@ -213,6 +214,18 @@ function StartFace({ suggest, onClose }: { suggest?: string; onClose: () => void
         >
           {t`Start ${minutes} min`}
         </Button>
+        {Platform.OS === 'ios' ? (
+          // The lock stops at this app's edge; Shortcuts can carry it to the
+          // broker. iOS only — Android has no app-open automations.
+          <Pressable
+            onPress={() => router.push('/cooldown-shortcuts')}
+            accessibilityRole="link"
+            hitSlop={8}
+            className="items-center py-1 active:opacity-60"
+          >
+            <Text className="text-[14px] font-medium text-primary">{t`Lock your broker app too ›`}</Text>
+          </Pressable>
+        ) : null}
       </FormScrollArea>
     </Shell>
   );

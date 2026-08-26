@@ -184,7 +184,7 @@ msgid "{0} per +1R"
 msgstr "每 +1R {0}"
 
 #. placeholder {0}: formatCountdown(remaining)
-#: src/app/cooldown.tsx:329
+#: src/app/cooldown.tsx:342
 msgid "{0} remaining"
 msgstr "剩餘 {0}"
 
@@ -359,7 +359,7 @@ msgstr "{label} — {0} · {1} 筆交易"
 msgid "{label} — no trades"
 msgstr "{label} — 無交易"
 
-#: src/app/cooldown.tsx:188
+#: src/app/cooldown.tsx:189
 msgid "{m} min"
 msgstr "{m} 分鐘"
 
@@ -483,7 +483,7 @@ msgstr "還有 {0} 個"
 msgid "+{0} more trades in this file."
 msgstr "此檔案還有 {0} 筆交易。"
 
-#: src/app/cooldown.tsx:340
+#: src/app/cooldown.tsx:353
 msgid "+{EXTEND_MINUTES} min"
 msgstr "+{EXTEND_MINUTES} 分鐘"
 
@@ -748,6 +748,10 @@ msgstr "實際風險低於你的目標。"
 msgid "Add"
 msgstr "新增"
 
+#: src/app/cooldown-shortcuts.tsx:35
+msgid "Add “Am I Cooling Down?”"
+msgstr "加入「Am I Cooling Down?」"
+
 #: src/app/new-setup.tsx:277
 msgid "Add a check"
 msgstr "新增檢查項"
@@ -762,6 +766,10 @@ msgstr "新增上限"
 #: src/app/(tabs)/(settings)/index.tsx:456
 msgid "Add account"
 msgstr "新增帳戶"
+
+#: src/app/cooldown-shortcuts.tsx:39
+msgid "Add an “If” on the result"
+msgstr "對結果加一個「If」"
 
 #: src/app/cash-form.tsx:211
 msgid "Add an account first."
@@ -862,7 +870,7 @@ msgid "Add user"
 msgstr "新增用戶"
 
 #: src/app/(tabs)/(settings)/user-form.tsx:89
-#: src/app/cooldown.tsx:340
+#: src/app/cooldown.tsx:353
 msgid "Adding…"
 msgstr "新增中…"
 
@@ -1052,7 +1060,7 @@ msgstr "所有持倉時長"
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "任何 OpenAI 相容端點都可以。測試會使用上方的值，即使尚未儲存。"
 
-#: src/app/cooldown.tsx:409
+#: src/app/cooldown.tsx:422
 msgid "Any setup"
 msgstr "任何 setup"
 
@@ -1326,7 +1334,7 @@ msgstr "打和"
 msgid "Before the open"
 msgstr "開市前"
 
-#: src/app/cooldown.tsx:414
+#: src/app/cooldown.tsx:427
 msgid "Before you go back"
 msgstr "返場之前"
 
@@ -1419,11 +1427,11 @@ msgstr "打和"
 msgid "Breakout pullback"
 msgstr "突破回踩"
 
-#: src/app/cooldown.tsx:272
+#: src/app/cooldown.tsx:285
 msgid "Breathe in"
 msgstr "吸氣"
 
-#: src/app/cooldown.tsx:272
+#: src/app/cooldown.tsx:285
 msgid "Breathe out"
 msgstr "呼氣"
 
@@ -1725,6 +1733,7 @@ msgstr "清除中…"
 msgid "Clock"
 msgstr "時鐘"
 
+#: src/app/cooldown-shortcuts.tsx:54
 #: src/app/cooldown.tsx:130
 #: src/app/new-token.tsx:80
 #: src/app/replay.tsx:1059
@@ -1947,7 +1956,7 @@ msgstr "合約數"
 
 #: src/app/cooldown.tsx:74
 #: src/app/cooldown.tsx:81
-#: src/app/cooldown.tsx:165
+#: src/app/cooldown.tsx:166
 #: src/components/cooldown-card.tsx:29
 #: src/components/tools-menu.tsx:66
 msgid "Cooldown"
@@ -1962,7 +1971,7 @@ msgstr "冷靜完結 — 回答關卡"
 msgid "Cooldowns"
 msgstr "冷靜次數"
 
-#: src/app/cooldown.tsx:324
+#: src/app/cooldown.tsx:337
 #: src/components/cooldown-banner.tsx:44
 msgid "Cooling down"
 msgstr "冷靜中"
@@ -2052,7 +2061,7 @@ msgstr "無法啟用"
 msgid "Could not export config"
 msgstr "無法匯出設定"
 
-#: src/app/cooldown.tsx:347
+#: src/app/cooldown.tsx:360
 msgid "Could not extend"
 msgstr "無法延長"
 
@@ -2188,7 +2197,7 @@ msgstr "無法儲存範例檔"
 msgid "Could not share"
 msgstr "無法分享"
 
-#: src/app/cooldown.tsx:159
+#: src/app/cooldown.tsx:160
 msgid "Could not start"
 msgstr "無法開始"
 
@@ -2200,7 +2209,7 @@ msgstr "無法開始設定"
 msgid "Could not turn off"
 msgstr "無法關閉"
 
-#: src/app/cooldown.tsx:403
+#: src/app/cooldown.tsx:416
 msgid "Could not unlock"
 msgstr "無法解鎖"
 
@@ -2659,6 +2668,7 @@ msgstr "金額"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:219
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:235
 #: src/app/(tabs)/(settings)/import-trades.tsx:289
+#: src/app/cooldown-shortcuts.tsx:43
 #: src/app/manage-tags.tsx:68
 #: src/components/cooldown-card.tsx:38
 #: src/components/time-picker.tsx:100
@@ -3600,7 +3610,7 @@ msgstr "損益最高"
 #~ msgid "History"
 #~ msgstr "紀錄"
 
-#: src/app/cooldown.tsx:272
+#: src/app/cooldown.tsx:285
 msgid "Hold"
 msgstr "屏住"
 
@@ -3641,7 +3651,7 @@ msgstr "今日交易如何？用「- [ ]」建立清單項目。"
 msgid "How little heat entries take relative to the move they find (MAE vs MFE)."
 msgstr "入場相對於捕捉到嘅行情承受幾少浮虧(MAE 對 MFE)。"
 
-#: src/app/cooldown.tsx:186
+#: src/app/cooldown.tsx:187
 msgid "How long?"
 msgstr "幾耐？"
 
@@ -3649,7 +3659,7 @@ msgstr "幾耐？"
 msgid "How to set one up"
 msgstr "如何架設伺服器"
 
-#: src/app/cooldown.tsx:358
+#: src/app/cooldown.tsx:371
 msgid "I need to trade now"
 msgstr "我而家要落單"
 
@@ -3659,6 +3669,10 @@ msgstr "我而家要落單"
 #: src/app/(tabs)/(settings)/import-history.tsx:19
 msgid "IBKR Flex sync"
 msgstr "IBKR Flex 同步"
+
+#: src/app/cooldown-shortcuts.tsx:40
+msgid "If the answer is Yes, add TraderMemos → “Open Cooldown”. Leave “Otherwise” empty so a normal day opens the broker as usual."
+msgstr "如果答案係 Yes，加入 TraderMemos →「Open Cooldown」。「Otherwise」留空，平時照樣開券商 app。"
 
 #: src/app/(tabs)/(settings)/two-factor.tsx:121
 msgid "If you lose your authenticator"
@@ -4051,6 +4065,14 @@ msgstr "載入中…"
 msgid "locale translation region"
 msgstr "地區 翻譯 語言"
 
+#: src/app/cooldown-shortcuts.tsx:56
+msgid "Lock the broker too"
+msgstr "連券商 app 一齊鎖"
+
+#: src/app/cooldown.tsx:226
+msgid "Lock your broker app too ›"
+msgstr "連券商 app 一齊鎖 ›"
+
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:511
 msgid "Locked at tiers"
 msgstr "層級鎖定利潤"
@@ -4178,6 +4200,10 @@ msgstr "MAE 約為記錄風險的 {r} 倍。可能擴闊了止蝕，或沒有跟
 #: src/components/insights-card.tsx:104
 msgid "Main leak"
 msgstr "主要漏洞"
+
+#: src/app/cooldown-shortcuts.tsx:66
+msgid "Make the cooldown reach your broker"
+msgstr "令冷靜模式延伸到券商 app"
 
 #: src/components/account-menu.tsx:155
 msgid "Manage accounts"
@@ -4744,7 +4770,7 @@ msgstr "尚無筆記"
 msgid "No plan was recorded before the trade"
 msgstr "交易前沒有記錄計劃"
 
-#: src/app/cooldown.tsx:439
+#: src/app/cooldown.tsx:452
 msgid "No playbook setups yet — add some and the gate will hold you to one."
 msgstr "未有 playbook setup — 加咗之後，關卡會要求你只揀一個。"
 
@@ -5136,6 +5162,14 @@ msgstr "開啟風險規則"
 msgid "Open settings"
 msgstr "開啟設定"
 
+#: src/app/cooldown-shortcuts.tsx:94
+msgid "Open Shortcuts"
+msgstr "打開捷徑"
+
+#: src/app/cooldown-shortcuts.tsx:31
+msgid "Open Shortcuts → Automation"
+msgstr "打開捷徑 → 自動化"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:54
 msgid "Open time"
 msgstr "開倉時間"
@@ -5147,6 +5181,10 @@ msgstr "OpenAI 模型 截圖 掃描 教練 金鑰 AI"
 #: src/app/(tabs)/(trades)/[id].tsx:331
 msgid "Opened"
 msgstr "開倉"
+
+#: src/app/cooldown-shortcuts.tsx:44
+msgid "Opening the broker during a cooldown now lands on the cooldown screen. The return gate still has to be answered before the lock lifts."
+msgstr "冷靜期間打開券商 app，會直接落喺冷靜畫面。解鎖之前仍然要回答返場關卡。"
 
 #: src/app/(tabs)/(settings)/two-factor.tsx:166
 #~ msgid "Opens iOS Passwords or whichever authenticator you use. Nothing is saved until you enter a code below."
@@ -5895,7 +5933,7 @@ msgstr "虧損日"
 msgid "RED YEAR"
 msgstr "虧損之年"
 
-#: src/app/cooldown.tsx:487
+#: src/app/cooldown.tsx:500
 msgid "Reflection"
 msgstr "反思"
 
@@ -6511,6 +6549,10 @@ msgstr "搜尋事件"
 #~ msgid "Search finds any setting directly, without opening its page."
 #~ msgstr "使用搜尋可直接前往任何設定，毋須先開啟其頁面。"
 
+#: src/app/cooldown-shortcuts.tsx:36
+msgid "Search for TraderMemos in the actions list. It answers Yes while a cooldown is locking trade entry."
+msgstr "喺動作列表搜尋 TraderMemos。冷靜模式鎖住落單期間，佢會回答 Yes。"
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:202
 #: src/app/(tabs)/(dashboard)/notes.tsx:306
 msgid "Search notes"
@@ -6886,8 +6928,8 @@ msgstr "SQN"
 msgid "Stability"
 msgstr "穩定性"
 
-#: src/app/cooldown.tsx:212
-#: src/app/cooldown.tsx:214
+#: src/app/cooldown.tsx:213
+#: src/app/cooldown.tsx:215
 msgid "Start {minutes} min"
 msgstr "開始 {minutes} 分鐘"
 
@@ -6922,7 +6964,7 @@ msgstr "固定 — 下限不變"
 msgid "Status"
 msgstr "狀態"
 
-#: src/app/cooldown.tsx:175
+#: src/app/cooldown.tsx:176
 msgid "Step away before the next trade decides for you. The trade form stays locked until you answer the return gate."
 msgstr "喺下一單替你做決定之前先行開。落單表格會鎖住，直至你回答返場關卡。"
 
@@ -7195,9 +7237,13 @@ msgstr "標籤以錯誤、習慣及自訂標記為交易加上註記。點一下
 #~ msgid "Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, swipe to delete."
 #~ msgstr "標籤以錯誤、習慣和自訂標記為交易加註。點按一行可編輯，滑動可刪除。"
 
-#: src/app/cooldown.tsx:172
+#: src/app/cooldown.tsx:173
 msgid "Take a cooldown"
 msgstr "冷靜一下"
+
+#: src/app/cooldown-shortcuts.tsx:32
+msgid "Tap + and choose “App”. Pick your broker app and “Is Opened”, then “Run Immediately”."
+msgstr "撳 + 揀「App」。揀你嘅券商 app 同「Is Opened」，再揀「Run Immediately」。"
 
 #: src/app/(tabs)/(settings)/tags.tsx:164
 msgid "Tap + to add one — tags annotate trades with mistakes, habits, and custom labels."
@@ -7311,6 +7357,10 @@ msgstr "共 {0} 筆交易，顯示最近 {MAX_TRADE_ROWS} 筆。"
 msgid "The AI review failed — try again."
 msgstr "AI 評語失敗 — 請再試。"
 
+#: src/app/cooldown-shortcuts.tsx:88
+msgid "The answer comes from the widget snapshot this app keeps, so it works even when TraderMemos is not running."
+msgstr "答案來自呢個 app 保存嘅 widget snapshot，所以 TraderMemos 未開住都用得。"
+
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:201
 msgid "The base URL must start with http:// or https://."
 msgstr "基礎 URL 必須以 http:// 或 https:// 開頭。"
@@ -7373,11 +7423,11 @@ msgstr "端點所用的模型 ID，例如 gpt-4o-mini。"
 msgid "The new passwords don't match."
 msgstr "兩次輸入的新密碼不一致。"
 
-#: src/app/cooldown.tsx:299
+#: src/app/cooldown.tsx:312
 msgid "The next trade doesn't have to fix the last one."
 msgstr "下一單唔需要補返上一單。"
 
-#: src/app/cooldown.tsx:430
+#: src/app/cooldown.tsx:443
 msgid "The one setup you're allowed"
 msgstr "你唯一允許嘅 setup"
 
@@ -7441,7 +7491,7 @@ msgstr "同步時間範圍由 IBKR Client Portal 入面 Flex Query 設定嘅期�
 #~ msgid "The tag is removed from every trade that uses it."
 #~ msgstr "將從所有使用此標籤的交易中移除。"
 
-#: src/app/cooldown.tsx:419
+#: src/app/cooldown.tsx:432
 msgid "The timer is done. Three honest answers and you're back."
 msgstr "時間到。誠實答三條問題就可以返場。"
 
@@ -7736,6 +7786,10 @@ msgstr "此範圍內已交易"
 msgid "Trader profile"
 msgstr "交易者輪廓"
 
+#: src/app/cooldown-shortcuts.tsx:69
+msgid "TraderMemos can lock its own trade form, not another app. A Shortcuts automation closes that gap: whenever your broker app opens during a cooldown, the cooldown screen opens on top of it."
+msgstr "TraderMemos 只鎖到自己嘅落單表格，鎖唔到其他 app。捷徑自動化可以補呢個缺口：冷靜期間一打開券商 app，冷靜畫面就會蓋喺上面。"
+
 #: src/app/(tabs)/(settings)/about.tsx:93
 msgid "TraderMemos is a self-hosted trading journal — your data stays on your server."
 msgstr "TraderMemos 是自架的交易日誌 — 資料只保存在你的伺服器上。"
@@ -7918,12 +7972,12 @@ msgstr "未知的用戶端"
 msgid "Unknown symbol"
 msgstr "未知代號"
 
-#: src/app/cooldown.tsx:503
-#: src/app/cooldown.tsx:505
+#: src/app/cooldown.tsx:516
+#: src/app/cooldown.tsx:518
 msgid "Unlock"
 msgstr "解鎖"
 
-#: src/app/cooldown.tsx:418
+#: src/app/cooldown.tsx:431
 msgid "Unlocking early is allowed — but write down why first. The typing is the point."
 msgstr "可以提早解鎖 — 但要先寫低點解。打字本身就係重點。"
 
@@ -8132,11 +8186,11 @@ msgstr "今日點樣？"
 msgid "What has to be happening for this play to be on? Where is it wrong?"
 msgstr "這個形態成立需要什麼條件？什麼情況下就算失效？"
 
-#: src/app/cooldown.tsx:421
+#: src/app/cooldown.tsx:434
 msgid "What was pulling you in?"
 msgstr "當時係咩拉你入場？"
 
-#: src/app/cooldown.tsx:485
+#: src/app/cooldown.tsx:498
 msgid "What will be different about this trade?"
 msgstr "呢單會有咩唔同？"
 
@@ -8145,7 +8199,7 @@ msgstr "呢單會有咩唔同？"
 msgid "What would you do differently?"
 msgstr "下次會如何改進？"
 
-#: src/app/cooldown.tsx:197
+#: src/app/cooldown.tsx:198
 msgid "What's pulling you in?"
 msgstr "係咩拉你入場？"
 
@@ -8165,7 +8219,7 @@ msgstr "為何入場？"
 msgid "Why did you exit?"
 msgstr "為何出場？"
 
-#: src/app/cooldown.tsx:481
+#: src/app/cooldown.tsx:494
 msgid "Why now?"
 msgstr "點解係而家？"
 
@@ -8339,12 +8393,12 @@ msgstr "下次登入時需要驗證器的驗證碼。"
 #. placeholder {0}: worst.summary.total_trades
 #. placeholder {1}: worst.key
 #. placeholder {2}: formatPnl(worst.summary.expectancy * (fx.rate ?? 1), fx.currency)
-#: src/app/cooldown.tsx:298
+#: src/app/cooldown.tsx:311
 msgid "Your {0} “{1}” trades average {2} each."
 msgstr "你 {0} 單「{1}」交易平均每單 {2}。"
 
 #. placeholder {0}: triggerLabel(trigger)
-#: src/app/cooldown.tsx:182
+#: src/app/cooldown.tsx:183
 msgid "Your {0} rule just tripped."
 msgstr "你嘅{0}規則啱啱觸發咗。"
 
@@ -8387,7 +8441,7 @@ msgstr "你的戰績"
 msgid "Your rhythm"
 msgstr "你的節奏"
 
-#: src/app/cooldown.tsx:443
+#: src/app/cooldown.tsx:456
 msgid "Your rule for the rest of today"
 msgstr "今日餘下時間嘅規則"
 

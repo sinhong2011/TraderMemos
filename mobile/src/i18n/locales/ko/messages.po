@@ -184,7 +184,7 @@ msgid "{0} per +1R"
 msgstr "+1R당 {0}"
 
 #. placeholder {0}: formatCountdown(remaining)
-#: src/app/cooldown.tsx:329
+#: src/app/cooldown.tsx:342
 msgid "{0} remaining"
 msgstr "{0} 남음"
 
@@ -359,7 +359,7 @@ msgstr "{label} — {0} · 거래 {1}건"
 msgid "{label} — no trades"
 msgstr "{label} — 거래 없음"
 
-#: src/app/cooldown.tsx:188
+#: src/app/cooldown.tsx:189
 msgid "{m} min"
 msgstr "{m}분"
 
@@ -483,7 +483,7 @@ msgstr "외 {0}개"
 msgid "+{0} more trades in this file."
 msgstr "이 파일에 매매 {0}건이 더 있습니다."
 
-#: src/app/cooldown.tsx:340
+#: src/app/cooldown.tsx:353
 msgid "+{EXTEND_MINUTES} min"
 msgstr "+{EXTEND_MINUTES}분"
 
@@ -748,6 +748,10 @@ msgstr "실제 리스크가 목표보다 낮습니다."
 msgid "Add"
 msgstr "추가"
 
+#: src/app/cooldown-shortcuts.tsx:35
+msgid "Add “Am I Cooling Down?”"
+msgstr "“Am I Cooling Down?” 추가"
+
 #: src/app/new-setup.tsx:277
 msgid "Add a check"
 msgstr "체크 추가"
@@ -762,6 +766,10 @@ msgstr "한도 추가"
 #: src/app/(tabs)/(settings)/index.tsx:456
 msgid "Add account"
 msgstr "계좌 추가"
+
+#: src/app/cooldown-shortcuts.tsx:39
+msgid "Add an “If” on the result"
+msgstr "결과에 “If” 추가"
 
 #: src/app/cash-form.tsx:211
 msgid "Add an account first."
@@ -862,7 +870,7 @@ msgid "Add user"
 msgstr "사용자 추가"
 
 #: src/app/(tabs)/(settings)/user-form.tsx:89
-#: src/app/cooldown.tsx:340
+#: src/app/cooldown.tsx:353
 msgid "Adding…"
 msgstr "추가 중…"
 
@@ -1052,7 +1060,7 @@ msgstr "모든 보유 기간"
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "OpenAI 호환 엔드포인트면 무엇이든 사용할 수 있습니다. 테스트는 저장 여부와 관계없이 위 값을 사용합니다."
 
-#: src/app/cooldown.tsx:409
+#: src/app/cooldown.tsx:422
 msgid "Any setup"
 msgstr "모든 셋업"
 
@@ -1326,7 +1334,7 @@ msgstr "본전"
 msgid "Before the open"
 msgstr "장 시작 전"
 
-#: src/app/cooldown.tsx:414
+#: src/app/cooldown.tsx:427
 msgid "Before you go back"
 msgstr "돌아가기 전에"
 
@@ -1419,11 +1427,11 @@ msgstr "본전"
 msgid "Breakout pullback"
 msgstr "브레이크아웃 풀백"
 
-#: src/app/cooldown.tsx:272
+#: src/app/cooldown.tsx:285
 msgid "Breathe in"
 msgstr "들이쉬기"
 
-#: src/app/cooldown.tsx:272
+#: src/app/cooldown.tsx:285
 msgid "Breathe out"
 msgstr "내쉬기"
 
@@ -1725,6 +1733,7 @@ msgstr "지우는 중…"
 msgid "Clock"
 msgstr "시계"
 
+#: src/app/cooldown-shortcuts.tsx:54
 #: src/app/cooldown.tsx:130
 #: src/app/new-token.tsx:80
 #: src/app/replay.tsx:1059
@@ -1947,7 +1956,7 @@ msgstr "계약 수"
 
 #: src/app/cooldown.tsx:74
 #: src/app/cooldown.tsx:81
-#: src/app/cooldown.tsx:165
+#: src/app/cooldown.tsx:166
 #: src/components/cooldown-card.tsx:29
 #: src/components/tools-menu.tsx:66
 msgid "Cooldown"
@@ -1962,7 +1971,7 @@ msgstr "쿨다운 종료 — 게이트에 답하기"
 msgid "Cooldowns"
 msgstr "쿨다운"
 
-#: src/app/cooldown.tsx:324
+#: src/app/cooldown.tsx:337
 #: src/components/cooldown-banner.tsx:44
 msgid "Cooling down"
 msgstr "쿨다운 중"
@@ -2052,7 +2061,7 @@ msgstr "활성화할 수 없습니다"
 msgid "Could not export config"
 msgstr "설정을 내보내지 못했습니다"
 
-#: src/app/cooldown.tsx:347
+#: src/app/cooldown.tsx:360
 msgid "Could not extend"
 msgstr "연장할 수 없음"
 
@@ -2188,7 +2197,7 @@ msgstr "샘플을 저장할 수 없습니다"
 msgid "Could not share"
 msgstr "공유할 수 없습니다"
 
-#: src/app/cooldown.tsx:159
+#: src/app/cooldown.tsx:160
 msgid "Could not start"
 msgstr "시작할 수 없음"
 
@@ -2200,7 +2209,7 @@ msgstr "설정을 시작할 수 없습니다"
 msgid "Could not turn off"
 msgstr "끌 수 없습니다"
 
-#: src/app/cooldown.tsx:403
+#: src/app/cooldown.tsx:416
 msgid "Could not unlock"
 msgstr "잠금 해제할 수 없음"
 
@@ -2659,6 +2668,7 @@ msgstr "금액"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:219
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:235
 #: src/app/(tabs)/(settings)/import-trades.tsx:289
+#: src/app/cooldown-shortcuts.tsx:43
 #: src/app/manage-tags.tsx:68
 #: src/components/cooldown-card.tsx:38
 #: src/components/time-picker.tsx:100
@@ -3600,7 +3610,7 @@ msgstr "손익 높은 순"
 #~ msgid "History"
 #~ msgstr "내역"
 
-#: src/app/cooldown.tsx:272
+#: src/app/cooldown.tsx:285
 msgid "Hold"
 msgstr "멈추기"
 
@@ -3641,7 +3651,7 @@ msgstr "세션은 어땠나요? \"- [ ]\"로 체크 항목을 만들 수 있습�
 msgid "How little heat entries take relative to the move they find (MAE vs MFE)."
 msgstr "진입이 포착한 움직임 대비 얼마나 적은 손실 압박을 받았는지(MAE 대 MFE)."
 
-#: src/app/cooldown.tsx:186
+#: src/app/cooldown.tsx:187
 msgid "How long?"
 msgstr "얼마나?"
 
@@ -3649,7 +3659,7 @@ msgstr "얼마나?"
 msgid "How to set one up"
 msgstr "서버 구축 방법"
 
-#: src/app/cooldown.tsx:358
+#: src/app/cooldown.tsx:371
 msgid "I need to trade now"
 msgstr "지금 거래해야 해요"
 
@@ -3659,6 +3669,10 @@ msgstr "지금 거래해야 해요"
 #: src/app/(tabs)/(settings)/import-history.tsx:19
 msgid "IBKR Flex sync"
 msgstr "IBKR Flex 동기화"
+
+#: src/app/cooldown-shortcuts.tsx:40
+msgid "If the answer is Yes, add TraderMemos → “Open Cooldown”. Leave “Otherwise” empty so a normal day opens the broker as usual."
+msgstr "답이 Yes이면 TraderMemos → “Open Cooldown”을 추가하세요. “Otherwise”는 비워 두어 평소에는 브로커 앱이 그대로 열리게 합니다."
 
 #: src/app/(tabs)/(settings)/two-factor.tsx:121
 msgid "If you lose your authenticator"
@@ -4051,6 +4065,14 @@ msgstr "불러오는 중…"
 msgid "locale translation region"
 msgstr "로캘 번역 지역 언어"
 
+#: src/app/cooldown-shortcuts.tsx:56
+msgid "Lock the broker too"
+msgstr "브로커 앱도 잠그기"
+
+#: src/app/cooldown.tsx:226
+msgid "Lock your broker app too ›"
+msgstr "브로커 앱도 잠그기 ›"
+
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:511
 msgid "Locked at tiers"
 msgstr "티어에서 확정"
@@ -4178,6 +4200,10 @@ msgstr "MAE가 기록 리스크의 약 {r}배였습니다. 스톱을 넓혔거�
 #: src/components/insights-card.tsx:104
 msgid "Main leak"
 msgstr "주요 실수"
+
+#: src/app/cooldown-shortcuts.tsx:66
+msgid "Make the cooldown reach your broker"
+msgstr "쿨다운을 브로커 앱까지 확장하기"
 
 #: src/components/account-menu.tsx:155
 msgid "Manage accounts"
@@ -4744,7 +4770,7 @@ msgstr "아직 노트가 없습니다"
 msgid "No plan was recorded before the trade"
 msgstr "거래 전에 계획이 기록되지 않았습니다"
 
-#: src/app/cooldown.tsx:439
+#: src/app/cooldown.tsx:452
 msgid "No playbook setups yet — add some and the gate will hold you to one."
 msgstr "플레이북 셋업이 아직 없습니다 — 추가하면 게이트가 하나만 고르게 합니다."
 
@@ -5136,6 +5162,14 @@ msgstr "리스크 규칙 열기"
 msgid "Open settings"
 msgstr "설정 열기"
 
+#: src/app/cooldown-shortcuts.tsx:94
+msgid "Open Shortcuts"
+msgstr "단축어 열기"
+
+#: src/app/cooldown-shortcuts.tsx:31
+msgid "Open Shortcuts → Automation"
+msgstr "단축어 → 자동화 열기"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:54
 msgid "Open time"
 msgstr "진입 시각"
@@ -5147,6 +5181,10 @@ msgstr "OpenAI 모델 스크린샷 스캔 코치 키 AI"
 #: src/app/(tabs)/(trades)/[id].tsx:331
 msgid "Opened"
 msgstr "진입"
+
+#: src/app/cooldown-shortcuts.tsx:44
+msgid "Opening the broker during a cooldown now lands on the cooldown screen. The return gate still has to be answered before the lock lifts."
+msgstr "쿨다운 중에 브로커 앱을 열면 쿨다운 화면으로 이동합니다. 잠금이 풀리려면 여전히 복귀 게이트에 답해야 합니다."
 
 #: src/app/(tabs)/(settings)/two-factor.tsx:166
 #~ msgid "Opens iOS Passwords or whichever authenticator you use. Nothing is saved until you enter a code below."
@@ -5895,7 +5933,7 @@ msgstr "손실일"
 msgid "RED YEAR"
 msgstr "손실의 해"
 
-#: src/app/cooldown.tsx:487
+#: src/app/cooldown.tsx:500
 msgid "Reflection"
 msgstr "성찰"
 
@@ -6511,6 +6549,10 @@ msgstr "이벤트 검색"
 #~ msgid "Search finds any setting directly, without opening its page."
 #~ msgstr "검색하면 해당 페이지를 열지 않고도 설정으로 바로 이동합니다."
 
+#: src/app/cooldown-shortcuts.tsx:36
+msgid "Search for TraderMemos in the actions list. It answers Yes while a cooldown is locking trade entry."
+msgstr "동작 목록에서 TraderMemos를 검색하세요. 쿨다운이 거래 입력을 잠그는 동안 Yes를 반환합니다."
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:202
 #: src/app/(tabs)/(dashboard)/notes.tsx:306
 msgid "Search notes"
@@ -6886,8 +6928,8 @@ msgstr "SQN"
 msgid "Stability"
 msgstr "안정성"
 
-#: src/app/cooldown.tsx:212
-#: src/app/cooldown.tsx:214
+#: src/app/cooldown.tsx:213
+#: src/app/cooldown.tsx:215
 msgid "Start {minutes} min"
 msgstr "{minutes}분 시작"
 
@@ -6922,7 +6964,7 @@ msgstr "고정 — 하한이 움직이지 않음"
 msgid "Status"
 msgstr "상태"
 
-#: src/app/cooldown.tsx:175
+#: src/app/cooldown.tsx:176
 msgid "Step away before the next trade decides for you. The trade form stays locked until you answer the return gate."
 msgstr "다음 거래가 당신 대신 결정하기 전에 물러나세요. 복귀 게이트에 답할 때까지 거래 입력은 잠깁니다."
 
@@ -7195,9 +7237,13 @@ msgstr "태그는 실수·습관·사용자 지정 라벨로 매매에 주석을
 #~ msgid "Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, swipe to delete."
 #~ msgstr "태그는 실수, 습관, 사용자 지정 라벨로 거래에 주석을 답니다. 행을 탭하면 편집, 밀면 삭제합니다."
 
-#: src/app/cooldown.tsx:172
+#: src/app/cooldown.tsx:173
 msgid "Take a cooldown"
 msgstr "쿨다운 하기"
+
+#: src/app/cooldown-shortcuts.tsx:32
+msgid "Tap + and choose “App”. Pick your broker app and “Is Opened”, then “Run Immediately”."
+msgstr "+를 누르고 “App”을 선택하세요. 브로커 앱과 “Is Opened”를 고른 뒤 “Run Immediately”를 선택합니다."
 
 #: src/app/(tabs)/(settings)/tags.tsx:164
 msgid "Tap + to add one — tags annotate trades with mistakes, habits, and custom labels."
@@ -7311,6 +7357,10 @@ msgstr "전체 {0}건 중 최근 {MAX_TRADE_ROWS}건입니다."
 msgid "The AI review failed — try again."
 msgstr "AI 리뷰에 실패했습니다 — 다시 시도하세요."
 
+#: src/app/cooldown-shortcuts.tsx:88
+msgid "The answer comes from the widget snapshot this app keeps, so it works even when TraderMemos is not running."
+msgstr "답은 이 앱이 보관하는 위젯 스냅숏에서 오므로 TraderMemos가 실행 중이 아니어도 동작합니다."
+
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:201
 msgid "The base URL must start with http:// or https://."
 msgstr "베이스 URL은 http:// 또는 https:// 로 시작해야 합니다."
@@ -7373,11 +7423,11 @@ msgstr "엔드포인트가 사용하는 그대로의 모델 ID (예: gpt-4o-mini
 msgid "The new passwords don't match."
 msgstr "새 비밀번호가 일치하지 않습니다."
 
-#: src/app/cooldown.tsx:299
+#: src/app/cooldown.tsx:312
 msgid "The next trade doesn't have to fix the last one."
 msgstr "다음 거래가 지난 거래를 만회할 필요는 없습니다."
 
-#: src/app/cooldown.tsx:430
+#: src/app/cooldown.tsx:443
 msgid "The one setup you're allowed"
 msgstr "허용할 단 하나의 셋업"
 
@@ -7441,7 +7491,7 @@ msgstr "동기화 기간은 IBKR 클라이언트 포털에서 설정한 Flex 쿼
 #~ msgid "The tag is removed from every trade that uses it."
 #~ msgstr "이 태그를 사용하는 모든 트레이드에서 제거됩니다."
 
-#: src/app/cooldown.tsx:419
+#: src/app/cooldown.tsx:432
 msgid "The timer is done. Three honest answers and you're back."
 msgstr "타이머가 끝났습니다. 솔직한 답 세 개면 돌아갈 수 있어요."
 
@@ -7736,6 +7786,10 @@ msgstr "이 범위에서 거래됨"
 msgid "Trader profile"
 msgstr "트레이더 프로필"
 
+#: src/app/cooldown-shortcuts.tsx:69
+msgid "TraderMemos can lock its own trade form, not another app. A Shortcuts automation closes that gap: whenever your broker app opens during a cooldown, the cooldown screen opens on top of it."
+msgstr "TraderMemos는 자체 거래 입력만 잠글 수 있고 다른 앱은 잠글 수 없습니다. 단축어 자동화가 그 간극을 메웁니다. 쿨다운 중에 브로커 앱이 열릴 때마다 쿨다운 화면이 그 위에 열립니다."
+
 #: src/app/(tabs)/(settings)/about.tsx:93
 msgid "TraderMemos is a self-hosted trading journal — your data stays on your server."
 msgstr "TraderMemos는 셀프 호스팅 트레이딩 저널입니다 — 데이터는 내 서버에 남습니다."
@@ -7918,12 +7972,12 @@ msgstr "알 수 없는 클라이언트"
 msgid "Unknown symbol"
 msgstr "알 수 없는 종목"
 
-#: src/app/cooldown.tsx:503
-#: src/app/cooldown.tsx:505
+#: src/app/cooldown.tsx:516
+#: src/app/cooldown.tsx:518
 msgid "Unlock"
 msgstr "잠금 해제"
 
-#: src/app/cooldown.tsx:418
+#: src/app/cooldown.tsx:431
 msgid "Unlocking early is allowed — but write down why first. The typing is the point."
 msgstr "일찍 해제할 수 있어요 — 단, 먼저 이유를 적으세요. 적는 것 자체가 핵심입니다."
 
@@ -8132,11 +8186,11 @@ msgstr "오늘은 어땠나요?"
 msgid "What has to be happening for this play to be on? Where is it wrong?"
 msgstr "이 플레이가 성립하려면 무엇이 필요합니까? 언제 무효가 됩니까?"
 
-#: src/app/cooldown.tsx:421
+#: src/app/cooldown.tsx:434
 msgid "What was pulling you in?"
 msgstr "무엇이 당신을 끌어당겼나요?"
 
-#: src/app/cooldown.tsx:485
+#: src/app/cooldown.tsx:498
 msgid "What will be different about this trade?"
 msgstr "이번 거래는 무엇이 다른가요?"
 
@@ -8145,7 +8199,7 @@ msgstr "이번 거래는 무엇이 다른가요?"
 msgid "What would you do differently?"
 msgstr "다음에는 무엇을 다르게 하시겠습니까?"
 
-#: src/app/cooldown.tsx:197
+#: src/app/cooldown.tsx:198
 msgid "What's pulling you in?"
 msgstr "무엇이 당신을 끌어당기나요?"
 
@@ -8165,7 +8219,7 @@ msgstr "왜 진입했습니까?"
 msgid "Why did you exit?"
 msgstr "왜 청산했습니까?"
 
-#: src/app/cooldown.tsx:481
+#: src/app/cooldown.tsx:494
 msgid "Why now?"
 msgstr "왜 지금인가요?"
 
@@ -8339,12 +8393,12 @@ msgstr "다음 로그인부터 인증 앱의 코드가 필요합니다."
 #. placeholder {0}: worst.summary.total_trades
 #. placeholder {1}: worst.key
 #. placeholder {2}: formatPnl(worst.summary.expectancy * (fx.rate ?? 1), fx.currency)
-#: src/app/cooldown.tsx:298
+#: src/app/cooldown.tsx:311
 msgid "Your {0} “{1}” trades average {2} each."
 msgstr "당신의 “{1}” 거래 {0}건은 평균 {2}입니다."
 
 #. placeholder {0}: triggerLabel(trigger)
-#: src/app/cooldown.tsx:182
+#: src/app/cooldown.tsx:183
 msgid "Your {0} rule just tripped."
 msgstr "{0} 규칙이 방금 걸렸습니다."
 
@@ -8387,7 +8441,7 @@ msgstr "나의 성적"
 msgid "Your rhythm"
 msgstr "나의 리듬"
 
-#: src/app/cooldown.tsx:443
+#: src/app/cooldown.tsx:456
 msgid "Your rule for the rest of today"
 msgstr "오늘 남은 시간의 규칙"
 

@@ -306,6 +306,9 @@ export default function RootLayout() {
                 lock (the banner and the trade gate carry it), so the sheet
                 itself needs no guard against dismissal. */}
             <Stack.Screen name="cooldown" options={{ presentation: 'modal' }} />
+            {/* The Shortcuts automation walkthrough, opened from the cooldown
+                start face; a modal over the modal, same as any help sheet. */}
+            <Stack.Screen name="cooldown-shortcuts" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="edit-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
