@@ -33,6 +33,8 @@ const SWIFT_FILES = [
   'QuickJournalControl.swift',
   'TradingSessionAttributes.swift',
   'TradingSessionLiveActivity.swift',
+  'CooldownAttributes.swift',
+  'CooldownLiveActivity.swift',
   'WidgetsBundle.swift',
 ];
 // The ActivityKit attributes are canonical in the live-activity module (the
@@ -40,6 +42,7 @@ const SWIFT_FILES = [
 // so the two targets can never drift.
 const SHARED_FROM_MODULES = {
   'TradingSessionAttributes.swift': ['modules', 'live-activity', 'ios'],
+  'CooldownAttributes.swift': ['modules', 'live-activity', 'ios'],
 };
 const TARGET_FILES = [...SWIFT_FILES, 'Info.plist', `${TARGET_NAME}.entitlements`];
 

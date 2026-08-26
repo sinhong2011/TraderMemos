@@ -106,12 +106,12 @@ msgid "{0} fills"
 msgstr "{0} fills"
 
 #. placeholder {0}: lossAversion.give_back_count
-#: src/components/reports/behavior-section.tsx:289
+#: src/components/reports/behavior-section.tsx:373
 msgid "{0} green at peak"
 msgstr "{0} green at peak"
 
 #. placeholder {0}: lossAversion.excluded
-#: src/components/reports/behavior-section.tsx:296
+#: src/components/reports/behavior-section.tsx:380
 msgid "{0} losers without recorded MAE/MFE could not be checked — recompute excursion on the trade to fill them."
 msgstr "{0} losers without recorded MAE/MFE could not be checked — recompute excursion on the trade to fill them."
 
@@ -228,6 +228,15 @@ msgstr "{0} symbols found"
 msgid "{0} trades"
 msgstr "{0} trades"
 
+#. placeholder {0}: after.trades
+#. placeholder {0}: without.trades
+#. placeholder {1}: formatPercent(after.win_rate, 0)
+#. placeholder {1}: formatPercent(without.win_rate, 0)
+#: src/components/reports/behavior-section.tsx:175
+#: src/components/reports/behavior-section.tsx:186
+msgid "{0} trades · {1} win"
+msgstr "{0} trades · {1} win"
+
 #. placeholder {0}: summary.total_trades
 #. placeholder {1}: money.format(-summary.total_fees)
 #. placeholder {2}: money.format(summary.expectancy)
@@ -258,8 +267,13 @@ msgstr "{0} trades from {1} rows — {2} fills inserted, {3} duplicates skipped.
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 
+#. placeholder {0}: stats.early_releases
+#: src/components/reports/behavior-section.tsx:165
+msgid "{0} unlocked early"
+msgstr "{0} unlocked early"
+
 #. placeholder {0}: streaks.streaks
-#: src/components/reports/behavior-section.tsx:242
+#: src/components/reports/behavior-section.tsx:326
 msgid "{0} winning streaks scanned."
 msgstr "{0} winning streaks scanned."
 
@@ -886,6 +900,15 @@ msgstr "Adjustment"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "Adverse excursion exceeded planned risk"
 
+#. placeholder {0}: stats.streak_n
+#: src/components/reports/behavior-section.tsx:182
+msgid "After {0} losses, no cooldown"
+msgstr "After {0} losses, no cooldown"
+
+#: src/components/reports/behavior-section.tsx:171
+msgid "After a cooldown"
+msgstr "After a cooldown"
+
 #: src/components/reports/detailed-section.tsx:249
 msgid "After hours"
 msgstr "After hours"
@@ -1158,6 +1181,11 @@ msgstr "Average hold"
 msgid "avg"
 msgstr "avg"
 
+#. placeholder {0}: formatDuration(stats.avg_minutes * 60)
+#: src/components/reports/behavior-section.tsx:166
+msgid "avg {0}"
+msgstr "avg {0}"
+
 #: src/components/reports/overview-section.tsx:497
 msgid "avg / traded day"
 msgstr "avg / traded day"
@@ -1185,7 +1213,7 @@ msgstr "Avg exit"
 msgid "Avg hold"
 msgstr "Avg hold"
 
-#: src/components/reports/behavior-section.tsx:271
+#: src/components/reports/behavior-section.tsx:355
 msgid "Avg loser hold"
 msgstr "Avg loser hold"
 
@@ -1215,7 +1243,7 @@ msgstr "Avg trade"
 msgid "Avg win"
 msgstr "Avg win"
 
-#: src/components/reports/behavior-section.tsx:264
+#: src/components/reports/behavior-section.tsx:348
 msgid "Avg winner hold"
 msgstr "Avg winner hold"
 
@@ -1350,7 +1378,7 @@ msgstr "Best trade"
 msgid "Bias"
 msgstr "Bias"
 
-#: src/components/reports/behavior-section.tsx:302
+#: src/components/reports/behavior-section.tsx:386
 msgid "Biggest give-backs"
 msgstr "Biggest give-backs"
 
@@ -1785,6 +1813,10 @@ msgstr "Commission"
 msgid "Commissions and fees were {pct}% of gross — that materially changes the outcome. Fewer legs or lower-cost fills would help."
 msgstr "Commissions and fees were {pct}% of gross — that materially changes the outcome. Fewer legs or lower-cost fills would help."
 
+#: src/components/reports/behavior-section.tsx:200
+msgid "Compares trades opened within an hour of a release with trades opened within an hour of a loss streak on days you did not cool down."
+msgstr "Compares trades opened within an hour of a release with trades opened within an hour of a loss streak on days you did not cool down."
+
 #: src/components/reports/overview-section.tsx:546
 msgid "Composite"
 msgstr "Composite"
@@ -1939,6 +1971,11 @@ msgstr "Cooldown mode is off"
 msgid "Cooldown over — answer the gate"
 msgstr "Cooldown over — answer the gate"
 
+#: src/components/reports/behavior-section.tsx:151
+#: src/components/reports/behavior-section.tsx:161
+msgid "Cooldowns"
+msgstr "Cooldowns"
+
 #: src/app/cooldown.tsx:346
 #: src/components/cooldown-banner.tsx:44
 msgid "Cooling down"
@@ -2062,7 +2099,7 @@ msgstr "Could not load models"
 #~ msgid "Could not load your account."
 #~ msgstr "Could not load your account."
 
-#: src/app/_layout.tsx:78
+#: src/app/_layout.tsx:80
 msgid "Could not open file"
 msgstr "Could not open file"
 
@@ -2641,6 +2678,10 @@ msgstr "Dollars"
 #: src/components/time-picker.tsx:100
 msgid "Done"
 msgstr "Done"
+
+#: src/components/reports/behavior-section.tsx:143
+msgid "done for today"
+msgstr "done for today"
 
 #: src/lib/cooldown.ts:58
 msgid "Done for today"
@@ -3518,6 +3559,10 @@ msgstr "Guaranteed floor"
 msgid "Half Kelly"
 msgstr "Half Kelly"
 
+#: src/components/reports/behavior-section.tsx:139
+msgid "half size"
+msgstr "half size"
+
 #: src/lib/cooldown.ts:48
 msgid "Half size"
 msgstr "Half size"
@@ -3573,7 +3618,7 @@ msgstr "Highest P&L"
 msgid "Hold"
 msgstr "Hold"
 
-#: src/components/reports/behavior-section.tsx:278
+#: src/components/reports/behavior-section.tsx:362
 msgid "Hold ratio"
 msgstr "Hold ratio"
 
@@ -3941,7 +3986,7 @@ msgstr "Link copied"
 #~ msgid "Loading {year}"
 #~ msgstr "Loading {year}"
 
-#: src/components/reports/behavior-section.tsx:187
+#: src/components/reports/behavior-section.tsx:269
 msgid "Loading behavior report"
 msgstr "Loading behavior report"
 
@@ -4077,7 +4122,7 @@ msgstr "Longest win streak"
 #~ msgid "Loose"
 #~ msgstr "Loose"
 
-#: src/components/reports/behavior-section.tsx:282
+#: src/components/reports/behavior-section.tsx:366
 msgid "losers vs winners"
 msgstr "losers vs winners"
 
@@ -4090,7 +4135,7 @@ msgstr "Losing hold"
 msgid "LOSS"
 msgstr "LOSS"
 
-#: src/components/reports/behavior-section.tsx:254
+#: src/components/reports/behavior-section.tsx:338
 msgid "Loss aversion"
 msgstr "Loss aversion"
 
@@ -4252,8 +4297,8 @@ msgstr "Median"
 #. placeholder {0}: formatDuration(lossAversion.median_loss_hold_secs)
 #. placeholder {0}: formatDuration(lossAversion.median_win_hold_secs)
 #. placeholder {0}: formatDuration(median)
-#: src/components/reports/behavior-section.tsx:266
-#: src/components/reports/behavior-section.tsx:273
+#: src/components/reports/behavior-section.tsx:350
+#: src/components/reports/behavior-section.tsx:357
 #: src/components/reports/duration-scatter-card.tsx:102
 msgid "median {0}"
 msgstr "median {0}"
@@ -4655,6 +4700,10 @@ msgstr "No closed trades yet"
 #~ msgid "No connection"
 #~ msgstr "No connection"
 
+#: src/components/reports/behavior-section.tsx:154
+msgid "No cooldowns in this range — start one from the tools menu, or set Auto cooldown under Risk rules so a tripped limit starts it for you."
+msgstr "No cooldowns in this range — start one from the tools menu, or set Auto cooldown under Risk rules so a tripped limit starts it for you."
+
 #: src/components/equity-card.tsx:82
 #: src/components/reports/risk-section.tsx:110
 msgid "No equity data in this range."
@@ -4718,7 +4767,7 @@ msgstr "No playbook setups yet — add some and the gate will hold you to one."
 msgid "No response from {0}. Check your connection, or that the server is running and reachable from this network."
 msgstr "No response from {0}. Check your connection, or that the server is running and reachable from this network."
 
-#: src/components/reports/behavior-section.tsx:208
+#: src/components/reports/behavior-section.tsx:292
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 
@@ -4733,6 +4782,10 @@ msgstr "No risk rules configured — set max risk per trade and max daily loss t
 #: src/lib/cooldown.ts:45
 msgid "No rule"
 msgstr "No rule"
+
+#: src/components/reports/behavior-section.tsx:195
+msgid "no rules made yet"
+msgstr "no rules made yet"
 
 #. placeholder {0}: query.trim()
 #: src/app/(tabs)/(settings)/index.tsx:371
@@ -4752,7 +4805,7 @@ msgstr "No setups yet"
 msgid "no stops recorded"
 msgstr "no stops recorded"
 
-#: src/components/reports/behavior-section.tsx:231
+#: src/components/reports/behavior-section.tsx:315
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "No streak patterns detected — flags trades sized up right after a winning streak."
 
@@ -4784,6 +4837,8 @@ msgstr "No tokens yet"
 #: src/app/(tabs)/(calendar)/index.tsx:1360
 #: src/app/(tabs)/(calendar)/index.tsx:1540
 #: src/app/(tabs)/(calendar)/index.tsx:1687
+#: src/components/reports/behavior-section.tsx:172
+#: src/components/reports/behavior-section.tsx:183
 msgid "No trades"
 msgstr "No trades"
 
@@ -4857,7 +4912,7 @@ msgstr "Not connected"
 msgid "Not enough closed trades to draw a session curve."
 msgstr "Not enough closed trades to draw a session curve."
 
-#: src/components/reports/behavior-section.tsx:257
+#: src/components/reports/behavior-section.tsx:341
 msgid "Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak."
 msgstr "Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak."
 
@@ -5020,6 +5075,10 @@ msgstr "One rule to clear before you trade."
 #: src/app/new-setup.tsx:246
 msgid "One thing that has to be true"
 msgstr "One thing that has to be true"
+
+#: src/components/reports/behavior-section.tsx:141
+msgid "one trade"
+msgstr "one trade"
 
 #: src/lib/cooldown.ts:53
 msgid "One trade"
@@ -5189,7 +5248,7 @@ msgstr "over-risked ×{0}"
 msgid "over-traded"
 msgstr "over-traded"
 
-#: src/components/reports/behavior-section.tsx:228
+#: src/components/reports/behavior-section.tsx:312
 msgid "Overconfidence"
 msgstr "Overconfidence"
 
@@ -5318,7 +5377,7 @@ msgid "Peak"
 msgstr "Peak"
 
 #. placeholder {0}: money.formatCompact(giveBack.mfe)
-#: src/components/reports/behavior-section.tsx:308
+#: src/components/reports/behavior-section.tsx:392
 msgid "peak {0}"
 msgstr "peak {0}"
 
@@ -5640,7 +5699,7 @@ msgstr "Profit at target"
 msgid "Profit factor"
 msgstr "Profit factor"
 
-#: src/components/reports/behavior-section.tsx:287
+#: src/components/reports/behavior-section.tsx:371
 msgid "Profit given back"
 msgstr "Profit given back"
 
@@ -5783,7 +5842,7 @@ msgstr "Rate how you executed, not how it paid — a disciplined trade can still
 msgid "Rates come from your server's market data provider."
 msgstr "Rates come from your server's market data provider."
 
-#: src/components/reports/behavior-section.tsx:149
+#: src/components/reports/behavior-section.tsx:230
 msgid "re-entry"
 msgstr "re-entry"
 
@@ -5835,7 +5894,7 @@ msgstr "Recap"
 msgid "Recent breach days"
 msgstr "Recent breach days"
 
-#: src/components/reports/behavior-section.tsx:141
+#: src/components/reports/behavior-section.tsx:222
 msgid "Recent events"
 msgstr "Recent events"
 
@@ -6103,6 +6162,10 @@ msgstr "Retrying…"
 msgid "Return"
 msgstr "Return"
 
+#: src/components/reports/behavior-section.tsx:193
+msgid "Return rule broken"
+msgstr "Return rule broken"
+
 #: src/lib/cooldown.ts:33
 msgid "Revenge"
 msgstr "Revenge"
@@ -6112,7 +6175,7 @@ msgstr "Revenge"
 msgid "revenge trades ×{0}"
 msgstr "revenge trades ×{0}"
 
-#: src/components/reports/behavior-section.tsx:205
+#: src/components/reports/behavior-section.tsx:289
 msgid "Revenge trading"
 msgstr "Revenge trading"
 
@@ -6795,7 +6858,7 @@ msgid "Size"
 msgstr "Size"
 
 #. placeholder {0}: (event.size_ratio ?? 0).toFixed(1)
-#: src/components/reports/behavior-section.tsx:150
+#: src/components/reports/behavior-section.tsx:231
 msgid "size ×{0}"
 msgstr "size ×{0}"
 
@@ -6811,8 +6874,8 @@ msgstr "Skipped (duplicates)"
 msgid "Skipped {skipped} row(s) without quantity/price."
 msgstr "Skipped {skipped} row(s) without quantity/price."
 
-#: src/components/reports/behavior-section.tsx:220
-#: src/components/reports/behavior-section.tsx:246
+#: src/components/reports/behavior-section.tsx:304
+#: src/components/reports/behavior-section.tsx:330
 msgid "Small sample — patterns firm up as more closed trades accumulate."
 msgstr "Small sample — patterns firm up as more closed trades accumulate."
 
@@ -8187,6 +8250,14 @@ msgstr "wins in a row"
 #: src/lib/cash.ts:12
 msgid "Withdrawal"
 msgstr "Withdrawal"
+
+#: src/components/reports/behavior-section.tsx:187
+msgid "within an hour of the streak"
+msgstr "within an hour of the streak"
+
+#: src/components/reports/behavior-section.tsx:176
+msgid "within an hour of unlocking"
+msgstr "within an hour of unlocking"
 
 #: src/components/reports/risk-section.tsx:299
 msgid "Worst case"

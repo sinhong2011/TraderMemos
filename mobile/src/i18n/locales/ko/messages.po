@@ -106,12 +106,12 @@ msgid "{0} fills"
 msgstr "체결 {0}건"
 
 #. placeholder {0}: lossAversion.give_back_count
-#: src/components/reports/behavior-section.tsx:289
+#: src/components/reports/behavior-section.tsx:373
 msgid "{0} green at peak"
 msgstr "{0}건이 고점에서 수익 상태"
 
 #. placeholder {0}: lossAversion.excluded
-#: src/components/reports/behavior-section.tsx:296
+#: src/components/reports/behavior-section.tsx:380
 msgid "{0} losers without recorded MAE/MFE could not be checked — recompute excursion on the trade to fill them."
 msgstr "MAE/MFE가 기록되지 않은 손실 거래 {0}건은 확인할 수 없습니다 — 거래에서 익스커전을 다시 계산하세요."
 
@@ -228,6 +228,15 @@ msgstr "{0}개 종목을 찾았습니다"
 msgid "{0} trades"
 msgstr "트레이드 {0}건"
 
+#. placeholder {0}: after.trades
+#. placeholder {0}: without.trades
+#. placeholder {1}: formatPercent(after.win_rate, 0)
+#. placeholder {1}: formatPercent(without.win_rate, 0)
+#: src/components/reports/behavior-section.tsx:175
+#: src/components/reports/behavior-section.tsx:186
+msgid "{0} trades · {1} win"
+msgstr "{0}건 · 승률 {1}"
+
 #. placeholder {0}: summary.total_trades
 #. placeholder {1}: money.format(-summary.total_fees)
 #. placeholder {2}: money.format(summary.expectancy)
@@ -258,8 +267,13 @@ msgstr "{1}행에서 거래 {0}건 — 체결 {2}건 삽입, 중복 {3}건 건�
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "초기 리스크가 기록되지 않은 거래 {0}건은 거래당 리스크 규칙으로 채점할 수 없었습니다."
 
+#. placeholder {0}: stats.early_releases
+#: src/components/reports/behavior-section.tsx:165
+msgid "{0} unlocked early"
+msgstr "{0}회 조기 해제"
+
 #. placeholder {0}: streaks.streaks
-#: src/components/reports/behavior-section.tsx:242
+#: src/components/reports/behavior-section.tsx:326
 msgid "{0} winning streaks scanned."
 msgstr "연승 {0}회를 검사했습니다."
 
@@ -886,6 +900,15 @@ msgstr "조정"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "역행 폭이 계획 리스크를 초과"
 
+#. placeholder {0}: stats.streak_n
+#: src/components/reports/behavior-section.tsx:182
+msgid "After {0} losses, no cooldown"
+msgstr "{0}연패 후, 쿨다운 없음"
+
+#: src/components/reports/behavior-section.tsx:171
+msgid "After a cooldown"
+msgstr "쿨다운 후"
+
 #: src/components/reports/detailed-section.tsx:249
 msgid "After hours"
 msgstr "애프터마켓"
@@ -1158,6 +1181,11 @@ msgstr "평균 보유 시간"
 msgid "avg"
 msgstr "평균"
 
+#. placeholder {0}: formatDuration(stats.avg_minutes * 60)
+#: src/components/reports/behavior-section.tsx:166
+msgid "avg {0}"
+msgstr "평균 {0}"
+
 #: src/components/reports/overview-section.tsx:497
 msgid "avg / traded day"
 msgstr "거래일 평균"
@@ -1185,7 +1213,7 @@ msgstr "평균 청산가"
 msgid "Avg hold"
 msgstr "평균 보유 시간"
 
-#: src/components/reports/behavior-section.tsx:271
+#: src/components/reports/behavior-section.tsx:355
 msgid "Avg loser hold"
 msgstr "손실 평균 보유"
 
@@ -1215,7 +1243,7 @@ msgstr "평균 거래"
 msgid "Avg win"
 msgstr "평균 수익"
 
-#: src/components/reports/behavior-section.tsx:264
+#: src/components/reports/behavior-section.tsx:348
 msgid "Avg winner hold"
 msgstr "수익 평균 보유"
 
@@ -1350,7 +1378,7 @@ msgstr "최고 수익 트레이드"
 msgid "Bias"
 msgstr "방향"
 
-#: src/components/reports/behavior-section.tsx:302
+#: src/components/reports/behavior-section.tsx:386
 msgid "Biggest give-backs"
 msgstr "최대 이익 반납"
 
@@ -1785,6 +1813,10 @@ msgstr "커미션"
 msgid "Commissions and fees were {pct}% of gross — that materially changes the outcome. Fewer legs or lower-cost fills would help."
 msgstr "수수료가 총손익의 {pct}%를 차지해 결과를 크게 바꿨습니다. 레그를 줄이거나 저비용 체결을 고려하세요."
 
+#: src/components/reports/behavior-section.tsx:200
+msgid "Compares trades opened within an hour of a release with trades opened within an hour of a loss streak on days you did not cool down."
+msgstr "해제 후 1시간 이내에 연 거래와, 쿨다운하지 않은 날 연패 후 1시간 이내에 연 거래를 비교합니다."
+
 #: src/components/reports/overview-section.tsx:546
 msgid "Composite"
 msgstr "종합"
@@ -1939,6 +1971,11 @@ msgstr "쿨다운 모드가 꺼져 있습니다"
 msgid "Cooldown over — answer the gate"
 msgstr "쿨다운 종료 — 게이트에 답하기"
 
+#: src/components/reports/behavior-section.tsx:151
+#: src/components/reports/behavior-section.tsx:161
+msgid "Cooldowns"
+msgstr "쿨다운"
+
 #: src/app/cooldown.tsx:346
 #: src/components/cooldown-banner.tsx:44
 msgid "Cooling down"
@@ -2062,7 +2099,7 @@ msgstr "모델을 불러오지 못했습니다"
 #~ msgid "Could not load your account."
 #~ msgstr "계정 정보를 불러올 수 없습니다."
 
-#: src/app/_layout.tsx:78
+#: src/app/_layout.tsx:80
 msgid "Could not open file"
 msgstr "파일을 열지 못했습니다"
 
@@ -2641,6 +2678,10 @@ msgstr "금액"
 #: src/components/time-picker.tsx:100
 msgid "Done"
 msgstr "완료"
+
+#: src/components/reports/behavior-section.tsx:143
+msgid "done for today"
+msgstr "오늘은 그만"
 
 #: src/lib/cooldown.ts:58
 msgid "Done for today"
@@ -3518,6 +3559,10 @@ msgstr "보장 하한"
 msgid "Half Kelly"
 msgstr "하프 켈리"
 
+#: src/components/reports/behavior-section.tsx:139
+msgid "half size"
+msgstr "절반 사이즈"
+
 #: src/lib/cooldown.ts:48
 msgid "Half size"
 msgstr "절반 사이즈"
@@ -3573,7 +3618,7 @@ msgstr "손익 높은 순"
 msgid "Hold"
 msgstr "멈추기"
 
-#: src/components/reports/behavior-section.tsx:278
+#: src/components/reports/behavior-section.tsx:362
 msgid "Hold ratio"
 msgstr "보유 시간 비율"
 
@@ -3941,7 +3986,7 @@ msgstr "링크를 복사했습니다"
 #~ msgid "Loading {year}"
 #~ msgstr "{year} 불러오는 중"
 
-#: src/components/reports/behavior-section.tsx:187
+#: src/components/reports/behavior-section.tsx:269
 msgid "Loading behavior report"
 msgstr "행동 리포트 불러오는 중"
 
@@ -4077,7 +4122,7 @@ msgstr "최장 연승"
 #~ msgid "Loose"
 #~ msgstr ""
 
-#: src/components/reports/behavior-section.tsx:282
+#: src/components/reports/behavior-section.tsx:366
 msgid "losers vs winners"
 msgstr "손실 vs 수익"
 
@@ -4090,7 +4135,7 @@ msgstr "손실 보유 시간"
 msgid "LOSS"
 msgstr "손실"
 
-#: src/components/reports/behavior-section.tsx:254
+#: src/components/reports/behavior-section.tsx:338
 msgid "Loss aversion"
 msgstr "손실 회피"
 
@@ -4252,8 +4297,8 @@ msgstr "중앙값"
 #. placeholder {0}: formatDuration(lossAversion.median_loss_hold_secs)
 #. placeholder {0}: formatDuration(lossAversion.median_win_hold_secs)
 #. placeholder {0}: formatDuration(median)
-#: src/components/reports/behavior-section.tsx:266
-#: src/components/reports/behavior-section.tsx:273
+#: src/components/reports/behavior-section.tsx:350
+#: src/components/reports/behavior-section.tsx:357
 #: src/components/reports/duration-scatter-card.tsx:102
 msgid "median {0}"
 msgstr "중앙값 {0}"
@@ -4655,6 +4700,10 @@ msgstr "아직 청산된 거래가 없습니다"
 #~ msgid "No connection"
 #~ msgstr "연결 없음"
 
+#: src/components/reports/behavior-section.tsx:154
+msgid "No cooldowns in this range — start one from the tools menu, or set Auto cooldown under Risk rules so a tripped limit starts it for you."
+msgstr "이 기간에 쿨다운이 없습니다 — 도구 메뉴에서 시작하거나, 리스크 규칙에서 자동 쿨다운을 설정하면 한도에 걸릴 때 자동으로 시작됩니다."
+
 #: src/components/equity-card.tsx:82
 #: src/components/reports/risk-section.tsx:110
 msgid "No equity data in this range."
@@ -4718,7 +4767,7 @@ msgstr "플레이북 셋업이 아직 없습니다 — 추가하면 게이트가
 msgid "No response from {0}. Check your connection, or that the server is running and reachable from this network."
 msgstr "{0} 에서 응답이 없습니다. 연결 상태, 또는 서버가 실행 중이며 이 네트워크에서 접속할 수 있는지 확인하세요."
 
-#: src/components/reports/behavior-section.tsx:208
+#: src/components/reports/behavior-section.tsx:292
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "복수 매매 패턴이 감지되지 않았습니다 — 손실 청산 후 1시간 이내 진입(15분 이내 동일 종목 재진입 또는 최근 중앙값의 1.5배 초과 규모)을 플래그합니다."
 
@@ -4733,6 +4782,10 @@ msgstr "리스크 규칙이 설정되지 않았습니다 — 거래당 최대 �
 #: src/lib/cooldown.ts:45
 msgid "No rule"
 msgstr "규칙 없음"
+
+#: src/components/reports/behavior-section.tsx:195
+msgid "no rules made yet"
+msgstr "아직 규칙 없음"
 
 #. placeholder {0}: query.trim()
 #: src/app/(tabs)/(settings)/index.tsx:371
@@ -4752,7 +4805,7 @@ msgstr "아직 셋업이 없습니다"
 msgid "no stops recorded"
 msgstr "스톱 기록 없음"
 
-#: src/components/reports/behavior-section.tsx:231
+#: src/components/reports/behavior-section.tsx:315
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "연승 패턴이 감지되지 않았습니다 — 연승 직후 규모를 키운 거래를 플래그합니다."
 
@@ -4784,6 +4837,8 @@ msgstr "아직 토큰이 없습니다"
 #: src/app/(tabs)/(calendar)/index.tsx:1360
 #: src/app/(tabs)/(calendar)/index.tsx:1540
 #: src/app/(tabs)/(calendar)/index.tsx:1687
+#: src/components/reports/behavior-section.tsx:172
+#: src/components/reports/behavior-section.tsx:183
 msgid "No trades"
 msgstr "거래 없음"
 
@@ -4857,7 +4912,7 @@ msgstr "연결되지 않음"
 msgid "Not enough closed trades to draw a session curve."
 msgstr "세션 곡선을 그리기에는 청산 거래가 부족합니다."
 
-#: src/components/reports/behavior-section.tsx:257
+#: src/components/reports/behavior-section.tsx:341
 msgid "Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak."
 msgstr "아직 청산된 거래가 부족합니다 — 수익·손실 보유 시간을 비교하고 고점에서 수익이었던 손실 거래를 찾습니다."
 
@@ -5020,6 +5075,10 @@ msgstr "거래 전에 점검할 규칙 하나."
 #: src/app/new-setup.tsx:246
 msgid "One thing that has to be true"
 msgstr "충족돼야 할 조건 하나"
+
+#: src/components/reports/behavior-section.tsx:141
+msgid "one trade"
+msgstr "한 번만"
 
 #: src/lib/cooldown.ts:53
 msgid "One trade"
@@ -5189,7 +5248,7 @@ msgstr "리스크 초과 ×{0}"
 msgid "over-traded"
 msgstr "거래 수 초과"
 
-#: src/components/reports/behavior-section.tsx:228
+#: src/components/reports/behavior-section.tsx:312
 msgid "Overconfidence"
 msgstr "과신"
 
@@ -5318,7 +5377,7 @@ msgid "Peak"
 msgstr "최고 수익"
 
 #. placeholder {0}: money.formatCompact(giveBack.mfe)
-#: src/components/reports/behavior-section.tsx:308
+#: src/components/reports/behavior-section.tsx:392
 msgid "peak {0}"
 msgstr "고점 {0}"
 
@@ -5632,7 +5691,7 @@ msgstr "목표 도달 수익"
 msgid "Profit factor"
 msgstr "프로핏 팩터"
 
-#: src/components/reports/behavior-section.tsx:287
+#: src/components/reports/behavior-section.tsx:371
 msgid "Profit given back"
 msgstr "반납한 이익"
 
@@ -5775,7 +5834,7 @@ msgstr "손익이 아니라 실행의 질을 평가하세요. 원칙을 지킨 �
 msgid "Rates come from your server's market data provider."
 msgstr "환율은 서버의 마켓 데이터 제공자에서 가져옵니다."
 
-#: src/components/reports/behavior-section.tsx:149
+#: src/components/reports/behavior-section.tsx:230
 msgid "re-entry"
 msgstr "재진입"
 
@@ -5827,7 +5886,7 @@ msgstr "요약"
 msgid "Recent breach days"
 msgstr "최근 위반일"
 
-#: src/components/reports/behavior-section.tsx:141
+#: src/components/reports/behavior-section.tsx:222
 msgid "Recent events"
 msgstr "최근 이벤트"
 
@@ -6095,6 +6154,10 @@ msgstr "다시 시도하는 중…"
 msgid "Return"
 msgstr "수익률"
 
+#: src/components/reports/behavior-section.tsx:193
+msgid "Return rule broken"
+msgstr "복귀 규칙 위반"
+
 #: src/lib/cooldown.ts:33
 msgid "Revenge"
 msgstr "복수"
@@ -6104,7 +6167,7 @@ msgstr "복수"
 msgid "revenge trades ×{0}"
 msgstr "복수 매매 ×{0}"
 
-#: src/components/reports/behavior-section.tsx:205
+#: src/components/reports/behavior-section.tsx:289
 msgid "Revenge trading"
 msgstr "복수 매매"
 
@@ -6787,7 +6850,7 @@ msgid "Size"
 msgstr "크기"
 
 #. placeholder {0}: (event.size_ratio ?? 0).toFixed(1)
-#: src/components/reports/behavior-section.tsx:150
+#: src/components/reports/behavior-section.tsx:231
 msgid "size ×{0}"
 msgstr "규모 ×{0}"
 
@@ -6803,8 +6866,8 @@ msgstr "건너뜀 (중복)"
 msgid "Skipped {skipped} row(s) without quantity/price."
 msgstr "수량/가격이 없는 {skipped}개 행을 건너뛰었습니다."
 
-#: src/components/reports/behavior-section.tsx:220
-#: src/components/reports/behavior-section.tsx:246
+#: src/components/reports/behavior-section.tsx:304
+#: src/components/reports/behavior-section.tsx:330
 msgid "Small sample — patterns firm up as more closed trades accumulate."
 msgstr "표본이 적습니다 — 청산 거래가 쌓일수록 패턴이 뚜렷해집니다."
 
@@ -8179,6 +8242,14 @@ msgstr "연승"
 #: src/lib/cash.ts:12
 msgid "Withdrawal"
 msgstr "출금"
+
+#: src/components/reports/behavior-section.tsx:187
+msgid "within an hour of the streak"
+msgstr "연패 후 1시간 이내"
+
+#: src/components/reports/behavior-section.tsx:176
+msgid "within an hour of unlocking"
+msgstr "해제 후 1시간 이내"
 
 #: src/components/reports/risk-section.tsx:299
 msgid "Worst case"

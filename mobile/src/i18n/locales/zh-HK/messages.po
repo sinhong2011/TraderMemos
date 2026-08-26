@@ -106,12 +106,12 @@ msgid "{0} fills"
 msgstr "{0} 次成交"
 
 #. placeholder {0}: lossAversion.give_back_count
-#: src/components/reports/behavior-section.tsx:289
+#: src/components/reports/behavior-section.tsx:373
 msgid "{0} green at peak"
 msgstr "{0} 筆於高位時獲利"
 
 #. placeholder {0}: lossAversion.excluded
-#: src/components/reports/behavior-section.tsx:296
+#: src/components/reports/behavior-section.tsx:380
 msgid "{0} losers without recorded MAE/MFE could not be checked — recompute excursion on the trade to fill them."
 msgstr "{0} 筆未記錄 MAE/MFE 的虧損交易無法檢查 — 在交易頁重新計算波幅以補回。"
 
@@ -228,6 +228,15 @@ msgstr "找到 {0} 個代號"
 msgid "{0} trades"
 msgstr "{0} 筆交易"
 
+#. placeholder {0}: after.trades
+#. placeholder {0}: without.trades
+#. placeholder {1}: formatPercent(after.win_rate, 0)
+#. placeholder {1}: formatPercent(without.win_rate, 0)
+#: src/components/reports/behavior-section.tsx:175
+#: src/components/reports/behavior-section.tsx:186
+msgid "{0} trades · {1} win"
+msgstr "{0} 單 · 勝率 {1}"
+
 #. placeholder {0}: summary.total_trades
 #. placeholder {1}: money.format(-summary.total_fees)
 #. placeholder {2}: money.format(summary.expectancy)
@@ -258,8 +267,13 @@ msgstr "從 {1} 行取得 {0} 筆交易 — 已插入 {2} 筆成交，略過 {3}
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "{0} 筆交易未記錄初始風險，無法按每筆風險規則評分。"
 
+#. placeholder {0}: stats.early_releases
+#: src/components/reports/behavior-section.tsx:165
+msgid "{0} unlocked early"
+msgstr "{0} 次提早解鎖"
+
 #. placeholder {0}: streaks.streaks
-#: src/components/reports/behavior-section.tsx:242
+#: src/components/reports/behavior-section.tsx:326
 msgid "{0} winning streaks scanned."
 msgstr "已掃描 {0} 次連勝。"
 
@@ -886,6 +900,15 @@ msgstr "調整"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "不利波幅超過計劃風險"
 
+#. placeholder {0}: stats.streak_n
+#: src/components/reports/behavior-section.tsx:182
+msgid "After {0} losses, no cooldown"
+msgstr "連輸 {0} 單後，無冷靜"
+
+#: src/components/reports/behavior-section.tsx:171
+msgid "After a cooldown"
+msgstr "冷靜之後"
+
 #: src/components/reports/detailed-section.tsx:249
 msgid "After hours"
 msgstr "盤後"
@@ -1158,6 +1181,11 @@ msgstr "平均持倉時間"
 msgid "avg"
 msgstr "平均"
 
+#. placeholder {0}: formatDuration(stats.avg_minutes * 60)
+#: src/components/reports/behavior-section.tsx:166
+msgid "avg {0}"
+msgstr "平均 {0}"
+
 #: src/components/reports/overview-section.tsx:497
 msgid "avg / traded day"
 msgstr "平均 / 交易日"
@@ -1185,7 +1213,7 @@ msgstr "平均平倉價"
 msgid "Avg hold"
 msgstr "平均持倉時間"
 
-#: src/components/reports/behavior-section.tsx:271
+#: src/components/reports/behavior-section.tsx:355
 msgid "Avg loser hold"
 msgstr "虧損平均持倉"
 
@@ -1215,7 +1243,7 @@ msgstr "平均每筆"
 msgid "Avg win"
 msgstr "平均獲利"
 
-#: src/components/reports/behavior-section.tsx:264
+#: src/components/reports/behavior-section.tsx:348
 msgid "Avg winner hold"
 msgstr "獲利平均持倉"
 
@@ -1350,7 +1378,7 @@ msgstr "最佳交易"
 msgid "Bias"
 msgstr "方向"
 
-#: src/components/reports/behavior-section.tsx:302
+#: src/components/reports/behavior-section.tsx:386
 msgid "Biggest give-backs"
 msgstr "最大回吐"
 
@@ -1785,6 +1813,10 @@ msgstr "佣金"
 msgid "Commissions and fees were {pct}% of gross — that materially changes the outcome. Fewer legs or lower-cost fills would help."
 msgstr "佣金與費用佔毛利 {pct}% — 足以改變結果。減少分批或降低成交成本會有幫助。"
 
+#: src/components/reports/behavior-section.tsx:200
+msgid "Compares trades opened within an hour of a release with trades opened within an hour of a loss streak on days you did not cool down."
+msgstr "比較解鎖後一小時內開嘅單，同無冷靜嘅日子連輸後一小時內開嘅單。"
+
 #: src/components/reports/overview-section.tsx:546
 msgid "Composite"
 msgstr "綜合"
@@ -1939,6 +1971,11 @@ msgstr "冷靜模式未開啟"
 msgid "Cooldown over — answer the gate"
 msgstr "冷靜完結 — 回答關卡"
 
+#: src/components/reports/behavior-section.tsx:151
+#: src/components/reports/behavior-section.tsx:161
+msgid "Cooldowns"
+msgstr "冷靜次數"
+
 #: src/app/cooldown.tsx:346
 #: src/components/cooldown-banner.tsx:44
 msgid "Cooling down"
@@ -2062,7 +2099,7 @@ msgstr "無法載入模型"
 #~ msgid "Could not load your account."
 #~ msgstr "無法載入帳戶資料。"
 
-#: src/app/_layout.tsx:78
+#: src/app/_layout.tsx:80
 msgid "Could not open file"
 msgstr "無法開啟檔案"
 
@@ -2641,6 +2678,10 @@ msgstr "金額"
 #: src/components/time-picker.tsx:100
 msgid "Done"
 msgstr "完成"
+
+#: src/components/reports/behavior-section.tsx:143
+msgid "done for today"
+msgstr "今日收工"
 
 #: src/lib/cooldown.ts:58
 msgid "Done for today"
@@ -3518,6 +3559,10 @@ msgstr "保證下限"
 msgid "Half Kelly"
 msgstr "一半凱利"
 
+#: src/components/reports/behavior-section.tsx:139
+msgid "half size"
+msgstr "半倉"
+
 #: src/lib/cooldown.ts:48
 msgid "Half size"
 msgstr "半倉"
@@ -3573,7 +3618,7 @@ msgstr "損益最高"
 msgid "Hold"
 msgstr "屏住"
 
-#: src/components/reports/behavior-section.tsx:278
+#: src/components/reports/behavior-section.tsx:362
 msgid "Hold ratio"
 msgstr "持倉時間比"
 
@@ -3941,7 +3986,7 @@ msgstr "已複製連結"
 #~ msgid "Loading {year}"
 #~ msgstr "正在載入{year}"
 
-#: src/components/reports/behavior-section.tsx:187
+#: src/components/reports/behavior-section.tsx:269
 msgid "Loading behavior report"
 msgstr "正在載入行為報告"
 
@@ -4077,7 +4122,7 @@ msgstr "最長連勝"
 #~ msgid "Loose"
 #~ msgstr ""
 
-#: src/components/reports/behavior-section.tsx:282
+#: src/components/reports/behavior-section.tsx:366
 msgid "losers vs winners"
 msgstr "虧損 vs 獲利"
 
@@ -4090,7 +4135,7 @@ msgstr "虧損持倉時間"
 msgid "LOSS"
 msgstr "虧損"
 
-#: src/components/reports/behavior-section.tsx:254
+#: src/components/reports/behavior-section.tsx:338
 msgid "Loss aversion"
 msgstr "損失趨避"
 
@@ -4252,8 +4297,8 @@ msgstr "中位數"
 #. placeholder {0}: formatDuration(lossAversion.median_loss_hold_secs)
 #. placeholder {0}: formatDuration(lossAversion.median_win_hold_secs)
 #. placeholder {0}: formatDuration(median)
-#: src/components/reports/behavior-section.tsx:266
-#: src/components/reports/behavior-section.tsx:273
+#: src/components/reports/behavior-section.tsx:350
+#: src/components/reports/behavior-section.tsx:357
 #: src/components/reports/duration-scatter-card.tsx:102
 msgid "median {0}"
 msgstr "中位數 {0}"
@@ -4655,6 +4700,10 @@ msgstr "尚無已平倉交易"
 #~ msgid "No connection"
 #~ msgstr "沒有連線"
 
+#: src/components/reports/behavior-section.tsx:154
+msgid "No cooldowns in this range — start one from the tools menu, or set Auto cooldown under Risk rules so a tripped limit starts it for you."
+msgstr "呢段時間無冷靜記錄 — 可以喺工具選單開始，或者喺風險規則設定「自動冷靜」，等觸發上限時自動開始。"
+
 #: src/components/equity-card.tsx:82
 #: src/components/reports/risk-section.tsx:110
 msgid "No equity data in this range."
@@ -4718,7 +4767,7 @@ msgstr "未有 playbook setup — 加咗之後，關卡會要求你只揀一個�
 msgid "No response from {0}. Check your connection, or that the server is running and reachable from this network."
 msgstr "{0} 沒有回應。請檢查網絡連線，或伺服器是否正在運行並可從此網絡連接。"
 
-#: src/components/reports/behavior-section.tsx:208
+#: src/components/reports/behavior-section.tsx:292
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "未偵測到報復性交易 — 標記虧損平倉後一小時內開倉的交易：15 分鐘內同一標的再入場，或倉位超過近期中位數 1.5 倍。"
 
@@ -4733,6 +4782,10 @@ msgstr "未設定風險規則 — 設定每筆最大風險及單日最大虧損�
 #: src/lib/cooldown.ts:45
 msgid "No rule"
 msgstr "無規則"
+
+#: src/components/reports/behavior-section.tsx:195
+msgid "no rules made yet"
+msgstr "未定過規則"
 
 #. placeholder {0}: query.trim()
 #: src/app/(tabs)/(settings)/index.tsx:371
@@ -4752,7 +4805,7 @@ msgstr "尚無策略"
 msgid "no stops recorded"
 msgstr "未記錄止蝕"
 
-#: src/components/reports/behavior-section.tsx:231
+#: src/components/reports/behavior-section.tsx:315
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "未偵測到連勝模式 — 標記連勝後即加大倉位的交易。"
 
@@ -4784,6 +4837,8 @@ msgstr "尚未有權杖"
 #: src/app/(tabs)/(calendar)/index.tsx:1360
 #: src/app/(tabs)/(calendar)/index.tsx:1540
 #: src/app/(tabs)/(calendar)/index.tsx:1687
+#: src/components/reports/behavior-section.tsx:172
+#: src/components/reports/behavior-section.tsx:183
 msgid "No trades"
 msgstr "無交易"
 
@@ -4857,7 +4912,7 @@ msgstr "未連接"
 msgid "Not enough closed trades to draw a session curve."
 msgstr "平倉交易不足，無法繪製當日曲線。"
 
-#: src/components/reports/behavior-section.tsx:257
+#: src/components/reports/behavior-section.tsx:341
 msgid "Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak."
 msgstr "已平倉交易仍不足 — 比較獲利與虧損的持倉時間，並找出高位時曾獲利的虧損交易。"
 
@@ -5020,6 +5075,10 @@ msgstr "交易前要確認的一項規則。"
 #: src/app/new-setup.tsx:246
 msgid "One thing that has to be true"
 msgstr "一項必須成立的條件"
+
+#: src/components/reports/behavior-section.tsx:141
+msgid "one trade"
+msgstr "一單"
 
 #: src/lib/cooldown.ts:53
 msgid "One trade"
@@ -5189,7 +5248,7 @@ msgstr "風險超標 ×{0}"
 msgid "over-traded"
 msgstr "超量交易"
 
-#: src/components/reports/behavior-section.tsx:228
+#: src/components/reports/behavior-section.tsx:312
 msgid "Overconfidence"
 msgstr "過度自信"
 
@@ -5318,7 +5377,7 @@ msgid "Peak"
 msgstr "最高盈利"
 
 #. placeholder {0}: money.formatCompact(giveBack.mfe)
-#: src/components/reports/behavior-section.tsx:308
+#: src/components/reports/behavior-section.tsx:392
 msgid "peak {0}"
 msgstr "高位 {0}"
 
@@ -5632,7 +5691,7 @@ msgstr "到達目標利潤"
 msgid "Profit factor"
 msgstr "獲利因子"
 
-#: src/components/reports/behavior-section.tsx:287
+#: src/components/reports/behavior-section.tsx:371
 msgid "Profit given back"
 msgstr "回吐利潤"
 
@@ -5775,7 +5834,7 @@ msgstr "評的是執行質素，唔係盈虧——守紀律嘅交易一樣可以
 msgid "Rates come from your server's market data provider."
 msgstr "匯率來自你伺服器的市場數據供應商。"
 
-#: src/components/reports/behavior-section.tsx:149
+#: src/components/reports/behavior-section.tsx:230
 msgid "re-entry"
 msgstr "再入場"
 
@@ -5827,7 +5886,7 @@ msgstr "總結"
 msgid "Recent breach days"
 msgstr "最近違規日"
 
-#: src/components/reports/behavior-section.tsx:141
+#: src/components/reports/behavior-section.tsx:222
 msgid "Recent events"
 msgstr "最近事件"
 
@@ -6095,6 +6154,10 @@ msgstr "重試中…"
 msgid "Return"
 msgstr "回報率"
 
+#: src/components/reports/behavior-section.tsx:193
+msgid "Return rule broken"
+msgstr "違反返場規則"
+
 #: src/lib/cooldown.ts:33
 msgid "Revenge"
 msgstr "報復"
@@ -6104,7 +6167,7 @@ msgstr "報復"
 msgid "revenge trades ×{0}"
 msgstr "報復性交易 ×{0}"
 
-#: src/components/reports/behavior-section.tsx:205
+#: src/components/reports/behavior-section.tsx:289
 msgid "Revenge trading"
 msgstr "報復性交易"
 
@@ -6787,7 +6850,7 @@ msgid "Size"
 msgstr "倉位"
 
 #. placeholder {0}: (event.size_ratio ?? 0).toFixed(1)
-#: src/components/reports/behavior-section.tsx:150
+#: src/components/reports/behavior-section.tsx:231
 msgid "size ×{0}"
 msgstr "倉位 ×{0}"
 
@@ -6803,8 +6866,8 @@ msgstr "略過（重複）"
 msgid "Skipped {skipped} row(s) without quantity/price."
 msgstr "已略過 {skipped} 行沒有數量/價格的資料。"
 
-#: src/components/reports/behavior-section.tsx:220
-#: src/components/reports/behavior-section.tsx:246
+#: src/components/reports/behavior-section.tsx:304
+#: src/components/reports/behavior-section.tsx:330
 msgid "Small sample — patterns firm up as more closed trades accumulate."
 msgstr "樣本較少 — 隨已平倉交易累積，模式會更清晰。"
 
@@ -8179,6 +8242,14 @@ msgstr "連勝"
 #: src/lib/cash.ts:12
 msgid "Withdrawal"
 msgstr "提款"
+
+#: src/components/reports/behavior-section.tsx:187
+msgid "within an hour of the streak"
+msgstr "連輸後一小時內"
+
+#: src/components/reports/behavior-section.tsx:176
+msgid "within an hour of unlocking"
+msgstr "解鎖後一小時內"
 
 #: src/components/reports/risk-section.tsx:299
 msgid "Worst case"
