@@ -115,6 +115,7 @@ func (s *Service) EvaluateUser(ctx context.Context, userID string) error {
 		if rules.MaxDailyLoss.Valid {
 			cfg.MaxDailyLoss = rules.MaxDailyLoss.Float64
 		}
+		cfg.AutoCooldown = rules.CooldownMinutes.Valid && rules.CooldownMinutes.Int64 > 0
 	}
 
 	rows, err := s.q.ListClosedTrades(ctx, store.ListClosedTradesParams{UserID: userID})
@@ -187,6 +188,21 @@ func (s *Service) EvaluateUser(ctx context.Context, userID string) error {
 		return nil
 	}
 	return s.dispatch(ctx, userID, fresh)
+}
+
+// Fire records one event outside the rule evaluators and delivers it if it
+// is new — the seam other services (cooldowns) use to speak through the
+// user's alert channels. The channels are the only gate: a device that has
+// registered for push gets it whether or not the rule toggles are on.
+func (s *Service) Fire(ctx context.Context, userID string, ev Event) error {
+	n, err := s.q.InsertAlertEvent(ctx, store.InsertAlertEventParams{
+		ID: uuid.New().String(), UserID: userID,
+		Rule: ev.Rule, DedupeKey: ev.DedupeKey, Title: ev.Title, Body: ev.Body,
+	})
+	if err != nil || n == 0 {
+		return err
+	}
+	return s.dispatch(ctx, userID, []Event{ev})
 }
 
 // evaluateProp replays each prop-configured account and collects drawdown

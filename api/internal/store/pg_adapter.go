@@ -72,6 +72,14 @@ func (p *PG) CreateCoachReview(ctx context.Context, arg CreateCoachReviewParams)
 	return CoachReview(v), nil
 }
 
+func (p *PG) CreateCooldownSession(ctx context.Context, arg CreateCooldownSessionParams) (CooldownSession, error) {
+	v, err := p.q.CreateCooldownSession(ctx, storepg.CreateCooldownSessionParams(arg))
+	if err != nil {
+		return CooldownSession{}, err
+	}
+	return CooldownSession(v), nil
+}
+
 func (p *PG) CreateImportBatch(ctx context.Context, arg CreateImportBatchParams) (ImportBatch, error) {
 	v, err := p.q.CreateImportBatch(ctx, storepg.CreateImportBatchParams(arg))
 	if err != nil {
@@ -148,6 +156,10 @@ func (p *PG) DeleteCoachReview(ctx context.Context, arg DeleteCoachReviewParams)
 	return p.q.DeleteCoachReview(ctx, storepg.DeleteCoachReviewParams(arg))
 }
 
+func (p *PG) DeleteCooldownSession(ctx context.Context, arg DeleteCooldownSessionParams) (int64, error) {
+	return p.q.DeleteCooldownSession(ctx, storepg.DeleteCooldownSessionParams(arg))
+}
+
 func (p *PG) DeleteExecution(ctx context.Context, arg DeleteExecutionParams) (int64, error) {
 	return p.q.DeleteExecution(ctx, storepg.DeleteExecutionParams(arg))
 }
@@ -214,6 +226,14 @@ func (p *PG) DisableAlertChannel(ctx context.Context, id string) error {
 
 func (p *PG) ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error) {
 	return p.q.ExecutionExists(ctx, storepg.ExecutionExistsParams(arg))
+}
+
+func (p *PG) ExtendCooldownSession(ctx context.Context, arg ExtendCooldownSessionParams) (CooldownSession, error) {
+	v, err := p.q.ExtendCooldownSession(ctx, storepg.ExtendCooldownSessionParams(arg))
+	if err != nil {
+		return CooldownSession{}, err
+	}
+	return CooldownSession(v), nil
 }
 
 func (p *PG) GetAccessTokenByHash(ctx context.Context, tokenHash string) (AccessToken, error) {
@@ -286,6 +306,14 @@ func (p *PG) GetCoachSettings(ctx context.Context) (CoachSetting, error) {
 		return CoachSetting{}, err
 	}
 	return CoachSetting(v), nil
+}
+
+func (p *PG) GetCooldownSession(ctx context.Context, arg GetCooldownSessionParams) (CooldownSession, error) {
+	v, err := p.q.GetCooldownSession(ctx, storepg.GetCooldownSessionParams(arg))
+	if err != nil {
+		return CooldownSession{}, err
+	}
+	return CooldownSession(v), nil
 }
 
 func (p *PG) GetEconomicEventsLastFetch(ctx context.Context, provider string) (string, error) {
@@ -362,6 +390,14 @@ func (p *PG) GetOcrSettings(ctx context.Context) (GetOcrSettingsRow, error) {
 		return GetOcrSettingsRow{}, err
 	}
 	return GetOcrSettingsRow(v), nil
+}
+
+func (p *PG) GetOpenCooldownSession(ctx context.Context, userID string) (CooldownSession, error) {
+	v, err := p.q.GetOpenCooldownSession(ctx, userID)
+	if err != nil {
+		return CooldownSession{}, err
+	}
+	return CooldownSession(v), nil
 }
 
 func (p *PG) GetPropSettings(ctx context.Context, arg GetPropSettingsParams) (PropSetting, error) {
@@ -607,6 +643,14 @@ func (p *PG) ListCoachReviews(ctx context.Context, arg ListCoachReviewsParams) (
 	return func() []CoachReview { in := v; out := make([]CoachReview, len(in)); for i := range in { out[i] = CoachReview(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListCooldownSessions(ctx context.Context, userID string) ([]CooldownSession, error) {
+	v, err := p.q.ListCooldownSessions(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []CooldownSession { in := v; out := make([]CooldownSession, len(in)); for i := range in { out[i] = CooldownSession(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error) {
 	v, err := p.q.ListEconomicEvents(ctx, storepg.ListEconomicEventsParams(arg))
 	if err != nil {
@@ -821,6 +865,14 @@ func (p *PG) PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesP
 
 func (p *PG) RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error {
 	return p.q.RecordAccessTokenUse(ctx, storepg.RecordAccessTokenUseParams(arg))
+}
+
+func (p *PG) ReleaseCooldownSession(ctx context.Context, arg ReleaseCooldownSessionParams) (CooldownSession, error) {
+	v, err := p.q.ReleaseCooldownSession(ctx, storepg.ReleaseCooldownSessionParams(arg))
+	if err != nil {
+		return CooldownSession{}, err
+	}
+	return CooldownSession(v), nil
 }
 
 func (p *PG) RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error) {

@@ -35,6 +35,9 @@ type riskRulesDTO struct {
 	DefaultAccountRiskPct *float64 `json:"default_account_risk_pct"`
 	MaxTradesPerDay       *int64   `json:"max_trades_per_day"`
 	MaxConsecutiveLosses  *int64   `json:"max_consecutive_losses"`
+	// CooldownMinutes auto-starts a cooldown this long when the daily loss,
+	// loss streak or trade cap rule trips (null = off).
+	CooldownMinutes *int64 `json:"cooldown_minutes"`
 }
 
 func toRiskRulesDTO(r store.RiskRule) riskRulesDTO {
@@ -45,6 +48,7 @@ func toRiskRulesDTO(r store.RiskRule) riskRulesDTO {
 		DefaultAccountRiskPct: fptr(r.DefaultAccountRiskPct),
 		MaxTradesPerDay:       iptr(r.MaxTradesPerDay),
 		MaxConsecutiveLosses:  iptr(r.MaxConsecutiveLosses),
+		CooldownMinutes:       iptr(r.CooldownMinutes),
 	}
 }
 
@@ -77,6 +81,7 @@ func (s *Server) handlePutRiskRules(c *echo.Context) error {
 		DefaultAccountRiskPct: nullF(in.DefaultAccountRiskPct),
 		MaxTradesPerDay:       nullI(in.MaxTradesPerDay),
 		MaxConsecutiveLosses:  nullI(in.MaxConsecutiveLosses),
+		CooldownMinutes:       nullI(in.CooldownMinutes),
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not save risk rules", nil)
@@ -122,6 +127,9 @@ func validateRiskRules(in riskRulesDTO) error {
 	}
 	if in.MaxConsecutiveLosses != nil && *in.MaxConsecutiveLosses < 0 {
 		return errors.New("max_consecutive_losses must be >= 0")
+	}
+	if in.CooldownMinutes != nil && (*in.CooldownMinutes < 0 || *in.CooldownMinutes > 1440) {
+		return errors.New("cooldown_minutes must be between 0 and 1440")
 	}
 	return nil
 }

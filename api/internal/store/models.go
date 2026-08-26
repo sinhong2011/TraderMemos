@@ -127,6 +127,22 @@ type CoachSetting struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+type CooldownSession struct {
+	ID            string         `json:"id"`
+	UserID        string         `json:"user_id"`
+	StartedAt     time.Time      `json:"started_at"`
+	EndsAt        time.Time      `json:"ends_at"`
+	Trigger       string         `json:"trigger"`
+	Impulse       string         `json:"impulse"`
+	ReleasedAt    sql.NullTime   `json:"released_at"`
+	ReleasedEarly int64          `json:"released_early"`
+	SetupID       sql.NullString `json:"setup_id"`
+	ReturnRule    string         `json:"return_rule"`
+	Reflection    string         `json:"reflection"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+}
+
 type EconomicEvent struct {
 	ID        int64  `json:"id"`
 	Provider  string `json:"provider"`
@@ -258,6 +274,7 @@ type RiskRule struct {
 	UpdatedAt             time.Time       `json:"updated_at"`
 	MaxTradesPerDay       sql.NullInt64   `json:"max_trades_per_day"`
 	MaxConsecutiveLosses  sql.NullInt64   `json:"max_consecutive_losses"`
+	CooldownMinutes       sql.NullInt64   `json:"cooldown_minutes"`
 }
 
 type Setup struct {

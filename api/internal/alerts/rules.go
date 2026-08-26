@@ -50,15 +50,25 @@ type Config struct {
 	PropWarnPct       float64 // fraction of the drawdown budget consumed (0–1)
 	UnreviewedEnabled bool
 	UnreviewedDays    int
+	// AutoCooldown is set when risk_rules.cooldown_minutes is on: the
+	// cooldown service starts the pause itself, so the stepping-back alerts
+	// stop suggesting one.
+	AutoCooldown bool
 }
 
+// CooldownURL is the deep link a stepping-back alert offers when the trader
+// has to start the cooldown themselves; the trigger rides along as a hint.
+const CooldownURL = "tradermemos://cooldown?suggest="
+
 // Event is one fired alert. DedupeKey scopes how often the rule may re-fire:
-// per trade, per day, or per week depending on the rule.
+// per trade, per day, or per week depending on the rule. URL, when set, is
+// the in-app deep link a push tap should open.
 type Event struct {
 	Rule      string
 	DedupeKey string
 	Title     string
 	Body      string
+	URL       string
 }
 
 // Evaluate runs the trade-based rules (risk per trade, daily loss, loss
@@ -101,13 +111,18 @@ func Evaluate(cfg Config, trades []Trade, now time.Time, loc *time.Location) []E
 			}
 		}
 		if low < -cfg.MaxDailyLoss {
-			evs = append(evs, Event{
+			ev := Event{
 				Rule:      RuleDailyLoss,
 				DedupeKey: today,
 				Title:     "Daily loss limit hit",
 				Body: fmt.Sprintf("Realized P&L reached %.2f today — your daily loss limit is %.2f.",
 					low, cfg.MaxDailyLoss),
-			})
+			}
+			if !cfg.AutoCooldown {
+				ev.Body += " Tap to start a cooldown."
+				ev.URL = CooldownURL + "daily_loss"
+			}
+			evs = append(evs, ev)
 		}
 	}
 
@@ -121,12 +136,17 @@ func Evaluate(cfg Config, trades []Trade, now time.Time, loc *time.Location) []E
 		}
 		last := sorted[len(sorted)-1]
 		if streak >= cfg.LossStreakN && last.ClosedAt.In(loc).Format("2006-01-02") == today {
-			evs = append(evs, Event{
+			ev := Event{
 				Rule:      RuleLossStreak,
 				DedupeKey: today,
 				Title:     fmt.Sprintf("%d losses in a row", streak),
 				Body:      fmt.Sprintf("Your last %d trades all closed at a loss. Consider stepping back.", streak),
-			})
+			}
+			if !cfg.AutoCooldown {
+				ev.Body += " Tap to start a cooldown."
+				ev.URL = CooldownURL + "loss_streak"
+			}
+			evs = append(evs, ev)
 		}
 	}
 	return evs

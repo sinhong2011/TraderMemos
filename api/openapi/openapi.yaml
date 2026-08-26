@@ -29,6 +29,7 @@ tags:
   - name: Setups
   - name: Notes
   - name: Alerts
+  - name: Cooldown
   - name: Admin
 paths:
   /healthz:
@@ -1045,6 +1046,173 @@ paths:
         "201":
           description: Created
 
+  /api/v1/cooldowns/active:
+    get:
+      tags: [Cooldown]
+      summary: The cooldown currently locking the trader
+      description: |
+        A cooldown is a timed pause before trading again. It stays open until
+        the return gate is answered (`POST /cooldowns/{id}/release`), and goes
+        stale on its own after 24 hours. Clients gate trade entry on this.
+      operationId: getActiveCooldown
+      responses:
+        "200":
+          description: The open session, or `null`
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    oneOf:
+                      - $ref: "#/components/schemas/Cooldown"
+                      - type: "null"
+  /api/v1/cooldowns:
+    get:
+      tags: [Cooldown]
+      summary: Cooldown history
+      operationId: listCooldowns
+      parameters:
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Sessions, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Cooldown"
+    post:
+      tags: [Cooldown]
+      summary: Start a cooldown
+      operationId: startCooldown
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [duration_sec]
+              properties:
+                duration_sec: { type: integer, minimum: 60, maximum: 86400 }
+                trigger:
+                  type: string
+                  enum: [manual, loss_streak, daily_loss, trade_limit]
+                  default: manual
+                impulse:
+                  type: string
+                  enum: [revenge, fomo, boredom, fear, validation]
+      responses:
+        "201":
+          description: Started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cooldown"
+        "400":
+          description: Validation error
+        "409":
+          description: A cooldown is already running (`cooldown_active`; the running session is in `details`)
+  /api/v1/cooldowns/{id}/extend:
+    post:
+      tags: [Cooldown]
+      summary: Add time to a running cooldown
+      operationId: extendCooldown
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [duration_sec]
+              properties:
+                duration_sec: { type: integer, minimum: 60, maximum: 86400 }
+      responses:
+        "200":
+          description: Updated session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cooldown"
+        "404":
+          description: Not found
+        "409":
+          description: The session is already over (`cooldown_closed`)
+  /api/v1/cooldowns/{id}/release:
+    post:
+      tags: [Cooldown]
+      summary: Answer the return gate and unlock
+      description: |
+        Name the impulse, pick the one setup allowed on return and commit to a
+        return rule. Releasing before the timer ends is allowed only with a
+        `reflection` of at least 40 characters, and is recorded as early.
+        `return_rule` is scored afterwards by `/analytics/compliance`
+        (`return_rule_breaches`) and `/analytics/cooldowns`.
+      operationId: releaseCooldown
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                impulse:
+                  type: string
+                  enum: [revenge, fomo, boredom, fear, validation]
+                setup_id: { type: string, nullable: true }
+                return_rule:
+                  type: string
+                  enum: [none, half_size, one_trade, done_for_day]
+                  default: none
+                reflection: { type: string }
+      responses:
+        "200":
+          description: Released session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cooldown"
+        "400":
+          description: Validation error (unknown value, reflection too short, unknown setup)
+        "404":
+          description: Not found
+        "409":
+          description: Already released (`cooldown_closed`)
+  /api/v1/analytics/cooldowns:
+    get:
+      tags: [Cooldown]
+      summary: Cooldown stats
+      description: |
+        Sessions over the filter range with breakdowns by trigger, impulse and
+        return rule, the trades opened within 60 minutes of a release, and the
+        counterfactual — trades opened within 60 minutes of a loss streak on
+        days with no cooldown — plus trades taken against a return rule.
+      operationId: getCooldownStats
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
   /api/v1/setups:
     get:
       tags: [Setups]
@@ -1541,6 +1709,21 @@ components:
           minimum: 1
           maximum: 90
           default: 7
+    Cooldown:
+      type: object
+      properties:
+        id: { type: string }
+        started_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        duration_sec: { type: integer }
+        trigger: { type: string, enum: [manual, loss_streak, daily_loss, trade_limit] }
+        impulse: { type: string, description: "revenge | fomo | boredom | fear | validation | empty" }
+        phase: { type: string, enum: [counting, gate, released] }
+        released_at: { type: string, format: date-time, nullable: true }
+        released_early: { type: boolean }
+        setup_id: { type: string, nullable: true }
+        return_rule: { type: string, description: "none | half_size | one_trade | done_for_day | empty" }
+        reflection: { type: string }
     AlertChannel:
       type: object
       properties:
