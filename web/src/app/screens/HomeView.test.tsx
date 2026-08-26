@@ -30,6 +30,9 @@ vi.mock("../../lib/hooks/useMoneyFx", () => ({
 }));
 
 // DailyLossCard fetches risk rules; no limit configured means it renders null.
+vi.mock("../../lib/hooks/useCooldown", () => ({
+  useActiveCooldown: () => ({ data: { session: null }, isLoading: false, isError: false }),
+}));
 vi.mock("../../lib/hooks/useRiskRules", () => ({
   useRiskRules: () => ({ data: undefined, isLoading: false, isError: false }),
 }));

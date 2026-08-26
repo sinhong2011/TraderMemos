@@ -54,6 +54,8 @@ interface UIState {
   positionSizeOpen: boolean;
   kellyOpen: boolean;
   fxOpen: boolean;
+  /** The cooldown panel (start / countdown / return gate). */
+  cooldownOpen: boolean;
   /** Off-canvas nav drawer shown below the `md` breakpoint (phones). */
   mobileNavOpen: boolean;
   openModal: (d: ModalKind) => void;
@@ -78,6 +80,8 @@ interface UIState {
   setKellyOpen: (open: boolean) => void;
   openFx: () => void;
   setFxOpen: (open: boolean) => void;
+  openCooldown: () => void;
+  setCooldownOpen: (open: boolean) => void;
   /** @deprecated Use openModal */
   openDrawer: (d: ModalKind) => void;
   /** @deprecated Use closeModal */
@@ -107,6 +111,7 @@ export const useUI = create<UIState>((set, get) => ({
   positionSizeOpen: false,
   kellyOpen: false,
   fxOpen: false,
+  cooldownOpen: false,
   mobileNavOpen: false,
   openModal: (modal) =>
     set((s) =>
@@ -168,6 +173,8 @@ export const useUI = create<UIState>((set, get) => ({
   setKellyOpen: (kellyOpen) => set({ kellyOpen }),
   openFx: () => set({ fxOpen: true }),
   setFxOpen: (fxOpen) => set({ fxOpen }),
+  openCooldown: () => set({ cooldownOpen: true }),
+  setCooldownOpen: (cooldownOpen) => set({ cooldownOpen }),
   openDrawer: (modal) =>
     set({
       modal,

@@ -20,6 +20,7 @@ import {
   Upload,
   Wallet,
   X,
+  Wind,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
@@ -1028,12 +1029,14 @@ const RISK_RULE_ICONS: Record<RiskRuleKey, LucideIcon> = {
   max_trades_per_day: Hash,
   max_consecutive_losses: Repeat,
   default_account_risk_pct: Percent,
+  cooldown_minutes: Wind,
 };
 
 /** Bare counts read as orphans ("3") — count rules carry their unit word. */
 const RISK_RULE_COUNT_UNITS: Partial<Record<RiskRuleKey, string>> = {
   max_trades_per_day: "trades",
   max_consecutive_losses: "losses",
+  cooldown_minutes: "min",
 };
 
 export function RulesTab({
@@ -1523,7 +1526,9 @@ export function RulesTab({
                   ? "Value (%)"
                   : modalDef.unit === "count"
                     ? "Value (trades)"
-                    : "Value ($)"
+                    : modalDef.unit === "min"
+                      ? "Value (minutes)"
+                      : "Value ($)"
               }
               htmlFor="risk-rule-value"
               error={ruleError ?? undefined}

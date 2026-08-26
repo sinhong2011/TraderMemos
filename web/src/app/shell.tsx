@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { AppNav } from "@/components/AppNav";
 import { CommandPalette } from "@/components/CommandPalette";
+import { CooldownBanner } from "@/components/CooldownBanner";
+import { CooldownPanel } from "@/components/CooldownPanel";
 import { HeaderBar } from "@/components/HeaderBar";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { MobileTabBar } from "@/components/MobileTabBar";
@@ -13,6 +15,7 @@ import { KellyModal } from "@/components/tools/KellyModal";
 import { PositionSizeModal } from "@/components/tools/PositionSizeModal";
 import { authApi, type SetupStatus } from "@/lib/api/auth";
 import { useAuth } from "@/lib/auth";
+import { useCooldownLock, useCooldownTitle } from "@/lib/cooldown";
 import { useAppHotkeys } from "@/lib/useAppHotkeys";
 import { useUI } from "@/lib/ui";
 import { NewNoteDrawer } from "./drawers/NewNoteDrawer";
@@ -29,7 +32,11 @@ function AuthedShell() {
   const setKellyOpen = useUI((s) => s.setKellyOpen);
   const fxOpen = useUI((s) => s.fxOpen);
   const setFxOpen = useUI((s) => s.setFxOpen);
+  const cooldownOpen = useUI((s) => s.cooldownOpen);
+  const setCooldownOpen = useUI((s) => s.setCooldownOpen);
   useAppHotkeys();
+  useCooldownGate();
+  useCooldownTitle();
   // Account-level preferences (timezones, clock, currency, screenshots cap)
   // pull on sign-in and push on change — see lib/prefsSync.ts for what syncs.
   usePrefsSync();
@@ -64,8 +71,29 @@ function AuthedShell() {
       <NewTradeDrawer />
       <NewSetupDrawer />
       <NewNoteDrawer />
+      <CooldownPanel open={cooldownOpen} onOpenChange={setCooldownOpen} />
+      <CooldownBanner />
     </div>
   );
+}
+
+/**
+ * The lock: while a cooldown is open, "new trade" from anywhere (toolbar,
+ * hotkey, command palette, empty states) opens the cooldown panel instead of
+ * the drawer. Editing an existing trade stays allowed — that is journaling,
+ * not trading.
+ */
+function useCooldownGate() {
+  const { locked } = useCooldownLock();
+  const modal = useUI((s) => s.modal);
+  const editTradeId = useUI((s) => s.editTradeId);
+  const closeModal = useUI((s) => s.closeModal);
+  const openCooldown = useUI((s) => s.openCooldown);
+  useEffect(() => {
+    if (!locked || modal !== "new-trade" || editTradeId != null) return;
+    closeModal();
+    openCooldown();
+  }, [locked, modal, editTradeId, closeModal, openCooldown]);
 }
 
 function UnauthedGate() {

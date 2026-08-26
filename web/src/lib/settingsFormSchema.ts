@@ -100,7 +100,7 @@ export type RiskRuleDef = {
   key: RiskRuleKey;
   label: string;
   detail: string;
-  unit: "$" | "%" | "count";
+  unit: "$" | "%" | "count" | "min";
   placeholder: string;
 };
 
@@ -148,6 +148,13 @@ export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
     unit: "%",
     placeholder: "e.g. 1",
   },
+  {
+    key: "cooldown_minutes",
+    label: "Auto cooldown",
+    detail: "Start a cooldown this long when the daily loss, loss streak or trade cap trips.",
+    unit: "min",
+    placeholder: "e.g. 15",
+  },
 ] as const;
 
 export function riskRuleDef(key: RiskRuleKey): RiskRuleDef {
@@ -164,6 +171,7 @@ export function emptyRiskRules(): RiskRules {
     default_account_risk_pct: null,
     max_trades_per_day: null,
     max_consecutive_losses: null,
+    cooldown_minutes: null,
   };
 }
 
@@ -196,13 +204,21 @@ export function formatRiskRuleValue(key: RiskRuleKey, value: number, locale?: st
   if (def.unit === "%") {
     return `${value.toLocaleString(locale, { maximumFractionDigits: 2 })}%`;
   }
-  if (def.unit === "count") {
+  if (def.unit === "count" || def.unit === "min") {
     return value.toLocaleString(locale, { maximumFractionDigits: 0 });
   }
   return `$${value.toLocaleString(locale, { maximumFractionDigits: 2 })}`;
 }
 
 export function validateRiskRuleValue(key: RiskRuleKey, raw: string): string | undefined {
+  if (riskRuleDef(key).unit === "min") {
+    const t = raw.trim();
+    if (!t) return "Enter a value.";
+    const n = Number(t);
+    if (!Number.isInteger(n)) return "Enter a whole number of minutes.";
+    if (n < 1 || n > 1440) return "Minutes must be between 1 and 1440.";
+    return undefined;
+  }
   if (riskRuleDef(key).unit === "count") {
     const t = raw.trim();
     if (!t) return "Enter a value.";
@@ -246,6 +262,7 @@ export function riskFormToBody(value: RiskFormValues): RiskRules {
     default_account_risk_pct: parseOptionalAmount(value.riskPct),
     max_trades_per_day: null,
     max_consecutive_losses: null,
+    cooldown_minutes: null,
   };
 }
 
