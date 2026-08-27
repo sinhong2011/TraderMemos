@@ -12,12 +12,13 @@ import { t } from '@lingui/core/macro';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { Icon } from '@/components/icon';
 import { SettingsForm } from '@/components/settings-form';
-import { SettingsSection } from '@/components/settings-rows';
+import { SettingsSection, SettingsToggle } from '@/components/settings-rows';
 import { Swipe } from '@/components/swipe';
 import { errorMessage } from '@/lib/errors';
 import {
   activeRiskRules,
   availableRiskRules,
+  emptyRiskRules,
   formatRiskRuleValue,
   setRiskRuleValue,
   type RiskRuleDef,
@@ -174,6 +175,7 @@ export default function RiskRulesScreen() {
 
   const active = activeRiskRules(rules.data);
   const available = availableRiskRules(rules.data);
+  const cooldownOn = rules.data?.cooldown_enabled === true;
   const hasActive = active.length > 0;
 
   const ruleBadge = (def: RiskRuleDef) => (
@@ -203,6 +205,24 @@ export default function RiskRulesScreen() {
               : undefined,
         }}
       />
+
+      {/* Cooldown mode is the one rule here that locks the app rather than
+          scoring it after the fact, so it is a switch you turn on, not a
+          limit you add — and it owns whether the Auto cooldown limit is
+          offered at all. */}
+      <SettingsSection
+        title={t`Cooldown mode`}
+        footer={t`A timed pause that locks trade entry until you answer a short return gate. Off by default.`}
+      >
+        <SettingsToggle
+          systemImage="wind"
+          label={t`Cooldown mode`}
+          value={cooldownOn}
+          onValueChange={(next) =>
+            save.mutate({ ...(rules.data ?? emptyRiskRules()), cooldown_enabled: next })
+          }
+        />
+      </SettingsSection>
 
       {hasActive ? (
         <SettingsSection

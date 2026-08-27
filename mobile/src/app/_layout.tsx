@@ -18,6 +18,7 @@ import { ApiError, UnauthorizedError } from '@/api/client';
 import { useSession } from '@/api/session';
 import { SessionProvider } from '@/api/session-provider';
 import { AppErrorBoundary } from '@/components/error-boundary';
+import { CooldownBanner } from '@/components/cooldown-banner';
 import { OfflineBanner } from '@/components/error-state';
 import { i18n } from '@/i18n';
 import { t } from '@lingui/core/macro';
@@ -284,6 +285,11 @@ export default function RootLayout() {
                 above: the ScrollView drew "Review notes" straight over the
                 Cancel/Save chrome, leaving no way to save the entry. */}
             <Stack.Screen name="quick-journal" options={{ presentation: 'modal' }} />
+            {/* The cooldown is an interruption by design, so it rides as a
+                modal over whatever the trader was doing; closing it keeps the
+                lock (the banner and the trade gate carry it), so the sheet
+                itself needs no guard against dismissal. */}
+            <Stack.Screen name="cooldown" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="edit-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
@@ -370,6 +376,7 @@ export default function RootLayout() {
           </Stack>
           {/* Above the navigator, so it stays put across pushes and sheets. */}
           <OfflineBanner />
+          <CooldownBanner />
           </View>
           </AppErrorBoundary>
         </ThemeProvider>

@@ -33,6 +33,7 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   // navigation / chrome
   'chevron.left': 'chevron_left',
   'chevron.right': 'chevron_right',
+  'chevron.down': 'keyboard_arrow_down',
   'chevron.backward': 'chevron_left',
   'chevron.forward': 'chevron_right',
   xmark: 'close',
@@ -139,6 +140,7 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   'key.slash.fill': 'key_off',
   'lock.rotation': 'lock_reset',
   'lock.shield': 'security',
+  'shield.lefthalf.filled': 'shield',
   shield: 'verified_user',
   eye: 'visibility',
   'eye.slash': 'visibility_off',
@@ -147,6 +149,9 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
 
   // connectivity / server
   'wifi.slash': 'wifi_off',
+  wind: 'air',
+  timer: 'timer',
+  'quote.opening': 'format_quote',
   externaldrive: 'storage',
   'externaldrive.badge.wifi': 'dns',
   'dot.radiowaves.left.and.right': 'sensors',

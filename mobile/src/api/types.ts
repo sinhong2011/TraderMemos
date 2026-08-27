@@ -260,6 +260,60 @@ export type RiskRules = {
   default_account_risk_pct: number | null;
   max_trades_per_day: number | null;
   max_consecutive_losses: number | null;
+  /** Auto-start a cooldown this long when a rule trips (null = off). */
+  cooldown_minutes: number | null;
+  /** Cooldown mode's master switch — off until the trader asks for it. */
+  cooldown_enabled: boolean;
+};
+
+/** What started a cooldown (cooldown.go). */
+export type CooldownTrigger = 'manual' | 'loss_streak' | 'daily_loss' | 'trade_limit';
+/** The urge named at the return gate. */
+export type CooldownImpulse = 'revenge' | 'fomo' | 'boredom' | 'fear' | 'validation';
+/** The commitment made on the way back in. */
+export type CooldownReturnRule = 'none' | 'half_size' | 'one_trade' | 'done_for_day';
+export type CooldownPhase = 'counting' | 'gate' | 'released';
+
+/** One cooldown session (cooldown_handlers.go cooldownDTO). */
+export type Cooldown = {
+  id: string;
+  started_at: string;
+  ends_at: string;
+  duration_sec: number;
+  trigger: CooldownTrigger;
+  impulse: CooldownImpulse | '';
+  phase: CooldownPhase;
+  released_at: string | null;
+  released_early: boolean;
+  setup_id: string | null;
+  return_rule: CooldownReturnRule | '';
+  reflection: string;
+};
+
+/** GET /cooldowns/active — `session` is null when nothing locks the trader. */
+export type ActiveCooldown = { session: Cooldown | null };
+
+export type CooldownWindow = {
+  trades: number;
+  wins: number;
+  net_pnl: number;
+  win_rate: number;
+};
+
+/** GET /analytics/cooldowns (cooldown.Stats). */
+export type CooldownStats = {
+  sessions: number;
+  released: number;
+  early_releases: number;
+  early_release_rate: number;
+  avg_minutes: number;
+  by_trigger: Record<string, number>;
+  by_impulse: Record<string, number>;
+  by_rule: Record<string, number>;
+  after_release: CooldownWindow;
+  after_streak_no_cooldown: CooldownWindow;
+  streak_n: number;
+  return_rule_breaches: number;
 };
 
 /** One cash ledger entry (api dto) — amount is signed; outflows are negative. */

@@ -17,6 +17,7 @@ type Querier interface {
 	CreateAccessToken(ctx context.Context, arg CreateAccessTokenParams) (AccessToken, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	CreateCoachReview(ctx context.Context, arg CreateCoachReviewParams) (CoachReview, error)
+	CreateCooldownSession(ctx context.Context, arg CreateCooldownSessionParams) (CooldownSession, error)
 	CreateImportBatch(ctx context.Context, arg CreateImportBatchParams) (ImportBatch, error)
 	CreateJournalNote(ctx context.Context, arg CreateJournalNoteParams) (JournalNote, error)
 	CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup, error)
@@ -30,6 +31,7 @@ type Querier interface {
 	DeleteAttachment(ctx context.Context, arg DeleteAttachmentParams) (int64, error)
 	DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) (int64, error)
 	DeleteCoachReview(ctx context.Context, arg DeleteCoachReviewParams) (int64, error)
+	DeleteCooldownSession(ctx context.Context, arg DeleteCooldownSessionParams) (int64, error)
 	DeleteExecution(ctx context.Context, arg DeleteExecutionParams) (int64, error)
 	DeleteExecutionsForAccount(ctx context.Context, arg DeleteExecutionsForAccountParams) error
 	DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecutionsForBatchParams) error
@@ -43,14 +45,11 @@ type Querier interface {
 	DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error)
 	DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error)
 	DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error
-	// NOTE: sqlc+database/sql emits a broken single-$3 slice expand for Postgres.
-	// storepg/trades.sql.go implements placeholder expansion manually; re-apply after
-	// `make sqlc` and re-run TestBulkWriterConformance/postgres — the patch cannot be
-	// copied from the SQLite twin (no /*SLICE:keep*/? marker, numbered placeholders).
 	DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error
 	DeleteUser(ctx context.Context, id string) (int64, error)
 	DisableAlertChannel(ctx context.Context, id string) error
 	ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error)
+	ExtendCooldownSession(ctx context.Context, arg ExtendCooldownSessionParams) (CooldownSession, error)
 	GetAccessTokenByHash(ctx context.Context, tokenHash string) (AccessToken, error)
 	GetAccount(ctx context.Context, arg GetAccountParams) (Account, error)
 	GetAccountByIDAny(ctx context.Context, id string) (Account, error)
@@ -60,6 +59,7 @@ type Querier interface {
 	GetAttachment(ctx context.Context, arg GetAttachmentParams) (TradeAttachment, error)
 	GetChecklistTemplate(ctx context.Context, userID string) (ChecklistTemplate, error)
 	GetCoachSettings(ctx context.Context) (CoachSetting, error)
+	GetCooldownSession(ctx context.Context, arg GetCooldownSessionParams) (CooldownSession, error)
 	GetEconomicEventsLastFetch(ctx context.Context, provider string) (string, error)
 	GetExecution(ctx context.Context, arg GetExecutionParams) (Execution, error)
 	GetExecutionByDedup(ctx context.Context, arg GetExecutionByDedupParams) (Execution, error)
@@ -70,6 +70,7 @@ type Querier interface {
 	GetMarketBarsCache(ctx context.Context, cacheKey string) (MarketBarsCache, error)
 	GetMediaFile(ctx context.Context, arg GetMediaFileParams) (MediaFile, error)
 	GetOcrSettings(ctx context.Context) (GetOcrSettingsRow, error)
+	GetOpenCooldownSession(ctx context.Context, userID string) (CooldownSession, error)
 	GetPropSettings(ctx context.Context, arg GetPropSettingsParams) (PropSetting, error)
 	GetRiskRules(ctx context.Context, userID string) (RiskRule, error)
 	GetSetup(ctx context.Context, arg GetSetupParams) (Setup, error)
@@ -100,6 +101,7 @@ type Querier interface {
 	ListCashTransactions(ctx context.Context, arg ListCashTransactionsParams) ([]CashTransaction, error)
 	ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) ([]Trade, error)
 	ListCoachReviews(ctx context.Context, arg ListCoachReviewsParams) ([]CoachReview, error)
+	ListCooldownSessions(ctx context.Context, userID string) ([]CooldownSession, error)
 	ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error)
 	ListEnabledAlertChannels(ctx context.Context, userID string) ([]AlertChannel, error)
 	ListEnabledAlertSettings(ctx context.Context) ([]AlertSetting, error)
@@ -133,6 +135,7 @@ type Querier interface {
 	ListUsers(ctx context.Context) ([]User, error)
 	PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error
 	RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error
+	ReleaseCooldownSession(ctx context.Context, arg ReleaseCooldownSessionParams) (CooldownSession, error)
 	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
 	RevokeShareLink(ctx context.Context, arg RevokeShareLinkParams) (int64, error)
 	SetAlertChannelEnabled(ctx context.Context, arg SetAlertChannelEnabledParams) (AlertChannel, error)

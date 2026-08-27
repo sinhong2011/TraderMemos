@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo/v5/middleware"
 	"github.com/tradermemos/api/internal/alerts"
 	"github.com/tradermemos/api/internal/auth"
+	"github.com/tradermemos/api/internal/cooldown"
 	"github.com/tradermemos/api/internal/econdata"
 	"github.com/tradermemos/api/internal/flexsync"
 	"github.com/tradermemos/api/internal/marketdata"
@@ -45,6 +46,9 @@ type Deps struct {
 	// Alerts evaluates journal alerts and delivers notifications; nil disables
 	// the test-send endpoint and write-path evaluation.
 	Alerts *alerts.Service
+	// Cooldown auto-starts cooldowns off tripped risk rules; nil disables
+	// the write-path evaluation (manual cooldowns still work).
+	Cooldown *cooldown.Service
 	// CORSOrigins enable browser cross-origin access when the SPA is hosted
 	// separately (Vercel, Cloudflare Pages, etc.). Empty disables CORS.
 	CORSOrigins []string
@@ -226,6 +230,7 @@ func (s *Server) routes() {
 	s.analyticsRoutes(protected)
 	s.settingsRoutes(protected)
 	s.alertRoutes(protected)
+	s.cooldownRoutes(protected)
 	s.noteRoutes(protected)
 	s.checklistRoutes(protected)
 	s.marketRoutes(protected)

@@ -17,6 +17,7 @@ import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { BreakdownCard } from '@/components/breakdown-card';
 import { ChecklistCard } from '@/components/checklist-card';
+import { CooldownCard } from '@/components/cooldown-card';
 import { DailyLossCard } from '@/components/daily-loss-card';
 import { DashboardCard } from '@/components/dashboard-card';
 import { EquityCard } from '@/components/equity-card';
@@ -157,6 +158,10 @@ export default function DashboardScreen() {
       ) : equity.data ? (
         <EquityCard curve={equity.data} currency={currency} fxRate={fxRate} />
       ) : null}
+
+      {/* An open cooldown outranks everything below the curve: it is the
+          thing to finish before the next number matters. */}
+      <CooldownCard />
 
       {/* Today's discipline sits right under the curve: the checklist is the
           first thing to clear, before any of the aggregates below. */}
