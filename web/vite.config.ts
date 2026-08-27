@@ -79,10 +79,11 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/api": "http://localhost:8080",
-      "/healthz": "http://localhost:8080",
-      "/docs": "http://localhost:8080",
-      "/openapi.yaml": "http://localhost:8080",
+      // Override to point the dev app at a throwaway API (e2e fixtures).
+      "/api": process.env.VITE_API_TARGET ?? "http://localhost:8080",
+      "/healthz": process.env.VITE_API_TARGET ?? "http://localhost:8080",
+      "/docs": process.env.VITE_API_TARGET ?? "http://localhost:8080",
+      "/openapi.yaml": process.env.VITE_API_TARGET ?? "http://localhost:8080",
     },
   },
   test: {
