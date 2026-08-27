@@ -16,7 +16,7 @@ public class WidgetBridgeModule: Module {
   /// Must match the App Group the config plugin grants to both targets.
   static let appGroup = "group.com.tradermemos.app"
   /// Versioned so a future shape change can't feed old widgets garbage.
-  static let snapshotKey = "todaySnapshot.v1"
+  static let snapshotKey = "todaySnapshot.v2"
 
   public func definition() -> ModuleDefinition {
     Name("WidgetBridge")

@@ -18,6 +18,7 @@ import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 
 import { useSession } from '@/api/session';
+import { useCooldownLock } from '@/lib/cooldown';
 import { useProUnlocked } from '@/lib/pro';
 import { useTodayState } from '@/lib/today-state';
 
@@ -54,6 +55,9 @@ export function useWidgetSnapshotSync(): void {
     maxRiskPerTrade,
     privacyMode,
   } = useTodayState();
+  // The open cooldown rides along so the widget can say the form is locked.
+  const { session: cooldown } = useCooldownLock();
+  const cooldownEndsAt = cooldown ? Date.parse(cooldown.ends_at) : null;
 
   const lastPushed = useRef<string | null>(null);
 
@@ -73,7 +77,7 @@ export function useWidgetSnapshotSync(): void {
     if (!ready) return;
 
     const body = {
-      schema: 1,
+      schema: 2,
       dayKey: todayKey,
       marketTimezone: marketTz,
       currency,
@@ -82,6 +86,7 @@ export function useWidgetSnapshotSync(): void {
       dailyLossLimit,
       maxRiskPerTrade,
       privacyMode,
+      cooldownEndsAt,
     };
     // Dedupe on the data, not the timestamp — every push costs the widget a
     // timeline reload, and WidgetKit budgets those.
@@ -101,5 +106,6 @@ export function useWidgetSnapshotSync(): void {
     dailyLossLimit,
     maxRiskPerTrade,
     privacyMode,
+    cooldownEndsAt,
   ]);
 }
