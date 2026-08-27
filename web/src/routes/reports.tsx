@@ -18,6 +18,7 @@ import { tradesOnDay } from "@/lib/calendar";
 import { accountBaseCurrency } from "@/lib/displayPrefs";
 import { useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useCooldownStats } from "@/lib/hooks/useCooldown";
 import type { ExecScoreBucket } from "@/components/ReportsExecutionScore";
 import {
   useBehavior,
@@ -153,6 +154,7 @@ function ReportsPage() {
   const qualityBreakdownQ = useBreakdown("trade_quality", analyticsFilters);
   const complianceQ = useCompliance(analyticsFilters);
   const behaviorQ = useBehavior(analyticsFilters);
+  const cooldownsQ = useCooldownStats(analyticsFilters, tab === "behavior");
   const monteCarloQ = useMonteCarlo(analyticsFilters, tab === "risk");
   const [execScoreBucket, setExecScoreBucket] = useState<ExecScoreBucket>("week");
   const execScoreQ = useExecutionScore(analyticsFilters, execScoreBucket);
@@ -211,6 +213,9 @@ function ReportsPage() {
         behavior={behaviorQ.data}
         behaviorLoading={behaviorQ.isLoading}
         behaviorError={behaviorQ.isError}
+        cooldowns={cooldownsQ.data}
+        cooldownsLoading={cooldownsQ.isLoading}
+        cooldownsError={cooldownsQ.isError}
         monteCarlo={monteCarloQ.data}
         monteCarloLoading={monteCarloQ.isLoading}
         monteCarloError={monteCarloQ.isError}

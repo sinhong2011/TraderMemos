@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { AnnualGoalCard } from "@/components/AnnualGoalCard";
+import { CooldownCard } from "@/components/CooldownCard";
 import { DailyLossCard } from "@/components/DailyLossCard";
 import { PropStatusCard } from "@/components/PropStatusCard";
 import { Card } from "@/components/Card";
@@ -354,6 +355,9 @@ export function HomeView({
           </div>
         ) : null}
       </div>
+
+      {/* An open cooldown outranks the loss budget: it is the thing to finish first. */}
+      <CooldownCard />
 
       <DailyLossCard todayNetPnl={todayNetPnl} currency={currency} fxRate={fxRate} />
 

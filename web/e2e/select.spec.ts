@@ -26,7 +26,7 @@ test.describe("SignalSelect", () => {
     const account = page.getByRole("button", { name: /Account:/i });
     await account.click();
     // Account entries are menu radio items inside the popover menu.
-    await expect(page.getByRole("menuitemradio", { name: /All accounts/ })).toBeVisible();
+    await expect(page.getByRole("menuitemcheckbox", { name: /All accounts/ })).toBeVisible();
     await page.keyboard.press("Escape");
 
     const dateRange = page

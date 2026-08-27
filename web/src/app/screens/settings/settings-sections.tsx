@@ -20,6 +20,7 @@ import {
   Upload,
   Wallet,
   X,
+  Wind,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
@@ -85,20 +86,21 @@ import {
   useDisplayPrefs,
 } from "@/lib/displayPrefs";
 import {
-  RISK_RULE_DEFS,
   defaultAccountFormValues,
   defaultCashFormValues,
   defaultTagFormValues,
+  emptyRiskRules,
   formatRiskRuleValue,
   parseRiskRuleValue,
   riskRuleDef,
   setRiskRuleValue,
+  type RiskRuleKey,
   validateAccountId,
   validatePositiveAmount,
   validateRequiredName,
   validateRiskRuleValue,
   validateStartingBalance,
-  type RiskRuleKey,
+  visibleRiskRules,
 } from "@/lib/settingsFormSchema";
 import {
   BtnGhost,
@@ -108,12 +110,13 @@ import {
   SettingsCard,
   SettingsCardNote,
   SettingsCardRow,
-  SettingsInsetForm,
-  SettingsPanelBody,
   SettingsGroup,
   SettingsGroupRow,
+  SettingsInsetForm,
+  SettingsPanelBody,
   SettingsRow,
   SettingsSection,
+  SettingsToggle,
 } from "./settings-ui";
 
 export function primaryAccountId(accounts: Account[]): string | undefined {
@@ -1028,12 +1031,14 @@ const RISK_RULE_ICONS: Record<RiskRuleKey, LucideIcon> = {
   max_trades_per_day: Hash,
   max_consecutive_losses: Repeat,
   default_account_risk_pct: Percent,
+  cooldown_minutes: Wind,
 };
 
 /** Bare counts read as orphans ("3") — count rules carry their unit word. */
 const RISK_RULE_COUNT_UNITS: Partial<Record<RiskRuleKey, string>> = {
   max_trades_per_day: "trades",
   max_consecutive_losses: "losses",
+  cooldown_minutes: "min",
 };
 
 export function RulesTab({
@@ -1221,6 +1226,31 @@ export function RulesTab({
 
   return (
     <>
+      {/* Cooldown locks trade entry rather than scoring it after the fact, so
+          it is a switch you turn on — not a limit you add. Off by default. */}
+      <SettingsCard
+        title="Cooldown"
+        description="A timed pause that locks trade entry until you answer a short return gate."
+        action={
+          <SettingsToggle
+            checked={riskRules?.cooldown_enabled === true}
+            disabled={riskRulesLoading || riskRulesSaving}
+            aria-label="Cooldown mode"
+            onCheckedChange={(next) =>
+              void persistRules(
+                { ...(riskRules ?? emptyRiskRules()), cooldown_enabled: next },
+                next ? "Cooldown mode on" : "Cooldown mode off",
+              )
+            }
+          />
+        }
+      >
+        <SettingsCardNote tone="muted">
+          While it is off the server refuses to open a cooldown and never starts one for you, and no
+          cooldown surface appears anywhere in the app.
+        </SettingsCardNote>
+      </SettingsCard>
+
       <SettingsCard
         title="Risk Rules"
         description="Checked by Check compliance on New Trade. Only the limits you set are enforced."
@@ -1232,7 +1262,7 @@ export function RulesTab({
         ) : riskRulesError ? (
           <SettingsCardNote tone="destructive">Failed to load risk rules.</SettingsCardNote>
         ) : (
-          RISK_RULE_DEFS.map((def) => {
+          visibleRiskRules(riskRules).map((def) => {
             const value = riskRules?.[def.key];
             return (
               <SettingsCardRow
@@ -1523,7 +1553,9 @@ export function RulesTab({
                   ? "Value (%)"
                   : modalDef.unit === "count"
                     ? "Value (trades)"
-                    : "Value ($)"
+                    : modalDef.unit === "min"
+                      ? "Value (minutes)"
+                      : "Value ($)"
               }
               htmlFor="risk-rule-value"
               error={ruleError ?? undefined}

@@ -63,6 +63,8 @@ describe("settingsFormSchema", () => {
       default_account_risk_pct: 2,
       max_trades_per_day: null,
       max_consecutive_losses: null,
+      cooldown_minutes: null,
+      cooldown_enabled: false,
     });
   });
 
@@ -89,6 +91,8 @@ describe("settingsFormSchema", () => {
       default_account_risk_pct: 1,
       max_trades_per_day: null,
       max_consecutive_losses: null,
+      cooldown_minutes: null,
+      cooldown_enabled: false,
     };
     expect(activeRiskRuleEntries(rules).map((r) => r.key)).toEqual([
       "max_risk_per_trade",
