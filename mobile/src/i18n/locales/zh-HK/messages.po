@@ -125,7 +125,7 @@ msgid "{0} losses in a row"
 msgstr "連續虧損{0}次"
 
 #. placeholder {0}: value.toLocaleString('en-US', { maximumFractionDigits: 0 })
-#: src/lib/risk-rules.ts:123
+#: src/lib/risk-rules.ts:134
 msgid "{0} min"
 msgstr "{0} 分鐘"
 
@@ -184,7 +184,7 @@ msgid "{0} per +1R"
 msgstr "每 +1R {0}"
 
 #. placeholder {0}: formatCountdown(remaining)
-#: src/app/cooldown.tsx:328
+#: src/app/cooldown.tsx:351
 msgid "{0} remaining"
 msgstr "剩餘 {0}"
 
@@ -345,7 +345,7 @@ msgstr "{label} — {0} · {1} 筆交易"
 msgid "{label} — no trades"
 msgstr "{label} — 無交易"
 
-#: src/app/cooldown.tsx:188
+#: src/app/cooldown.tsx:210
 msgid "{m} min"
 msgstr "{m} 分鐘"
 
@@ -469,7 +469,7 @@ msgstr "還有 {0} 個"
 msgid "+{0} more trades in this file."
 msgstr "此檔案還有 {0} 筆交易。"
 
-#: src/app/cooldown.tsx:339
+#: src/app/cooldown.tsx:362
 msgid "+{EXTEND_MINUTES} min"
 msgstr "+{EXTEND_MINUTES} 分鐘"
 
@@ -633,6 +633,10 @@ msgstr "在卡片角落顯示小型字標。"
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "填上代號會把這個計劃綁定到單一標的；任何標的都適用的形態就留在「不限」。"
 
+#: src/app/(tabs)/(settings)/risk-rules.tsx:215
+msgid "A timed pause that locks trade entry until you answer a short return gate. Off by default."
+msgstr "一段會鎖住落單嘅計時暫停，要答完簡短嘅回場關卡先解鎖。預設關閉。"
+
 #: src/app/(tabs)/(settings)/_layout.tsx:132
 msgid "About"
 msgstr "關於"
@@ -702,8 +706,8 @@ msgstr "帳戶"
 msgid "accounts people members owner admin invite add remove password reset"
 msgstr "帳戶 用戶 成員 擁有者 管理員 邀請 新增 移除 密碼 重設"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:209
-#: src/app/(tabs)/(settings)/risk-rules.tsx:228
+#: src/app/(tabs)/(settings)/risk-rules.tsx:229
+#: src/app/(tabs)/(settings)/risk-rules.tsx:248
 msgid "Active limits"
 msgstr "生效上限"
 
@@ -738,9 +742,9 @@ msgstr "新增"
 msgid "Add a check"
 msgstr "新增檢查項"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:199
-#: src/app/(tabs)/(settings)/risk-rules.tsx:241
-#: src/app/(tabs)/(settings)/risk-rules.tsx:263
+#: src/app/(tabs)/(settings)/risk-rules.tsx:201
+#: src/app/(tabs)/(settings)/risk-rules.tsx:261
+#: src/app/(tabs)/(settings)/risk-rules.tsx:283
 msgid "Add a limit"
 msgstr "新增上限"
 
@@ -848,7 +852,7 @@ msgid "Add user"
 msgstr "新增用戶"
 
 #: src/app/(tabs)/(settings)/user-form.tsx:89
-#: src/app/cooldown.tsx:339
+#: src/app/cooldown.tsx:362
 msgid "Adding…"
 msgstr "新增中…"
 
@@ -1029,7 +1033,7 @@ msgstr "所有持倉時長"
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "任何 OpenAI 相容端點都可以。測試會使用上方的值，即使尚未儲存。"
 
-#: src/app/cooldown.tsx:409
+#: src/app/cooldown.tsx:431
 msgid "Any setup"
 msgstr "任何 setup"
 
@@ -1130,7 +1134,7 @@ msgstr "驗證碼"
 msgid "Auto"
 msgstr "自動"
 
-#: src/lib/risk-rules.ts:75
+#: src/lib/risk-rules.ts:76
 msgid "Auto cooldown"
 msgstr "自動冷靜"
 
@@ -1241,7 +1245,7 @@ msgid "Back to trades"
 msgstr "返回交易"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:111
-#: src/components/tools-menu.tsx:54
+#: src/components/tools-menu.tsx:57
 msgid "Backtest"
 msgstr "回溯測試"
 
@@ -1298,7 +1302,7 @@ msgstr "打和"
 msgid "Before the open"
 msgstr "開市前"
 
-#: src/app/cooldown.tsx:414
+#: src/app/cooldown.tsx:436
 msgid "Before you go back"
 msgstr "返場之前"
 
@@ -1391,11 +1395,11 @@ msgstr "打和"
 msgid "Breakout pullback"
 msgstr "突破回踩"
 
-#: src/app/cooldown.tsx:272
+#: src/app/cooldown.tsx:294
 msgid "Breathe in"
 msgstr "吸氣"
 
-#: src/app/cooldown.tsx:272
+#: src/app/cooldown.tsx:294
 msgid "Breathe out"
 msgstr "呼氣"
 
@@ -1513,11 +1517,11 @@ msgstr "取消"
 msgid "Canonical backup — trades, fills, journal, cash, and playbook setups. Re-importable."
 msgstr "完整備份 — 交易、成交、日誌、資金及策略設定，可重新匯入。"
 
-#: src/lib/risk-rules.ts:52
+#: src/lib/risk-rules.ts:53
 msgid "Cap how many trades close in a single day."
 msgstr "限制單日平倉的交易數量。"
 
-#: src/lib/risk-rules.ts:28
+#: src/lib/risk-rules.ts:29
 msgid "Cap planned risk on a single trade."
 msgstr "為單筆交易的計劃風險設定上限。"
 
@@ -1697,7 +1701,7 @@ msgstr "清除中…"
 msgid "Clock"
 msgstr "時鐘"
 
-#: src/app/cooldown.tsx:130
+#: src/app/cooldown.tsx:152
 #: src/app/new-token.tsx:80
 #: src/app/replay.tsx:1059
 #: src/app/share-reports-link.tsx:106
@@ -1824,7 +1828,7 @@ msgstr "確認中…"
 #: src/app/(tabs)/(settings)/account-form.tsx:364
 #: src/app/(tabs)/(settings)/index.tsx:217
 #: src/app/(tabs)/(settings)/index.tsx:451
-#: src/components/tools-menu.tsx:60
+#: src/components/tools-menu.tsx:63
 msgid "Connect a broker"
 msgstr "連接券商"
 
@@ -1913,19 +1917,29 @@ msgstr "合約數"
 #~ msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 #~ msgstr "以最新匯率換算唯讀金額。表單仍使用帳戶貨幣。"
 
-#: src/app/cooldown.tsx:74
-#: src/app/cooldown.tsx:81
-#: src/app/cooldown.tsx:165
+#: src/app/cooldown.tsx:78
+#: src/app/cooldown.tsx:96
+#: src/app/cooldown.tsx:103
+#: src/app/cooldown.tsx:187
 #: src/components/cooldown-card.tsx:29
-#: src/components/tools-menu.tsx:66
+#: src/components/tools-menu.tsx:70
 msgid "Cooldown"
 msgstr "冷靜模式"
+
+#: src/app/(tabs)/(settings)/risk-rules.tsx:214
+#: src/app/(tabs)/(settings)/risk-rules.tsx:219
+msgid "Cooldown mode"
+msgstr "冷靜模式"
+
+#: src/app/cooldown.tsx:81
+msgid "Cooldown mode is off"
+msgstr "冷靜模式未開啟"
 
 #: src/components/cooldown-banner.tsx:44
 msgid "Cooldown over — answer the gate"
 msgstr "冷靜完結 — 回答關卡"
 
-#: src/app/cooldown.tsx:323
+#: src/app/cooldown.tsx:346
 #: src/components/cooldown-banner.tsx:44
 msgid "Cooling down"
 msgstr "冷靜中"
@@ -2015,7 +2029,7 @@ msgstr "無法啟用"
 msgid "Could not export config"
 msgstr "無法匯出設定"
 
-#: src/app/cooldown.tsx:347
+#: src/app/cooldown.tsx:369
 msgid "Could not extend"
 msgstr "無法延長"
 
@@ -2110,7 +2124,7 @@ msgstr "無法還原"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:74
 #: src/app/(tabs)/(settings)/prop-settings.tsx:96
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:66
-#: src/app/(tabs)/(settings)/risk-rules.tsx:168
+#: src/app/(tabs)/(settings)/risk-rules.tsx:169
 #: src/app/(tabs)/(settings)/trading-journal.tsx:47
 #: src/app/(tabs)/(settings)/trading-journal.tsx:59
 #: src/app/(tabs)/(settings)/trading-journal.tsx:84
@@ -2151,7 +2165,7 @@ msgstr "無法儲存範例檔"
 msgid "Could not share"
 msgstr "無法分享"
 
-#: src/app/cooldown.tsx:159
+#: src/app/cooldown.tsx:181
 msgid "Could not start"
 msgstr "無法開始"
 
@@ -2163,7 +2177,7 @@ msgstr "無法開始設定"
 msgid "Could not turn off"
 msgstr "無法關閉"
 
-#: src/app/cooldown.tsx:403
+#: src/app/cooldown.tsx:425
 msgid "Could not unlock"
 msgstr "無法解鎖"
 
@@ -2263,7 +2277,7 @@ msgid "Currency"
 msgstr "貨幣"
 
 #: src/app/tool-fx.tsx:53
-#: src/components/tools-menu.tsx:43
+#: src/components/tools-menu.tsx:46
 msgid "Currency converter"
 msgstr "貨幣換算"
 
@@ -2320,7 +2334,7 @@ msgstr "每日"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:123
 #: src/components/checklist-card.tsx:36
 #: src/components/checklist-card.tsx:45
-#: src/components/tools-menu.tsx:73
+#: src/components/tools-menu.tsx:78
 msgid "Daily checklist"
 msgstr "每日清單"
 
@@ -2412,7 +2426,7 @@ msgstr "星期"
 msgid "Default"
 msgstr "預設"
 
-#: src/lib/risk-rules.ts:67
+#: src/lib/risk-rules.ts:68
 msgid "Default account risk %"
 msgstr "預設帳戶風險 %"
 
@@ -2707,7 +2721,7 @@ msgstr "更早的期間會歸入「早前」。"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:114
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:767
-#: src/components/tools-menu.tsx:56
+#: src/components/tools-menu.tsx:59
 msgid "Economic calendar"
 msgstr "經濟日曆"
 
@@ -2716,7 +2730,7 @@ msgid "Edge"
 msgstr "優勢"
 
 #: src/app/(tabs)/(settings)/funding.tsx:54
-#: src/app/(tabs)/(settings)/risk-rules.tsx:108
+#: src/app/(tabs)/(settings)/risk-rules.tsx:109
 #: src/app/(tabs)/(settings)/tags.tsx:31
 #: src/components/checklist-card.tsx:38
 #: src/components/swipeable-trade-row.tsx:81
@@ -2779,7 +2793,7 @@ msgstr "啟用"
 msgid "End date"
 msgstr "結束日期"
 
-#: src/components/tools-menu.tsx:101
+#: src/components/tools-menu.tsx:106
 msgid "End Lock Screen session"
 msgstr "結束鎖定畫面時段"
 
@@ -2821,7 +2835,7 @@ msgstr "輸入使用者名稱"
 msgid "Enter a valid amount."
 msgstr "請輸入有效金額。"
 
-#: src/lib/risk-rules.ts:134
+#: src/lib/risk-rules.ts:145
 msgid "Enter a valid number."
 msgstr "請輸入有效數字。"
 
@@ -2841,7 +2855,7 @@ msgstr "請輸入有效的起始結餘，或留空。"
 msgid "Enter a valid starting balance."
 msgstr "請輸入有效的初始結餘。"
 
-#: src/lib/risk-rules.ts:132
+#: src/lib/risk-rules.ts:143
 msgid "Enter a value."
 msgstr "請輸入數值。"
 
@@ -2849,11 +2863,11 @@ msgstr "請輸入數值。"
 msgid "Enter a web address like https://tm.example.com."
 msgstr "請輸入類似 https://tm.example.com 的網址。"
 
-#: src/lib/risk-rules.ts:140
+#: src/lib/risk-rules.ts:151
 msgid "Enter a whole number of minutes."
 msgstr "請輸入整數分鐘。"
 
-#: src/lib/risk-rules.ts:137
+#: src/lib/risk-rules.ts:148
 msgid "Enter a whole number of trades."
 msgstr "請輸入整數的交易數。"
 
@@ -3555,7 +3569,7 @@ msgstr "損益最高"
 #~ msgid "History"
 #~ msgstr "紀錄"
 
-#: src/app/cooldown.tsx:272
+#: src/app/cooldown.tsx:294
 msgid "Hold"
 msgstr "屏住"
 
@@ -3596,7 +3610,7 @@ msgstr "今日交易如何？用「- [ ]」建立清單項目。"
 msgid "How little heat entries take relative to the move they find (MAE vs MFE)."
 msgstr "入場相對於捕捉到嘅行情承受幾少浮虧(MAE 對 MFE)。"
 
-#: src/app/cooldown.tsx:186
+#: src/app/cooldown.tsx:208
 msgid "How long?"
 msgstr "幾耐？"
 
@@ -3604,7 +3618,7 @@ msgstr "幾耐？"
 msgid "How to set one up"
 msgstr "如何架設伺服器"
 
-#: src/app/cooldown.tsx:358
+#: src/app/cooldown.tsx:380
 msgid "I need to trade now"
 msgstr "我而家要落單"
 
@@ -3774,7 +3788,7 @@ msgstr "將同時從此筆記和伺服器刪除。"
 #: src/app/(tabs)/(trades)/[id].tsx:746
 #: src/app/(tabs)/(trades)/[id].tsx:788
 #: src/components/swipeable-trade-row.tsx:72
-#: src/components/tools-menu.tsx:114
+#: src/components/tools-menu.tsx:119
 #: src/components/trade-form.tsx:485
 msgid "Journal"
 msgstr "交易日誌"
@@ -3810,7 +3824,7 @@ msgid "Kelly (half)"
 msgstr "凱利（一半）"
 
 #: src/app/tool-kelly.tsx:32
-#: src/components/tools-menu.tsx:42
+#: src/components/tools-menu.tsx:45
 msgid "Kelly criterion"
 msgstr "凱利公式"
 
@@ -3903,7 +3917,7 @@ msgstr "上限 {0}"
 msgid "Limit hit — the edge is gone for today. Close the app."
 msgstr "已達上限 — 今日的優勢已經消失。關掉應用程式吧。"
 
-#: src/lib/risk-rules.ts:44
+#: src/lib/risk-rules.ts:45
 msgid "Limit total risk across open positions."
 msgstr "限制所有持倉的總風險。"
 
@@ -3996,7 +4010,7 @@ msgstr "載入緊你嘅年度回顧"
 #: src/app/(tabs)/(settings)/ai.tsx:71
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:84
 #: src/app/(tabs)/(settings)/profile.tsx:36
-#: src/app/(tabs)/(settings)/risk-rules.tsx:232
+#: src/app/(tabs)/(settings)/risk-rules.tsx:252
 #: src/app/(tabs)/(settings)/user-detail.tsx:92
 #: src/app/(tabs)/(settings)/users.tsx:66
 msgid "Loading…"
@@ -4188,11 +4202,11 @@ msgstr "將每個欄位對應到檔案中的欄。"
 msgid "Max"
 msgstr "最大"
 
-#: src/lib/risk-rules.ts:59
+#: src/lib/risk-rules.ts:60
 msgid "Max consecutive losses"
 msgstr "最多連續虧損"
 
-#: src/lib/risk-rules.ts:35
+#: src/lib/risk-rules.ts:36
 msgid "Max daily loss"
 msgstr "每日最大虧損"
 
@@ -4207,11 +4221,11 @@ msgstr "最大回撤"
 #~ msgid "Max drawdown — {0}"
 #~ msgstr "最大回撤 — {0}"
 
-#: src/lib/risk-rules.ts:43
+#: src/lib/risk-rules.ts:44
 msgid "Max open risk"
 msgstr "最大持倉風險"
 
-#: src/lib/risk-rules.ts:27
+#: src/lib/risk-rules.ts:28
 msgid "Max risk / trade"
 msgstr "每筆交易最大風險"
 
@@ -4223,7 +4237,7 @@ msgstr "每筆交易最大風險"
 msgid "Max share of profit one day may contribute, as a percent (e.g. 40). Leave blank to drop."
 msgstr "單日最多可佔利潤的百分比（例如 40）。留空即取消。"
 
-#: src/lib/risk-rules.ts:51
+#: src/lib/risk-rules.ts:52
 msgid "Max trades / day"
 msgstr "每日最多交易數"
 
@@ -4306,7 +4320,7 @@ msgstr "最少 {minPasswordLength} 個字元。"
 msgid "Minute"
 msgstr "分"
 
-#: src/lib/risk-rules.ts:141
+#: src/lib/risk-rules.ts:152
 msgid "Minutes must be between 1 and 1440."
 msgstr "分鐘須介乎 1 至 1440。"
 
@@ -4695,7 +4709,7 @@ msgstr "尚無筆記"
 msgid "No plan was recorded before the trade"
 msgstr "交易前沒有記錄計劃"
 
-#: src/app/cooldown.tsx:439
+#: src/app/cooldown.tsx:461
 msgid "No playbook setups yet — add some and the gate will hold you to one."
 msgstr "未有 playbook setup — 加咗之後，關卡會要求你只揀一個。"
 
@@ -4902,7 +4916,7 @@ msgstr "找不到筆記"
 #: src/app/(tabs)/(dashboard)/notes.tsx:176
 #: src/app/(tabs)/(dashboard)/notes.tsx:227
 #: src/app/(tabs)/(trades)/[id].tsx:819
-#: src/components/tools-menu.tsx:67
+#: src/components/tools-menu.tsx:72
 msgid "Notes"
 msgstr "筆記"
 
@@ -5069,6 +5083,7 @@ msgstr "開倉日"
 msgid "Open price"
 msgstr "開倉價"
 
+#: src/app/cooldown.tsx:86
 #: src/components/reports/risk-section.tsx:172
 msgid "Open risk rules"
 msgstr "開啟風險規則"
@@ -5335,7 +5350,7 @@ msgstr "每筆"
 msgid "Per-share risk"
 msgstr "每股風險"
 
-#: src/lib/risk-rules.ts:135
+#: src/lib/risk-rules.ts:146
 msgid "Percent must be between 0 and 100."
 msgstr "百分比必須介乎 0 至 100。"
 
@@ -5430,7 +5445,7 @@ msgstr "播放速度"
 #: src/app/(tabs)/(dashboard)/index.tsx:232
 #: src/app/(tabs)/(dashboard)/playbook.tsx:176
 #: src/app/(tabs)/(dashboard)/playbook.tsx:226
-#: src/components/tools-menu.tsx:68
+#: src/components/tools-menu.tsx:73
 msgid "Playbook"
 msgstr "策略手冊"
 
@@ -5470,7 +5485,7 @@ msgid "Position"
 msgstr "倉位"
 
 #: src/app/tool-position-size.tsx:52
-#: src/components/tools-menu.tsx:41
+#: src/components/tools-menu.tsx:44
 msgid "Position size"
 msgstr "倉位大小"
 
@@ -5722,7 +5737,7 @@ msgstr "快速虧損 — 論點迅速失效"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:105
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:732
-#: src/components/tools-menu.tsx:45
+#: src/components/tools-menu.tsx:48
 msgid "R calculator"
 msgstr "R 計算機"
 
@@ -5836,7 +5851,7 @@ msgstr "虧損日"
 msgid "RED YEAR"
 msgstr "虧損之年"
 
-#: src/app/cooldown.tsx:487
+#: src/app/cooldown.tsx:509
 msgid "Reflection"
 msgstr "反思"
 
@@ -5877,7 +5892,7 @@ msgstr "無法使用提醒事項"
 #: src/app/(tabs)/(settings)/funding.tsx:62
 #: src/app/(tabs)/(settings)/funding.tsx:153
 #: src/app/(tabs)/(settings)/prop-settings.tsx:107
-#: src/app/(tabs)/(settings)/risk-rules.tsx:116
+#: src/app/(tabs)/(settings)/risk-rules.tsx:117
 #: src/app/(tabs)/(trades)/[id].tsx:578
 #: src/components/attachments-card.tsx:153
 #: src/components/note-images.tsx:139
@@ -6029,7 +6044,7 @@ msgstr "回報問題"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:128
 #: src/app/(tabs)/(dashboard)/reports.tsx:110
-#: src/components/tools-menu.tsx:40
+#: src/components/tools-menu.tsx:43
 msgid "Reports"
 msgstr "報表"
 
@@ -6531,7 +6546,7 @@ msgid "Server URL"
 msgstr "伺服器 URL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:762
-#: src/components/tools-menu.tsx:98
+#: src/components/tools-menu.tsx:103
 #: src/components/trade-form.tsx:496
 msgid "Session"
 msgstr "時段"
@@ -6727,7 +6742,7 @@ msgstr "顯示金額"
 msgid "Show password"
 msgstr "顯示密碼"
 
-#: src/components/tools-menu.tsx:108
+#: src/components/tools-menu.tsx:113
 msgid "Show session on Lock Screen"
 msgstr "在鎖定畫面顯示時段"
 
@@ -6823,12 +6838,12 @@ msgstr "SQN"
 msgid "Stability"
 msgstr "穩定性"
 
-#: src/app/cooldown.tsx:212
-#: src/app/cooldown.tsx:214
+#: src/app/cooldown.tsx:234
+#: src/app/cooldown.tsx:236
 msgid "Start {minutes} min"
 msgstr "開始 {minutes} 分鐘"
 
-#: src/lib/risk-rules.ts:76
+#: src/lib/risk-rules.ts:77
 msgid "Start a cooldown this long when the daily loss, loss streak or trade cap trips."
 msgstr "當每日虧損、連續虧損或每日單數上限觸發時，自動開始咁長嘅冷靜。"
 
@@ -6859,7 +6874,7 @@ msgstr "固定 — 下限不變"
 msgid "Status"
 msgstr "狀態"
 
-#: src/app/cooldown.tsx:175
+#: src/app/cooldown.tsx:197
 msgid "Step away before the next trade decides for you. The trade form stays locked until you answer the return gate."
 msgstr "喺下一單替你做決定之前先行開。落單表格會鎖住，直至你回答返場關卡。"
 
@@ -6897,7 +6912,7 @@ msgstr "止損價"
 msgid "Stop {0}"
 msgstr "止蝕 {0}"
 
-#: src/lib/risk-rules.ts:60
+#: src/lib/risk-rules.ts:61
 msgid "Stop after this many losing trades in a row."
 msgstr "連續虧損達到此數量後停止交易。"
 
@@ -6925,7 +6940,7 @@ msgstr "止蝕權利金"
 msgid "Stop premium must be below entry premium"
 msgstr "止蝕權利金必須低於入場權利金"
 
-#: src/lib/risk-rules.ts:36
+#: src/lib/risk-rules.ts:37
 msgid "Stop when today's realized loss hits this amount."
 msgstr "當日已實現虧損達此金額時停止。"
 
@@ -6969,7 +6984,7 @@ msgstr "建議項目"
 msgid "suggested risk"
 msgstr "建議風險"
 
-#: src/lib/risk-rules.ts:68
+#: src/lib/risk-rules.ts:69
 msgid "Suggested size as a percent of account equity."
 msgstr "以帳戶權益百分比建議的倉位大小。"
 
@@ -7040,7 +7055,7 @@ msgstr "代號 A–Z"
 #: src/app/(tabs)/(dashboard)/_layout.tsx:109
 #: src/app/(tabs)/(trades)/_layout.tsx:43
 #: src/components/symbol-journal.tsx:323
-#: src/components/tools-menu.tsx:50
+#: src/components/tools-menu.tsx:53
 msgid "Symbol journal"
 msgstr "代號日誌"
 
@@ -7132,7 +7147,7 @@ msgstr "標籤以錯誤、習慣及自訂標記為交易加上註記。點一下
 #~ msgid "Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, swipe to delete."
 #~ msgstr "標籤以錯誤、習慣和自訂標記為交易加註。點按一行可編輯，滑動可刪除。"
 
-#: src/app/cooldown.tsx:172
+#: src/app/cooldown.tsx:194
 msgid "Take a cooldown"
 msgstr "冷靜一下"
 
@@ -7310,11 +7325,11 @@ msgstr "端點所用的模型 ID，例如 gpt-4o-mini。"
 msgid "The new passwords don't match."
 msgstr "兩次輸入的新密碼不一致。"
 
-#: src/app/cooldown.tsx:298
+#: src/app/cooldown.tsx:321
 msgid "The next trade doesn't have to fix the last one."
 msgstr "下一單唔需要補返上一單。"
 
-#: src/app/cooldown.tsx:430
+#: src/app/cooldown.tsx:452
 msgid "The one setup you're allowed"
 msgstr "你唯一允許嘅 setup"
 
@@ -7378,7 +7393,7 @@ msgstr "同步時間範圍由 IBKR Client Portal 入面 Flex Query 設定嘅期�
 #~ msgid "The tag is removed from every trade that uses it."
 #~ msgstr "將從所有使用此標籤的交易中移除。"
 
-#: src/app/cooldown.tsx:419
+#: src/app/cooldown.tsx:441
 msgid "The timer is done. Three honest answers and you're back."
 msgstr "時間到。誠實答三條問題就可以返場。"
 
@@ -7583,8 +7598,8 @@ msgstr "權杖讓腳本與整合向伺服器 API 驗證身分。點一下可查�
 msgid "Too many requests"
 msgstr "請求過於頻繁"
 
-#: src/components/tools-menu.tsx:89
-#: src/components/tools-menu.tsx:125
+#: src/components/tools-menu.tsx:94
+#: src/components/tools-menu.tsx:130
 msgid "Tools"
 msgstr "工具"
 
@@ -7776,6 +7791,10 @@ msgstr "再試一次"
 msgid "Tue"
 msgstr "二"
 
+#: src/app/cooldown.tsx:83
+msgid "Turn it on in Settings → Risk rules to pause before your next trade."
+msgstr "喺 設定 → 風險規則 開啟，就可以喺落下一單前先暫停。"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:113
 msgid "Turn off two-factor"
 msgstr "關閉雙重認證"
@@ -7855,12 +7874,12 @@ msgstr "未知的用戶端"
 msgid "Unknown symbol"
 msgstr "未知代號"
 
-#: src/app/cooldown.tsx:501
-#: src/app/cooldown.tsx:503
+#: src/app/cooldown.tsx:525
+#: src/app/cooldown.tsx:527
 msgid "Unlock"
 msgstr "解鎖"
 
-#: src/app/cooldown.tsx:418
+#: src/app/cooldown.tsx:440
 msgid "Unlocking early is allowed — but write down why first. The typing is the point."
 msgstr "可以提早解鎖 — 但要先寫低點解。打字本身就係重點。"
 
@@ -7906,8 +7925,8 @@ msgstr "儲存時會上載到此標的的交易。點一下縮圖即可移除。
 msgid "Use at least {MIN_LENGTH} characters."
 msgstr "請輸入至少 {MIN_LENGTH} 個字元。"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:210
-#: src/app/(tabs)/(settings)/risk-rules.tsx:242
+#: src/app/(tabs)/(settings)/risk-rules.tsx:230
+#: src/app/(tabs)/(settings)/risk-rules.tsx:262
 msgid "Used by Check compliance on New Trade. Add only the limits you want enforced."
 msgstr "供「新增交易」的合規檢查使用。只新增你想執行的上限。"
 
@@ -8069,11 +8088,11 @@ msgstr "今日點樣？"
 msgid "What has to be happening for this play to be on? Where is it wrong?"
 msgstr "這個形態成立需要什麼條件？什麼情況下就算失效？"
 
-#: src/app/cooldown.tsx:421
+#: src/app/cooldown.tsx:443
 msgid "What was pulling you in?"
 msgstr "當時係咩拉你入場？"
 
-#: src/app/cooldown.tsx:485
+#: src/app/cooldown.tsx:507
 msgid "What will be different about this trade?"
 msgstr "呢單會有咩唔同？"
 
@@ -8082,7 +8101,7 @@ msgstr "呢單會有咩唔同？"
 msgid "What would you do differently?"
 msgstr "下次會如何改進？"
 
-#: src/app/cooldown.tsx:197
+#: src/app/cooldown.tsx:219
 msgid "What's pulling you in?"
 msgstr "係咩拉你入場？"
 
@@ -8102,7 +8121,7 @@ msgstr "為何入場？"
 msgid "Why did you exit?"
 msgstr "為何出場？"
 
-#: src/app/cooldown.tsx:481
+#: src/app/cooldown.tsx:503
 msgid "Why now?"
 msgstr "點解係而家？"
 
@@ -8268,12 +8287,12 @@ msgstr "下次登入時需要驗證器的驗證碼。"
 #. placeholder {0}: worst.summary.total_trades
 #. placeholder {1}: worst.key
 #. placeholder {2}: formatPnl(worst.summary.expectancy * (fx.rate ?? 1), fx.currency)
-#: src/app/cooldown.tsx:297
+#: src/app/cooldown.tsx:320
 msgid "Your {0} “{1}” trades average {2} each."
 msgstr "你 {0} 單「{1}」交易平均每單 {2}。"
 
 #. placeholder {0}: triggerLabel(trigger)
-#: src/app/cooldown.tsx:182
+#: src/app/cooldown.tsx:204
 msgid "Your {0} rule just tripped."
 msgstr "你嘅{0}規則啱啱觸發咗。"
 
@@ -8316,7 +8335,7 @@ msgstr "你的戰績"
 msgid "Your rhythm"
 msgstr "你的節奏"
 
-#: src/app/cooldown.tsx:443
+#: src/app/cooldown.tsx:465
 msgid "Your rule for the rest of today"
 msgstr "今日餘下時間嘅規則"
 

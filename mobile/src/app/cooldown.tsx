@@ -17,6 +17,7 @@ import { useCSSVariable } from 'uniwind';
 import { useAccounts, useActiveCooldown, useBreakdown, useSetups } from '@/api/hooks';
 import type { Cooldown, CooldownImpulse, CooldownReturnRule, CooldownTrigger } from '@/api/types';
 import { ChipGroup } from '@/components/chips';
+import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { FormField, FormFootnote, FormInput, FormScrollArea } from '@/components/form-sheet';
 import { GlassButton, GlassIconButton } from '@/components/glass-button';
@@ -35,6 +36,7 @@ import {
   triggerSentence,
   useCooldownActions,
   useCooldownClock,
+  useCooldownEnabled,
 } from '@/lib/cooldown';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
@@ -61,6 +63,7 @@ import { accountBaseCurrency } from '@/lib/prefs';
 export default function CooldownScreen() {
   const router = useRouter();
   const { suggest } = useLocalSearchParams<{ suggest?: string }>();
+  const enabled = useCooldownEnabled();
   const active = useActiveCooldown();
   const session = active.data?.session ?? null;
   const clock = useCooldownClock(session);
@@ -69,6 +72,25 @@ export default function CooldownScreen() {
   const [earlyGateFor, setEarlyGateFor] = useState<string | null>(null);
   const earlyGate = session != null && earlyGateFor === session.id;
 
+  // Reached by a deep link (a push, a widget) while the feature is off.
+  if (!enabled) {
+    return (
+      <Shell title={t`Cooldown`} onClose={() => router.back()}>
+        <View className="flex-1 items-center justify-center px-6">
+          <EmptyState
+            title={t`Cooldown mode is off`}
+            systemImage="wind"
+            description={t`Turn it on in Settings → Risk rules to pause before your next trade.`}
+          />
+          <GlassButton
+            label={t`Open risk rules`}
+            systemImage="shield.lefthalf.filled"
+            onPress={() => router.push('/(tabs)/(settings)/risk-rules')}
+          />
+        </View>
+      </Shell>
+    );
+  }
   if (active.error && active.data == null) {
     return (
       <Shell title={t`Cooldown`} onClose={() => router.back()}>

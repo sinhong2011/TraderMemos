@@ -71,10 +71,20 @@ func (f *fixture) trade(t *testing.T, id string, closedAt time.Time, pnl float64
 
 func (f *fixture) rules(t *testing.T, minutes, streak int64) {
 	t.Helper()
+	f.rulesWithSwitch(t, minutes, streak, true)
+}
+
+func (f *fixture) rulesWithSwitch(t *testing.T, minutes, streak int64, enabled bool) {
+	t.Helper()
+	on := int64(0)
+	if enabled {
+		on = 1
+	}
 	_, err := f.q.UpsertRiskRules(context.Background(), store.UpsertRiskRulesParams{
 		UserID:               f.user,
 		MaxConsecutiveLosses: sql.NullInt64{Int64: streak, Valid: streak > 0},
 		CooldownMinutes:      sql.NullInt64{Int64: minutes, Valid: minutes > 0},
+		CooldownEnabled:      on,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -116,6 +126,28 @@ func TestEvaluateUserStartsCooldownOnce(t *testing.T) {
 	f.trade(t, "t3", now.Add(-30*time.Minute), -10)
 	if again, err := f.svc.EvaluateUser(ctx, f.user); err != nil || again != nil {
 		t.Fatalf("same trigger twice in a day should be a no-op, got %+v err=%v", again, err)
+	}
+}
+
+// The master switch outranks the thresholds: a leftover cooldown_minutes
+// must not start sessions the trader can no longer see anywhere.
+func TestEvaluateUserRespectsTheMasterSwitch(t *testing.T) {
+	f := newFixture(t)
+	f.rulesWithSwitch(t, 15, 2, false)
+	f.trade(t, "t1", now.Add(-2*time.Hour), -10)
+	f.trade(t, "t2", now.Add(-time.Hour), -10)
+	ctx := context.Background()
+
+	if s, err := f.svc.EvaluateUser(ctx, f.user); err != nil || s != nil {
+		t.Fatalf("switch off: got %+v err=%v", s, err)
+	}
+	if len(f.notify.events) != 0 {
+		t.Fatalf("no pushes expected, got %+v", f.notify.events)
+	}
+
+	f.rulesWithSwitch(t, 15, 2, true)
+	if s, err := f.svc.EvaluateUser(ctx, f.user); err != nil || s == nil {
+		t.Fatalf("switch on: got %+v err=%v", s, err)
 	}
 }
 

@@ -96,6 +96,11 @@ func (s *Service) EvaluateUser(ctx context.Context, userID string) (*store.Coold
 	if err != nil {
 		return nil, err
 	}
+	// Master switch first: an auto-start the trader can't see anywhere is
+	// worse than no circuit breaker at all.
+	if rules.CooldownEnabled == 0 {
+		return nil, nil
+	}
 	if !rules.CooldownMinutes.Valid || rules.CooldownMinutes.Int64 <= 0 {
 		return nil, nil
 	}

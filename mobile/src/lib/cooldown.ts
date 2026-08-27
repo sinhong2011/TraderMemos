@@ -12,7 +12,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
-import { queryKeys, useActiveCooldown, useApiRequest } from '@/api/hooks';
+import { queryKeys, useActiveCooldown, useApiRequest, useRiskRules } from '@/api/hooks';
 import type {
   Cooldown,
   CooldownImpulse,
@@ -137,6 +137,16 @@ export function useCooldownClock(session: Cooldown | null | undefined): {
   if (!session) return { remaining: 0, phase: null };
   const remaining = remainingSeconds(session, now);
   return { remaining, phase: remaining > 0 ? 'counting' : 'gate' };
+}
+
+/**
+ * Cooldown mode's master switch (risk_rules.cooldown_enabled). Off by
+ * default and while the rules are still loading, so no cooldown surface ever
+ * flashes in before the answer arrives.
+ */
+export function useCooldownEnabled(): boolean {
+  const { data } = useRiskRules();
+  return data?.cooldown_enabled === true;
 }
 
 /**

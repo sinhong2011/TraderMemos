@@ -140,6 +140,7 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   'key.slash.fill': 'key_off',
   'lock.rotation': 'lock_reset',
   'lock.shield': 'security',
+  'shield.lefthalf.filled': 'shield',
   shield: 'verified_user',
   eye: 'visibility',
   'eye.slash': 'visibility_off',

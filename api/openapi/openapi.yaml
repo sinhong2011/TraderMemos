@@ -1054,6 +1054,10 @@ paths:
         A cooldown is a timed pause before trading again. It stays open until
         the return gate is answered (`POST /cooldowns/{id}/release`), and goes
         stale on its own after 24 hours. Clients gate trade entry on this.
+
+        Cooldown mode is opt-in (`cooldown_enabled` on `/settings/risk-rules`,
+        off by default); while it is off this always answers `null`, so
+        switching the feature off also lifts the lock.
       operationId: getActiveCooldown
       responses:
         "200":
@@ -1113,6 +1117,8 @@ paths:
                 $ref: "#/components/schemas/Cooldown"
         "400":
           description: Validation error
+        "403":
+          description: Cooldown mode is off for this user (`cooldown_disabled`)
         "409":
           description: A cooldown is already running (`cooldown_active`; the running session is in `details`)
   /api/v1/cooldowns/{id}/extend:

@@ -38,6 +38,11 @@ type riskRulesDTO struct {
 	// CooldownMinutes auto-starts a cooldown this long when the daily loss,
 	// loss streak or trade cap rule trips (null = off).
 	CooldownMinutes *int64 `json:"cooldown_minutes"`
+	// CooldownEnabled is cooldown mode's master switch. Off by default: the
+	// feature adds a lock on trade entry, so it appears only once the trader
+	// asks for it. While off the server refuses to open sessions and never
+	// auto-starts one, and the clients show no cooldown surface at all.
+	CooldownEnabled bool `json:"cooldown_enabled"`
 }
 
 func toRiskRulesDTO(r store.RiskRule) riskRulesDTO {
@@ -49,6 +54,7 @@ func toRiskRulesDTO(r store.RiskRule) riskRulesDTO {
 		MaxTradesPerDay:       iptr(r.MaxTradesPerDay),
 		MaxConsecutiveLosses:  iptr(r.MaxConsecutiveLosses),
 		CooldownMinutes:       iptr(r.CooldownMinutes),
+		CooldownEnabled:       r.CooldownEnabled != 0,
 	}
 }
 
@@ -82,6 +88,7 @@ func (s *Server) handlePutRiskRules(c *echo.Context) error {
 		MaxTradesPerDay:       nullI(in.MaxTradesPerDay),
 		MaxConsecutiveLosses:  nullI(in.MaxConsecutiveLosses),
 		CooldownMinutes:       nullI(in.CooldownMinutes),
+		CooldownEnabled:       b2i(in.CooldownEnabled),
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not save risk rules", nil)

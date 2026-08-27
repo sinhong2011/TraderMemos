@@ -58,8 +58,27 @@ func toCooldownDTO(r store.CooldownSession, now time.Time) cooldownDTO {
 	}
 }
 
+// cooldownEnabled reports whether the trader has switched cooldown mode on
+// (risk_rules.cooldown_enabled). Off is the default, and a user with no risk
+// rules row at all has never turned it on.
+func (s *Server) cooldownEnabled(ctx context.Context, uid string) (bool, error) {
+	rules, err := s.deps.Store.GetRiskRules(ctx, uid)
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return rules.CooldownEnabled != 0, nil
+}
+
 // openCooldown returns the user's open session, or nil when none locks them.
+// Switching the feature off releases the lock: a session nobody can see must
+// not keep the trade form shut.
 func (s *Server) openCooldown(c *echo.Context, uid string, now time.Time) (*store.CooldownSession, error) {
+	if on, err := s.cooldownEnabled(c.Request().Context(), uid); err != nil || !on {
+		return nil, err
+	}
 	row, err := s.deps.Store.GetOpenCooldownSession(c.Request().Context(), uid)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
@@ -137,6 +156,12 @@ func (s *Server) handleStartCooldown(c *echo.Context) error {
 		return Fail(http.StatusBadRequest, "bad_request", "unknown impulse", nil)
 	}
 	now := time.Now().UTC()
+	if on, err := s.cooldownEnabled(c.Request().Context(), uid); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load risk rules", nil)
+	} else if !on {
+		return Fail(http.StatusForbidden, "cooldown_disabled",
+			"cooldown mode is off — turn it on in Settings before starting one", nil)
+	}
 	if open, err := s.openCooldown(c, uid, now); err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load cooldown", nil)
 	} else if open != nil {

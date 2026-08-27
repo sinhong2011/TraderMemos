@@ -9,7 +9,8 @@ import { t } from '@lingui/core/macro';
 
 import type { RiskRules } from '@/api/types';
 
-export type RiskRuleKey = keyof RiskRules;
+/** The numeric limits. `cooldown_enabled` is a switch, not a limit. */
+export type RiskRuleKey = Exclude<keyof RiskRules, 'cooldown_enabled'>;
 
 export type RiskRuleDef = {
   key: RiskRuleKey;
@@ -89,14 +90,24 @@ export function emptyRiskRules(): RiskRules {
     max_trades_per_day: null,
     max_consecutive_losses: null,
     cooldown_minutes: null,
+    cooldown_enabled: false,
   };
+}
+
+/**
+ * Auto cooldown only exists while cooldown mode is on — offering the limit
+ * for a feature with no surface would set a threshold nothing reads.
+ */
+function visibleRules(rules?: RiskRules | null): readonly RiskRuleDef[] {
+  if (rules?.cooldown_enabled) return RISK_RULE_DEFS;
+  return RISK_RULE_DEFS.filter((def) => def.key !== 'cooldown_minutes');
 }
 
 export function activeRiskRules(
   rules?: RiskRules | null,
 ): { def: RiskRuleDef; value: number }[] {
   const body = rules ?? emptyRiskRules();
-  return RISK_RULE_DEFS.flatMap((def) => {
+  return visibleRules(rules).flatMap((def) => {
     const value = body[def.key];
     return value == null ? [] : [{ def, value }];
   });
@@ -104,7 +115,7 @@ export function activeRiskRules(
 
 export function availableRiskRules(rules?: RiskRules | null): RiskRuleDef[] {
   const body = rules ?? emptyRiskRules();
-  return RISK_RULE_DEFS.filter((def) => body[def.key] == null);
+  return visibleRules(rules).filter((def) => body[def.key] == null);
 }
 
 export function setRiskRuleValue(

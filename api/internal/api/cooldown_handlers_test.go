@@ -34,9 +34,46 @@ func activeCooldown(t *testing.T, s *api.Server, tok string) *cooldownResp {
 	return out.Session
 }
 
+// enableCooldown flips the master switch on — the feature is off by default.
+func enableCooldown(t *testing.T, s *api.Server, tok string) {
+	t.Helper()
+	rec := do(s, http.MethodPut, "/api/v1/settings/risk-rules", `{"cooldown_enabled":true}`, tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+}
+
+// Cooldown mode adds a lock on trade entry, so it stays invisible until the
+// trader asks for it: the server refuses to open a session while it is off.
+func TestCooldownIsOptIn(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "optin@example.com")
+
+	rec := do(s, http.MethodGet, "/api/v1/settings/risk-rules", "", tok)
+	require.Contains(t, rec.Body.String(), `"cooldown_enabled":false`, "off for a fresh user")
+
+	rec = do(s, http.MethodPost, "/api/v1/cooldowns", `{"duration_sec":300}`, tok)
+	require.Equal(t, http.StatusForbidden, rec.Code, rec.Body.String())
+	require.Contains(t, rec.Body.String(), "cooldown_disabled")
+	require.Nil(t, activeCooldown(t, s, tok))
+
+	// On: the same call works, and the switch round-trips.
+	enableCooldown(t, s, tok)
+	rec = do(s, http.MethodGet, "/api/v1/settings/risk-rules", "", tok)
+	require.Contains(t, rec.Body.String(), `"cooldown_enabled":true`)
+	rec = do(s, http.MethodPost, "/api/v1/cooldowns", `{"duration_sec":300}`, tok)
+	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+	require.NotNil(t, activeCooldown(t, s, tok))
+
+	// Off again with a session still open: the lock lifts rather than
+	// stranding the trader behind a screen they can no longer reach.
+	rec = do(s, http.MethodPut, "/api/v1/settings/risk-rules", `{"cooldown_enabled":false}`, tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	require.Nil(t, activeCooldown(t, s, tok), "disabling releases the lock")
+}
+
 func TestCooldownLifecycle(t *testing.T) {
 	s := testServer(t)
 	tok := registerAndLogin(t, s, "cool@example.com")
+	enableCooldown(t, s, tok)
 
 	require.Nil(t, activeCooldown(t, s, tok), "nothing active on a fresh user")
 
@@ -148,7 +185,7 @@ func TestRiskRulesCooldownMinutes(t *testing.T) {
 	s := testServer(t)
 	tok := registerAndLogin(t, s, "rules@example.com")
 
-	rec := do(s, http.MethodPut, "/api/v1/settings/risk-rules", `{"cooldown_minutes":15,"max_consecutive_losses":3}`, tok)
+	rec := do(s, http.MethodPut, "/api/v1/settings/risk-rules", `{"cooldown_enabled":true,"cooldown_minutes":15,"max_consecutive_losses":3}`, tok)
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	require.Contains(t, rec.Body.String(), `"cooldown_minutes":15`)
 

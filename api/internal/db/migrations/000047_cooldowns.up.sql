@@ -19,9 +19,13 @@ CREATE TABLE IF NOT EXISTS cooldown_sessions (
 CREATE INDEX IF NOT EXISTS idx_cooldown_sessions_user_started
     ON cooldown_sessions(user_id, started_at DESC);
 
--- Add cooldown_minutes via table rebuild (idempotent; see 000044 for why not
--- a bare ALTER). Appended so the column order keeps matching the Postgres
+-- Add the cooldown columns via table rebuild (idempotent; see 000044 for why
+-- not a bare ALTER). Appended so the column order keeps matching the Postgres
 -- schema — the store↔storepg struct conversions depend on it.
+--
+-- cooldown_enabled is the master switch and defaults to 0: cooldown mode is
+-- opt-in, so a server that upgrades into this migration gains no new surface
+-- until the trader turns it on.
 DROP TABLE IF EXISTS risk_rules_rebuild;
 CREATE TABLE risk_rules_rebuild (
     user_id                  TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -32,7 +36,8 @@ CREATE TABLE risk_rules_rebuild (
     updated_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     max_trades_per_day       INTEGER,
     max_consecutive_losses   INTEGER,
-    cooldown_minutes         INTEGER  -- auto-start a cooldown this long when a rule trips (null = off)
+    cooldown_minutes         INTEGER, -- auto-start a cooldown this long when a rule trips (null = off)
+    cooldown_enabled         INTEGER NOT NULL DEFAULT 0 -- master switch (0 = feature hidden)
 );
 INSERT INTO risk_rules_rebuild (
     user_id, max_risk_per_trade, max_daily_loss, max_open_risk, default_account_risk_pct,

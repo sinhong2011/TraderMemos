@@ -262,6 +262,8 @@ export type RiskRules = {
   max_consecutive_losses: number | null;
   /** Auto-start a cooldown this long when a rule trips (null = off). */
   cooldown_minutes: number | null;
+  /** Cooldown mode's master switch — off until the trader asks for it. */
+  cooldown_enabled: boolean;
 };
 
 /** What started a cooldown (cooldown.go). */

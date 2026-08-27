@@ -275,6 +275,7 @@ type RiskRule struct {
 	MaxTradesPerDay       sql.NullInt64   `json:"max_trades_per_day"`
 	MaxConsecutiveLosses  sql.NullInt64   `json:"max_consecutive_losses"`
 	CooldownMinutes       sql.NullInt64   `json:"cooldown_minutes"`
+	CooldownEnabled       int64           `json:"cooldown_enabled"`
 }
 
 type Setup struct {

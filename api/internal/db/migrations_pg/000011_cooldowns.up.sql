@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS cooldown_sessions (
 CREATE INDEX IF NOT EXISTS idx_cooldown_sessions_user_started
     ON cooldown_sessions(user_id, started_at DESC);
 
--- Auto-start a cooldown this long when a rule trips (null = off). Appended to
--- keep the column order matching SQLite (store↔storepg struct conversions).
+-- Auto-start a cooldown this long when a rule trips (null = off), and the
+-- master switch (0 = the feature stays hidden). Appended to keep the column
+-- order matching SQLite (store↔storepg struct conversions).
 ALTER TABLE risk_rules ADD COLUMN IF NOT EXISTS cooldown_minutes INTEGER;
+ALTER TABLE risk_rules ADD COLUMN IF NOT EXISTS cooldown_enabled INTEGER NOT NULL DEFAULT 0;
