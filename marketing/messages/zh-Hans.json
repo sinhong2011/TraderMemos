@@ -136,7 +136,7 @@
       },
       "mobile": {
         "title": "移动应用（测试版）",
-        "description": "iOS 与 Android 原生随身版 — 双平台离线记录；iOS 另有小组件、实时活动与 Siri / 操作按钮快速记账。iOS 经 TestFlight 分发，Android 可从 GitHub Releases 下载 APK。"
+        "description": "iOS 与 Android 原生随身版 — 双平台离线记录；iOS 另有小组件、实时活动与 Siri / 操作按钮快速记账。iOS 已上架 App Store，Android 可从 GitHub Releases 下载 APK。"
       }
     },
     "lookInsideHeading": "实际画面",
@@ -159,7 +159,7 @@
       },
       {
         "layer": "移动端",
-        "value": "Expo · PanelUI + Uniwind · TestFlight / APK"
+        "value": "Expo · PanelUI + Uniwind · App Store / APK"
       },
       {
         "layer": "设计",
@@ -192,7 +192,7 @@
     "note": "一键按钮只部署 Web UI —— 请搭配 Railway 或 Docker 上的 API 使用。",
     "star": "在 GitHub 上加星",
     "appLead": "获取移动应用",
-    "appIos": "iOS · TestFlight",
+    "appIos": "iOS · App Store",
     "appAndroid": "Android · APK"
   },
   "Changelog": {

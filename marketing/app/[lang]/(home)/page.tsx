@@ -872,24 +872,25 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                 </a>
               </div>
               <p className="mt-4 text-sm text-fd-muted-foreground/80">{d('note')}</p>
-              {/* Companion app — TestFlight for iOS, sideloaded APK for Android */}
+              {/* Companion app — App Store for iOS, sideloaded APK for Android */}
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <span className="inline-flex items-center gap-2 text-sm font-medium text-fd-muted-foreground">
                   <Smartphone className="size-4" />
                   {d('appLead')}
                 </span>
-                {/* Both buttons land on the install guide, each at its own
-                    section — not on a raw download. Sideloading needs the
+                {/* iOS goes straight to the App Store listing. Android still
+                    lands on the install guide: sideloading needs the
                     unknown-apps step and the checksum beside it, and a 127MB
                     APK that starts downloading on tap from a landing page
                     reads as a hijack. The direct link lives on that page. */}
-                <Link
-                  href={`/${lang}/docs/getting-started/mobile-app#ios`}
+                <a
+                  href="https://apps.apple.com/app/id6797427206"
+                  rel="noreferrer"
                   className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition hover:-translate-y-0.5 hover:bg-fd-accent ${focusRing}`}
                 >
                   {d('appIos')}
                   <ArrowRight className="size-3.5 opacity-60" />
-                </Link>
+                </a>
                 <Link
                   href={`/${lang}/docs/getting-started/mobile-app#android`}
                   className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition hover:-translate-y-0.5 hover:bg-fd-accent ${focusRing}`}

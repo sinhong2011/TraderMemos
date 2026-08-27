@@ -136,7 +136,7 @@
       },
       "mobile": {
         "title": "行動 App（測試版）",
-        "description": "iOS 與 Android 原生隨身版 — 雙平台離線記錄；iOS 另有小工具、即時動態與 Siri / 動作按鈕快速記帳。iOS 經 TestFlight 發佈，Android 可從 GitHub Releases 下載 APK。"
+        "description": "iOS 與 Android 原生隨身版 — 雙平台離線記錄；iOS 另有小工具、即時動態與 Siri / 動作按鈕快速記帳。iOS 已上架 App Store，Android 可從 GitHub Releases 下載 APK。"
       }
     },
     "lookInsideHeading": "實際畫面",
@@ -159,7 +159,7 @@
       },
       {
         "layer": "行動裝置",
-        "value": "Expo · PanelUI + Uniwind · TestFlight / APK"
+        "value": "Expo · PanelUI + Uniwind · App Store / APK"
       },
       {
         "layer": "設計",
@@ -192,7 +192,7 @@
     "note": "一鍵按鈕僅部署 Web UI —— 請搭配 Railway 或 Docker 上的 API 使用。",
     "star": "在 GitHub 上加星",
     "appLead": "取得行動 App",
-    "appIos": "iOS · TestFlight",
+    "appIos": "iOS · App Store",
     "appAndroid": "Android · APK"
   },
   "Changelog": {
