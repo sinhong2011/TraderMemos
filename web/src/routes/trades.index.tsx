@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { TradesView } from "@/app/screens/TradesView";
 import { CooldownVeil } from "@/components/CooldownVeil";
+import { useCooldownEnabled } from "@/lib/cooldown";
 import { TradeDetailSheet } from "@/components/TradeDetailSheet";
 import { accountBaseCurrency } from "@/lib/displayPrefs";
 import { useFilterParams, useFilters } from "@/lib/filters";
@@ -49,6 +50,8 @@ function TradesPage() {
   const navigate = useNavigate();
   const openModal = useUI((s) => s.openModal);
   const openCooldown = useUI((s) => s.openCooldown);
+  // Opt-in: no toolbar button until cooldown mode is switched on.
+  const cooldownEnabled = useCooldownEnabled();
   const { panel } = Route.useSearch();
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
 
@@ -124,7 +127,7 @@ function TradesPage() {
           onClearStatus={() => setTradeStatus(undefined)}
           onImport={() => navigate({ to: "/import" })}
           onNewTrade={() => openModal("new-trade")}
-          onCooldown={openCooldown}
+          onCooldown={cooldownEnabled ? openCooldown : undefined}
           onRetry={() => void tradesQ.refetch()}
         />
         <CooldownVeil />

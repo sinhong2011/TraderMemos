@@ -94,7 +94,8 @@ export type RiskFormValues = {
   riskPct: string;
 };
 
-export type RiskRuleKey = keyof RiskRules;
+/** The numeric limits. `cooldown_enabled` is a switch, not a limit. */
+export type RiskRuleKey = Exclude<keyof RiskRules, "cooldown_enabled">;
 
 export type RiskRuleDef = {
   key: RiskRuleKey;
@@ -172,14 +173,24 @@ export function emptyRiskRules(): RiskRules {
     max_trades_per_day: null,
     max_consecutive_losses: null,
     cooldown_minutes: null,
+    cooldown_enabled: false,
   };
+}
+
+/**
+ * Auto cooldown only exists while cooldown mode is on — offering the limit
+ * for a feature with no surface would set a threshold nothing reads.
+ */
+export function visibleRiskRules(rules?: RiskRules | null): readonly RiskRuleDef[] {
+  if (rules?.cooldown_enabled) return RISK_RULE_DEFS;
+  return RISK_RULE_DEFS.filter((def) => def.key !== "cooldown_minutes");
 }
 
 export function activeRiskRuleEntries(
   rules?: RiskRules | null,
 ): { key: RiskRuleKey; value: number; def: RiskRuleDef }[] {
   const body = rules ?? emptyRiskRules();
-  return RISK_RULE_DEFS.flatMap((def) => {
+  return visibleRiskRules(rules).flatMap((def) => {
     const value = body[def.key];
     if (value == null) return [];
     return [{ key: def.key, value, def }];
@@ -188,7 +199,9 @@ export function activeRiskRuleEntries(
 
 export function availableRiskRuleKeys(rules?: RiskRules | null): RiskRuleKey[] {
   const body = rules ?? emptyRiskRules();
-  return RISK_RULE_DEFS.filter((def) => body[def.key] == null).map((def) => def.key);
+  return visibleRiskRules(rules)
+    .filter((def) => body[def.key] == null)
+    .map((def) => def.key);
 }
 
 export function setRiskRuleValue(
@@ -263,6 +276,7 @@ export function riskFormToBody(value: RiskFormValues): RiskRules {
     max_trades_per_day: null,
     max_consecutive_losses: null,
     cooldown_minutes: null,
+    cooldown_enabled: false,
   };
 }
 

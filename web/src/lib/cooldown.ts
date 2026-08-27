@@ -13,6 +13,7 @@ import type {
   CooldownTrigger,
 } from "./api/cooldown";
 import { useActiveCooldown } from "./hooks/useCooldown";
+import { useRiskRules } from "./hooks/useRiskRules";
 
 export const COOLDOWN_DURATIONS = [2, 5, 15, 30, 60] as const;
 export const DEFAULT_COOLDOWN_MINUTES = 15;
@@ -107,6 +108,16 @@ export function useCooldownClock(session: Cooldown | null | undefined): {
   if (!session) return { remaining: 0, phase: null };
   const remaining = remainingSeconds(session, now);
   return { remaining, phase: remaining > 0 ? "counting" : "gate" };
+}
+
+/**
+ * Cooldown mode's master switch (risk_rules.cooldown_enabled). Off by default
+ * and while the rules are still loading, so no cooldown surface flashes in
+ * before the answer arrives.
+ */
+export function useCooldownEnabled(): boolean {
+  const { data } = useRiskRules();
+  return data?.cooldown_enabled === true;
 }
 
 /** The lock every trade-entry surface checks. Unknown reads as unlocked. */

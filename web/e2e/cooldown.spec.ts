@@ -20,11 +20,37 @@ async function signIn(page: Page) {
   await expect(page.getByText(/Wins/i).first()).toBeVisible();
 }
 
+// Cooldown mode is opt-in, so every spec here turns it on first.
+async function enableCooldown(page: Page) {
+  await page.goto("/settings#rules");
+  const toggle = page.getByRole("switch", { name: "Cooldown mode" });
+  await expect(toggle).toBeVisible();
+  if ((await toggle.getAttribute("aria-checked")) !== "true") await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-checked", "true");
+}
+
+// The feature adds a lock on trade entry, so it stays invisible until asked for.
+test("cooldown mode is off by default and hides its surfaces", async ({ page }) => {
+  await signIn(page);
+  await page.goto("/settings#rules");
+  const toggle = page.getByRole("switch", { name: "Cooldown mode" });
+  await expect(toggle).toBeVisible();
+  if ((await toggle.getAttribute("aria-checked")) === "true") await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-checked", "false");
+  // The Auto cooldown limit belongs to the feature and goes with it.
+  await expect(page.getByText("Auto cooldown")).toBeHidden();
+
+  await page.getByRole("link", { name: "Trades" }).click();
+  await expect(page.getByRole("button", { name: "Add filter" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Cooldown" })).toBeHidden();
+});
+
 // The whole circuit breaker in one pass: start from the Trades toolbar, the
 // lock (veil, capsule, tab title, new-trade redirect), the early return gate
 // with its forced reflection, and the release putting everything back.
 test("cooldown locks trade entry and the return gate unlocks it", async ({ page }) => {
   await signIn(page);
+  await enableCooldown(page);
   await page.getByRole("link", { name: "Trades" }).click();
   await expect(page.getByRole("button", { name: "Add filter" })).toBeVisible();
 
@@ -84,6 +110,7 @@ test("cooldown locks trade entry and the return gate unlocks it", async ({ page 
 
 test("?panel=cooldown opens the panel once and strips the param", async ({ page }) => {
   await signIn(page);
+  await enableCooldown(page);
   await page.goto("/trades?panel=cooldown");
   await expect(page.getByRole("dialog", { name: "Take a cooldown" })).toBeVisible();
   await expect(page).toHaveURL(/\/trades$/);
