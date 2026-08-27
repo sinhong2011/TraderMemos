@@ -1,6 +1,7 @@
 package alerts
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -93,5 +94,64 @@ func TestSendExpoTicketErrors(t *testing.T) {
 	}
 	if !errors.Is(errs[1], errDeviceNotRegistered) {
 		t.Errorf("second token should be DeviceNotRegistered, got %v", errs[1])
+	}
+}
+
+// The cooldown push (and the "tap to start a cooldown" alerts) carry an
+// in-app deep link the app routes on; a dropped or renamed `data` field
+// silently turns those notifications back into dead ends.
+func TestSendExpoCarriesDeepLink(t *testing.T) {
+	var msgs []expoMessage
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(body, &msgs)
+		_, _ = w.Write([]byte(`{"data":[{"status":"ok"}]}`))
+	}))
+	defer srv.Close()
+	orig := expoPushURL
+	expoPushURL = srv.URL
+	defer func() { expoPushURL = orig }()
+
+	ev := Event{Rule: "cooldown", Title: "Cooldown started — 15 min", Body: "Breathe.", URL: "tradermemos://cooldown"}
+	if _, err := testService().sendExpo(context.Background(), []string{"ExponentPushToken[a]"}, ev); err != nil {
+		t.Fatal(err)
+	}
+	if len(msgs) != 1 {
+		t.Fatalf("want one message, got %d", len(msgs))
+	}
+	if msgs[0].Data["url"] != "tradermemos://cooldown" || msgs[0].Data["rule"] != "cooldown" {
+		t.Errorf("data payload = %+v, want the deep link and rule", msgs[0].Data)
+	}
+
+	// An event without a URL must not ship an empty data bag — the app
+	// treats a present-but-blank url as a route and would push nowhere.
+	msgs = nil
+	if _, err := testService().sendExpo(context.Background(), []string{"ExponentPushToken[a]"}, Event{Title: "t"}); err != nil {
+		t.Fatal(err)
+	}
+	if msgs[0].Data != nil {
+		t.Errorf("data = %+v, want nil when the event has no URL", msgs[0].Data)
+	}
+	raw, _ := json.Marshal(msgs[0])
+	if bytes.Contains(raw, []byte(`"data"`)) {
+		t.Errorf("marshalled message should omit data entirely: %s", raw)
+	}
+}
+
+// The webhook mirror of the same link, for subscribers that route on it.
+func TestSendWebhookCarriesDeepLink(t *testing.T) {
+	var got webhookPayload
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(body, &got)
+	}))
+	defer srv.Close()
+
+	ev := Event{Rule: RuleLossStreak, Title: "3 losses in a row", Body: "Step back.", URL: "tradermemos://cooldown?suggest=loss_streak"}
+	if err := testService().sendWebhook(context.Background(), srv.URL, ev, time.Unix(1754500000, 0)); err != nil {
+		t.Fatal(err)
+	}
+	if got.URL != ev.URL {
+		t.Errorf("url = %q, want %q", got.URL, ev.URL)
 	}
 }
