@@ -1,0 +1,42 @@
+---
+title: Cooldown
+description: A circuit breaker against revenge trading — a timed pause with a return gate, started by you or by your own risk rules.
+---
+
+A cooldown is a timed pause before the next trade. While one is open, **trade entry is
+locked** — the web app veils the trade log and redirects "new trade" to the cooldown
+panel, the mobile app locks its trade form — while reading your journal stays free.
+The lock is on acting, not looking.
+
+Ending a cooldown takes more than waiting: the **return gate** asks three questions —
+what was pulling you in (revenge, FOMO, boredom, fear, proving yourself), the one
+playbook setup you're allowed on return, and your rule for the rest of the day
+(*half size*, *one trade*, or *done for today*). Unlocking **before** the timer ends is
+allowed, but only with a written reflection of at least 40 characters. The typing is
+the friction.
+
+## Starting one
+
+- **Web** — the **Cooldown** button on the Trades toolbar (or `/trades?panel=cooldown`).
+  The tab title keeps counting (`⏸ 12:34`) so the clock follows you to other tabs.
+- **Mobile** — Cooldown in the Home tools menu, or the Trades **+** while locked.
+- **Automatically** — set **Auto cooldown** under **Settings → Rules**: when your daily
+  loss, loss streak, or trades-per-day rule trips, the server starts the cooldown itself
+  and notifies every registered device. Your journal knows you just took three losses —
+  it doesn't wait to be asked.
+
+## The promise has consequences
+
+The return rule you pick is scored afterwards:
+
+- **Rule compliance** (Reports → Risk) counts trades taken against a return rule on the
+  day it was made.
+- **Cooldowns** (Reports → Behavior) compares trades opened within an hour of a release
+  against trades opened within an hour of a loss streak on days you did *not* cool down —
+  the one number that says whether the pauses are working.
+
+## On iOS
+
+A **Live Activity** keeps the countdown on the Lock Screen and in the Dynamic Island, so
+the clock is there without opening the app — and when the timer ends it flips to "answer
+the return gate" on its own.

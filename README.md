@@ -100,6 +100,7 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 | 📖&nbsp; **Playbook** | Strategy library linked to the trades that used each setup, with rule-compliance scoring |
 | 📥&nbsp; **Import** | 9 broker CSV presets, MT4/MT5 statements, IBKR Flex sync — or the [tm-sync](docs/tm-sync.md) watcher that imports statements as they appear |
 | 🔔&nbsp; **Alerts** | Risk rules, daily loss limits, and prop-drawdown warnings — push and webhook, from your own server |
+| 🧘&nbsp; **Cooldown** | A circuit breaker against revenge trading — a timed pause with a return gate, auto-started when your loss streak / daily loss rules trip, scored by the reports |
 | ⏪&nbsp; **Bar replay** | Backtest any symbol bar by bar against a persistent paper account — analyzed by the same reports |
 | 🔗&nbsp; **Sharing** | Revocable read-only performance links, share cards, and a Year Wrapped recap |
 | 🧮&nbsp; **Tools** | Position-size / FX / Kelly calculators, advanced chart, economic calendar, cash ledger |
