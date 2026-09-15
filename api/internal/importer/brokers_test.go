@@ -36,6 +36,34 @@ func TestMatchBrokerIBKR(t *testing.T) {
 	require.Equal(t, 1.02, ex.Commission)
 }
 
+func TestMatchBrokerIBKRTradeConfirmationHeaders(t *testing.T) {
+	// Newer IBKR Flex "Trades -> Executions" CSVs use "Price" and
+	// "Date/Time" instead of the legacy "TradePrice"/"DateTime" headers.
+	headers := []string{
+		"ClientAccountID", "Symbol", "Buy/Sell", "Quantity", "Price",
+		"Date/Time", "Commission", "AssetClass", "Multiplier",
+	}
+	name, mapping, _, ok := MatchBroker(headers)
+	require.True(t, ok)
+	require.Contains(t, name, "Interactive Brokers")
+
+	g := NewGeneric(mapping)
+	res := g.ParseRows([]map[string]string{{
+		"Symbol": "AAPL", "Buy/Sell": "BUY", "Quantity": "100",
+		"Price": "231.5", "Date/Time": "20260710;093122",
+		"Commission": "-1.02", "AssetClass": "STK", "Multiplier": "1",
+	}})
+	require.Empty(t, res.Errors)
+	require.Len(t, res.Executions, 1)
+	ex := res.Executions[0]
+	require.Equal(t, "buy", ex.Side)
+	require.Equal(t, 100.0, ex.Quantity)
+	require.Equal(t, 231.5, ex.Price)
+	require.Equal(t, "stock", ex.InstrumentType)
+	require.Equal(t, time.Date(2026, 7, 10, 9, 31, 22, 0, time.UTC), ex.ExecutedAt)
+	require.Equal(t, 1.02, ex.Commission)
+}
+
 func TestMatchBrokerThinkOrSwim(t *testing.T) {
 	headers := []string{
 		"Exec Time", "Spread", "Side", "Qty", "Pos Effect", "Symbol",
