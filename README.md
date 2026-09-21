@@ -105,7 +105,7 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 | 🧮&nbsp; **Tools** | Position-size / FX / Kelly calculators, advanced chart, economic calendar, cash ledger |
 | 🤖&nbsp; **AI** *(optional)* | Screenshot fill extraction + trade coach via OpenAI-compatible APIs — your keys |
 | 🔌&nbsp; **API access** | Personal access tokens (`tm_pat_…`) for MCP/scripts; OpenAPI docs at `/docs` |
-| 📱&nbsp; **Mobile app** *(beta)* | iOS & Android companion (Expo) — offline journaling on both; widgets, Live Activities, and Siri / Action Button capture on iOS. TestFlight (iOS) · APK on [Releases](https://github.com/sinhong2011/TraderMemos/releases) (Android) |
+| 📱&nbsp; **Mobile app** | iOS & Android companion (Expo) — offline journaling on both; widgets, Live Activities, and Siri / Action Button capture on iOS. [App Store](https://apps.apple.com/app/id6797427206) (iOS) · APK on [Releases](https://github.com/sinhong2011/TraderMemos/releases) (Android) |
 | 🌗&nbsp; **Themes** | Dark and light, built on shadcn/ui + [coss ui](https://coss.com/ui/docs) tokens |
 
 ## Tech stack
@@ -174,7 +174,7 @@ Already forked? Import your fork → Root **`web`** (Vercel/CF) or [`netlify.tom
 
 The companion app (beta) journals against your own server — enter your instance URL at login, same as the web app's **Server** field.
 
-- **iOS** — distributed through TestFlight while in beta.
+- **iOS** — [download TraderMemos on the App Store](https://apps.apple.com/app/id6797427206).
 - **Android** — download `TraderMemos-<version>.apk` from the [latest release](https://github.com/sinhong2011/TraderMemos/releases/latest) and sideload it (allow *Install unknown apps* for your browser or file manager; a `.sha256` file ships next to the APK for verification). There is no Play Store listing.
 
 Building it yourself instead: see [mobile/README.md](mobile/README.md).

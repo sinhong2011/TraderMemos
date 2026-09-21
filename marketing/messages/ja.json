@@ -136,7 +136,7 @@
       },
       "mobile": {
         "title": "モバイルアプリ（ベータ）",
-        "description": "iOS / Android 両対応のネイティブコンパニオンアプリ — 両プラットフォームでオフライン記帳、iOS ではさらにウィジェット、Live Activities、Siri / アクションボタンでのクイック記録に対応。iOS は TestFlight、Android は GitHub Releases の APK で配信。"
+        "description": "iOS / Android 両対応のネイティブコンパニオンアプリ — 両プラットフォームでオフライン記帳、iOS ではさらにウィジェット、Live Activities、Siri / アクションボタンでのクイック記録に対応。iOS は App Store で配信、Android は GitHub Releases の APK で配信。"
       }
     },
     "lookInsideHeading": "中を見てみる",
@@ -159,7 +159,7 @@
       },
       {
         "layer": "モバイル",
-        "value": "Expo · PanelUI + Uniwind · TestFlight / APK"
+        "value": "Expo · PanelUI + Uniwind · App Store / APK"
       },
       {
         "layer": "デザイン",
@@ -192,7 +192,7 @@
     "note": "ワンクリックボタンがデプロイするのは Web UI のみです。API は Railway または Docker で運用してください。",
     "star": "GitHub でスターする",
     "appLead": "モバイルアプリを入手",
-    "appIos": "iOS · TestFlight",
+    "appIos": "iOS · App Store",
     "appAndroid": "Android · APK"
   },
   "Changelog": {

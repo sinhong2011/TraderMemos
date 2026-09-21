@@ -136,7 +136,7 @@
       },
       "mobile": {
         "title": "Mobile app (beta)",
-        "description": "Native companion for iOS and Android — offline journaling on both, plus widgets, Live Activities, and Siri / Action Button quick capture on iOS. TestFlight for iOS · APK from GitHub Releases for Android."
+        "description": "Native companion for iOS and Android — offline journaling on both, plus widgets, Live Activities, and Siri / Action Button quick capture on iOS. App Store for iOS · APK from GitHub Releases for Android."
       }
     },
     "lookInsideHeading": "A look inside",
@@ -159,7 +159,7 @@
       },
       {
         "layer": "Mobile",
-        "value": "Expo · PanelUI + Uniwind · TestFlight / APK"
+        "value": "Expo · PanelUI + Uniwind · App Store / APK"
       },
       {
         "layer": "Design",
@@ -192,7 +192,7 @@
     "note": "One-click buttons deploy the web UI only — pair them with the API on Railway or Docker.",
     "star": "Star on GitHub",
     "appLead": "Get the mobile app",
-    "appIos": "iOS · TestFlight",
+    "appIos": "iOS · App Store",
     "appAndroid": "Android · APK"
   },
   "Changelog": {
