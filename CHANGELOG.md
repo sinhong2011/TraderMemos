@@ -5,6 +5,19 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.14.0](https://github.com/sinhong2011/TraderMemos/compare/v0.13.0...v0.14.0) (2026-09-21)
+
+
+### Features
+
+* **web:** make sync history a table and quiet empty Flex runs ([#296](https://github.com/sinhong2011/TraderMemos/issues/296)) ([3b66fea](https://github.com/sinhong2011/TraderMemos/commit/3b66fea340c10136c0cdeabf3f9f6cf15210d344))
+
+
+### Bug Fixes
+
+* **importer:** accept newer IBKR Flex Price/Date/Time headers ([#292](https://github.com/sinhong2011/TraderMemos/issues/292)) ([6ef9d91](https://github.com/sinhong2011/TraderMemos/commit/6ef9d913b9149e52c2ac7be4d9276b5d06b3faea))
+* **importer:** parse Schwab $ money cells and skip cash rows ([#295](https://github.com/sinhong2011/TraderMemos/issues/295)) ([7f1173a](https://github.com/sinhong2011/TraderMemos/commit/7f1173a1977dfca9ac2608f0cc4124bf9acf7858))
+
 ## [0.13.0](https://github.com/sinhong2011/TraderMemos/compare/v0.12.1...v0.13.0) (2026-08-23)
 
 
