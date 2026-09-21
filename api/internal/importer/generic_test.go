@@ -25,6 +25,76 @@ func TestGenericImporterParsesAndReportsBadRows(t *testing.T) {
 	require.Equal(t, 2, res.Errors[0].Row)
 }
 
+func TestParseMoney(t *testing.T) {
+	t.Parallel()
+	ok := []struct {
+		in   string
+		want float64
+	}{
+		{"10.00", 10},
+		{"$23.145", 23.145},
+		{" $1,234.56 ", 1234.56},
+		{"($1.02)", -1.02},
+		{"-$1.25", -1.25},
+		{"$-0.40", -0.40},
+		{"US$400.00", 400},
+		{"USD 1.00", 1},
+		{"-1.02", -1.02},
+		{"23.145$", 23.145},
+	}
+	for _, tc := range ok {
+		got, err := parseMoney(tc.in)
+		require.NoError(t, err, tc.in)
+		require.Equal(t, tc.want, got, tc.in)
+	}
+	for _, in := range []string{"", "$", "abc", "()", "(abc)"} {
+		_, err := parseMoney(in)
+		require.Error(t, err, in)
+	}
+}
+
+// Brokers (Schwab, some IBKR/Webull exports) write money cells with a
+// currency glyph, thousands separators, or accounting parentheses. Price
+// must parse; fees/commission must not silently become 0.
+func TestGenericImporterParsesBrokerMoneyFormats(t *testing.T) {
+	mapping := map[string]string{
+		"symbol": "Symbol", "side": "Side", "quantity": "Qty",
+		"price": "Price", "executed_at": "When",
+		"commission": "Commission", "fees": "Fees",
+	}
+	cases := []struct {
+		name                          string
+		price, commission, fees       string
+		wantPrice, wantComm, wantFees float64
+	}{
+		{name: "dollar prefix", price: "$23.145", commission: "$1.02", fees: "$0.07",
+			wantPrice: 23.145, wantComm: 1.02, wantFees: 0.07},
+		{name: "thousands comma", price: "$1,234.56", commission: "$0.00", fees: "$1.00",
+			wantPrice: 1234.56, wantComm: 0, wantFees: 1},
+		{name: "accounting parens", price: "10.00", commission: "($1.02)", fees: "($0.50)",
+			wantPrice: 10, wantComm: 1.02, wantFees: 0.50},
+		{name: "leading minus with dollar", price: "10.00", commission: "-$1.25", fees: "$-0.40",
+			wantPrice: 10, wantComm: 1.25, wantFees: 0.40},
+		{name: "currency code prefix", price: "US$400.00", commission: "USD 1.00", fees: "",
+			wantPrice: 400, wantComm: 1, wantFees: 0},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			res := NewGeneric(mapping).ParseRows([]map[string]string{{
+				"Symbol": "ACME", "Side": "SELL", "Qty": "100",
+				"Price": tc.price, "When": "2026-09-14T14:30:00Z",
+				"Commission": tc.commission, "Fees": tc.fees,
+			}})
+			require.Empty(t, res.Errors, res.Errors)
+			require.Len(t, res.Executions, 1)
+			ex := res.Executions[0]
+			require.Equal(t, tc.wantPrice, ex.Price)
+			require.Equal(t, tc.wantComm, ex.Commission)
+			require.Equal(t, tc.wantFees, ex.Fees)
+		})
+	}
+}
+
 // Naive broker timestamps are the broker's wall clock, not UTC. A Friday
 // 16:30 ET fill read as UTC would land on the wrong instant (and late-Friday
 // fills on Saturday once bucketed) — WithSourceTZ pins the source zone.

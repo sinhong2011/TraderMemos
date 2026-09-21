@@ -19,6 +19,7 @@ type Execution struct {
 	ExecutedAt     time.Time
 	Multiplier     float64 // 1 stock, 100 option, tick-derived for futures
 	LotKey         string  // optional; isolates overlapping same-symbol round-trips
+	Seq            int     // file/insert order; 0 when unknown
 }
 
 type Trade struct {
@@ -43,9 +44,12 @@ type Trade struct {
 // Group folds executions for a SINGLE (account,symbol,instrument) stream into round-trip trades
 // using average-cost. Callers must pre-partition by symbol+instrument+account.
 func Group(fills []Execution) []Trade {
+	// Equal timestamps keep caller order (SliceStable) unless Seq is set.
+	// UUID/id is not a time proxy: date-only broker rows share a midnight
+	// and sorting them by id opened shorts from a later sell.
 	sort.SliceStable(fills, func(i, j int) bool {
 		if fills[i].ExecutedAt.Equal(fills[j].ExecutedAt) {
-			return fills[i].ID < fills[j].ID
+			return fills[i].Seq < fills[j].Seq
 		}
 		return fills[i].ExecutedAt.Before(fills[j].ExecutedAt)
 	})

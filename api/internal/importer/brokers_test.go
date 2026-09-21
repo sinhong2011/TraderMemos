@@ -149,13 +149,48 @@ func TestMatchBrokerSchwab(t *testing.T) {
 	require.Contains(t, name, "Schwab")
 
 	g := NewGeneric(mapping)
+	// Real Schwab Transactions CSVs prefix Price / Fees & Comm with `$`
+	// (and quote the cell). A fixture of already-stripped numbers would
+	// green-pass a parser that still rejects every live export row.
 	res := g.ParseRows([]map[string]string{{
 		"Date": "07/10/2026", "Action": "Sell to Close", "Symbol": "AAPL",
-		"Quantity": "100", "Price": "231.50", "Fees & Comm": "0.65",
+		"Quantity": "100", "Price": "$231.50", "Fees & Comm": "$0.65",
 	}})
 	require.Empty(t, res.Errors)
 	require.Equal(t, "sell", res.Executions[0].Side)
+	require.Equal(t, 231.50, res.Executions[0].Price)
 	require.Equal(t, 0.65, res.Executions[0].Fees)
+}
+
+func TestMatchBrokerSchwabSkipsCashRows(t *testing.T) {
+	headers := []string{"Date", "Action", "Symbol", "Description", "Quantity", "Price", "Fees & Comm", "Amount"}
+	_, mapping, _, ok := MatchBroker(headers)
+	require.True(t, ok)
+
+	res := NewGeneric(mapping).ParseRows([]map[string]string{
+		{"Date": "09/14/2026", "Action": "Buy", "Symbol": "ACME", "Quantity": "100", "Price": "$20.00", "Fees & Comm": "$0.00"},
+		{"Date": "09/15/2026", "Action": "Qualified Dividend", "Symbol": "ACME", "Quantity": "", "Price": "", "Fees & Comm": ""},
+		{"Date": "09/15/2026", "Action": "Credit Interest", "Symbol": "", "Quantity": "", "Price": "", "Fees & Comm": ""},
+		{"Date": "09/16/2026", "Action": "Sell", "Symbol": "ACME", "Quantity": "100", "Price": "$23.145", "Fees & Comm": "$0.07"},
+	})
+	require.Empty(t, res.Errors)
+	require.Len(t, res.Executions, 2)
+	require.Equal(t, "buy", res.Executions[0].Side)
+	require.Equal(t, "sell", res.Executions[1].Side)
+}
+
+func TestGenericImporterStillErrorsUnknownSideOnFill(t *testing.T) {
+	mapping := map[string]string{
+		"symbol": "Symbol", "side": "Side", "quantity": "Qty",
+		"price": "Price", "executed_at": "When",
+	}
+	res := NewGeneric(mapping).ParseRows([]map[string]string{{
+		"Symbol": "ACME", "Side": "floop", "Qty": "100",
+		"Price": "10.00", "When": "2026-09-14T14:30:00Z",
+	}})
+	require.Len(t, res.Executions, 0)
+	require.Len(t, res.Errors, 1)
+	require.Contains(t, res.Errors[0].Message, "invalid side")
 }
 
 func TestMatchBrokerCTraderSynthesizesRoundTrip(t *testing.T) {

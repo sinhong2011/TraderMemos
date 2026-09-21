@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"maps"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -187,7 +186,7 @@ func (s *Server) handleImportPreview(c *echo.Context) error {
 	default:
 		if name, presetMap, presetTZ, ok := importer.MatchBroker(loaded.Headers); ok {
 			// A recognized broker export beats header-substring guessing.
-			maps.Copy(suggested, presetMap)
+			suggested = importer.MergeSuggestedWithPreset(suggested, presetMap)
 			detectedBroker = name
 			suggestedTZ = presetTZ
 		}
