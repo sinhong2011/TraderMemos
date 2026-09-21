@@ -224,7 +224,7 @@ func (q *Queries) InsertExecution(ctx context.Context, arg InsertExecutionParams
 }
 
 const listExecutionsForAccount = `-- name: ListExecutionsForAccount :many
-SELECT id, user_id, account_id, external_id, symbol, instrument_type, side, quantity, price, fees, commission, executed_at, multiplier, details, import_batch_id, dedup_hash, created_at FROM executions WHERE user_id = ? AND account_id = ? ORDER BY executed_at, id
+SELECT id, user_id, account_id, external_id, symbol, instrument_type, side, quantity, price, fees, commission, executed_at, multiplier, details, import_batch_id, dedup_hash, created_at FROM executions WHERE user_id = ? AND account_id = ? ORDER BY executed_at, rowid
 `
 
 type ListExecutionsForAccountParams struct {

@@ -41,6 +41,7 @@ func (s *Service) Regroup(ctx context.Context, userID, accountID string) error {
 			ID: r.ID, Symbol: r.Symbol, InstrumentType: r.InstrumentType, Side: r.Side,
 			Quantity: r.Quantity, Price: r.Price, Fees: r.Fees, Commission: r.Commission,
 			ExecutedAt: r.ExecutedAt, Multiplier: r.Multiplier, LotKey: lot,
+			Seq: seqFromDetails(r.Details),
 		})
 	}
 
@@ -98,6 +99,24 @@ func lotKeyFromDetails(details sql.NullString) string {
 		return v
 	}
 	return ""
+}
+
+func seqFromDetails(details sql.NullString) int {
+	if !details.Valid || details.String == "" {
+		return 0
+	}
+	var m map[string]any
+	if err := json.Unmarshal([]byte(details.String), &m); err != nil {
+		return 0
+	}
+	switch v := m["seq"].(type) {
+	case string:
+		n, _ := strconv.Atoi(v)
+		return n
+	case float64:
+		return int(v)
+	}
+	return 0
 }
 
 // partitionKey isolates overlapping same-symbol positions.

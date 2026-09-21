@@ -30,6 +30,19 @@ func TestSimpleLongRoundTrip(t *testing.T) {
 	require.Equal(t, []string{"1", "2"}, tr.ExecutionIDs)
 }
 
+func TestGroupKeepsSliceOrderWhenTimestampsMatch(t *testing.T) {
+	ts := "2026-09-14T04:00:00Z"
+	// Ids that reverse if the tie-break is UUID/id order: "000" < "fff".
+	out := Group([]Execution{
+		ex("fff", "buy", 100, 20, ts, 1),
+		ex("000", "sell", 100, 23.145, ts, 1),
+	})
+	require.Len(t, out, 1)
+	require.Equal(t, "long", out[0].Direction)
+	require.Equal(t, 20.0, out[0].AvgEntryPrice)
+	require.InDelta(t, 314.50, *out[0].GrossPnl, 0.001)
+}
+
 func TestShortRoundTrip(t *testing.T) {
 	out := Group([]Execution{
 		ex("1", "sell", 50, 20, "2026-01-01T10:00:00Z", 1),

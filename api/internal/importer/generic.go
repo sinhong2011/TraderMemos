@@ -60,7 +60,7 @@ func (g *Generic) ParseRows(rows []map[string]string) ParseResult {
 	var res ParseResult
 	roundTrip := g.roundTrip()
 	for i, row := range rows {
-		if rowHasSkipStatus(row) {
+		if rowHasSkipStatus(row) || g.skipNonFillRow(row) {
 			continue
 		}
 		if roundTrip {
@@ -116,7 +116,7 @@ func (g *Generic) parseRoundTripRow(row map[string]string) ([]ParsedExecution, e
 		return nil, fmt.Errorf("invalid quantity")
 	}
 	open.Quantity = math.Abs(qty)
-	price, err := strconv.ParseFloat(g.col(row, "open_price"), 64)
+	price, err := parseMoney(g.col(row, "open_price"))
 	if err != nil {
 		return nil, fmt.Errorf("invalid open price")
 	}
@@ -141,7 +141,7 @@ func (g *Generic) parseRoundTripRow(row map[string]string) ([]ParsedExecution, e
 	}
 	cls := open
 	cls.Side = flipSide(open.Side)
-	if cls.Price, err = strconv.ParseFloat(closePrice, 64); err != nil {
+	if cls.Price, err = parseMoney(closePrice); err != nil {
 		return nil, fmt.Errorf("invalid close price")
 	}
 	if cls.ExecutedAt, err = parseTimeIn(closeTime, g.loc); err != nil {
@@ -159,10 +159,53 @@ func flipSide(side string) string {
 	return "buy"
 }
 
+// parseMoney reads a broker money cell: optional currency glyph/code,
+// thousands separators, a leading minus, or accounting parentheses.
+// Bare decimals keep working so existing IBKR/cTrader fixtures stay valid.
+func parseMoney(s string) (float64, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0, fmt.Errorf("empty")
+	}
+	neg := false
+	if strings.HasPrefix(s, "(") && strings.HasSuffix(s, ")") {
+		neg = true
+		s = strings.TrimSpace(s[1 : len(s)-1])
+	}
+	var b strings.Builder
+	b.Grow(len(s))
+	sawDot := false
+	for _, r := range s {
+		switch {
+		case r == '-' || r == '+':
+			if b.Len() == 0 {
+				b.WriteRune(r)
+			}
+		case r >= '0' && r <= '9':
+			b.WriteRune(r)
+		case r == '.' && !sawDot:
+			sawDot = true
+			b.WriteRune(r)
+		}
+	}
+	clean := b.String()
+	if clean == "" || clean == "+" || clean == "-" || clean == "." || clean == "-." || clean == "+." {
+		return 0, fmt.Errorf("invalid money %q", s)
+	}
+	v, err := strconv.ParseFloat(clean, 64)
+	if err != nil {
+		return 0, err
+	}
+	if neg {
+		v = -v
+	}
+	return v, nil
+}
+
 // absFloat parses a cost/size cell to a positive magnitude; empty or
 // unparseable cells are 0.
 func absFloat(s string) float64 {
-	v, _ := strconv.ParseFloat(strings.ReplaceAll(strings.TrimSpace(s), ",", ""), 64)
+	v, _ := parseMoney(s)
 	return math.Abs(v)
 }
 
@@ -184,6 +227,18 @@ func (g *Generic) applyMultiplier(p *ParsedExecution, row map[string]string) {
 	if p.Multiplier == 0 && p.InstrumentType != "future" {
 		p.Multiplier = DefaultMultiplier(p.InstrumentType)
 	}
+}
+
+// skipNonFillRow is true for cash-movement rows that share a Transactions
+// export with fills (dividends, interest, transfers): Action is not a
+// side, and Quantity or Price is blank. A row that still looks like a
+// fill (qty and price both present) errors on an unrecognized side so
+// garbage is not silently dropped.
+func (g *Generic) skipNonFillRow(row map[string]string) bool {
+	if ParseSideToken(g.col(row, "side")) != "" {
+		return false
+	}
+	return g.col(row, "quantity") == "" || g.col(row, "price") == ""
 }
 
 func rowHasSkipStatus(row map[string]string) bool {
@@ -243,7 +298,7 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 	// Some brokers (IBKR, ThinkOrSwim) sign the quantity instead of, or as
 	// well as, the side column; the side column is authoritative here.
 	p.Quantity = math.Abs(qty)
-	price, err := strconv.ParseFloat(g.col(row, "price"), 64)
+	price, err := parseMoney(g.col(row, "price"))
 	if err != nil {
 		return p, fmt.Errorf("invalid price")
 	}
@@ -256,14 +311,8 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 	// Costs are stored as positive magnitudes: brokers disagree on sign
 	// (IBKR reports IBCommission negative), and the P&L engine subtracts
 	// fees_total from gross either way.
-	if c := g.col(row, "commission"); c != "" {
-		v, _ := strconv.ParseFloat(c, 64)
-		p.Commission = math.Abs(v)
-	}
-	if f := g.col(row, "fees"); f != "" {
-		v, _ := strconv.ParseFloat(f, 64)
-		p.Fees = math.Abs(v)
-	}
+	p.Commission = absFloat(g.col(row, "commission"))
+	p.Fees = absFloat(g.col(row, "fees"))
 	// Overnight financing on FX/CFD exports; a cost either way, like fees.
 	p.Fees += absFloat(g.col(row, "swap"))
 	p.InstrumentType = ParseInstrumentType(g.col(row, "instrument_type"), p.Symbol)

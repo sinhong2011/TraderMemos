@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"uuid"
 
@@ -76,24 +77,22 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 			ext = sql.NullString{String: pe.ExternalID, Valid: true}
 		}
 		id := uuid.New().String()
+		payload := map[string]string{"seq": strconv.Itoa(i + 1)}
+		if pe.LotKey != "" {
+			payload["lot"] = pe.LotKey
+		}
+		if pe.OptionRight != "" {
+			payload["option_right"] = pe.OptionRight
+		}
+		if pe.Strike != "" {
+			payload["strike"] = pe.Strike
+		}
+		if pe.Expiry != "" {
+			payload["expiry"] = pe.Expiry
+		}
 		details := sql.NullString{}
-		if pe.LotKey != "" || pe.OptionRight != "" || pe.Strike != "" || pe.Expiry != "" {
-			payload := map[string]string{}
-			if pe.LotKey != "" {
-				payload["lot"] = pe.LotKey
-			}
-			if pe.OptionRight != "" {
-				payload["option_right"] = pe.OptionRight
-			}
-			if pe.Strike != "" {
-				payload["strike"] = pe.Strike
-			}
-			if pe.Expiry != "" {
-				payload["expiry"] = pe.Expiry
-			}
-			if b, err := json.Marshal(payload); err == nil {
-				details = sql.NullString{String: string(b), Valid: true}
-			}
+		if b, err := json.Marshal(payload); err == nil {
+			details = sql.NullString{String: string(b), Valid: true}
 		}
 		inserts = append(inserts, store.InsertExecutionParams{
 			ID: id, UserID: userID, AccountID: accountID, ExternalID: ext,

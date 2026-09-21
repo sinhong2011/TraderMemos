@@ -21,7 +21,7 @@ SET side = $1,
 WHERE id = $8 AND user_id = $9;
 
 -- name: ListExecutionsForAccount :many
-SELECT * FROM executions WHERE user_id = $1 AND account_id = $2 ORDER BY executed_at, id;
+SELECT * FROM executions WHERE user_id = $1 AND account_id = $2 ORDER BY executed_at, created_at, id;
 
 -- name: DeleteExecution :execrows
 DELETE FROM executions WHERE id = $1 AND user_id = $2;

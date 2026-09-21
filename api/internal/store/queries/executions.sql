@@ -21,7 +21,7 @@ SET side = ?,
 WHERE id = ? AND user_id = ?;
 
 -- name: ListExecutionsForAccount :many
-SELECT * FROM executions WHERE user_id = ? AND account_id = ? ORDER BY executed_at, id;
+SELECT * FROM executions WHERE user_id = ? AND account_id = ? ORDER BY executed_at, rowid;
 
 -- name: DeleteExecution :execrows
 DELETE FROM executions WHERE id = ? AND user_id = ?;
