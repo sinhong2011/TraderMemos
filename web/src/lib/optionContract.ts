@@ -61,6 +61,21 @@ export function optionContractFromFills(
   return null;
 }
 
+/** List-row variant: contract fields already resolved onto the trade DTO. */
+export function optionContractFromTrade(trade: {
+  instrument_type?: string;
+  option_right?: string | null;
+  option_strike?: string | null;
+  option_expiry?: string | null;
+}): OptionContract | null {
+  if (trade.instrument_type && trade.instrument_type !== "option") return null;
+  return optionContractFromDetails({
+    option_right: trade.option_right?.trim() ?? "",
+    strike: trade.option_strike?.trim() ?? "",
+    expiry: trade.option_expiry?.trim() ?? "",
+  });
+}
+
 /** e.g. `360 PUT · 2026-07-24` — matches New Trade / OCR contract labels. */
 export function formatOptionContractLabel(c: OptionContract | null | undefined): string {
   if (!c) return "";

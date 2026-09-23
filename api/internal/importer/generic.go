@@ -323,7 +323,7 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 		}
 		p.Strike = parseStrikeCell(g.col(row, "strike"))
 		p.Expiry = parseExpiryCell(g.col(row, "expiry"))
-		normalizeOCCOption(&p)
+		normalizeOptionContract(&p)
 	}
 	g.applyMultiplier(&p, row)
 	return p, nil

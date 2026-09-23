@@ -66,7 +66,11 @@ type tradeDTO struct {
 	// call/put for option trades, resolved from the fills' contract details
 	// (OCC symbol as fallback). Absent for non-options and unresolvable rows.
 	OptionRight *string `json:"option_right,omitempty"`
-	InitialRisk     *float64    `json:"initial_risk,omitempty"`
+	// Strike and expiry from the same fill details; list rows use them for a
+	// Contract column without fetching fills.
+	OptionStrike *string  `json:"option_strike,omitempty"`
+	OptionExpiry *string  `json:"option_expiry,omitempty"`
+	InitialRisk  *float64 `json:"initial_risk,omitempty"`
 	// Journal quick-filter fields, filled on list rows so clients can filter by
 	// setup/emotion/ratings without a detail fetch. The detail DTO's own fields
 	// shadow the emotion/rating ones (same JSON keys at shallower depth).
@@ -91,34 +95,54 @@ func toTradeDTO(t store.Trade, tags []store.Tag) tradeDTO {
 	}
 }
 
-// optionRightFrom resolves call/put from one fill's contract details, falling
-// back to the OCC/word-marked symbol when the broker left details sparse —
-// the same order the grouping service uses to partition contracts.
-func optionRightFrom(details sql.NullString, symbol string) string {
+// optionContract holds the contract fields resolved from one option fill.
+type optionContract struct {
+	Right  string
+	Strike string
+	Expiry string
+}
+
+// optionContractFrom resolves call/put (and strike/expiry when present) from
+// one fill's contract details, falling back to the OCC/word-marked symbol for
+// the right when the broker left details sparse — the same order the grouping
+// service uses to partition contracts.
+func optionContractFrom(details sql.NullString, symbol string) optionContract {
+	var out optionContract
 	if details.Valid && details.String != "" {
 		var m map[string]any
 		if json.Unmarshal([]byte(details.String), &m) == nil {
 			if s, ok := m["option_right"].(string); ok {
 				if r := strings.ToLower(strings.TrimSpace(s)); r == "call" || r == "put" {
-					return r
+					out.Right = r
 				}
+			}
+			if s, ok := m["strike"].(string); ok {
+				out.Strike = strings.TrimSpace(s)
+			}
+			if s, ok := m["expiry"].(string); ok {
+				out.Expiry = strings.TrimSpace(s)
 			}
 		}
 	}
-	return importer.InferOptionRight(symbol)
+	if out.Right == "" {
+		out.Right = importer.InferOptionRight(symbol)
+	}
+	return out
 }
 
-// optionRightsByTrade maps trade id → call/put from the user's option fills;
-// the first fill that resolves wins (fills arrive ordered by execution time).
-func optionRightsByTrade(rows []store.ListOptionExecutionDetailsForUserRow) map[string]string {
-	out := make(map[string]string)
+// optionContractsByTrade maps trade id → contract from the user's option fills;
+// the first fill that resolves a right (or any contract field) wins.
+func optionContractsByTrade(rows []store.ListOptionExecutionDetailsForUserRow) map[string]optionContract {
+	out := make(map[string]optionContract)
 	for _, r := range rows {
 		if _, done := out[r.TradeID]; done {
 			continue
 		}
-		if right := optionRightFrom(r.Details, r.Symbol); right != "" {
-			out[r.TradeID] = right
+		c := optionContractFrom(r.Details, r.Symbol)
+		if c.Right == "" && c.Strike == "" && c.Expiry == "" {
+			continue
 		}
+		out[r.TradeID] = c
 	}
 	return out
 }
@@ -127,11 +151,21 @@ func optionRightsByTrade(rows []store.ListOptionExecutionDetailsForUserRow) map[
 // where the fills are already loaded.
 func optionRightFromFills(fills []store.Execution) string {
 	for _, f := range fills {
-		if right := optionRightFrom(f.Details, f.Symbol); right != "" {
-			return right
+		if c := optionContractFrom(f.Details, f.Symbol); c.Right != "" {
+			return c.Right
 		}
 	}
 	return ""
+}
+
+func optionContractFromFills(fills []store.Execution) optionContract {
+	for _, f := range fills {
+		c := optionContractFrom(f.Details, f.Symbol)
+		if c.Right != "" || c.Strike != "" || c.Expiry != "" {
+			return c
+		}
+	}
+	return optionContract{}
 }
 
 // executionDTO flattens sql.Null* and parses details JSON so clients get

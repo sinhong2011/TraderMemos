@@ -64,6 +64,18 @@ func NormalizeOptionExecutions(ctx context.Context, q store.Querier, log *slog.L
 				continue
 			}
 			detailsCol = sql.NullString{String: string(encoded), Valid: true}
+		} else if c, ok := ParseSchwabOptionSymbol(row.Symbol); ok {
+			symbol = c.Underlying
+			if details["option_right"] == "" {
+				details["option_right"] = c.Right
+			}
+			details["strike"] = c.Strike
+			details["expiry"] = c.Expiry
+			encoded, merr := json.Marshal(details)
+			if merr != nil {
+				continue
+			}
+			detailsCol = sql.NullString{String: string(encoded), Valid: true}
 		}
 
 		hash := DedupHash(

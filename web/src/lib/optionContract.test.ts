@@ -3,6 +3,7 @@ import {
   formatOptionContractLabel,
   formatOptionMarketChip,
   optionContractFromFills,
+  optionContractFromTrade,
   parseExecutionDetails,
 } from "./optionContract";
 
@@ -43,6 +44,20 @@ describe("formatOptionContractLabel", () => {
     expect(
       formatOptionContractLabel({ option_right: "put", strike: "360", expiry: "2026-07-24" }),
     ).toBe("360 PUT · 2026-07-24");
+  });
+});
+
+describe("optionContractFromTrade", () => {
+  it("reads list-row contract fields", () => {
+    expect(
+      optionContractFromTrade({
+        instrument_type: "option",
+        option_right: "call",
+        option_strike: "22.5",
+        option_expiry: "2025-05-30",
+      }),
+    ).toEqual({ option_right: "call", strike: "22.5", expiry: "2025-05-30" });
+    expect(optionContractFromTrade({ instrument_type: "stock", option_right: "call" })).toBeNull();
   });
 });
 

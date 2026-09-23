@@ -234,6 +234,10 @@ export interface Trade {
   notes: string;
   tags: Tag[];
   initial_risk?: number | null;
+  /** call/put from fills when instrument_type is option */
+  option_right?: string | null;
+  option_strike?: string | null;
+  option_expiry?: string | null;
 }
 
 // TradeDetail matches tradeDetailDTO from api/internal/api/trade_detail.go
