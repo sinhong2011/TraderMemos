@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.14.1](https://github.com/sinhong2011/TraderMemos/compare/v0.14.0...v0.14.1) (2026-09-23)
+
+
+### Bug Fixes
+
+* **importer:** classify Schwab trailing C/P options as ×100 ([#299](https://github.com/sinhong2011/TraderMemos/issues/299)) ([a74855f](https://github.com/sinhong2011/TraderMemos/commit/a74855f66afc4c8363033dcebe0d61882e8259f8))
+
 ## [0.14.0](https://github.com/sinhong2011/TraderMemos/compare/v0.13.0...v0.14.0) (2026-09-21)
 
 
