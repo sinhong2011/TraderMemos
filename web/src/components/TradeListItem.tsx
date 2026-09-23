@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn";
 import { usePrivacyMode } from "@/lib/displayPrefs";
 import { fmtDuration, fmtMoney, fmtSignedMoney, fmtTradeDay } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { formatOptionContractLabel, optionContractFromTrade } from "@/lib/optionContract";
 import { resolveTradeDirection } from "@/lib/tradeDirection";
 import { DIR_TONE_CLASS } from "./DirCell";
 import { Item, ItemContent, ItemTitle } from "./Item";
@@ -38,11 +39,13 @@ function listDate(iso: string | null): string {
   });
 }
 
-/** Footer line: market, date, hold, R multiple. */
+/** Footer line: market, contract, date, hold, R multiple. */
 export function tradeListMeta(trade: Trade, showDate = false): TradeMetaPart[] {
   const hold = fmtDuration(trade.time_in_trade_secs);
   const r = tradeRMultiple(trade);
+  const contract = formatOptionContractLabel(optionContractFromTrade(trade));
   const parts: TradeMetaPart[] = [{ key: "market", text: marketLabel(trade.instrument_type) }];
+  if (contract) parts.push({ key: "contract", text: contract });
   if (showDate) parts.push({ key: "date", text: listDate(trade.opened_at) });
   if (hold !== "-") parts.push({ key: "hold", text: hold, optional: true });
   if (r != null) parts.push({ key: "r", text: `${r.toFixed(2)}R`, optional: true });
@@ -88,10 +91,10 @@ export function TradeListItem({
   const dir = resolveTradeDirection({
     direction: trade.direction,
     instrumentType: trade.instrument_type,
+    optionRight: trade.option_right,
     symbol: trade.symbol,
     // Say "unknown" rather than a bare LONG when this is an option whose
-    // call/put can't be read off the symbol — the trades payload carries no
-    // option_right, so an OCC-style symbol is the only source in a list row.
+    // call/put can't be resolved from the list DTO or symbol.
     markMissingOptionRight: true,
   });
   const DirIcon = dir.arrowUp ? ArrowUpRight : ArrowDownRight;

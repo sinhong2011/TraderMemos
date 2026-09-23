@@ -47,14 +47,17 @@ func ParseOCCSymbol(symbol string) (OCCContract, bool) {
 	}, true
 }
 
-// normalizeOCCOption rewrites an option execution whose symbol is a raw OCC
-// string (broker imports like IBKR Flex) into the canonical shape used by
-// manual entry and OCR: symbol = underlying, contract in details.
-func normalizeOCCOption(p *ParsedExecution) {
+// normalizeOptionContract rewrites a broker option symbol into the canonical
+// shape used by manual entry and OCR: symbol = underlying, contract in details.
+// OCC (IBKR Flex) and Schwab Transactions ("DJT 05/30/2025 22.50 C") both land here.
+func normalizeOptionContract(p *ParsedExecution) {
 	if p.InstrumentType != "option" {
 		return
 	}
 	c, ok := ParseOCCSymbol(p.Symbol)
+	if !ok {
+		c, ok = ParseSchwabOptionSymbol(p.Symbol)
+	}
 	if !ok {
 		return
 	}
@@ -68,6 +71,64 @@ func normalizeOCCOption(p *ParsedExecution) {
 	if p.Expiry == "" {
 		p.Expiry = c.Expiry
 	}
+}
+
+// ParseSchwabOptionSymbol decodes Charles Schwab Transactions symbols:
+// "DJT 05/30/2025 22.50 C" or "DJT 05 30 2025 22.50 C" (and CALL/PUT words).
+func ParseSchwabOptionSymbol(symbol string) (OCCContract, bool) {
+	parts := strings.Fields(strings.TrimSpace(symbol))
+	if len(parts) < 3 {
+		return OCCContract{}, false
+	}
+	leg := parts[len(parts)-1]
+	strikeTok := parts[len(parts)-2]
+	right := schwabRightToken(leg, strikeTok)
+	if right == "" && (strings.EqualFold(leg, "call") || strings.EqualFold(leg, "put")) {
+		if v, err := strconv.ParseFloat(strings.TrimPrefix(strings.TrimSpace(strikeTok), "$"), 64); err == nil && v > 0 {
+			right = "call"
+			if strings.EqualFold(leg, "put") {
+				right = "put"
+			}
+		}
+	}
+	if right == "" {
+		return OCCContract{}, false
+	}
+	strike := parseStrikeCell(strikeTok)
+	if strike == "" {
+		return OCCContract{}, false
+	}
+	rest := parts[:len(parts)-2]
+	if len(rest) >= 2 {
+		if expiry, ok := parseSchwabExpiry(rest[len(rest)-1]); ok {
+			underlying := strings.ToUpper(strings.Join(rest[:len(rest)-1], ""))
+			if underlying == "" {
+				return OCCContract{}, false
+			}
+			return OCCContract{Underlying: underlying, Right: right, Strike: strike, Expiry: expiry}, true
+		}
+	}
+	if len(rest) >= 4 {
+		joined := rest[len(rest)-3] + " " + rest[len(rest)-2] + " " + rest[len(rest)-1]
+		if expiry, ok := parseSchwabExpiry(joined); ok {
+			underlying := strings.ToUpper(strings.Join(rest[:len(rest)-3], ""))
+			if underlying == "" {
+				return OCCContract{}, false
+			}
+			return OCCContract{Underlying: underlying, Right: right, Strike: strike, Expiry: expiry}, true
+		}
+	}
+	return OCCContract{}, false
+}
+
+func parseSchwabExpiry(raw string) (string, bool) {
+	raw = strings.TrimSpace(raw)
+	for _, layout := range []string{"01/02/2006", "1/2/2006", "01 02 2006", "1 2 2006"} {
+		if t, err := time.Parse(layout, raw); err == nil {
+			return t.Format("2006-01-02"), true
+		}
+	}
+	return "", false
 }
 
 // parseStrikeCell normalizes a broker strike cell to a bare decimal string.
