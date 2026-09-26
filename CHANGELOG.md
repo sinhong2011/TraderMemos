@@ -5,6 +5,15 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.14.2](https://github.com/sinhong2011/TraderMemos/compare/v0.14.1...v0.14.2) (2026-09-26)
+
+
+### Bug Fixes
+
+* **api:** store non-UTC timestamps as UTC on SQLite and Postgres ([#301](https://github.com/sinhong2011/TraderMemos/issues/301)) ([dc9bb0a](https://github.com/sinhong2011/TraderMemos/commit/dc9bb0a5d54bb66398b417bce27f4079d41d5180))
+* **mobile:** keep the Reports section strip clear of the large title ([#302](https://github.com/sinhong2011/TraderMemos/issues/302)) ([c4435ea](https://github.com/sinhong2011/TraderMemos/commit/c4435ea08cd6eb81afef5f1e1ad6a200210254e7))
+* **mobile:** render empty equity curve instead of crashing on null points ([#303](https://github.com/sinhong2011/TraderMemos/issues/303)) ([e914895](https://github.com/sinhong2011/TraderMemos/commit/e91489596fff1ca89ffaf6ac2f173f4786b0b386))
+
 ## [0.14.1](https://github.com/sinhong2011/TraderMemos/compare/v0.14.0...v0.14.1) (2026-09-23)
 
 
