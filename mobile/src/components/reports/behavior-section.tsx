@@ -181,7 +181,7 @@ export function BehaviorSection({
     (lossAversion.avg_win_hold_secs > 0 || lossAversion.avg_loss_hold_secs > 0);
 
   return (
-    <SectionScaffold refreshing={behavior.isRefetching} onScrolledChange={onScrolledChange}>
+    <SectionScaffold onScrolledChange={onScrolledChange}>
       {behavior.isLoading ? (
         <>
           <Skeleton className="h-[220px] rounded-[18px]" label={t`Loading behavior report`} />

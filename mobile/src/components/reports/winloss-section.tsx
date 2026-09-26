@@ -117,7 +117,7 @@ export function WinLossSection({
     ctx.money.unitMode === 'pct' ? formatPercent(value) : formatPnl(value, ctx.currency);
 
   return (
-    <SectionScaffold refreshing={trades.isRefetching} onScrolledChange={onScrolledChange}>
+    <SectionScaffold onScrolledChange={onScrolledChange}>
       {trades.isLoading ? (
         <>
           <Skeleton className="h-[260px] rounded-[18px]" label={t`Loading win/loss report`} />
