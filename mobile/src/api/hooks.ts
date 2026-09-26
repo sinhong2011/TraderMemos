@@ -165,6 +165,8 @@ function useApiQuery<T>(
     /** Hold the last result while a new key loads — for keys that change as you
      *  page through a range and shouldn't blank the screen on every step. */
     keepPrevious?: boolean;
+    /** Normalise the payload — runs on persisted cache hits too, not just fetches. */
+    select?: (data: T) => T;
   },
 ): UseQueryResult<T> {
   const { session, signIn } = useSession();
@@ -176,6 +178,7 @@ function useApiQuery<T>(
     // Cast: TanStack's NonFunctionGuard can't see that no API response type is
     // itself a function, so the generic helper never type-checks against it.
     placeholderData: options?.keepPrevious ? (keepPreviousData as never) : undefined,
+    select: options?.select,
     queryFn: () =>
       request<T>(session!, path, { params }, (tokens) => {
         void signIn({
@@ -205,11 +208,18 @@ export function useSummary(filters: Filters = {}) {
   return useApiQuery<Summary>(queryKeys.summary(filters), '/analytics/summary', filters);
 }
 
+// Older servers send `points: null` for an account with no trades, and
+// the MMKV cache can still hold that payload. Module-level so `select` keeps a
+// stable identity and TanStack reuses its result between renders.
+const withEquityPoints = (curve: EquityCurve): EquityCurve =>
+  curve.points ? curve : { ...curve, points: [] };
+
 export function useEquityCurve(filters: Filters = {}) {
   return useApiQuery<EquityCurve>(
     queryKeys.equityCurve(filters),
     '/analytics/equity-curve',
     filters,
+    { select: withEquityPoints },
   );
 }
 
