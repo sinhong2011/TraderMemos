@@ -898,10 +898,8 @@ export function OverviewSection({
   const ytd = useSummary({ ...filters, from: `${year}-01-01T00:00:00Z` });
   void accounts;
 
-  const refreshing = summary.isRefetching || equity.isRefetching;
-
   return (
-    <SectionScaffold refreshing={refreshing} onScrolledChange={onScrolledChange}>
+    <SectionScaffold onScrolledChange={onScrolledChange}>
       {summary.isLoading ? (
         <>
           <Skeleton className="h-[320px] rounded-[18px]" label={t`Loading report`} />

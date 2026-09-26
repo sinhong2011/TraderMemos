@@ -287,13 +287,10 @@ export function DetailedSection({
   onScrolledChange?: (scrolled: boolean) => void;
 }) {
   const ctx = useReportsMoney();
-  const filters = useReportsFilters();
   const router = useRouter();
-  // One representative query drives the pull-to-refresh spinner.
-  const symbols = useBreakdown('symbol', filters);
 
   return (
-    <SectionScaffold refreshing={symbols.isRefetching} onScrolledChange={onScrolledChange}>
+    <SectionScaffold onScrolledChange={onScrolledChange}>
       <RankedBreakdownCard
         title={t`Symbols`}
         dim="symbol"
