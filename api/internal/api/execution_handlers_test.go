@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -136,4 +137,48 @@ func TestCreateExecutionSeparatesOptionContracts(t *testing.T) {
 	require.NoError(t, json.Unmarshal(again.Body.Bytes(), &duped))
 	require.Equal(t, "true", duped.Deduped)
 	require.Equal(t, a.ExecutionID, duped.ExecutionID)
+}
+
+// A fill posted with a non-UTC offset is the same instant as its UTC twin.
+// The SQLite driver used to persist the offset zone as "-0400 -0400", which it
+// then could not parse back from the RETURNING row — a 500 on every such POST.
+func TestCreateExecutionAcceptsNonUTCOffset(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "offset-fill@x.com")
+	acc := accountID(t, s, tok)
+
+	fill := func(at string) string {
+		return `{"account_id":"` + acc + `","symbol":"AAPL","instrument_type":"stock",` +
+			`"side":"buy","quantity":10,"price":200,"executed_at":"` + at + `"}`
+	}
+
+	rec := do(s, http.MethodPost, "/api/v1/executions", fill("2026-09-15T09:59:00-04:00"), tok)
+	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+	var created struct {
+		ExecutionID string `json:"execution_id"`
+		TradeID     string `json:"trade_id"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &created))
+
+	// The same instant written in UTC dedups onto it.
+	again := do(s, http.MethodPost, "/api/v1/executions", fill("2026-09-15T13:59:00Z"), tok)
+	require.Equal(t, http.StatusOK, again.Code, again.Body.String())
+	var duped struct {
+		ExecutionID string `json:"execution_id"`
+	}
+	require.NoError(t, json.Unmarshal(again.Body.Bytes(), &duped))
+	require.Equal(t, created.ExecutionID, duped.ExecutionID)
+
+	// Editing with another offset reads back as the same UTC instant.
+	patch := `{"side":"buy","quantity":10,"price":200,"executed_at":"2026-09-15T22:30:00+08:00"}`
+	rec = do(s, http.MethodPatch, "/api/v1/executions/"+created.ExecutionID, patch, tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+
+	rec = do(s, http.MethodGet, "/api/v1/trades/"+created.TradeID, "", tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var detail struct {
+		OpenedAt time.Time `json:"opened_at"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &detail))
+	require.True(t, detail.OpenedAt.Equal(time.Date(2026, 9, 15, 14, 30, 0, 0, time.UTC)), detail.OpenedAt)
 }

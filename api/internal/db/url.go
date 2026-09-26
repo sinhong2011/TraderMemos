@@ -136,6 +136,10 @@ func sqliteFromPath(path string) Database {
 	}
 }
 
+// _timezone=UTC makes the driver convert every bound time.Time to UTC before
+// writing it. Without it a time carrying a fixed offset (any non-Z RFC 3339
+// input) is stored as "... -0400 -0400", which the driver cannot parse back,
+// and mixed offsets would also break the text ordering range queries rely on.
 func sqliteOpenDSN(path string) string {
-	return "file:" + path + "?_pragma=foreign_keys(1)&_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)"
+	return "file:" + path + "?_pragma=foreign_keys(1)&_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)&_timezone=UTC"
 }
