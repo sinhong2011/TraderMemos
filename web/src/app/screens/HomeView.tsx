@@ -52,6 +52,8 @@ export interface HomeViewProps {
   tradesLoading: boolean;
   tradesError: boolean;
   trades: Trade[];
+  /** Account/date/base-filter scope before selecting an outcome. */
+  baselineTrades: Trade[];
   accounts: Account[];
   selectedAccountIds: string[] | undefined;
   tradeStatusFilter?: TradeStatusFilter;
@@ -206,6 +208,7 @@ export function HomeView({
   tradesLoading,
   tradesError,
   trades,
+  baselineTrades,
   accounts,
   selectedAccountIds,
   tradeStatusFilter,
@@ -256,7 +259,7 @@ export function HomeView({
     !summaryError &&
     !tradesError &&
     summary?.total_trades === 0 &&
-    trades.length === 0;
+    baselineTrades.length === 0;
 
   if (noData) {
     const emptyActions = (
@@ -341,7 +344,7 @@ export function HomeView({
           <div className="min-h-[265px] lg:col-span-2">
             <PerformanceStrip
               summary={summary}
-              trades={trades}
+              trades={baselineTrades}
               currency={currency}
               fxRate={fxRate}
               tradeStatusFilter={tradeStatusFilter}

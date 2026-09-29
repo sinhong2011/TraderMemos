@@ -1,9 +1,11 @@
+import { useState } from "react";
 import type { ColumnDef } from "@/lib/table";
 import { flexRender, getCoreRowModel, useReactTable, type RowData } from "@/lib/table";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { Summary, Trade } from "@/lib/api/types";
+import { filterTradesByStatus, type TradeStatusFilter } from "@/lib/tradeFilters";
 import { HomeView } from "./HomeView";
 
 vi.mock("../../components/Toast", () => ({
@@ -129,6 +131,7 @@ const TRADE: Trade = {
 };
 
 const BASE = {
+  baselineTrades: [TRADE],
   summaryLoading: false,
   summaryError: false,
   summary: SUMMARY,
@@ -179,7 +182,116 @@ const BASE = {
   onClearGoal: vi.fn<(...args: any[]) => any>(async () => {}),
 };
 
+const OUTCOME_TRADES: Trade[] = Array.from({ length: 12 }, (_, i) => ({
+  ...TRADE,
+  id: `outcome-${i}`,
+  symbol: `OUTCOME${i}`,
+  status: i < 9 ? "closed" : "open",
+  net_pnl: i < 9 ? [20, -20, 0][i % 3] : null,
+}));
+
+const OUTCOME_SUMMARY: Summary = {
+  ...SUMMARY,
+  total_trades: 9,
+  wins: 3,
+  losses: 3,
+  breakeven: 3,
+  win_rate: 1 / 3,
+};
+
+function OutcomeHome({
+  baselineTrades,
+  summary = OUTCOME_SUMMARY,
+}: {
+  baselineTrades: Trade[];
+  summary?: Summary;
+}) {
+  const [filter, setFilter] = useState<TradeStatusFilter>();
+  return (
+    <HomeView
+      {...BASE}
+      summary={summary}
+      baselineTrades={baselineTrades}
+      trades={filterTradesByStatus(baselineTrades, filter)}
+      tradeStatusFilter={filter}
+      onToggleTradeStatus={(next) => setFilter((current) => (current === next ? undefined : next))}
+    />
+  );
+}
+
 describe("HomeView", () => {
+  it("keeps baseline card statistics while switching and clearing outcomes", async () => {
+    const user = userEvent.setup();
+    render(<OutcomeHome baselineTrades={OUTCOME_TRADES} />);
+    const open = screen.getByRole("button", { name: "Open 3 25%" });
+    for (const [name, symbols] of [
+      ["Open 3 25%", ["OUTCOME9", "OUTCOME10", "OUTCOME11"]],
+      ["Wins 3 33%", ["OUTCOME0", "OUTCOME3", "OUTCOME6"]],
+      ["Losses 3 33%", ["OUTCOME1", "OUTCOME4", "OUTCOME7"]],
+      ["Wash 3 33%", ["OUTCOME2", "OUTCOME5", "OUTCOME8"]],
+    ] as const) {
+      const card = screen.getByRole("button", { name });
+      await user.click(card);
+      expect(card).toHaveAttribute("aria-pressed", "true");
+      expect(open).toHaveTextContent("25%");
+      for (const label of ["Wins 3 33%", "Losses 3 33%", "Wash 3 33%"])
+        expect(screen.getByRole("button", { name: label })).toBeInTheDocument();
+      const table = within(screen.getByRole("table"));
+      expect(table.getAllByRole("row")).toHaveLength(4);
+      for (const symbol of symbols) expect(table.getByText(symbol)).toBeInTheDocument();
+    }
+    await user.click(screen.getByRole("button", { name: "Wash 3 33%" }));
+    expect(screen.getByRole("button", { name: "Wash 3 33%" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    // Home displays the ten most recent baseline trades.
+    expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(11);
+    expect(open).toHaveTextContent("25%");
+  });
+
+  it("keeps controls available when an open-only account has no outcome matches", async () => {
+    const user = userEvent.setup();
+    render(
+      <OutcomeHome
+        baselineTrades={OUTCOME_TRADES.slice(9)}
+        summary={{
+          ...OUTCOME_SUMMARY,
+          total_trades: 0,
+          wins: 0,
+          losses: 0,
+          breakeven: 0,
+          win_rate: 0,
+        }}
+      />,
+    );
+    const losses = screen.getByRole("button", { name: "Losses 0 0%" });
+    await user.click(losses);
+    expect(losses).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Open 3 100%" })).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.queryByText("No trades yet")).not.toBeInTheDocument();
+    await user.click(losses);
+    expect(losses).toHaveAttribute("aria-pressed", "false");
+    expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(4);
+  });
+
+  it("refreshes the baseline after the base scope changes", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<OutcomeHome baselineTrades={OUTCOME_TRADES} />);
+    await user.click(screen.getByRole("button", { name: "Open 3 25%" }));
+    rerender(<OutcomeHome baselineTrades={OUTCOME_TRADES.slice(6)} />);
+    expect(screen.getByRole("button", { name: "Open 3 50%" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    rerender(<OutcomeHome baselineTrades={OUTCOME_TRADES} />);
+    expect(screen.getByRole("button", { name: "Open 3 25%" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
   it("renders the stats strip from the summary", () => {
     render(<HomeView {...BASE} />);
     expect(screen.getByText("Wins")).toBeInTheDocument();
@@ -300,6 +412,7 @@ describe("HomeView", () => {
         {...BASE}
         summary={{ ...SUMMARY, total_trades: 0, wins: 0, losses: 0 }}
         trades={[openTrade, { ...openTrade, id: "t3" }]}
+        baselineTrades={[openTrade, { ...openTrade, id: "t3" }]}
       />,
     );
     expect(screen.getByText("100%")).toBeInTheDocument();
@@ -312,6 +425,7 @@ describe("HomeView", () => {
         {...BASE}
         summary={{ ...SUMMARY, total_trades: 0 }}
         trades={[]}
+        baselineTrades={[]}
         equityPoints={[]}
       />,
     );
@@ -331,6 +445,7 @@ describe("HomeView", () => {
         {...BASE}
         summary={{ ...SUMMARY, total_trades: 0 }}
         trades={[]}
+        baselineTrades={[]}
         equityPoints={[]}
         accountFunded
       />,
@@ -351,6 +466,7 @@ describe("HomeView", () => {
         {...BASE}
         summary={{ ...SUMMARY, total_trades: 0 }}
         trades={[]}
+        baselineTrades={[]}
         equityPoints={[]}
         onImport={onImport}
         onNewTrade={onNewTrade}
