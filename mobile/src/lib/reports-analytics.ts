@@ -9,21 +9,47 @@ import { chronologicalClosed } from '@/lib/insights';
 export interface RollingWinRatePoint {
   index: number;
   rate: number;
+  /** Mean P&L per trade over the same window, in raw account units. */
+  avgPnl: number;
 }
 
-/** Win rate over a trailing window of N chronological closed trades. One point per trade once the window fills. */
-export function rollingWinRate(trades: Trade[], windowSize: number): RollingWinRatePoint[] {
+const netPnlOf = (t: Trade) => t.net_pnl ?? 0;
+
+/**
+ * Win rate and mean P&L over a trailing window of N chronological closed
+ * trades. One point per trade once the window fills. A win is always net of
+ * fees; pnlOf picks the P&L averaged (net or gross).
+ */
+export function rollingWinRate(
+  trades: Trade[],
+  windowSize: number,
+  pnlOf: (t: Trade) => number = netPnlOf,
+): RollingWinRatePoint[] {
   const closed = chronologicalClosed(trades);
   if (closed.length < windowSize) return [];
   const points: RollingWinRatePoint[] = [];
   for (let i = windowSize - 1; i < closed.length; i++) {
     let wins = 0;
+    let pnl = 0;
     for (let j = i - windowSize + 1; j <= i; j++) {
       if ((closed[j].net_pnl ?? 0) > 0) wins += 1;
+      pnl += pnlOf(closed[j]);
     }
-    points.push({ index: i + 1, rate: wins / windowSize });
+    points.push({ index: i + 1, rate: wins / windowSize, avgPnl: pnl / windowSize });
   }
   return points;
+}
+
+/** The same two metrics over every closed trade — the line a window is judged against. */
+export function rollingBaseline(
+  trades: Trade[],
+  pnlOf: (t: Trade) => number = netPnlOf,
+): { rate: number; avgPnl: number; trades: number } | null {
+  const closed = chronologicalClosed(trades);
+  if (closed.length === 0) return null;
+  const wins = closed.filter((t) => (t.net_pnl ?? 0) > 0).length;
+  const pnl = closed.reduce((sum, t) => sum + pnlOf(t), 0);
+  return { rate: wins / closed.length, avgPnl: pnl / closed.length, trades: closed.length };
 }
 
 export type EvolutionGranularity = 'day' | 'week' | 'month';
