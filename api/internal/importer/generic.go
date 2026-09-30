@@ -20,6 +20,8 @@ type Generic struct {
 	// Quantities are lots (FX/CFD platforms), not units/shares — resolve the
 	// contract size per symbol instead of the conventional multiplier.
 	lotSized bool
+	// Slash dates read DD/MM, settled per file by ParseRows (DetectDayFirst).
+	dayFirst bool
 }
 
 func NewGeneric(mapping map[string]string) *Generic {
@@ -59,6 +61,15 @@ var skipStatuses = map[string]bool{
 func (g *Generic) ParseRows(rows []map[string]string) ParseResult {
 	var res ParseResult
 	roundTrip := g.roundTrip()
+	var stamps []string
+	for _, row := range rows {
+		for _, field := range []string{"executed_at", "open_time", "close_time"} {
+			if v := g.col(row, field); v != "" {
+				stamps = append(stamps, v)
+			}
+		}
+	}
+	g.dayFirst = DetectDayFirst(stamps)
 	for i, row := range rows {
 		if rowHasSkipStatus(row) || g.skipNonFillRow(row) {
 			continue
@@ -121,7 +132,7 @@ func (g *Generic) parseRoundTripRow(row map[string]string) ([]ParsedExecution, e
 		return nil, fmt.Errorf("invalid open price")
 	}
 	open.Price = price
-	ts, err := parseTimeIn(g.col(row, "open_time"), g.loc)
+	ts, err := parseTimeOrdered(g.col(row, "open_time"), g.loc, g.dayFirst)
 	if err != nil {
 		return nil, fmt.Errorf("invalid open time %q", g.col(row, "open_time"))
 	}
@@ -144,7 +155,7 @@ func (g *Generic) parseRoundTripRow(row map[string]string) ([]ParsedExecution, e
 	if cls.Price, err = parseMoney(closePrice); err != nil {
 		return nil, fmt.Errorf("invalid close price")
 	}
-	if cls.ExecutedAt, err = parseTimeIn(closeTime, g.loc); err != nil {
+	if cls.ExecutedAt, err = parseTimeOrdered(closeTime, g.loc, g.dayFirst); err != nil {
 		return nil, fmt.Errorf("invalid close time %q", closeTime)
 	}
 	cls.Commission = commission
@@ -303,7 +314,7 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 		return p, fmt.Errorf("invalid price")
 	}
 	p.Price = price
-	ts, err := parseTimeIn(g.col(row, "executed_at"), g.loc)
+	ts, err := parseTimeOrdered(g.col(row, "executed_at"), g.loc, g.dayFirst)
 	if err != nil {
 		return p, fmt.Errorf("invalid date %q", g.col(row, "executed_at"))
 	}
@@ -340,14 +351,12 @@ var usTzOffsets = map[string]int{
 
 var trailingTzAbbrev = regexp.MustCompile(`\s+([A-Z]{2,4})$`)
 
-func parseTime(s string) (time.Time, error) {
-	return parseTimeIn(s, time.UTC)
-}
-
-// parseTimeIn parses a broker timestamp. Offset-less layouts are read in loc;
-// a trailing US tz abbreviation (Webull "EDT") or an RFC3339 offset wins.
-func parseTimeIn(s string, loc *time.Location) (time.Time, error) {
-	s = strings.TrimSpace(s)
+// parseTimeOrdered parses a broker timestamp. Offset-less layouts are read in
+// loc; a trailing US tz abbreviation (Webull "EDT") or an RFC3339 offset wins.
+// dayFirst reads slash dates as DD/MM (see DetectDayFirst).
+func parseTimeOrdered(s string, loc *time.Location, dayFirst bool) (time.Time, error) {
+	// Go's PM layout only matches upper case; no layout below has letters.
+	s = strings.ToUpper(strings.TrimSpace(s))
 	if loc == nil {
 		loc = time.UTC
 	}
@@ -363,17 +372,17 @@ func parseTimeIn(s string, loc *time.Location) (time.Time, error) {
 		"2006-01-02 15:04:05",
 		"2006-01-02T15:04:05",
 		"2006-01-02T15:04:05.000Z",
-		"01/02/2006 15:04:05",
-		"1/2/2006 15:04:05",
-		"1/2/06 15:04:05",
-		"01/02/2006 15:04",
-		"1/2/2006 15:04",
 		"20060102;150405",     // IBKR Flex DateTime
 		"2006.01.02 15:04:05", // MetaTrader-family dotted dates (cTrader, Match-Trader)
 		"02.01.2006 15:04:05", // European day-first dotted
 		"2006-01-02 15:04",
-		"01/02/2006",
 		"2006-01-02",
+	}
+	for _, l := range slashLayouts {
+		if dayFirst {
+			l = dayFirstLayout(l)
+		}
+		layouts = append(layouts, l)
 	}
 	for _, l := range layouts {
 		if t, err := time.ParseInLocation(l, s, loc); err == nil {
