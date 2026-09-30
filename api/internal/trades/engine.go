@@ -82,7 +82,12 @@ func Group(fills []Execution) []Trade {
 		closeQty := min(abs(signed), abs(cur.position))
 		// A fill that crosses flat pays for both legs: its fees split by
 		// quantity between the trade it closes and the one it opens.
-		closeShare := closeQty / abs(signed)
+		// A zero-quantity fill closes nothing; it keeps all its fees rather
+		// than dividing by zero into NaN.
+		closeShare := 1.0
+		if abs(signed) > 0 {
+			closeShare = closeQty / abs(signed)
+		}
 		cur.reduce(f, closeQty, mult, closeShare)
 
 		remaining := abs(signed) - closeQty

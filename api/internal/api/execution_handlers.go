@@ -54,6 +54,9 @@ func (s *Server) handleCreateExecution(c *echo.Context) error {
 	if in.AccountID == "" || in.Symbol == "" || (in.Side != "buy" && in.Side != "sell") {
 		return Fail(http.StatusBadRequest, "bad_request", "account_id, symbol, and side(buy|sell) required", nil)
 	}
+	if !(in.Quantity > 0) {
+		return Fail(http.StatusBadRequest, "bad_request", "quantity must be > 0", nil)
+	}
 	if in.ExecutedAt.IsZero() {
 		return Fail(http.StatusBadRequest, "bad_request", "executed_at is required", nil)
 	}

@@ -151,3 +151,18 @@ func TestZeroCrossSplitsFeesByQuantity(t *testing.T) {
 	require.InDelta(t, 6.0, out[1].FeesTotal, 1e-9)
 	require.InDelta(t, 194.0, *out[1].NetPnl, 1e-9) // 200 gross - 6
 }
+
+// A zero-quantity fill against an open long closes nothing: it must not divide
+// its fees by zero into NaN, and it keeps booking them on the open trade.
+func TestZeroQuantityFillKeepsFees(t *testing.T) {
+	empty := ex("2", "buy", 0, 10.5, "2026-01-01T10:30:00Z", 1)
+	empty.Fees = 0.5
+	out := Group([]Execution{
+		ex("1", "buy", 100, 10.0, "2026-01-01T10:00:00Z", 1),
+		empty,
+		ex("3", "sell", 100, 11.0, "2026-01-01T11:00:00Z", 1),
+	})
+	require.Len(t, out, 1)
+	require.InDelta(t, 0.5, out[0].FeesTotal, 1e-9)
+	require.InDelta(t, 99.5, *out[0].NetPnl, 1e-9) // 100 gross - 0.5
+}
