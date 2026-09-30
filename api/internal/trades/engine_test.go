@@ -133,3 +133,21 @@ func TestPartialOpenKeepsRemainingQty(t *testing.T) {
 	require.Equal(t, 100.0, out[0].QtyOpened)
 	require.Equal(t, 60.0, out[0].QtyRemaining)
 }
+
+// A flip fill's fees split by quantity: selling 300 against a 100 long spends
+// 1/3 of the fill closing the long and 2/3 opening the short.
+func TestZeroCrossSplitsFeesByQuantity(t *testing.T) {
+	flip := ex("2", "sell", 300, 11.0, "2026-01-01T11:00:00Z", 1)
+	flip.Fees = 3
+	flip.Commission = 6
+	out := Group([]Execution{
+		ex("1", "buy", 100, 10.0, "2026-01-01T10:00:00Z", 1),
+		flip,
+		ex("3", "buy", 200, 10.0, "2026-01-01T12:00:00Z", 1),
+	})
+	require.Len(t, out, 2)
+	require.InDelta(t, 3.0, out[0].FeesTotal, 1e-9)
+	require.InDelta(t, 97.0, *out[0].NetPnl, 1e-9) // 100 gross - 3
+	require.InDelta(t, 6.0, out[1].FeesTotal, 1e-9)
+	require.InDelta(t, 194.0, *out[1].NetPnl, 1e-9) // 200 gross - 6
+}
