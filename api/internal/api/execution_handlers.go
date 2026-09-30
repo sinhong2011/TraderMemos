@@ -191,9 +191,9 @@ func (s *Server) handleUpdateExecution(c *echo.Context) error {
 	if ex.Details.Valid && ex.Details.String != "" {
 		_ = json.Unmarshal([]byte(ex.Details.String), &details)
 	}
-	hash := importer.DedupHash(
+	hash := importer.DedupHashOccurrence(
 		importer.OptionDedupSymbolFromDetails(ex.Symbol, ex.InstrumentType, details),
-		in.Side, in.Quantity, in.Price, in.ExecutedAt,
+		in.Side, in.Quantity, in.Price, in.ExecutedAt, importer.OccurrenceFromDetails(details),
 	)
 	n, err := s.deps.Store.UpdateExecution(c.Request().Context(), store.UpdateExecutionParams{
 		Side: in.Side, Quantity: in.Quantity, Price: in.Price,
