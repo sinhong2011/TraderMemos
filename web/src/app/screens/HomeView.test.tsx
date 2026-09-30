@@ -276,6 +276,18 @@ describe("HomeView", () => {
     expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(4);
   });
 
+  it("keeps insight statistics on the baseline while an outcome is selected", async () => {
+    const user = userEvent.setup();
+    render(<OutcomeHome baselineTrades={OUTCOME_TRADES} />);
+    // Wins, losses and washes alternate, so no streak runs past one trade.
+    const streakTile = () =>
+      screen.getByText("Best streak").closest("section, div")!.parentElement!;
+    expect(streakTile()).toHaveTextContent(/Best streak\s*1/);
+    await user.click(screen.getByRole("button", { name: "Wins 3 33%" }));
+    // Filtered to wins alone this would read 3.
+    expect(streakTile()).toHaveTextContent(/Best streak\s*1/);
+  });
+
   it("refreshes the baseline after the base scope changes", async () => {
     const user = userEvent.setup();
     const { rerender } = render(<OutcomeHome baselineTrades={OUTCOME_TRADES} />);
@@ -370,7 +382,10 @@ describe("HomeView", () => {
             created_at: "2026-01-01",
           },
         ]}
-        trades={[TRADE, { ...TRADE, id: "t2", account_id: "a2", symbol: "ES", net_pnl: 50 }]}
+        baselineTrades={[
+          TRADE,
+          { ...TRADE, id: "t2", account_id: "a2", symbol: "ES", net_pnl: 50 },
+        ]}
       />,
     );
     expect(screen.getByText("Account contribution")).toBeInTheDocument();

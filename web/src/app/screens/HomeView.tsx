@@ -379,7 +379,7 @@ export function HomeView({
       {summary && !summaryLoading && !summaryError ? (
         <HomeInsightBento
           summary={summary}
-          trades={trades}
+          trades={baselineTrades}
           currency={currency}
           fxRate={fxRate}
           maxDrawdown={maxDrawdown}
@@ -387,7 +387,7 @@ export function HomeView({
       ) : null}
 
       <HomeAccountContribution
-        trades={trades}
+        trades={baselineTrades}
         accounts={accounts}
         currency={currency}
         fxRate={fxRate}
