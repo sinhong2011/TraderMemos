@@ -94,6 +94,7 @@ function HomePage() {
         tradesLoading={tradesQ.isLoading}
         tradesError={tradesQ.isError}
         trades={trades}
+        baselineTrades={tradesQ.data ?? []}
         accounts={accountsQ.data ?? []}
         selectedAccountIds={accountIds}
         tradeStatusFilter={tradeStatusFilter}
