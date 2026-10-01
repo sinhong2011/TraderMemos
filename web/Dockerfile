@@ -11,7 +11,7 @@ ENV VITE_APP_BUILD=${APP_BUILD}
 # pnpm run build may reconcile node_modules headlessly (e.g. after COPY web/
 # overlays a host tree); without CI it aborts with ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY.
 ENV CI=true
-RUN corepack enable && corepack prepare pnpm@11.16.0 --activate
+RUN corepack enable && corepack prepare pnpm@12.7.0 --activate
 COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY web/ ./

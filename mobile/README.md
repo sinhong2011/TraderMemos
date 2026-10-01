@@ -10,7 +10,7 @@ peer for `<Button native glass>` chrome; it is never imported directly.)
 
 ## Requirements
 
-- Node 25.6.1 (pinned in `.mise.toml`), pnpm 11 (via `../scripts/ensure-pnpm.sh`)
+- Node 25.6.1 (pinned in `.mise.toml`), pnpm 12 (via `../scripts/ensure-pnpm.sh`)
 - iOS: Xcode with an iOS simulator runtime
 - Android: JDK 17 + the Android SDK / an emulator or device (`make doctor-android` verifies)
 - Either way the app runs as a **development build**, not Expo Go

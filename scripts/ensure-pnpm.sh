@@ -2,7 +2,7 @@
 # Ensure pnpm matches web/package.json packageManager.
 set -euo pipefail
 
-required="11.16.0"
+required="12.7.0"
 root="$(cd "$(dirname "$0")/.." && pwd)"
 pkg_mgr="$(node -p "require('${root}/web/package.json').packageManager" 2>/dev/null || true)"
 if [[ "$pkg_mgr" == pnpm@* ]]; then

@@ -2,7 +2,7 @@
   "name": "tradermemos-mobile",
   "main": "index.ts",
   "version": "0.15.0",
-  "packageManager": "pnpm@11.16.0",
+  "packageManager": "pnpm@12.7.0",
   "dependencies": {
     "@expo/material-symbols": "^0.1.1",
     "@expo/ui": "~57.0.11",
