@@ -81,10 +81,11 @@ import type {
 import { equityPointsInRange, type ChartRange } from "@/lib/chartRange";
 import { uniqueDayTicks } from "@/lib/chartTicks";
 import { cn } from "@/lib/cn";
-import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "@/lib/format";
+import { fmtDayShort, fmtPct } from "@/lib/format";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { intlLocale } from "@/lib/locale";
-import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { useDisplayTimePrefs } from "@/lib/displayPrefs";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import type { ReportsTab } from "@/lib/reportCards";
 import type { ReportsViewPreset } from "@/lib/reportsPresets";
 import { useReportsView, visibleCardIds } from "@/lib/reportsView";
@@ -283,7 +284,7 @@ function SummaryMetricsGrid({
   onSaveGoal: (amount: number) => Promise<void>;
   onClearGoal: () => Promise<void>;
 }) {
-  usePrivacyMode();
+  const { fmtMoney, fmtMoneyCompact } = useMoneyFormatters();
   useDisplayTimePrefs();
   const locale = intlLocale();
   const [equityRange, setEquityRange] = useState<ChartRange>("all");
@@ -482,7 +483,6 @@ export function PnlCell({ summary }: { summary: Summary }) {
 
 /** Single-dollar field cell (expectancy, etc.) — honors $/% via useReportsMoney. */
 function ReportsMoneyCell({ value }: { value: number }) {
-  usePrivacyMode();
   const money = useReportsMoney();
   return <span className={`tabular-nums ${pnlColor(value)}`}>{money.format(value)}</span>;
 }
@@ -529,7 +529,6 @@ interface PnlBarChartProps {
 
 /** Playbook & Leaks bar chart — P&L series honors net/gross + $/% via useReportsMoney. */
 export function PnlBarChart({ data }: PnlBarChartProps) {
-  usePrivacyMode();
   const money = useReportsMoney();
   const chartData = data.map((g) => ({
     key: g.key,
@@ -664,7 +663,6 @@ export function ReportsView({
   onClearGoal,
   shareAction,
 }: ReportsViewProps) {
-  usePrivacyMode();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
   const fxRate = rate ?? 1;
   const columns = buildColumns(DIM_LABELS[dim]);

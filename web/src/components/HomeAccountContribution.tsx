@@ -1,11 +1,11 @@
 import type { Account, Trade } from "@/lib/api/types";
 import { computeAccountContribution } from "@/lib/homeInsights";
 import { cn } from "@/lib/cn";
-import { fmtPct, fmtSignedMoney } from "@/lib/format";
+import { fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { pnlColor } from "./theme-tokens";
 import { WinLossRecord } from "./WinLossRecord";
-import { usePrivacyMode } from "@/lib/displayPrefs";
 
 export interface HomeAccountContributionProps {
   trades: Trade[];
@@ -20,7 +20,7 @@ export function HomeAccountContribution({
   currency,
   fxRate = 1,
 }: HomeAccountContributionProps) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const rows = computeAccountContribution(trades, accounts);
   if (rows.length < 2) return null;
 

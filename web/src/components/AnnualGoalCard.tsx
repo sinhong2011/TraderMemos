@@ -12,9 +12,10 @@ import {
   computeAnnualGoalProgress,
 } from "@/lib/annualGoal";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoney, fmtMoneyCompact, fmtPct, fmtSignedMoney } from "@/lib/format";
+
+import { fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 export function paceLabel(status: GoalPaceStatus): string {
   switch (status) {
@@ -68,7 +69,7 @@ export function AnnualGoalCard({
   onSave,
   onClear,
 }: AnnualGoalCardProps) {
-  usePrivacyMode();
+  const { fmtMoney, fmtMoneyCompact, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const [editOpen, setEditOpen] = useState(false);
   const [draft, setDraft] = useState("");

@@ -1,12 +1,12 @@
 import { ArrowRight } from "lucide-react";
 import { type DayRecord, monthGrid } from "@/lib/calendar";
 import { cn } from "@/lib/cn";
-import { fmtSignedMoneyCompact } from "@/lib/format";
+
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { CalendarDayHoverCard } from "./CalendarDayHoverCard";
 import { pnlBgTint, pnlColor } from "./theme-tokens";
 import { Button } from "./ui/button";
-import { usePrivacyMode } from "@/lib/displayPrefs";
 
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
 
@@ -41,7 +41,7 @@ export function HomeMiniCalendar({
   error,
   onOpenCalendar,
 }: HomeMiniCalendarProps) {
-  usePrivacyMode();
+  const { fmtSignedMoneyCompact } = useMoneyFormatters();
   const locale = intlLocale();
   const grid = monthGrid(year, month, dailyPnl);
   const now = new Date();
