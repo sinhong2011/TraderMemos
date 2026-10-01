@@ -283,6 +283,91 @@ export type ChecklistTemplate = {
   content?: string;
 };
 
+export type RoutineStage = 'pre' | 'during' | 'post';
+
+/** Go: api.routineItemDTO. Weekdays are 0 (Sunday) … 6. */
+export type RoutineItem = {
+  id: string;
+  title: string;
+  stage: RoutineStage;
+  weekdays: number[];
+  position: number;
+  start_day: string;
+};
+
+export type RoutineDayItem = RoutineItem & { done: boolean };
+
+/** Payload of GET /routines/day/:day. */
+export type RoutineDay = {
+  day: string;
+  items: RoutineDayItem[];
+  total: number;
+  done: number;
+};
+
+export type RoutineTally = { total: number; done: number };
+
+/** Payload of GET /routines/history (Go: api.routineHistoryDTO). */
+export type RoutineHistory = {
+  from: string;
+  to: string;
+  days: (RoutineTally & { day: string })[];
+  completion_rate: number | null;
+  streak: number;
+  by_stage: Record<RoutineStage, RoutineTally>;
+};
+
+export type RoutineBody = {
+  title?: string;
+  stage?: RoutineStage;
+  weekdays?: number[];
+  /** The caller's local day: when a new item starts, or a reschedule applies. */
+  day?: string;
+};
+
+export type MissedOutcome = 'unknown' | 'target' | 'stop' | 'no_trigger';
+export type MissedReason = '' | 'hesitated' | 'away' | 'rules' | 'other';
+
+/** Go: api.missedTradeDTO. */
+export type MissedTrade = {
+  id: string;
+  account_id: string | null;
+  setup_id: string | null;
+  symbol: string;
+  direction: 'long' | 'short';
+  observed_at: string;
+  entry: number | null;
+  stop: number | null;
+  target: number | null;
+  reason: MissedReason;
+  outcome: MissedOutcome;
+  notes: string;
+  /** Reward over risk of a full, coherent plan. */
+  planned_r: number | null;
+  /** What it would have made given the outcome; null while unknown. */
+  r: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type MissedTradeBody = Omit<MissedTrade, 'id' | 'planned_r' | 'r' | 'created_at' | 'updated_at'>;
+
+export type MissedGroup = { key: string; count: number; scored: number; net_r: number };
+
+/** Payload of GET /missed-trades/summary (Go: analytics.MissedSummary). */
+export type MissedSummary = {
+  count: number;
+  outcomes: Record<MissedOutcome, number>;
+  scored: number;
+  r_left: number;
+  r_avoided: number;
+  net_r: number;
+  avg_r: number | null;
+  by_reason: MissedGroup[];
+  by_setup: MissedGroup[];
+  unpriced: number;
+};
+
 export type Account = {
   id: string;
   name: string;

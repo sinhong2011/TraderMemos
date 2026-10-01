@@ -16,14 +16,16 @@ import { AppState } from 'react-native';
 import { NetworkError } from '@/api/client';
 import { useApiRequest } from '@/api/hooks';
 import { useSession } from '@/api/session';
-import type { Note, NoteBody, PatchTradeRequest } from '@/api/types';
+import type { Note, NoteBody, PatchTradeRequest, RoutineDay } from '@/api/types';
 import { useConnectivityStore } from '@/lib/connectivity';
 import {
   drainOutbox,
   enqueueNoteCreate,
   enqueueNoteDelete,
   enqueueNoteUpdate,
+  enqueueRoutineCheck,
   enqueueTradeJournal,
+  hasPendingRoutineCheck,
   ensureOutboxHydrated,
   hasPendingNoteWrite,
   hasPendingTradeJournal,
@@ -202,4 +204,47 @@ export function usePendingTradeJournal(tradeId: string): PatchTradeRequest | nul
       candidate.kind === 'trade-journal' && candidate.tradeId === tradeId,
   );
   return op?.body ?? null;
+}
+
+/**
+ * A routine tick, queueable — one pending tick per box per day, the latest
+ * wins. The endpoint is idempotent both ways, so a replay can never double up.
+ */
+export function useQueuedRoutineCheck() {
+  const api = useApiRequest();
+  const queryClient = useQueryClient();
+  const unlocked = useProUnlocked('offlineQueue');
+
+  const saveCheck = async (
+    day: string,
+    itemId: string,
+    done: boolean,
+  ): Promise<{ queued: boolean; day?: RoutineDay }> => {
+    // A tick already queued for this box must be superseded in the queue, not
+    // raced: a direct PUT would land and then be undone by the stale row.
+    if (hasPendingRoutineCheck(day, itemId)) {
+      enqueueRoutineCheck(day, itemId, done);
+      if (serverReachable()) void drainOutbox(api, queryClient);
+      return { queued: true };
+    }
+    if (unlocked && !serverReachable()) {
+      enqueueRoutineCheck(day, itemId, done);
+      return { queued: true };
+    }
+    try {
+      const result = await api<RoutineDay>(`/routines/day/${day}/items/${itemId}`, {
+        method: 'PUT',
+        body: { done },
+      });
+      return { queued: false, day: result };
+    } catch (err) {
+      if (unlocked && err instanceof NetworkError) {
+        enqueueRoutineCheck(day, itemId, done);
+        return { queued: true };
+      }
+      throw err;
+    }
+  };
+
+  return { saveCheck };
 }

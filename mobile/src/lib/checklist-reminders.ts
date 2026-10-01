@@ -26,7 +26,6 @@ import { AppState } from 'react-native';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { runsWeekdaysOnly, useWeekdaysOnly, type ChecklistTask } from '@/lib/checklist';
 import {
   loadCalendar,
   remindersAccess,
@@ -36,6 +35,19 @@ import {
 } from '@/lib/ios-reminders';
 import { storage } from '@/storage/mmkv';
 import { mmkvStorage } from '@/storage/zustand-mmkv';
+
+/**
+ * One routine item as the mirror sees it. Every active item is sent, so each
+ * keeps its repeating series; `today` says whether it is on today's list, the
+ * only day whose tick can travel.
+ */
+export type ReminderTask = {
+  text: string;
+  /** 0 (Sunday) … 6, the item's schedule. */
+  weekdays: number[];
+  today: boolean;
+  done: boolean;
+};
 
 // ---------------------------------------------------------------------------
 // Settings
@@ -112,43 +124,65 @@ export async function setRemindersSync(next: boolean): Promise<EnableResult> {
  * which is the one morning you didn't need reminding. Handing the recurrence to
  * the Reminders app means the alarm fires whether or not the app ran.
  *
- * Weekdays-only follows the card's own schedule — a routine that hides itself
- * on Saturday has no business ringing on Saturday.
+ * Each item rings on its own schedule — an item that is off the list on
+ * Saturday has no business ringing on Saturday.
  */
-function repeatRule(Calendar: CalendarModule): RecurrenceRule {
-  if (!runsWeekdaysOnly()) return { frequency: Calendar.Frequency.DAILY, interval: 1 };
+function repeatRule(Calendar: CalendarModule, weekdays: number[]): RecurrenceRule {
+  if (new Set(weekdays).size === 7) return { frequency: Calendar.Frequency.DAILY, interval: 1 };
   return {
     frequency: Calendar.Frequency.WEEKLY,
     interval: 1,
-    daysOfTheWeek: WEEKDAYS_WRITTEN.map((dayOfTheWeek) => ({
-      dayOfTheWeek: dayOfTheWeek as DayOfTheWeek,
-    })),
+    daysOfTheWeek: [...new Set(weekdays)]
+      .sort((a, b) => a - b)
+      .map((day) => ({ dayOfTheWeek: writtenDay(day) as DayOfTheWeek })),
   };
 }
 
 /**
- * Monday to Friday, spelled twice, because expo-calendar's two ends disagree
- * about which number a day is.
+ * Days are spelled two ways, because expo-calendar's two ends disagree about
+ * which number a day is.
  *
  * Writing a rule goes through a native record whose day enum starts at
- * **Monday = 1** (`ios/Records/RecurrenceRuleRecords.swift`). Reading one back
- * hands over `EKWeekday`, which starts at **Sunday = 1** — and the exported
- * `DayOfTheWeek` enum agrees with the reader, not the writer. Passing that
- * exported enum straight through shifts every day forward one, and a weekdays
- * routine ends up ringing Tuesday to Saturday. Verified on the simulator.
+ * **Monday = 1** (`ios/Records/RecurrenceRuleRecords.swift`), so Sunday is 7.
+ * Reading one back hands over `EKWeekday`, which starts at **Sunday = 1** — and
+ * the exported `DayOfTheWeek` enum agrees with the reader, not the writer.
+ * Passing that exported enum straight through shifts every day forward one,
+ * and a weekdays routine ends up ringing Tuesday to Saturday. Verified on the
+ * simulator.
  */
-const WEEKDAYS_WRITTEN = [1, 2, 3, 4, 5];
-const WEEKDAYS_READ = '2,3,4,5,6';
+function writtenDay(day: number): number {
+  return day === 0 ? 7 : day;
+}
 
-/** Whether a reminder already repeats the way the settings now say it should. */
-function repeats(reminder: Reminder, rule: RecurrenceRule): boolean {
+function readDays(weekdays: number[]): string {
+  return [...new Set(weekdays)]
+    .map((day) => day + 1)
+    .sort((a, b) => a - b)
+    .join(',');
+}
+
+/** Whether a reminder already repeats the way the item's schedule says it should. */
+function repeats(reminder: Reminder, rule: RecurrenceRule, weekdays: number[]): boolean {
   const current = reminder.recurrenceRule;
   if (current?.frequency !== rule.frequency) return false;
   const days = (current.daysOfTheWeek ?? [])
     .map((day) => day.dayOfTheWeek)
     .sort((a, b) => a - b)
     .join(',');
-  return days === (rule.daysOfTheWeek ? WEEKDAYS_READ : '');
+  return days === (rule.daysOfTheWeek ? readDays(weekdays) : '');
+}
+
+/** The first day on or after `day` that the item is scheduled on. */
+function nextScheduled(day: string, weekdays: number[]): string {
+  const [year, month, date] = day.split('-').map(Number);
+  const set = new Set(weekdays);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(year, (month ?? 1) - 1, (date ?? 1) + i);
+    if (set.has(d.getDay())) {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+  }
+  return day;
 }
 
 /** `day` at `HH:MM` on the device clock. */
@@ -182,7 +216,7 @@ export function timeDate(at: string): Date {
  */
 export async function syncChecklistReminders(
   day: string,
-  tasks: ChecklistTask[],
+  tasks: ReminderTask[],
   at: string,
 ): Promise<string[] | null> {
   if (!settings().enabled || tasks.length === 0) return null;
@@ -191,12 +225,10 @@ export async function syncChecklistReminders(
   const list = await traderMemosList(Calendar);
   if (!list) return null;
 
-  const due = dueAt(day, at);
-  const opens = new Date(due);
+  const opens = dueAt(day, at);
   opens.setHours(0, 0, 0, 0);
   const closes = new Date(opens);
   closes.setDate(closes.getDate() + 1);
-  const rule = repeatRule(Calendar);
   const wanted = new Set(tasks.map((task) => task.text));
 
   // The live occurrence of each series, and whatever was struck off today —
@@ -230,12 +262,16 @@ export async function syncChecklistReminders(
   const pulled: string[] = [];
 
   for (const task of tasks) {
+    const rule = repeatRule(Calendar, task.weekdays);
+    // Due on the item's next scheduled day: a series first due today on an
+    // off-day would ring once on a day the item isn't on the list.
+    const due = dueAt(nextScheduled(day, task.weekdays), at);
     const reminder = live.get(task.text);
     if (!reminder) {
       // Nothing open, and nothing struck off today either: the series doesn't
       // exist yet (or EventKit ended it rather than rolling it forward).
       if (doneToday.has(task.text)) {
-        if (!task.done) pulled.push(task.text);
+        if (task.today && !task.done) pulled.push(task.text);
         continue;
       }
       try {
@@ -245,8 +281,8 @@ export async function syncChecklistReminders(
           // A reminder with no alarm never speaks up, which is the point.
           alarms: [{ absoluteDate: due.toISOString() }],
           recurrenceRule: rule,
-          completed: task.done,
-          completionDate: task.done ? new Date() : undefined,
+          completed: task.today && task.done,
+          completionDate: task.today && task.done ? new Date() : undefined,
         });
       } catch {
         // EventKit refused this one. The next pass retries it, rather than
@@ -259,15 +295,15 @@ export async function syncChecklistReminders(
       if (doneToday.has(task.text)) {
         // Already struck off today and rolled on to tomorrow; the open one is
         // the *next* occurrence and must be left alone.
-        if (!task.done) pulled.push(task.text);
-      } else if (task.done && dueTime(reminder) < closes.getTime()) {
+        if (task.today && !task.done) pulled.push(task.text);
+      } else if (task.today && task.done && dueTime(reminder) < closes.getTime()) {
         await reminder.update({ completed: true, completionDate: new Date() });
         continue;
       }
       // Settings moved, or the series is still sitting on an older day because
       // nobody ticked it. Both leave the reminder ringing at the wrong time.
       const stale = dueTime(reminder) < opens.getTime();
-      if (stale || !repeats(reminder, rule)) {
+      if (stale || !repeats(reminder, rule, task.weekdays)) {
         await reminder.update({
           ...(stale ? { dueDate: due, alarms: [{ absoluteDate: due.toISOString() }] } : {}),
           recurrenceRule: rule,
@@ -328,19 +364,20 @@ export function useChecklistReminderSync({
   onPulled,
 }: {
   day: string;
-  tasks: ChecklistTask[];
+  tasks: ReminderTask[];
   /** Item texts completed in Reminders but still open here. */
   onPulled: (texts: string[]) => void;
 }): void {
   const enabledNow = useRemindersEnabled();
   const at = useRemindersTime();
-  // Not read here, but the repeat rule is built from it: flipping the schedule
-  // has to re-cut every reminder, not wait for the next launch.
-  const weekdays = useWeekdaysOnly();
   // What the run reads, flattened to a value the effect can depend on without
   // re-firing for an unrelated re-render. Newline-joined because item text
   // contains spaces; the run reads the tasks themselves from the ref.
-  const signature = tasks.map((task) => `${task.done ? '1' : '0'}${task.text}`).join('\n');
+  // The schedule is in it too: moving an item's days has to re-cut its series
+  // now, not wait for the next launch.
+  const signature = tasks
+    .map((task) => `${task.done ? '1' : '0'}${task.today ? '1' : '0'}${task.weekdays.join('')}${task.text}`)
+    .join('\n');
   const latest = useRef({ tasks, onPulled });
   const running = useRef(false);
   /** A tick that landed mid-run, owed a pass of its own. */
@@ -390,5 +427,5 @@ export function useChecklistReminderSync({
       cancelled = true;
       subscription.remove();
     };
-  }, [enabledNow, at, weekdays, day, signature]);
+  }, [enabledNow, at, day, signature]);
 }

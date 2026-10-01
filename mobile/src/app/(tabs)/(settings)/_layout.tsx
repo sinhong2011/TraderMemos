@@ -81,11 +81,11 @@ export default function SettingsLayout() {
       <Stack.Screen name="risk-rule-form" options={{ headerLargeTitle: false }} />
       <Stack.Screen
         name="daily-checklist"
-        options={{ title: t`Daily checklist`, headerLargeTitle: false }}
+        options={{ title: t`Daily routine`, headerLargeTitle: false }}
       />
       <Stack.Screen
         name="checklist"
-        options={{ title: t`Edit checklist`, headerLargeTitle: false }}
+        options={{ title: t`Edit routine`, headerLargeTitle: false }}
       />
       <Stack.Screen name="alerts" options={{ title: t`Alerts`, headerLargeTitle: false }} />
       <Stack.Screen
