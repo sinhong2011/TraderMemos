@@ -32,9 +32,10 @@ import type {
   Trade,
 } from "@/lib/api/types";
 import { noteExcerpt } from "@/components/editor/markdown";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoneyCompact, fmtSignedMoney, fmtTime } from "@/lib/format";
+
+import { fmtTime } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 export interface DayReviewViewProps {
   /** YYYY-MM-DD in the trader's timezone. */
@@ -80,6 +81,7 @@ function IntradayCurve({
   currency: string;
   fxRate: number;
 }) {
+  const { fmtMoneyCompact, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const closed = trades
     .filter((t) => t.closed_at != null && t.net_pnl != null)
@@ -174,7 +176,7 @@ export function DayReviewView({
   onOpenNotes,
   onNewNote,
 }: DayReviewViewProps) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const day = compliance?.days.find((d) => d.date === date);
   const netPnl = (summary?.net_pnl ?? 0) * fxRate;

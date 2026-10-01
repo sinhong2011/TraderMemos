@@ -9,7 +9,7 @@ import { Popover, PopoverContent } from "./ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import type { Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
+
 import { fmtDayShort, fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { computePnlHeatmap, HEATMAP_DAY_LABELS, type HeatmapCell } from "@/lib/pnlHeatmap";
@@ -41,7 +41,6 @@ export function ReportsPnlHeatmap({
   error,
   onSelectTradeId,
 }: ReportsPnlHeatmapProps) {
-  usePrivacyMode();
   const money = useReportsMoney();
   const locale = intlLocale();
   const gross = money.pnlMode === "gross";

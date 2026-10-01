@@ -1,9 +1,10 @@
 import { useState } from "react";
 import type { Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtSignedMoney, fmtSignedPct, fmtTradeDay } from "@/lib/format";
+import { useDisplayTimePrefs } from "@/lib/displayPrefs";
+import { fmtSignedPct, fmtTradeDay } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { periodReturns } from "@/lib/reportsAnalytics";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { SegmentedControl } from "./SegmentedControl";
@@ -30,7 +31,7 @@ export function ReportsPeriodReturns({
   fxRate,
   denominator,
 }: ReportsPeriodReturnsProps) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   useDisplayTimePrefs();
   const locale = intlLocale();
   const money = useReportsMoney();

@@ -1,14 +1,15 @@
 import type { DayDetail, DayRecord } from "@/lib/calendar";
 import type { Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoney, fmtPct, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
+
+import { fmtPct, fmtSignedPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { resolveTradeDirection } from "@/lib/tradeDirection";
 import { marketLabel } from "./tradeColumns";
 import { pnlColor } from "./theme-tokens";
 import { Button } from "./ui/button";
 import { WinLossRecord } from "./WinLossRecord";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 function dayTradeCount(rec: DayRecord | undefined): number {
   if (!rec) return 0;
@@ -67,7 +68,7 @@ export function CalendarDayHoverDetails({
   detail?: DayDetail;
   onOpenDayReview?: (day: string) => void;
 }) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const tradeCount = dayTradeCount(record);
   const winRate = dayWinRate(record);
@@ -175,6 +176,7 @@ function DayStatRows({
   currency: string;
   fxRate: number;
 }) {
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const moneyOf = (v: number) => fmtMoney(v * fxRate, currency, locale);
   const rows: { label: string; value: string }[] = [

@@ -24,11 +24,12 @@ import { formatOptionMarketChip, optionContractFromFills } from "@/lib/optionCon
 import { Button } from "./ui/button";
 import { cn } from "@/lib/cn";
 import type { TradeDetail } from "@/lib/api/types";
-import { fmtDateTime, fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { fmtDateTime } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { useDeleteTrade, useTradeDetail } from "@/lib/hooks/useTradeDetail";
 import { computeRiskReward } from "@/lib/riskReward";
-import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { useDisplayTimePrefs } from "@/lib/displayPrefs";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 export interface TradeDetailSheetProps {
   tradeId: string | null;
@@ -260,7 +261,7 @@ function TradeDetailSheetBody({
   trade: TradeDetail;
   onOpenFullPage: () => void;
 }) {
-  usePrivacyMode();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   useDisplayTimePrefs();
   const currency = trade.pnl_currency;
   const pnl = trade.net_pnl;

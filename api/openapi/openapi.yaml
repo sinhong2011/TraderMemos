@@ -1017,6 +1017,24 @@ paths:
         "200":
           description: Equity points
 
+  /api/v1/analytics/edge-score:
+    get:
+      tags: [Analytics]
+      summary: Edge Score
+      description: >-
+        Versioned 0-100 composite of win rate, profit factor, payoff, drawdown,
+        recovery and consistency. Each component scales linearly to a documented
+        full-marks threshold; `score` is null below `min_trades` closed trades.
+        Drawdown is measured on trade P&L against the capital in the account.
+      operationId: analyticsEdgeScore
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Edge Score with per-component scores, weights and raw inputs
+
   /api/v1/tags:
     get:
       tags: [Tags]

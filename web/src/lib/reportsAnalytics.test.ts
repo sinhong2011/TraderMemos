@@ -9,6 +9,7 @@ import {
   medianDurationSecs,
   metricEvolution,
   periodReturns,
+  rollingBaseline,
   rollingWinRate,
 } from "./reportsAnalytics";
 
@@ -53,9 +54,34 @@ describe("rollingWinRate", () => {
     ];
     const points = rollingWinRate(trades, 3);
     expect(points).toEqual([
-      { index: 3, rate: 2 / 3 },
-      { index: 4, rate: 2 / 3 },
+      { index: 3, rate: 2 / 3, avgPnl: 5 },
+      { index: 4, rate: 2 / 3, avgPnl: 5 },
     ]);
+  });
+
+  it("averages the chosen P&L while wins stay net of fees", () => {
+    const trades = [
+      trade({ id: "1", closed_at: "2026-07-01T12:00:00Z", net_pnl: -2, gross_pnl: 3 }),
+      trade({ id: "2", closed_at: "2026-07-02T12:00:00Z", net_pnl: 8, gross_pnl: 10 }),
+    ];
+    expect(rollingWinRate(trades, 2, (t) => t.gross_pnl ?? 0)).toEqual([
+      { index: 2, rate: 0.5, avgPnl: 6.5 },
+    ]);
+  });
+});
+
+describe("rollingBaseline", () => {
+  it("is null without closed trades", () => {
+    expect(rollingBaseline([])).toBeNull();
+  });
+
+  it("covers every closed trade", () => {
+    const trades = [
+      trade({ id: "1", closed_at: "2026-07-01T12:00:00Z", net_pnl: 10 }),
+      trade({ id: "2", closed_at: "2026-07-02T12:00:00Z", net_pnl: -4 }),
+      trade({ id: "3", closed_at: "2026-07-03T12:00:00Z", net_pnl: 0 }),
+    ];
+    expect(rollingBaseline(trades)).toEqual({ rate: 1 / 3, avgPnl: 2 });
   });
 });
 

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { buildWrappedShareCard } from "@/lib/shareCard";
 import type { YearWrapped } from "@/lib/wrapped";
 import { ShareCardModal } from "@/components/ShareCard";
@@ -20,6 +21,7 @@ export function WrappedShareModal({
   onOpenChange: (open: boolean) => void;
 }) {
   const [showAmounts, setShowAmounts] = useState(false);
+  const { fmtSignedMoney } = useMoneyFormatters();
 
   const data = useMemo(
     () =>
@@ -29,8 +31,9 @@ export function WrappedShareModal({
         currency,
         fxRate,
         inProgress,
+        fmtSignedMoney,
       }),
-    [wrapped, showAmounts, currency, fxRate, inProgress],
+    [wrapped, showAmounts, currency, fxRate, inProgress, fmtSignedMoney],
   );
 
   return (

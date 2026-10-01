@@ -18,7 +18,6 @@ import { useReportsMoney } from "./ReportsDisplayContext";
 import { SegmentedControl } from "./SegmentedControl";
 import { Skeleton } from "./Skeleton";
 import type { BreakGroup } from "@/lib/api/types";
-import { usePrivacyMode } from "@/lib/displayPrefs";
 
 const POS = "var(--profit)";
 const NEG = "var(--loss)";
@@ -51,7 +50,6 @@ export function ReportsBreakdownCard({
   orientation = "vertical",
   tableColumns,
 }: ReportsBreakdownCardProps) {
-  usePrivacyMode();
   const money = useReportsMoney();
   const [view, setView] = useState<"chart" | "table">("chart");
   const horizontal = orientation === "horizontal";

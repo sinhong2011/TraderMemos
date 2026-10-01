@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vite-plus/test";
+import { act, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 import type { Trade } from "@/lib/api/types";
+import { PRIVACY_MASK, useDisplayPrefs } from "@/lib/displayPrefs";
 import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { ReportsMetricEvolution } from "./ReportsMetricEvolution";
 
@@ -31,6 +32,10 @@ function trade(over: Partial<Trade>): Trade {
 }
 
 describe("ReportsMetricEvolution", () => {
+  afterEach(() => {
+    useDisplayPrefs.setState({ privacyMode: false });
+  });
+
   it("shows an empty state with no closed trades", () => {
     render(<ReportsMetricEvolution trades={[]} loading={false} error={false} currency="USD" />);
     expect(screen.getByText("No data")).toBeInTheDocument();
@@ -73,5 +78,23 @@ describe("ReportsMetricEvolution", () => {
       </ReportsDisplayProvider>,
     );
     expect(screen.getByTestId("evolution-last-cum-pnl")).toHaveTextContent("+$200");
+  });
+
+  it("re-masks amounts when privacy mode flips while mounted", () => {
+    // React Compiler memoizes the formatted ticks on `money`; privacy has to be
+    // part of that identity or a live flip keeps serving the stale string.
+    render(
+      <ReportsMetricEvolution
+        trades={[trade({ net_pnl: 200, gross_pnl: 200 })]}
+        loading={false}
+        error={false}
+      />,
+    );
+    const cell = screen.getByTestId("evolution-last-cum-pnl");
+    expect(cell).toHaveTextContent("+$200");
+    act(() => useDisplayPrefs.getState().setPrivacyMode(true));
+    expect(cell).toHaveTextContent(PRIVACY_MASK);
+    act(() => useDisplayPrefs.getState().setPrivacyMode(false));
+    expect(cell).toHaveTextContent("+$200");
   });
 });
