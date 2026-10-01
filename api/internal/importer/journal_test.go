@@ -97,7 +97,7 @@ func TestJournalOpenDateParsed(t *testing.T) {
 		"Qty": "15", "Entry": "77.7", "Exit": "76.5", "Entry Total": "1165.5", "Exit Total": "1147.5",
 		"Position": "0", "Return ($)": "-20.03", "Open Date": "2026-07-01T14:27:19.000Z",
 	}
-	fills, _, err := parseJournalRow(row, "")
+	fills, _, err := parseJournalRow(row, "", false)
 	require.NoError(t, err)
 	require.True(t, fills[0].ExecutedAt.Equal(time.Date(2026, 7, 1, 14, 27, 19, 0, time.UTC)))
 	require.True(t, fills[1].ExecutedAt.Equal(time.Date(2026, 7, 1, 14, 28, 35, 0, time.UTC)))

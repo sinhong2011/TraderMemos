@@ -43,12 +43,19 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 	// that lot so a re-import does not insert an orphan avg-exit sell as an OPEN short.
 	skippedLots := map[string]bool{}
 
-	// One round trip answers the dedup question for the whole file. `seen` then
-	// grows as rows are accepted, so a fill repeated inside the same file is
-	// still skipped — the row-at-a-time path got that from its own prior insert.
+	// One round trip answers the dedup question for the whole file. A fill
+	// repeated inside the file is a distinct fill (brokers split one order into
+	// identical same-second fills), so each repeat gets its own occurrence-indexed
+	// hash: re-importing the file still matches every row, and neither repeat is
+	// lost. Occurrence 0 is the legacy hash, so older rows keep matching.
 	hashes := make([]string, len(parsed.Executions))
+	occurrences := make([]int, len(parsed.Executions))
+	repeats := map[string]int{}
 	for i, pe := range parsed.Executions {
-		hashes[i] = DedupHash(dedupSymbol(pe), pe.Side, pe.Quantity, pe.Price, pe.ExecutedAt)
+		base := DedupHash(dedupSymbol(pe), pe.Side, pe.Quantity, pe.Price, pe.ExecutedAt)
+		occurrences[i] = repeats[base]
+		repeats[base]++
+		hashes[i] = DedupHashOccurrence(dedupSymbol(pe), pe.Side, pe.Quantity, pe.Price, pe.ExecutedAt, occurrences[i])
 	}
 	seen, err := store.BulkExistingDedupHashes(ctx, q, accountID, hashes)
 	if err != nil {
@@ -89,6 +96,9 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 		}
 		if pe.Expiry != "" {
 			payload["expiry"] = pe.Expiry
+		}
+		if occurrences[i] > 0 {
+			payload[OccurrenceDetailsKey] = strconv.Itoa(occurrences[i])
 		}
 		details := sql.NullString{}
 		if b, err := json.Marshal(payload); err == nil {

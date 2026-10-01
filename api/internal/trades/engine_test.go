@@ -133,3 +133,36 @@ func TestPartialOpenKeepsRemainingQty(t *testing.T) {
 	require.Equal(t, 100.0, out[0].QtyOpened)
 	require.Equal(t, 60.0, out[0].QtyRemaining)
 }
+
+// A flip fill's fees split by quantity: selling 300 against a 100 long spends
+// 1/3 of the fill closing the long and 2/3 opening the short.
+func TestZeroCrossSplitsFeesByQuantity(t *testing.T) {
+	flip := ex("2", "sell", 300, 11.0, "2026-01-01T11:00:00Z", 1)
+	flip.Fees = 3
+	flip.Commission = 6
+	out := Group([]Execution{
+		ex("1", "buy", 100, 10.0, "2026-01-01T10:00:00Z", 1),
+		flip,
+		ex("3", "buy", 200, 10.0, "2026-01-01T12:00:00Z", 1),
+	})
+	require.Len(t, out, 2)
+	require.InDelta(t, 3.0, out[0].FeesTotal, 1e-9)
+	require.InDelta(t, 97.0, *out[0].NetPnl, 1e-9) // 100 gross - 3
+	require.InDelta(t, 6.0, out[1].FeesTotal, 1e-9)
+	require.InDelta(t, 194.0, *out[1].NetPnl, 1e-9) // 200 gross - 6
+}
+
+// A zero-quantity fill against an open long closes nothing: it must not divide
+// its fees by zero into NaN, and it keeps booking them on the open trade.
+func TestZeroQuantityFillKeepsFees(t *testing.T) {
+	empty := ex("2", "buy", 0, 10.5, "2026-01-01T10:30:00Z", 1)
+	empty.Fees = 0.5
+	out := Group([]Execution{
+		ex("1", "buy", 100, 10.0, "2026-01-01T10:00:00Z", 1),
+		empty,
+		ex("3", "sell", 100, 11.0, "2026-01-01T11:00:00Z", 1),
+	})
+	require.Len(t, out, 1)
+	require.InDelta(t, 0.5, out[0].FeesTotal, 1e-9)
+	require.InDelta(t, 99.5, *out[0].NetPnl, 1e-9) // 100 gross - 0.5
+}

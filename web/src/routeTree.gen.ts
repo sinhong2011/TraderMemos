@@ -19,10 +19,12 @@ import { Route as EventsRouteImport } from './routes/events'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MissedRouteImport } from './routes/missed'
 import { Route as NotesRouteImport } from './routes/notes'
 import { Route as PlaybookRouteImport } from './routes/playbook'
 import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as RoutinesRouteImport } from './routes/routines'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as TradesRouteImport } from './routes/trades'
@@ -83,6 +85,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MissedRoute = MissedRouteImport.update({
+  id: '/missed',
+  path: '/missed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NotesRoute = NotesRouteImport.update({
   id: '/notes',
   path: '/notes',
@@ -101,6 +108,11 @@ const ReplayRoute = ReplayRouteImport.update({
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoutinesRoute = RoutinesRouteImport.update({
+  id: '/routines',
+  path: '/routines',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -160,10 +172,12 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
+  '/missed': typeof MissedRoute
   '/notes': typeof NotesRoute
   '/playbook': typeof PlaybookRoute
   '/replay': typeof ReplayRoute
   '/reports': typeof ReportsRoute
+  '/routines': typeof RoutinesRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/trades': typeof TradesRouteWithChildren
@@ -185,10 +199,12 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
+  '/missed': typeof MissedRoute
   '/notes': typeof NotesRoute
   '/playbook': typeof PlaybookRoute
   '/replay': typeof ReplayRoute
   '/reports': typeof ReportsRoute
+  '/routines': typeof RoutinesRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/wrapped': typeof WrappedRoute
@@ -210,10 +226,12 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
+  '/missed': typeof MissedRoute
   '/notes': typeof NotesRoute
   '/playbook': typeof PlaybookRoute
   '/replay': typeof ReplayRoute
   '/reports': typeof ReportsRoute
+  '/routines': typeof RoutinesRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/trades': typeof TradesRouteWithChildren
@@ -237,10 +255,12 @@ export interface FileRouteTypes {
     | '/home'
     | '/import'
     | '/login'
+    | '/missed'
     | '/notes'
     | '/playbook'
     | '/replay'
     | '/reports'
+    | '/routines'
     | '/settings'
     | '/setup'
     | '/trades'
@@ -262,10 +282,12 @@ export interface FileRouteTypes {
     | '/home'
     | '/import'
     | '/login'
+    | '/missed'
     | '/notes'
     | '/playbook'
     | '/replay'
     | '/reports'
+    | '/routines'
     | '/settings'
     | '/setup'
     | '/wrapped'
@@ -286,10 +308,12 @@ export interface FileRouteTypes {
     | '/home'
     | '/import'
     | '/login'
+    | '/missed'
     | '/notes'
     | '/playbook'
     | '/replay'
     | '/reports'
+    | '/routines'
     | '/settings'
     | '/setup'
     | '/trades'
@@ -312,10 +336,12 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   ImportRoute: typeof ImportRoute
   LoginRoute: typeof LoginRoute
+  MissedRoute: typeof MissedRoute
   NotesRoute: typeof NotesRoute
   PlaybookRoute: typeof PlaybookRoute
   ReplayRoute: typeof ReplayRoute
   ReportsRoute: typeof ReportsRoute
+  RoutinesRoute: typeof RoutinesRoute
   SettingsRoute: typeof SettingsRoute
   SetupRoute: typeof SetupRoute
   TradesRoute: typeof TradesRouteWithChildren
@@ -397,6 +423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/missed': {
+      id: '/missed'
+      path: '/missed'
+      fullPath: '/missed'
+      preLoaderRoute: typeof MissedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/notes': {
       id: '/notes'
       path: '/notes'
@@ -423,6 +456,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/routines': {
+      id: '/routines'
+      path: '/routines'
+      fullPath: '/routines'
+      preLoaderRoute: typeof RoutinesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -515,10 +555,12 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   ImportRoute: ImportRoute,
   LoginRoute: LoginRoute,
+  MissedRoute: MissedRoute,
   NotesRoute: NotesRoute,
   PlaybookRoute: PlaybookRoute,
   ReplayRoute: ReplayRoute,
   ReportsRoute: ReportsRoute,
+  RoutinesRoute: RoutinesRoute,
   SettingsRoute: SettingsRoute,
   SetupRoute: SetupRoute,
   TradesRoute: TradesRouteWithChildren,

@@ -108,7 +108,7 @@
       },
       "import": {
         "title": "インポート",
-        "description": "9社のブローカー CSV プリセット、MT4/MT5 明細、IBKR Flex 同期 — tm-sync デスクトップエージェントに明細フォルダを監視させることも。"
+        "description": "9社のブローカー CSV プリセット、MT4/MT5 明細、IBKR Flex 同期。"
       },
       "alerts": {
         "title": "アラート",
@@ -507,7 +507,7 @@
           {
             "row": "ブローカー取り込み",
             "them": "幅広い自動連携",
-            "tm": "IBKR Flex 同期、MT4/MT5 明細、9社の CSV プリセット、tm-sync フォルダ監視エージェント"
+            "tm": "IBKR Flex 同期、MT4/MT5 明細、9社の CSV プリセット"
           },
           {
             "row": "バックテストとリプレイ",
@@ -564,7 +564,7 @@
           {
             "row": "ブローカー取り込み",
             "them": "900+ ブローカー — 業界最多",
-            "tm": "IBKR Flex 同期、MT4/MT5 明細、9社の CSV プリセット、tm-sync フォルダ監視エージェント"
+            "tm": "IBKR Flex 同期、MT4/MT5 明細、9社の CSV プリセット"
           },
           {
             "row": "分析",
@@ -690,7 +690,7 @@
           {
             "row": "ブローカー同期",
             "them": "アグリゲーター経由で 700+ ブローカー",
-            "tm": "IBKR Flex 同期、MT4/MT5 明細、9社の CSV プリセット、tm-sync フォルダ監視エージェント"
+            "tm": "IBKR Flex 同期、MT4/MT5 明細、9社の CSV プリセット"
           },
           {
             "row": "資産曲線・ドローダウン分析",

@@ -1,4 +1,4 @@
-import { LineChart, Skeleton } from 'panelui-native';
+import { cn, LineChart, Skeleton } from 'panelui-native';
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
@@ -16,6 +16,7 @@ import { t } from '@lingui/core/macro';
 import { formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import {
   metricEvolution,
+  rollingBaseline,
   rollingWinRate,
   type EvolutionGranularity,
 } from '@/lib/reports-analytics';
@@ -24,6 +25,8 @@ import {
 const WINDOWS = ['10', '20', '50', '100'] as const;
 
 type RightMetric = 'cumulativePnl' | 'profitFactor' | 'expectancy';
+
+type RollingMetric = 'rate' | 'avgPnl';
 
 /** Downsampling cap — a phone-width plot doesn't need 1k marks. */
 const MAX_POINTS = 120;
@@ -61,14 +64,19 @@ export function WinLossSection({
   const trades = useTrades(filters);
 
   const [windowSize, setWindowSize] = useState<(typeof WINDOWS)[number]>('20');
+  const [rollingMetric, setRollingMetric] = useState<RollingMetric>('rate');
   const [granularity, setGranularity] = useState<EvolutionGranularity>('week');
   const [rightMetric, setRightMetric] = useState<RightMetric>('cumulativePnl');
 
   const tradeList = useMemo(() => trades.data ?? [], [trades.data]);
 
   const rolling = useMemo(
-    () => sample(rollingWinRate(tradeList, Number(windowSize))),
-    [tradeList, windowSize],
+    () => sample(rollingWinRate(tradeList, Number(windowSize), ctx.money.tradePnl)),
+    [tradeList, windowSize, ctx.money.tradePnl],
+  );
+  const baseline = useMemo(
+    () => rollingBaseline(tradeList, ctx.money.tradePnl),
+    [tradeList, ctx.money.tradePnl],
   );
   const evolution = useMemo(
     () => metricEvolution(tradeList, granularity, ctx.money.tradePnl),
@@ -87,12 +95,23 @@ export function WinLossSection({
     { value: 'expectancy' as const, label: t`Expect` },
   ];
 
+  const rollingMetrics = [
+    { value: 'rate' as const, label: t`Win rate` },
+    { value: 'avgPnl' as const, label: t`Avg P&L` },
+  ];
+  // Win rate plots in percent points; avg P&L already converted by
+  // `money.display`, so the tooltip and readout format it via formatPlotted.
+  const rollingValue = (point: { rate: number; avgPnl: number }) =>
+    rollingMetric === 'rate' ? point.rate * 100 : ctx.money.display(point.avgPnl);
+  const baseValue = baseline ? rollingValue(baseline) : null;
+  // The dashed line is the same metric across every trade in range, so the
+  // window reads as above or below the trader's own norm.
   const rollingData = rolling.map((point) => ({
     i: point.index,
-    rate: point.rate * 100,
-    even: EVEN,
+    value: rollingValue(point),
+    base: baseValue ?? undefined,
   }));
-  const latestRate = rolling.length > 0 ? rolling[rolling.length - 1].rate : null;
+  const latestRolling = rolling.length > 0 ? rollingValue(rolling[rolling.length - 1]) : null;
 
   const winRateData = evolution.map((point, index) => ({
     i: index,
@@ -115,6 +134,8 @@ export function WinLossSection({
   // the %-of-deposits divisor) a second time.
   const formatPlotted = (value: number) =>
     ctx.money.unitMode === 'pct' ? formatPercent(value) : formatPnl(value, ctx.currency);
+  const formatRolling = (value: number) =>
+    rollingMetric === 'rate' ? formatPercent(value / 100) : formatPlotted(value);
 
   return (
     <SectionScaffold onScrolledChange={onScrolledChange}>
@@ -136,42 +157,70 @@ export function WinLossSection({
       ) : (
         <>
           <DashboardCard
-            title={t`Rolling win rate`}
+            title={t`Rolling performance`}
             control={
               <Segmented compact options={windows} value={windowSize} onChange={setWindowSize} />
             }
           >
-            {rolling.length === 0 ? (
+            {rolling.length === 0 || latestRolling == null ? (
               <Text className="py-4 text-[13px] text-muted-foreground">
                 {t`Need at least ${windowSize} closed trades to fill the window.`}
               </Text>
             ) : (
               <>
-                <Text className="text-[22px] font-semibold tabular-nums text-foreground">
-                  {formatPercent(latestRate ?? 0)}
-                  <Text className="text-[13px] font-normal text-muted-foreground">
-                    {' '}
-                    {t`over the last ${windowSize} trades`}
+                <View className="flex-row justify-end">
+                  <Segmented
+                    compact
+                    options={rollingMetrics}
+                    value={rollingMetric}
+                    onChange={setRollingMetric}
+                  />
+                </View>
+                <View className="gap-0.5">
+                  <Text className="text-[22px] font-semibold tabular-nums text-foreground">
+                    {formatRolling(latestRolling)}
+                    <Text className="text-[13px] font-normal text-muted-foreground">
+                      {' '}
+                      {t`over the last ${windowSize} trades`}
+                    </Text>
                   </Text>
-                </Text>
+                  {baseline && baseValue != null ? (
+                    <Text className="text-xs tabular-nums text-muted-foreground">
+                      <Text
+                        className={cn(
+                          latestRolling > baseValue && 'text-profit',
+                          latestRolling < baseValue && 'text-loss',
+                        )}
+                      >
+                        {latestRolling > baseValue
+                          ? t`Above`
+                          : latestRolling < baseValue
+                            ? t`Below`
+                            : t`At`}
+                      </Text>
+                      {' '}
+                      {t`${formatRolling(baseValue)} across all ${baseline.trades} trades`}
+                    </Text>
+                  ) : null}
+                </View>
                 <LineChart data={rollingData} xDataKey="i" aspectRatio={1.9}>
                   <LineChart.Grid />
-                  <LineChart.Area dataKey="rate" color={primary} />
-                  <LineChart.Line dataKey="rate" color={primary} />
+                  <LineChart.Area dataKey="value" color={primary} />
+                  <LineChart.Line dataKey="value" color={primary} />
                   <LineChart.Line
-                    dataKey="even"
+                    dataKey="base"
                     color={mutedForeground}
                     strokeWidth={1}
                     dashArray="4,4"
                   />
                   <LineChart.Tooltip
                     color={primary}
-                    formatValue={(v) => formatPercent(v / 100)}
+                    formatValue={formatRolling}
                     formatX={(datum) => t`Trade ${String(datum.i)}`}
                   />
                 </LineChart>
                 <Text className="text-xs text-muted-foreground">
-                  {t`Each point is the win rate across the trailing ${windowSize} closed trades.`}
+                  {t`Each point covers the trailing ${windowSize} closed trades; the dashed line is every trade in range.`}
                 </Text>
               </>
             )}

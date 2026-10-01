@@ -66,4 +66,38 @@ describe("ReportsRollingWinRate", () => {
     fireEvent.click(screen.getByRole("button", { name: "1M" }));
     expect(screen.getByText("Not enough trades")).toBeInTheDocument();
   });
+
+  it("judges the latest window against the whole range", () => {
+    // 10 losers then 10 winners: the last 10-trade window wins 100% against
+    // a 50% norm across all 20.
+    const trades = Array.from({ length: 20 }, (_, i) =>
+      trade({
+        id: String(i),
+        closed_at: `2026-07-${String(i + 1).padStart(2, "0")}T12:00:00Z`,
+        net_pnl: i < 10 ? -10 : 30,
+      }),
+    );
+    render(<ReportsRollingWinRate trades={trades} loading={false} error={false} />);
+    expect(screen.getByTestId("rolling-latest").textContent).toBe("100%");
+    const baseline = screen.getByTestId("rolling-baseline").textContent;
+    expect(baseline).toContain("Above");
+    expect(baseline).toContain("50%");
+    expect(baseline).toContain("20 trades");
+  });
+
+  it("switches to rolling average P&L", () => {
+    const trades = Array.from({ length: 20 }, (_, i) =>
+      trade({
+        id: String(i),
+        closed_at: `2026-07-${String(i + 1).padStart(2, "0")}T12:00:00Z`,
+        net_pnl: i < 10 ? 30 : -10,
+      }),
+    );
+    render(<ReportsRollingWinRate trades={trades} loading={false} error={false} />);
+    fireEvent.click(screen.getByRole("button", { name: "Avg P&L" }));
+    // Last window averages -10 against a +10 norm.
+    expect(screen.getByTestId("rolling-latest").textContent).toMatch(/10/);
+    expect(screen.getByTestId("rolling-latest").textContent).toMatch(/-|−/);
+    expect(screen.getByTestId("rolling-baseline").textContent).toContain("Below");
+  });
 });

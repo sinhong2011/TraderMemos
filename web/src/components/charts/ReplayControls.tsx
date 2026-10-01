@@ -3,10 +3,11 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/cn";
-import { fmtSignedMoney } from "@/lib/format";
+
 import { intlLocale } from "@/lib/locale";
 import type { ReplayPnl } from "./replayPnl";
 import { REPLAY_SPEEDS, type ReplayController } from "./useReplayController";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 function positionLabel(pnl: ReplayPnl, fillTotal: number): string {
   if (pnl.position > 0) return `Long ${pnl.position}`;
@@ -33,6 +34,7 @@ export function ReplayControls({
   currency: string;
   priceMismatch?: boolean;
 }) {
+  const { fmtSignedMoney } = useMoneyFormatters();
   const { cursor, playing, speed } = controller;
   const net = pnl?.net ?? 0;
 

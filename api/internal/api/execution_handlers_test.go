@@ -182,3 +182,13 @@ func TestCreateExecutionAcceptsNonUTCOffset(t *testing.T) {
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &detail))
 	require.True(t, detail.OpenedAt.Equal(time.Date(2026, 9, 15, 14, 30, 0, 0, time.UTC)), detail.OpenedAt)
 }
+
+func TestCreateExecutionRejectsZeroQuantity(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "zero-qty@x.com")
+	acc := accountID(t, s, tok)
+
+	rec := do(s, http.MethodPost, "/api/v1/executions", `{"account_id":"`+acc+
+		`","symbol":"AAPL","side":"buy","quantity":0,"price":100,"executed_at":"2026-08-17T13:45:00Z"}`, tok)
+	require.Equal(t, http.StatusBadRequest, rec.Code, rec.Body.String())
+}

@@ -283,6 +283,91 @@ export type ChecklistTemplate = {
   content?: string;
 };
 
+export type RoutineStage = 'pre' | 'during' | 'post';
+
+/** Go: api.routineItemDTO. Weekdays are 0 (Sunday) … 6. */
+export type RoutineItem = {
+  id: string;
+  title: string;
+  stage: RoutineStage;
+  weekdays: number[];
+  position: number;
+  start_day: string;
+};
+
+export type RoutineDayItem = RoutineItem & { done: boolean };
+
+/** Payload of GET /routines/day/:day. */
+export type RoutineDay = {
+  day: string;
+  items: RoutineDayItem[];
+  total: number;
+  done: number;
+};
+
+export type RoutineTally = { total: number; done: number };
+
+/** Payload of GET /routines/history (Go: api.routineHistoryDTO). */
+export type RoutineHistory = {
+  from: string;
+  to: string;
+  days: (RoutineTally & { day: string })[];
+  completion_rate: number | null;
+  streak: number;
+  by_stage: Record<RoutineStage, RoutineTally>;
+};
+
+export type RoutineBody = {
+  title?: string;
+  stage?: RoutineStage;
+  weekdays?: number[];
+  /** The caller's local day: when a new item starts, or a reschedule applies. */
+  day?: string;
+};
+
+export type MissedOutcome = 'unknown' | 'target' | 'stop' | 'no_trigger';
+export type MissedReason = '' | 'hesitated' | 'away' | 'rules' | 'other';
+
+/** Go: api.missedTradeDTO. */
+export type MissedTrade = {
+  id: string;
+  account_id: string | null;
+  setup_id: string | null;
+  symbol: string;
+  direction: 'long' | 'short';
+  observed_at: string;
+  entry: number | null;
+  stop: number | null;
+  target: number | null;
+  reason: MissedReason;
+  outcome: MissedOutcome;
+  notes: string;
+  /** Reward over risk of a full, coherent plan. */
+  planned_r: number | null;
+  /** What it would have made given the outcome; null while unknown. */
+  r: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type MissedTradeBody = Omit<MissedTrade, 'id' | 'planned_r' | 'r' | 'created_at' | 'updated_at'>;
+
+export type MissedGroup = { key: string; count: number; scored: number; net_r: number };
+
+/** Payload of GET /missed-trades/summary (Go: analytics.MissedSummary). */
+export type MissedSummary = {
+  count: number;
+  outcomes: Record<MissedOutcome, number>;
+  scored: number;
+  r_left: number;
+  r_avoided: number;
+  net_r: number;
+  avg_r: number | null;
+  by_reason: MissedGroup[];
+  by_setup: MissedGroup[];
+  unpriced: number;
+};
+
 export type Account = {
   id: string;
   name: string;
@@ -448,6 +533,21 @@ export type ImportPreview = {
   row_count?: number;
   journal_summary?: JournalPreviewSummary;
   sample_trades?: JournalTradePreview[];
+  /** CSVs with slash dates only — how day and month order was read. */
+  date_order?: ImportDateOrder;
+};
+
+/**
+ * A CSV's slash-date order. `ambiguous` means no cell proves either order and
+ * some read differently each way — the user picks, sent back as `date_order`.
+ */
+export type ImportDateOrder = {
+  order: 'day_first' | 'month_first' | 'ambiguous';
+  /** The cell that settled the order, or an ambiguous one. */
+  example?: string;
+  /** The example's date (YYYY-MM-DD) read month-first / day-first. */
+  example_month_first?: string;
+  example_day_first?: string;
 };
 
 /** Response from POST /imports/commit. */
@@ -820,6 +920,42 @@ export type ExecScoreReport = {
   stability: ExecAxisScore;
   tempo: ExecAxisScore;
   series: ExecScorePoint[];
+};
+
+/** Per-component 0-100 scores, or their weights (Go: analytics.EdgeComponents). */
+export type EdgeComponents = {
+  win_rate: number;
+  profit_factor: number;
+  payoff: number;
+  drawdown: number;
+  recovery: number;
+  consistency: number;
+};
+
+/** Raw metrics behind each component; null when undefined for the sample. */
+export type EdgeInputs = {
+  win_rate: number;
+  /** null: no losing trades (unbounded). */
+  profit_factor: number | null;
+  payoff: number | null;
+  max_drawdown: number;
+  /** Fraction 0-1; null without any deposit to measure against. */
+  max_drawdown_pct: number | null;
+  recovery_factor: number | null;
+  /** Largest winning day's share (0-1) of all winning-day profit. */
+  best_day_share: number | null;
+};
+
+/** Payload of GET /analytics/edge-score (Go: analytics.EdgeScore). */
+export type EdgeScore = {
+  version: number;
+  /** null below min_trades closed trades. */
+  score: number | null;
+  components: EdgeComponents;
+  weights: EdgeComponents;
+  inputs: EdgeInputs;
+  closed_trades: number;
+  min_trades: number;
 };
 
 /** One fan-chart checkpoint of GET /analytics/montecarlo (Go: analytics.McBand). */

@@ -26,11 +26,12 @@ import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import type { BreakGroup, Setup } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtPct, fmtSignedMoney } from "@/lib/format";
+
+import { fmtPct } from "@/lib/format";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { intlLocale } from "@/lib/locale";
 import { useUI, type SetupDraft } from "@/lib/ui";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -350,6 +351,7 @@ interface PlayRowProps extends RowActions {
 }
 
 function TradedPlayRow({ row, currency, fxRate, ...actions }: PlayRowProps) {
+  const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const { setup, trades, wins, losses, winRate, netPnl, pf, exp } = row;
   const subline = setupSubline(setup);
@@ -555,7 +557,7 @@ export function PlaybookView({
   currency,
   onDelete,
 }: PlaybookViewProps) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
   const fxRate = rate ?? 1;

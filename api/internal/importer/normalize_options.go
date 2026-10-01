@@ -78,9 +78,9 @@ func NormalizeOptionExecutions(ctx context.Context, q store.Querier, log *slog.L
 			detailsCol = sql.NullString{String: string(encoded), Valid: true}
 		}
 
-		hash := DedupHash(
+		hash := DedupHashOccurrence(
 			OptionDedupSymbolFromDetails(symbol, "option", details),
-			row.Side, row.Quantity, row.Price, row.ExecutedAt,
+			row.Side, row.Quantity, row.Price, row.ExecutedAt, OccurrenceFromDetails(details),
 		)
 		if symbol == row.Symbol && hash == row.DedupHash {
 			continue

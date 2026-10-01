@@ -59,5 +59,59 @@ struct TraderMemosShortcuts: AppShortcutsProvider {
       shortTitle: "Log a Trade",
       systemImageName: "plus.circle"
     )
+    // Routine and missed-trade intents live in targets/shared/ (also compiled
+    // into the widget extension) and run without opening the app.
+    AppShortcut(
+      intent: CheckOffRoutineItemIntent(),
+      phrases: [
+        "Check off \(\.$item) in \(.applicationName)",
+        "Tick \(\.$item) in \(.applicationName)",
+        "Check off a routine item in \(.applicationName)",
+      ],
+      shortTitle: "Check Off Routine Item",
+      systemImageName: "checkmark.circle"
+    )
+    AppShortcut(
+      intent: CheckOffNextRoutineItemIntent(),
+      phrases: [
+        "Check off my next routine item in \(.applicationName)",
+        "Next routine item in \(.applicationName)",
+      ],
+      shortTitle: "Next Routine Item",
+      systemImageName: "checklist.checked"
+    )
+    AppShortcut(
+      intent: RoutineProgressIntent(),
+      phrases: [
+        "How's my routine in \(.applicationName)",
+        "Routine progress in \(.applicationName)",
+      ],
+      shortTitle: "Routine Progress",
+      systemImageName: "checklist"
+    )
+    AppShortcut(
+      intent: LogMissedTradeIntent(),
+      phrases: [
+        "Log a missed trade in \(.applicationName)",
+        "I missed a trade in \(.applicationName)",
+      ],
+      shortTitle: "Log Missed Trade",
+      systemImageName: "binoculars"
+    )
+  }
+}
+
+/// Re-reads the routine items behind "Check off <item> in TraderMemos". Siri
+/// only matches a spoken item against the entities it last fetched, so this
+/// runs whenever the routine's item set changes — called by name from
+/// modules/widget-bridge (setRoutine), which as a pod can't see this target.
+@objc(TMShortcutParameterUpdater)
+final class ShortcutParameterUpdater: NSObject {
+  private static var lastSignature = ""
+
+  @objc static func update(_ signature: String) {
+    guard signature != lastSignature else { return }
+    lastSignature = signature
+    TraderMemosShortcuts.updateAppShortcutParameters()
   }
 }

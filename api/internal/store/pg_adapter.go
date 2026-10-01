@@ -28,6 +28,10 @@ func NewPGFromDBTX(db DBTX) *PG {
 
 var _ Querier = (*PG)(nil)
 
+func (p *PG) ArchiveRoutineItem(ctx context.Context, arg ArchiveRoutineItemParams) (int64, error) {
+	return p.q.ArchiveRoutineItem(ctx, storepg.ArchiveRoutineItemParams(arg))
+}
+
 func (p *PG) ClearTradeExecutions(ctx context.Context, tradeID string) error {
 	return p.q.ClearTradeExecutions(ctx, tradeID)
 }
@@ -86,6 +90,22 @@ func (p *PG) CreateJournalNote(ctx context.Context, arg CreateJournalNoteParams)
 		return JournalNote{}, err
 	}
 	return JournalNote(v), nil
+}
+
+func (p *PG) CreateMissedTrade(ctx context.Context, arg CreateMissedTradeParams) (MissedTrade, error) {
+	v, err := p.q.CreateMissedTrade(ctx, storepg.CreateMissedTradeParams(arg))
+	if err != nil {
+		return MissedTrade{}, err
+	}
+	return MissedTrade(v), nil
+}
+
+func (p *PG) CreateRoutineItem(ctx context.Context, arg CreateRoutineItemParams) (RoutineItem, error) {
+	v, err := p.q.CreateRoutineItem(ctx, storepg.CreateRoutineItemParams(arg))
+	if err != nil {
+		return RoutineItem{}, err
+	}
+	return RoutineItem(v), nil
 }
 
 func (p *PG) CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup, error) {
@@ -180,8 +200,16 @@ func (p *PG) DeleteMediaFile(ctx context.Context, arg DeleteMediaFileParams) (in
 	return p.q.DeleteMediaFile(ctx, storepg.DeleteMediaFileParams(arg))
 }
 
+func (p *PG) DeleteMissedTrade(ctx context.Context, arg DeleteMissedTradeParams) (int64, error) {
+	return p.q.DeleteMissedTrade(ctx, storepg.DeleteMissedTradeParams(arg))
+}
+
 func (p *PG) DeletePropSettings(ctx context.Context, arg DeletePropSettingsParams) error {
 	return p.q.DeletePropSettings(ctx, storepg.DeletePropSettingsParams(arg))
+}
+
+func (p *PG) DeleteRoutineCheck(ctx context.Context, arg DeleteRoutineCheckParams) (int64, error) {
+	return p.q.DeleteRoutineCheck(ctx, storepg.DeleteRoutineCheckParams(arg))
 }
 
 func (p *PG) DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error) {
@@ -356,6 +384,14 @@ func (p *PG) GetMediaFile(ctx context.Context, arg GetMediaFileParams) (MediaFil
 	return MediaFile(v), nil
 }
 
+func (p *PG) GetMissedTrade(ctx context.Context, arg GetMissedTradeParams) (MissedTrade, error) {
+	v, err := p.q.GetMissedTrade(ctx, storepg.GetMissedTradeParams(arg))
+	if err != nil {
+		return MissedTrade{}, err
+	}
+	return MissedTrade(v), nil
+}
+
 func (p *PG) GetOcrSettings(ctx context.Context) (GetOcrSettingsRow, error) {
 	v, err := p.q.GetOcrSettings(ctx)
 	if err != nil {
@@ -378,6 +414,14 @@ func (p *PG) GetRiskRules(ctx context.Context, userID string) (RiskRule, error) 
 		return RiskRule{}, err
 	}
 	return RiskRule(v), nil
+}
+
+func (p *PG) GetRoutineItem(ctx context.Context, arg GetRoutineItemParams) (RoutineItem, error) {
+	v, err := p.q.GetRoutineItem(ctx, storepg.GetRoutineItemParams(arg))
+	if err != nil {
+		return RoutineItem{}, err
+	}
+	return RoutineItem(v), nil
 }
 
 func (p *PG) GetSetup(ctx context.Context, arg GetSetupParams) (Setup, error) {
@@ -478,6 +522,10 @@ func (p *PG) InsertMediaFile(ctx context.Context, arg InsertMediaFileParams) (Me
 		return MediaFile{}, err
 	}
 	return MediaFile(v), nil
+}
+
+func (p *PG) InsertRoutineCheck(ctx context.Context, arg InsertRoutineCheckParams) error {
+	return p.q.InsertRoutineCheck(ctx, storepg.InsertRoutineCheckParams(arg))
 }
 
 func (p *PG) InsertTrade(ctx context.Context, arg InsertTradeParams) (Trade, error) {
@@ -699,6 +747,14 @@ func (p *PG) ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaF
 	return func() []MediaFile { in := v; out := make([]MediaFile, len(in)); for i := range in { out[i] = MediaFile(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListMissedTrades(ctx context.Context, userID string) ([]MissedTrade, error) {
+	v, err := p.q.ListMissedTrades(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []MissedTrade { in := v; out := make([]MissedTrade, len(in)); for i := range in { out[i] = MissedTrade(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error) {
 	v, err := p.q.ListOptionExecutionDetailsForUser(ctx, userID)
 	if err != nil {
@@ -721,6 +777,22 @@ func (p *PG) ListPropSettingsForUser(ctx context.Context, userID string) ([]Prop
 		return nil, err
 	}
 	return func() []PropSetting { in := v; out := make([]PropSetting, len(in)); for i := range in { out[i] = PropSetting(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListRoutineChecks(ctx context.Context, arg ListRoutineChecksParams) ([]RoutineCheck, error) {
+	v, err := p.q.ListRoutineChecks(ctx, storepg.ListRoutineChecksParams(arg))
+	if err != nil {
+		return nil, err
+	}
+	return func() []RoutineCheck { in := v; out := make([]RoutineCheck, len(in)); for i := range in { out[i] = RoutineCheck(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListRoutineItems(ctx context.Context, userID string) ([]RoutineItem, error) {
+	v, err := p.q.ListRoutineItems(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []RoutineItem { in := v; out := make([]RoutineItem, len(in)); for i := range in { out[i] = RoutineItem(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListSetups(ctx context.Context, userID string) ([]Setup, error) {
@@ -811,6 +883,10 @@ func (p *PG) ListUsers(ctx context.Context) ([]User, error) {
 	return func() []User { in := v; out := make([]User, len(in)); for i := range in { out[i] = User(in[i]) }; return out }(), nil
 }
 
+func (p *PG) MoveRoutineChecks(ctx context.Context, arg MoveRoutineChecksParams) error {
+	return p.q.MoveRoutineChecks(ctx, storepg.MoveRoutineChecksParams(arg))
+}
+
 func (p *PG) PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error {
 	return p.q.PruneAccessTokenUses(ctx, storepg.PruneAccessTokenUsesParams{
 		TokenID: arg.TokenID,
@@ -831,6 +907,10 @@ func (p *PG) RevokeShareLink(ctx context.Context, arg RevokeShareLinkParams) (in
 	return p.q.RevokeShareLink(ctx, storepg.RevokeShareLinkParams(arg))
 }
 
+func (p *PG) SeedRoutineItem(ctx context.Context, arg SeedRoutineItemParams) error {
+	return p.q.SeedRoutineItem(ctx, storepg.SeedRoutineItemParams(arg))
+}
+
 func (p *PG) SetAlertChannelEnabled(ctx context.Context, arg SetAlertChannelEnabledParams) (AlertChannel, error) {
 	v, err := p.q.SetAlertChannelEnabled(ctx, storepg.SetAlertChannelEnabledParams(arg))
 	if err != nil {
@@ -841,6 +921,10 @@ func (p *PG) SetAlertChannelEnabled(ctx context.Context, arg SetAlertChannelEnab
 
 func (p *PG) SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error {
 	return p.q.SetImportBatchStatus(ctx, storepg.SetImportBatchStatusParams(arg))
+}
+
+func (p *PG) SetRoutineItemPosition(ctx context.Context, arg SetRoutineItemPositionParams) (int64, error) {
+	return p.q.SetRoutineItemPosition(ctx, storepg.SetRoutineItemPositionParams(arg))
 }
 
 func (p *PG) SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error {
@@ -901,6 +985,22 @@ func (p *PG) UpdateJournalNote(ctx context.Context, arg UpdateJournalNoteParams)
 		return JournalNote{}, err
 	}
 	return JournalNote(v), nil
+}
+
+func (p *PG) UpdateMissedTrade(ctx context.Context, arg UpdateMissedTradeParams) (MissedTrade, error) {
+	v, err := p.q.UpdateMissedTrade(ctx, storepg.UpdateMissedTradeParams(arg))
+	if err != nil {
+		return MissedTrade{}, err
+	}
+	return MissedTrade(v), nil
+}
+
+func (p *PG) UpdateRoutineItem(ctx context.Context, arg UpdateRoutineItemParams) (RoutineItem, error) {
+	v, err := p.q.UpdateRoutineItem(ctx, storepg.UpdateRoutineItemParams(arg))
+	if err != nil {
+		return RoutineItem{}, err
+	}
+	return RoutineItem(v), nil
 }
 
 func (p *PG) UpdateSetup(ctx context.Context, arg UpdateSetupParams) error {
