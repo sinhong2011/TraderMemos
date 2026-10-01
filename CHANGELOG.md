@@ -5,6 +5,27 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.15.0](https://github.com/sinhong2011/TraderMemos/compare/v0.14.1...v0.15.0) (2026-10-01)
+
+
+### Features
+
+* **import:** ask for the date order when a file's slash dates fit both ([#310](https://github.com/sinhong2011/TraderMemos/issues/310)) ([1660155](https://github.com/sinhong2011/TraderMemos/commit/1660155ba30c0de9e5ae44bd8e318d77075dc896))
+* **mobile:** iOS widgets, controls and Siri for routines and missed trades ([#313](https://github.com/sinhong2011/TraderMemos/issues/313)) ([42c00cd](https://github.com/sinhong2011/TraderMemos/commit/42c00cd2194485c868e097d26274c00081db2a75))
+* open Edge Score and rolling performance vs baseline ([#307](https://github.com/sinhong2011/TraderMemos/issues/307)) ([1b9b66e](https://github.com/sinhong2011/TraderMemos/commit/1b9b66e38b735753febd0a2a47f9205dc1f525c5))
+* routines with stages and history, and a missed-trade log ([#311](https://github.com/sinhong2011/TraderMemos/issues/311)) ([08a67bb](https://github.com/sinhong2011/TraderMemos/commit/08a67bb7e653521a27e06ac965dd48516646b462))
+
+
+### Bug Fixes
+
+* **api:** store non-UTC timestamps as UTC on SQLite and Postgres ([#301](https://github.com/sinhong2011/TraderMemos/issues/301)) ([dc9bb0a](https://github.com/sinhong2011/TraderMemos/commit/dc9bb0a5d54bb66398b417bce27f4079d41d5180))
+* **importer:** keep identical fills, detect DD/MM dates, split flip-fill fees ([#306](https://github.com/sinhong2011/TraderMemos/issues/306)) ([1afc3c4](https://github.com/sinhong2011/TraderMemos/commit/1afc3c4514085448e10218a58c8e9c206cc55dec))
+* **mobile:** keep the Reports section strip clear of the large title ([#302](https://github.com/sinhong2011/TraderMemos/issues/302)) ([c4435ea](https://github.com/sinhong2011/TraderMemos/commit/c4435ea08cd6eb81afef5f1e1ad6a200210254e7))
+* **mobile:** render empty equity curve instead of crashing on null points ([#303](https://github.com/sinhong2011/TraderMemos/issues/303)) ([e914895](https://github.com/sinhong2011/TraderMemos/commit/e91489596fff1ca89ffaf6ac2f173f4786b0b386))
+* **web:** keep Home outcome statistics stable when filtering ([#305](https://github.com/sinhong2011/TraderMemos/issues/305)) ([4cb29fa](https://github.com/sinhong2011/TraderMemos/commit/4cb29faea59cec937fa4d493469041ae88d84618))
+* **web:** re-mask every money display on a live privacy flip ([#309](https://github.com/sinhong2011/TraderMemos/issues/309)) ([df21902](https://github.com/sinhong2011/TraderMemos/commit/df21902258b0324c464c4bd73357efb2e2583182))
+* **web:** re-mask Reports and Home amounts on a live privacy flip ([#308](https://github.com/sinhong2011/TraderMemos/issues/308)) ([1d2e20b](https://github.com/sinhong2011/TraderMemos/commit/1d2e20bae162b00a215a574dc06e8d550592b141))
+
 ## [0.14.1](https://github.com/sinhong2011/TraderMemos/compare/v0.14.0...v0.14.1) (2026-09-23)
 
 
