@@ -246,13 +246,6 @@ const baseProps = {
   annualGoalSaving: false,
   onSaveAnnualGoal: vi.fn<(...args: any[]) => any>(noop),
   onClearAnnualGoal: vi.fn<(...args: any[]) => any>(noop),
-
-  checklistItems: ["Check VIX"],
-  checklistContent: "- [ ] Check VIX",
-  checklistLoading: false,
-  checklistError: false,
-  checklistSaving: false,
-  onSaveChecklist: vi.fn<(...args: any[]) => any>(noop),
 };
 
 describe("SettingsView", () => {
@@ -396,17 +389,13 @@ describe("SettingsView", () => {
     expect(screen.getByLabelText("Max daily loss")).toBeInTheDocument();
   });
 
-  it("opens checklist editor in a modal on rules tab", async () => {
+  it("points the daily checklist to Routines on the rules tab", async () => {
     const user = userEvent.setup();
     renderSettings({ ...baseProps });
     await user.click(screen.getByRole("link", { name: /^Rules$/i }));
-    expect(screen.getByText("Daily Checklist")).toBeInTheDocument();
-    expect(screen.getByText("Check VIX")).toBeInTheDocument();
-    expect(screen.queryByLabelText(/daily checklist and rules/i)).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /edit checklist/i }));
-    expect(screen.getByRole("heading", { name: /daily checklist/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/daily checklist and rules/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^save$/i })).toBeInTheDocument();
+    expect(screen.getByText("Daily routine")).toBeInTheDocument();
+    // Router links render as "#mock" here (see the vi.mock above).
+    expect(screen.getByRole("link", { name: /open routines/i })).toBeInTheDocument();
   });
 
   it("points journal setups to Playbook instead of duplicating CRUD", async () => {

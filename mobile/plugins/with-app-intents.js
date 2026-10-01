@@ -15,20 +15,28 @@ const path = require('node:path');
 
 const { IOSConfig, withDangerousMod, withXcodeProject } = require('expo/config-plugins');
 
-const SWIFT_FILES = ['AppShortcuts.swift'];
+// Sources and the folder each comes from. targets/shared/ is also compiled
+// into the widget extension (with-widgets): Siri runs these intents in the
+// app process, the widget buttons run the same ones in the extension.
+const SOURCES = {
+  'AppShortcuts.swift': 'app-intents',
+  'TMShared.swift': 'shared',
+  'RoutineIntents.swift': 'shared',
+};
+const SWIFT_FILES = Object.keys(SOURCES);
 
 /** @type {import('expo/config-plugins').ConfigPlugin} */
 function withAppIntents(config) {
   config = withDangerousMod(config, [
     'ios',
     (config) => {
-      const source = path.join(config.modRequest.projectRoot, 'targets', 'app-intents');
       const destination = path.join(
         config.modRequest.platformProjectRoot,
         config.modRequest.projectName,
       );
       for (const file of SWIFT_FILES) {
-        fs.copyFileSync(path.join(source, file), path.join(destination, file));
+        const source = path.join(config.modRequest.projectRoot, 'targets', SOURCES[file], file);
+        fs.copyFileSync(source, path.join(destination, file));
       }
       return config;
     },

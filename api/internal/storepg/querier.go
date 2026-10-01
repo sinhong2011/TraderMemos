@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	ArchiveRoutineItem(ctx context.Context, arg ArchiveRoutineItemParams) (int64, error)
 	ClearTradeExecutions(ctx context.Context, tradeID string) error
 	ClearTradeSetups(ctx context.Context, tradeID string) error
 	ClearTradeTags(ctx context.Context, tradeID string) error
@@ -20,6 +21,8 @@ type Querier interface {
 	CreateCooldownSession(ctx context.Context, arg CreateCooldownSessionParams) (CooldownSession, error)
 	CreateImportBatch(ctx context.Context, arg CreateImportBatchParams) (ImportBatch, error)
 	CreateJournalNote(ctx context.Context, arg CreateJournalNoteParams) (JournalNote, error)
+	CreateMissedTrade(ctx context.Context, arg CreateMissedTradeParams) (MissedTrade, error)
+	CreateRoutineItem(ctx context.Context, arg CreateRoutineItemParams) (RoutineItem, error)
 	CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup, error)
 	CreateShareLink(ctx context.Context, arg CreateShareLinkParams) (ShareLink, error)
 	CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error)
@@ -40,7 +43,9 @@ type Querier interface {
 	DeleteFutureEconomicEvents(ctx context.Context, arg DeleteFutureEconomicEventsParams) error
 	DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams) (int64, error)
 	DeleteMediaFile(ctx context.Context, arg DeleteMediaFileParams) (int64, error)
+	DeleteMissedTrade(ctx context.Context, arg DeleteMissedTradeParams) (int64, error)
 	DeletePropSettings(ctx context.Context, arg DeletePropSettingsParams) error
+	DeleteRoutineCheck(ctx context.Context, arg DeleteRoutineCheckParams) (int64, error)
 	DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error)
 	DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error)
 	DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error)
@@ -69,10 +74,12 @@ type Querier interface {
 	GetJournalNote(ctx context.Context, arg GetJournalNoteParams) (JournalNote, error)
 	GetMarketBarsCache(ctx context.Context, cacheKey string) (MarketBarsCache, error)
 	GetMediaFile(ctx context.Context, arg GetMediaFileParams) (MediaFile, error)
+	GetMissedTrade(ctx context.Context, arg GetMissedTradeParams) (MissedTrade, error)
 	GetOcrSettings(ctx context.Context) (GetOcrSettingsRow, error)
 	GetOpenCooldownSession(ctx context.Context, userID string) (CooldownSession, error)
 	GetPropSettings(ctx context.Context, arg GetPropSettingsParams) (PropSetting, error)
 	GetRiskRules(ctx context.Context, userID string) (RiskRule, error)
+	GetRoutineItem(ctx context.Context, arg GetRoutineItemParams) (RoutineItem, error)
 	GetSetup(ctx context.Context, arg GetSetupParams) (Setup, error)
 	GetShareLinkByToken(ctx context.Context, token string) (ShareLink, error)
 	GetTrade(ctx context.Context, arg GetTradeParams) (Trade, error)
@@ -87,6 +94,7 @@ type Querier interface {
 	InsertCashTransaction(ctx context.Context, arg InsertCashTransactionParams) (CashTransaction, error)
 	InsertExecution(ctx context.Context, arg InsertExecutionParams) (Execution, error)
 	InsertMediaFile(ctx context.Context, arg InsertMediaFileParams) (MediaFile, error)
+	InsertRoutineCheck(ctx context.Context, arg InsertRoutineCheckParams) error
 	InsertTrade(ctx context.Context, arg InsertTradeParams) (Trade, error)
 	LatestAccessTokenUse(ctx context.Context, tokenID string) (AccessTokenUse, error)
 	LinkTradeExecution(ctx context.Context, arg LinkTradeExecutionParams) error
@@ -113,9 +121,12 @@ type Querier interface {
 	ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error)
 	ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error)
 	ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error)
+	ListMissedTrades(ctx context.Context, userID string) ([]MissedTrade, error)
 	ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error)
 	ListOptionExecutions(ctx context.Context) ([]Execution, error)
 	ListPropSettingsForUser(ctx context.Context, userID string) ([]PropSetting, error)
+	ListRoutineChecks(ctx context.Context, arg ListRoutineChecksParams) ([]RoutineCheck, error)
+	ListRoutineItems(ctx context.Context, userID string) ([]RoutineItem, error)
 	ListSetups(ctx context.Context, userID string) ([]Setup, error)
 	ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error)
 	ListShareLinksByUser(ctx context.Context, userID string) ([]ShareLink, error)
@@ -133,13 +144,16 @@ type Querier interface {
 	// symbols forever.
 	ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error)
 	ListUsers(ctx context.Context) ([]User, error)
+	MoveRoutineChecks(ctx context.Context, arg MoveRoutineChecksParams) error
 	PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error
 	RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error
 	ReleaseCooldownSession(ctx context.Context, arg ReleaseCooldownSessionParams) (CooldownSession, error)
 	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
 	RevokeShareLink(ctx context.Context, arg RevokeShareLinkParams) (int64, error)
+	SeedRoutineItem(ctx context.Context, arg SeedRoutineItemParams) error
 	SetAlertChannelEnabled(ctx context.Context, arg SetAlertChannelEnabledParams) (AlertChannel, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
+	SetRoutineItemPosition(ctx context.Context, arg SetRoutineItemPositionParams) (int64, error)
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error
 	SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error
 	SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error)
@@ -151,6 +165,8 @@ type Querier interface {
 	UpdateExecutionContract(ctx context.Context, arg UpdateExecutionContractParams) error
 	UpdateFlexSyncStatus(ctx context.Context, arg UpdateFlexSyncStatusParams) error
 	UpdateJournalNote(ctx context.Context, arg UpdateJournalNoteParams) (JournalNote, error)
+	UpdateMissedTrade(ctx context.Context, arg UpdateMissedTradeParams) (MissedTrade, error)
+	UpdateRoutineItem(ctx context.Context, arg UpdateRoutineItemParams) (RoutineItem, error)
 	UpdateSetup(ctx context.Context, arg UpdateSetupParams) error
 	UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error)
 	UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) error

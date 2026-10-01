@@ -36,6 +36,34 @@ func TestMatchBrokerIBKR(t *testing.T) {
 	require.Equal(t, 1.02, ex.Commission)
 }
 
+func TestMatchBrokerIBKRTradeConfirmationHeaders(t *testing.T) {
+	// Newer IBKR Flex "Trades -> Executions" CSVs use "Price" and
+	// "Date/Time" instead of the legacy "TradePrice"/"DateTime" headers.
+	headers := []string{
+		"ClientAccountID", "Symbol", "Buy/Sell", "Quantity", "Price",
+		"Date/Time", "Commission", "AssetClass", "Multiplier",
+	}
+	name, mapping, _, ok := MatchBroker(headers)
+	require.True(t, ok)
+	require.Contains(t, name, "Interactive Brokers")
+
+	g := NewGeneric(mapping)
+	res := g.ParseRows([]map[string]string{{
+		"Symbol": "AAPL", "Buy/Sell": "BUY", "Quantity": "100",
+		"Price": "231.5", "Date/Time": "20260710;093122",
+		"Commission": "-1.02", "AssetClass": "STK", "Multiplier": "1",
+	}})
+	require.Empty(t, res.Errors)
+	require.Len(t, res.Executions, 1)
+	ex := res.Executions[0]
+	require.Equal(t, "buy", ex.Side)
+	require.Equal(t, 100.0, ex.Quantity)
+	require.Equal(t, 231.5, ex.Price)
+	require.Equal(t, "stock", ex.InstrumentType)
+	require.Equal(t, time.Date(2026, 7, 10, 9, 31, 22, 0, time.UTC), ex.ExecutedAt)
+	require.Equal(t, 1.02, ex.Commission)
+}
+
 func TestMatchBrokerThinkOrSwim(t *testing.T) {
 	headers := []string{
 		"Exec Time", "Spread", "Side", "Qty", "Pos Effect", "Symbol",
@@ -121,13 +149,48 @@ func TestMatchBrokerSchwab(t *testing.T) {
 	require.Contains(t, name, "Schwab")
 
 	g := NewGeneric(mapping)
+	// Real Schwab Transactions CSVs prefix Price / Fees & Comm with `$`
+	// (and quote the cell). A fixture of already-stripped numbers would
+	// green-pass a parser that still rejects every live export row.
 	res := g.ParseRows([]map[string]string{{
 		"Date": "07/10/2026", "Action": "Sell to Close", "Symbol": "AAPL",
-		"Quantity": "100", "Price": "231.50", "Fees & Comm": "0.65",
+		"Quantity": "100", "Price": "$231.50", "Fees & Comm": "$0.65",
 	}})
 	require.Empty(t, res.Errors)
 	require.Equal(t, "sell", res.Executions[0].Side)
+	require.Equal(t, 231.50, res.Executions[0].Price)
 	require.Equal(t, 0.65, res.Executions[0].Fees)
+}
+
+func TestMatchBrokerSchwabSkipsCashRows(t *testing.T) {
+	headers := []string{"Date", "Action", "Symbol", "Description", "Quantity", "Price", "Fees & Comm", "Amount"}
+	_, mapping, _, ok := MatchBroker(headers)
+	require.True(t, ok)
+
+	res := NewGeneric(mapping).ParseRows([]map[string]string{
+		{"Date": "09/14/2026", "Action": "Buy", "Symbol": "ACME", "Quantity": "100", "Price": "$20.00", "Fees & Comm": "$0.00"},
+		{"Date": "09/15/2026", "Action": "Qualified Dividend", "Symbol": "ACME", "Quantity": "", "Price": "", "Fees & Comm": ""},
+		{"Date": "09/15/2026", "Action": "Credit Interest", "Symbol": "", "Quantity": "", "Price": "", "Fees & Comm": ""},
+		{"Date": "09/16/2026", "Action": "Sell", "Symbol": "ACME", "Quantity": "100", "Price": "$23.145", "Fees & Comm": "$0.07"},
+	})
+	require.Empty(t, res.Errors)
+	require.Len(t, res.Executions, 2)
+	require.Equal(t, "buy", res.Executions[0].Side)
+	require.Equal(t, "sell", res.Executions[1].Side)
+}
+
+func TestGenericImporterStillErrorsUnknownSideOnFill(t *testing.T) {
+	mapping := map[string]string{
+		"symbol": "Symbol", "side": "Side", "quantity": "Qty",
+		"price": "Price", "executed_at": "When",
+	}
+	res := NewGeneric(mapping).ParseRows([]map[string]string{{
+		"Symbol": "ACME", "Side": "floop", "Qty": "100",
+		"Price": "10.00", "When": "2026-09-14T14:30:00Z",
+	}})
+	require.Len(t, res.Executions, 0)
+	require.Len(t, res.Errors, 1)
+	require.Contains(t, res.Errors[0].Message, "invalid side")
 }
 
 func TestMatchBrokerCTraderSynthesizesRoundTrip(t *testing.T) {

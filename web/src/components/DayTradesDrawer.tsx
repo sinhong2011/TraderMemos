@@ -1,8 +1,7 @@
 import { X } from "lucide-react";
 import type { Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtSignedMoney } from "@/lib/format";
+
 import { intlLocale } from "@/lib/locale";
 import {
   Drawer,
@@ -19,6 +18,7 @@ import { Skeleton } from "./Skeleton";
 import { pnlColor } from "./theme-tokens";
 import { TradeListItem } from "./TradeListItem";
 import { WinLossRecord } from "./WinLossRecord";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 function formatDayTitle(isoDate: string): string {
   return new Date(`${isoDate}T00:00:00`).toLocaleDateString(intlLocale(), {
@@ -65,7 +65,7 @@ function DaySummary({
   currency: string;
   fxRate?: number;
 }) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const summary = summarizeDayTrades(trades);
   const winRateLabel = summary.winRate != null ? `${(summary.winRate * 100).toFixed(1)}%` : null;

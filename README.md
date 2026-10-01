@@ -98,7 +98,7 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 | 🗓&nbsp; **P&L calendar** | Daily heatmap with weekly totals and day-detail drill-down |
 | 📈&nbsp; **Reports** | Expectancy, SQN, Kelly %, MAE/MFE, Monte Carlo, execution quality — by setup, hour, and session, saved as view presets |
 | 📖&nbsp; **Playbook** | Strategy library linked to the trades that used each setup, with rule-compliance scoring |
-| 📥&nbsp; **Import** | 9 broker CSV presets, MT4/MT5 statements, IBKR Flex sync — or the [tm-sync](docs/tm-sync.md) watcher that imports statements as they appear |
+| 📥&nbsp; **Import** | 9 broker CSV presets, MT4/MT5 statements, and IBKR Flex sync |
 | 🔔&nbsp; **Alerts** | Risk rules, daily loss limits, and prop-drawdown warnings — push and webhook, from your own server |
 | 🧘&nbsp; **Cooldown** *(opt-in)* | A circuit breaker against revenge trading — a timed pause with a return gate, auto-started when your loss streak / daily loss rules trip, scored by the reports |
 | ⏪&nbsp; **Bar replay** | Backtest any symbol bar by bar against a persistent paper account — analyzed by the same reports |
@@ -106,7 +106,7 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 | 🧮&nbsp; **Tools** | Position-size / FX / Kelly calculators, advanced chart, economic calendar, cash ledger |
 | 🤖&nbsp; **AI** *(optional)* | Screenshot fill extraction + trade coach via OpenAI-compatible APIs — your keys |
 | 🔌&nbsp; **API access** | Personal access tokens (`tm_pat_…`) for MCP/scripts; OpenAPI docs at `/docs` |
-| 📱&nbsp; **Mobile app** *(beta)* | iOS & Android companion (Expo) — offline journaling on both; widgets, Live Activities, and Siri / Action Button capture on iOS. TestFlight (iOS) · APK on [Releases](https://github.com/sinhong2011/TraderMemos/releases) (Android) |
+| 📱&nbsp; **Mobile app** | iOS & Android companion (Expo) — offline journaling on both; widgets, Live Activities, and Siri / Action Button capture on iOS. [App Store](https://apps.apple.com/app/id6797427206) (iOS) · APK on [Releases](https://github.com/sinhong2011/TraderMemos/releases) (Android) |
 | 🌗&nbsp; **Themes** | Dark and light, built on shadcn/ui + [coss ui](https://coss.com/ui/docs) tokens |
 
 ## Tech stack
@@ -116,7 +116,6 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 | **API** | Go · Echo · sqlc · golang-migrate · SQLite / Postgres |
 | **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
 | **Mobile** | Expo (iOS & Android) · PanelUI + Uniwind (Tailwind) · iOS extras: WidgetKit / Live Activities / App Intents |
-| **Sync agent** | [tm-sync](docs/tm-sync.md) — a Go binary that watches statement folders and imports on change |
 | **Design** | shadcn/ui + coss ui tokens — see [DESIGN.md](DESIGN.md) |
 
 ## Quick start
@@ -175,7 +174,7 @@ Already forked? Import your fork → Root **`web`** (Vercel/CF) or [`netlify.tom
 
 The companion app (beta) journals against your own server — enter your instance URL at login, same as the web app's **Server** field.
 
-- **iOS** — distributed through TestFlight while in beta.
+- **iOS** — [download TraderMemos on the App Store](https://apps.apple.com/app/id6797427206).
 - **Android** — download `TraderMemos-<version>.apk` from the [latest release](https://github.com/sinhong2011/TraderMemos/releases/latest) and sideload it (allow *Install unknown apps* for your browser or file manager; a `.sha256` file ships next to the APK for verification). There is no Play Store listing.
 
 Building it yourself instead: see [mobile/README.md](mobile/README.md).
@@ -216,7 +215,6 @@ User docs live on the docs site: **[trader-memos.vercel.app](https://trader-memo
 |-----|--------|
 | [docs/fork-deploy.md](docs/fork-deploy.md) | One-click / fork → Vercel, Cloudflare, Netlify, Railway |
 | [docs/deploy.md](docs/deploy.md) | Docker, CORS, edge rewrite |
-| [docs/tm-sync.md](docs/tm-sync.md) | The tm-sync local statement watcher |
 | [docs/release.md](docs/release.md) | Versioning, changelogs, GitHub Releases |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local dev (`make dev`) |
 | [DESIGN.md](DESIGN.md) | UI system — shadcn/ui + coss ui tokens |

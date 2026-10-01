@@ -3,6 +3,7 @@ import type {
   BehaviorReport,
   BreakGroup,
   ComplianceReport,
+  EdgeScore,
   EquityCurve,
   ExecScoreReport,
   Filters,
@@ -36,6 +37,8 @@ export const analyticsApi = {
     apiFetch<MonteCarloResult>(
       `/analytics/montecarlo${qs(f as Record<string, string | undefined>)}`,
     ),
+  edgeScore: (f: Filters) =>
+    apiFetch<EdgeScore>(`/analytics/edge-score${qs(f as Record<string, string | undefined>)}`),
   executionScore: (f: Filters, bucket: "week" | "month") =>
     apiFetch<ExecScoreReport>(
       `/analytics/execution-score${qs({ bucket, ...(f as Record<string, string | undefined>) })}`,

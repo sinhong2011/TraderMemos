@@ -22,8 +22,8 @@ import {
 } from "@/components/ChartFrame";
 import type { DayCell, DayRecord, WeekDetail, WeekSummary } from "@/lib/calendar";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoney, fmtMoneyCompact, fmtPct, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
+
+import { fmtPct, fmtSignedPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import {
   Drawer,
@@ -35,6 +35,7 @@ import {
 } from "./Drawer";
 import { pnlColor } from "./theme-tokens";
 import { Button } from "./ui/button";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 const POS_COLOR = "var(--profit)";
 const NEG_COLOR = "var(--loss)";
@@ -128,7 +129,7 @@ function WeekHero({
   currency: string;
   fxRate: number;
 }) {
-  usePrivacyMode();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const moneyOf = (v: number) => fmtMoney(v * fxRate, currency, locale);
 
@@ -160,6 +161,7 @@ function WeekCumulativeChart({
   currency: string;
   fillId: string;
 }) {
+  const { fmtMoneyCompact, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const finalCum = data.length > 0 ? data[data.length - 1]!.cumPnl : 0;
   const stroke = finalCum >= 0 ? POS_COLOR : NEG_COLOR;
@@ -255,6 +257,7 @@ function WeekDailyBars({
   currency: string;
   onSelectDay: (day: string) => void;
 }) {
+  const { fmtMoneyCompact, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
 
   return (
@@ -317,6 +320,7 @@ function WeekStatGrid({
   currency: string;
   fxRate: number;
 }) {
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const moneyOf = (v: number) => fmtMoney(v * fxRate, currency, locale);
 
@@ -408,6 +412,7 @@ export function WeekReviewDrawer({
   fxRate = 1,
   onSelectDay,
 }: WeekReviewDrawerProps) {
+  const { fmtSignedMoney } = useMoneyFormatters();
   const open = weekReviewIndex != null;
   const snapshotRef = useRef({ week, weekSummary, detail });
   if (open) {

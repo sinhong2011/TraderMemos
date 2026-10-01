@@ -49,6 +49,36 @@ export default defineConfig({
     options: { typeAware: true, typeCheck: true },
     overrides: [
       {
+        // The module-level money formatters read privacy mode at call time,
+        // which React Compiler can't see — a live privacy flip keeps serving
+        // the memoized string. Components take them from useMoneyFormatters().
+        files: ["src/app/**/*.tsx", "src/components/**/*.tsx"],
+        rules: {
+          "no-restricted-imports": [
+            "error",
+            {
+              paths: [
+                {
+                  name: "@/lib/format",
+                  importNames: [
+                    "fmtMoney",
+                    "fmtMoneyCompact",
+                    "fmtSignedMoney",
+                    "fmtSignedMoneyCompact",
+                  ],
+                  message: "Use useMoneyFormatters() so a live privacy flip re-masks.",
+                },
+                {
+                  name: "@/lib/cashAmount",
+                  importNames: ["formatCashDisplay"],
+                  message: "Use useMoneyFormatters() so a live privacy flip re-masks.",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
         files: ["**/*.{test,spec}.{ts,tsx}"],
         plugins: ["typescript", "vitest"],
       },

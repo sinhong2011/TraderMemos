@@ -1,7 +1,8 @@
 import { createContext, useContext, type ReactNode } from "react";
 import type { Summary, Trade } from "@/lib/api/types";
-import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "@/lib/format";
+import { fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 export type PnlMode = "net" | "gross";
 export type UnitMode = "abs" | "pct";
@@ -41,6 +42,9 @@ export function ReportsDisplayProvider({
 export function useReportsMoney() {
   const d = useContext(Ctx);
   const locale = intlLocale();
+  // Privacy-bound formatters: their identity changes when privacy flips, so the
+  // returned `money` object does too and every consumer's memo cache misses.
+  const { privacy, fmtSignedMoney, fmtSignedMoneyCompact } = useMoneyFormatters();
   const pctEnabled = d.denominator > 0;
   const usePct = d.unitMode === "pct" && pctEnabled;
 
@@ -69,6 +73,7 @@ export function useReportsMoney() {
     pnlMode: d.pnlMode,
     avgMode: d.avgMode ?? "mean",
     unitMode: usePct ? "pct" : "abs",
+    privacy,
     pctEnabled,
     pnl,
     tradePnl,

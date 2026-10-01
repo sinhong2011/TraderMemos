@@ -29,6 +29,8 @@ type NavLabelKey =
   | "reports"
   | "events"
   | "notes"
+  | "routines"
+  | "missed"
   | "playbook"
   | "calculator"
   | "import"
@@ -47,6 +49,8 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     reports: "Reports",
     events: "Events",
     notes: "Notes",
+    routines: "Routines",
+    missed: "Missed trades",
     playbook: "Playbook",
     calculator: "Calculator",
     import: "Import",
@@ -64,6 +68,8 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     reports: "報表",
     events: "財經事件",
     notes: "筆記",
+    routines: "例行清單",
+    missed: "錯過的交易",
     playbook: "策略庫",
     calculator: "計算器",
     import: "匯入",
@@ -81,6 +87,8 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     reports: "レポート",
     events: "経済イベント",
     notes: "メモ",
+    routines: "ルーティン",
+    missed: "見送ったトレード",
     playbook: "プレイブック",
     calculator: "計算機",
     import: "インポート",
@@ -98,6 +106,8 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     reports: "리포트",
     events: "경제 이벤트",
     notes: "메모",
+    routines: "루틴",
+    missed: "놓친 거래",
     playbook: "플레이북",
     calculator: "계산기",
     import: "가져오기",

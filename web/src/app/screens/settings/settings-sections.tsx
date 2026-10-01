@@ -36,7 +36,6 @@ import { Pill } from "@/components/Pill";
 import { Modal } from "@/components/Modal";
 import { AmountInput } from "@/components/AmountInput";
 import { DatePicker } from "@/components/DatePicker";
-import { RichTextEditor } from "@/components/RichTextEditor";
 import { fieldError, Field } from "@/components/Field";
 import { FormInput } from "@/components/FormInput";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
@@ -65,9 +64,9 @@ import {
   useTestOcrSettings,
 } from "@/lib/hooks/useOcrSettings";
 import { useTrades } from "@/lib/hooks/useTrades";
-import { formatCashDisplay, signedCashAmount } from "@/lib/cashAmount";
+import { signedCashAmount } from "@/lib/cashAmount";
 import { parseAmountToNumber } from "@/lib/amountInput";
-import { fmtDate, fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { fmtDate } from "@/lib/format";
 import { intlLocale, LOCALE_OPTIONS, settingsLabel, type SettingsLabelKey } from "@/lib/locale";
 import type { LlmApiSettingsLabels } from "@/lib/llmApiSettings";
 import { useAuth } from "@/lib/auth";
@@ -82,7 +81,6 @@ import {
   type TimeFormatPref,
   type TimezonePref,
   type TradeDateBasis,
-  usePrivacyMode,
   useDisplayPrefs,
 } from "@/lib/displayPrefs";
 import {
@@ -118,6 +116,7 @@ import {
   SettingsSection,
   SettingsToggle,
 } from "./settings-ui";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 export function primaryAccountId(accounts: Account[]): string | undefined {
   if (accounts.length === 0) return undefined;
@@ -205,7 +204,7 @@ export function AccountsTab({
   onUpdateCash,
   onDeleteCash,
 }: AccountsTabProps) {
-  usePrivacyMode();
+  const { fmtMoney, fmtSignedMoney, formatCashDisplay } = useMoneyFormatters();
   const toast = useToastManager();
   // One request for all accounts' sync state: drives the per-row status pill
   // and keeps the IBKR-sync affordance off accounts that have no connection.
@@ -1014,12 +1013,6 @@ export interface RulesTabProps {
   annualGoalSaving: boolean;
   onSaveAnnualGoal: (body: { year: number; amount: number }) => Promise<void>;
   onClearAnnualGoal: (year: number) => Promise<void>;
-  checklistItems: string[];
-  checklistContent: string;
-  checklistLoading: boolean;
-  checklistError: boolean;
-  checklistSaving: boolean;
-  onSaveChecklist: (body: { items?: string[]; content: string }) => Promise<void>;
 }
 
 type RuleModalState = { open: false } | { open: true; mode: "set" | "edit"; key: RiskRuleKey };
@@ -1053,14 +1046,8 @@ export function RulesTab({
   annualGoalSaving,
   onSaveAnnualGoal,
   onClearAnnualGoal,
-  checklistItems,
-  checklistContent,
-  checklistLoading,
-  checklistError,
-  checklistSaving,
-  onSaveChecklist,
 }: RulesTabProps) {
-  usePrivacyMode();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const toast = useToastManager();
   const locale = intlLocale();
   const goalYear = annualGoal?.year ?? new Date().getFullYear();
@@ -1073,16 +1060,6 @@ export function RulesTab({
   const [ruleValue, setRuleValue] = useState("");
   const [ruleError, setRuleError] = useState<string | null>(null);
 
-  const [checklistDraft, setChecklistDraft] = useState(checklistContent);
-  const [checklistEditorKey, setChecklistEditorKey] = useState(0);
-  const [checklistModalOpen, setChecklistModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (checklistModalOpen) return;
-    setChecklistDraft(checklistContent);
-    setChecklistEditorKey((k) => k + 1);
-  }, [checklistContent, checklistModalOpen]);
-
   const goalProgress =
     annualGoal?.amount != null && annualGoal.amount > 0 && ytdSummaryQ.data != null
       ? computeAnnualGoalProgress(annualGoal.amount, ytdSummaryQ.data.net_pnl, goalYear)
@@ -1092,19 +1069,6 @@ export function RulesTab({
     setRuleModal({ open: false });
     setRuleError(null);
     setRuleValue("");
-  }
-
-  function openChecklistModal() {
-    setChecklistDraft(checklistContent);
-    setChecklistEditorKey((k) => k + 1);
-    setChecklistModalOpen(true);
-  }
-
-  function closeChecklistModal() {
-    if (checklistSaving) return;
-    setChecklistModalOpen(false);
-    setChecklistDraft(checklistContent);
-    setChecklistEditorKey((k) => k + 1);
   }
 
   function openSetRule(key: RiskRuleKey) {
@@ -1158,19 +1122,6 @@ export function RulesTab({
     } catch (err) {
       toast.add({
         title: "Could not remove rule",
-        description: err instanceof Error ? err.message : "Request failed",
-      });
-    }
-  }
-
-  async function handleSaveChecklist() {
-    try {
-      await onSaveChecklist({ content: checklistDraft });
-      toast.add({ title: "Checklist saved" });
-      setChecklistModalOpen(false);
-    } catch (err) {
-      toast.add({
-        title: "Could not save checklist",
         description: err instanceof Error ? err.message : "Request failed",
       });
     }
@@ -1414,106 +1365,24 @@ export function RulesTab({
       </SettingsCard>
 
       <SettingsCard
-        title="Daily Checklist"
-        description="Trading rules for New Note — task items appear when you create a daily log."
-        action={
-          checklistItems.length > 0 || checklistContent.trim() ? (
-            <BtnGhost
-              onClick={openChecklistModal}
-              disabled={checklistLoading || checklistError}
-              aria-label="Edit checklist"
-            >
-              <Pencil size={13} strokeWidth={1.5} />
-              Edit
-            </BtnGhost>
-          ) : undefined
-        }
+        title="Daily routine"
+        description="Your daily checklist is now Routines: items before, during and after the session, each on its own days, with a 13-week history."
       >
-        {checklistLoading ? (
-          <div className="px-5 py-3">
-            <ListSkeleton rows={3} />
-          </div>
-        ) : checklistError ? (
-          <SettingsCardNote tone="destructive">Failed to load checklist template.</SettingsCardNote>
-        ) : checklistItems.length === 0 && !checklistContent.trim() ? (
-          <SettingsCardRow
-            icon={Check}
-            label="No checklist yet"
-            detail="Add rules and - [ ] items — they show up on New Note."
+        <SettingsCardRow
+          icon={Check}
+          label="Routines"
+          detail="Edit items and tick off today's list there."
+        >
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            render={<Link to="/routines" className="no-underline" />}
           >
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              aria-label="Edit checklist"
-              onClick={openChecklistModal}
-            >
-              Create checklist
-            </Button>
-          </SettingsCardRow>
-        ) : checklistItems.length > 0 ? (
-          <div className="flex flex-col px-5 py-1">
-            {checklistItems.map((item, index) => (
-              <div key={`${item}-${index}`} className="flex items-center gap-3 py-1.5">
-                <span
-                  aria-hidden
-                  className="size-4 shrink-0 rounded-[4px] border-[1.5px] border-muted-foreground/35"
-                />
-                <span className="min-w-0 text-[13px] text-foreground">{item}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <SettingsCardNote>
-            Checklist text saved — add <code className="text-primary">- [ ]</code> items so they
-            appear on New Note.
-          </SettingsCardNote>
-        )}
+            Open Routines
+          </Button>
+        </SettingsCardRow>
       </SettingsCard>
-
-      <Modal
-        open={checklistModalOpen}
-        onOpenChange={(open) => {
-          if (!open) closeChecklistModal();
-        }}
-        title="Daily checklist"
-        className="max-w-[min(560px,94vw)]"
-        footer={
-          <>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={closeChecklistModal}
-              disabled={checklistSaving}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={() => void handleSaveChecklist()}
-              disabled={checklistSaving}
-            >
-              {checklistSaving ? "Saving…" : "Save"}
-            </Button>
-          </>
-        }
-      >
-        <div className="flex flex-col gap-3">
-          <RichTextEditor
-            key={checklistEditorKey}
-            value={checklistDraft}
-            onChange={setChecklistDraft}
-            placeholder={"- [ ] Check VIX\n- [ ] No revenge trades\n- [ ] Size within risk rules"}
-            minHeight={220}
-            showHints
-            aria-label="Daily checklist and rules"
-          />
-          <p className="text-[11px] text-muted-foreground">
-            Tip: use checklist buttons or type <code className="text-primary">- [ ]</code> for each
-            rule.
-          </p>
-        </div>
-      </Modal>
 
       <Modal
         open={ruleModal.open}

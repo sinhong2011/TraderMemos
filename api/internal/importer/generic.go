@@ -20,10 +20,38 @@ type Generic struct {
 	// Quantities are lots (FX/CFD platforms), not units/shares — resolve the
 	// contract size per symbol instead of the conventional multiplier.
 	lotSized bool
+	// Slash dates read DD/MM, settled per file by ParseRows: the user's
+	// explicit dateOrder when set, otherwise DetectDayFirst.
+	dayFirst  bool
+	dateOrder string
 }
 
 func NewGeneric(mapping map[string]string) *Generic {
 	return &Generic{mapping: mapping, loc: time.UTC}
+}
+
+// WithDateOrder pins the file's slash-date order (DateOrderDayFirst or
+// DateOrderMonthFirst) the user chose for an ambiguous file. Anything else
+// leaves ParseRows to detect it.
+func (g *Generic) WithDateOrder(order string) *Generic {
+	if order == DateOrderDayFirst || order == DateOrderMonthFirst {
+		g.dateOrder = order
+	}
+	return g
+}
+
+// DateStamps returns every mapped timestamp cell, the input to slash-date
+// order detection.
+func (g *Generic) DateStamps(rows []map[string]string) []string {
+	var stamps []string
+	for _, row := range rows {
+		for _, field := range []string{"executed_at", "open_time", "close_time"} {
+			if v := g.col(row, field); v != "" {
+				stamps = append(stamps, v)
+			}
+		}
+	}
+	return stamps
 }
 
 // WithSourceTZ sets the IANA zone for offset-less timestamps. Empty or
@@ -59,8 +87,9 @@ var skipStatuses = map[string]bool{
 func (g *Generic) ParseRows(rows []map[string]string) ParseResult {
 	var res ParseResult
 	roundTrip := g.roundTrip()
+	g.dayFirst, _ = ResolveDayFirst(g.dateOrder, g.DateStamps(rows))
 	for i, row := range rows {
-		if rowHasSkipStatus(row) {
+		if rowHasSkipStatus(row) || g.skipNonFillRow(row) {
 			continue
 		}
 		if roundTrip {
@@ -116,12 +145,12 @@ func (g *Generic) parseRoundTripRow(row map[string]string) ([]ParsedExecution, e
 		return nil, fmt.Errorf("invalid quantity")
 	}
 	open.Quantity = math.Abs(qty)
-	price, err := strconv.ParseFloat(g.col(row, "open_price"), 64)
+	price, err := parseMoney(g.col(row, "open_price"))
 	if err != nil {
 		return nil, fmt.Errorf("invalid open price")
 	}
 	open.Price = price
-	ts, err := parseTimeIn(g.col(row, "open_time"), g.loc)
+	ts, err := parseTimeOrdered(g.col(row, "open_time"), g.loc, g.dayFirst)
 	if err != nil {
 		return nil, fmt.Errorf("invalid open time %q", g.col(row, "open_time"))
 	}
@@ -141,10 +170,10 @@ func (g *Generic) parseRoundTripRow(row map[string]string) ([]ParsedExecution, e
 	}
 	cls := open
 	cls.Side = flipSide(open.Side)
-	if cls.Price, err = strconv.ParseFloat(closePrice, 64); err != nil {
+	if cls.Price, err = parseMoney(closePrice); err != nil {
 		return nil, fmt.Errorf("invalid close price")
 	}
-	if cls.ExecutedAt, err = parseTimeIn(closeTime, g.loc); err != nil {
+	if cls.ExecutedAt, err = parseTimeOrdered(closeTime, g.loc, g.dayFirst); err != nil {
 		return nil, fmt.Errorf("invalid close time %q", closeTime)
 	}
 	cls.Commission = commission
@@ -159,10 +188,53 @@ func flipSide(side string) string {
 	return "buy"
 }
 
+// parseMoney reads a broker money cell: optional currency glyph/code,
+// thousands separators, a leading minus, or accounting parentheses.
+// Bare decimals keep working so existing IBKR/cTrader fixtures stay valid.
+func parseMoney(s string) (float64, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0, fmt.Errorf("empty")
+	}
+	neg := false
+	if strings.HasPrefix(s, "(") && strings.HasSuffix(s, ")") {
+		neg = true
+		s = strings.TrimSpace(s[1 : len(s)-1])
+	}
+	var b strings.Builder
+	b.Grow(len(s))
+	sawDot := false
+	for _, r := range s {
+		switch {
+		case r == '-' || r == '+':
+			if b.Len() == 0 {
+				b.WriteRune(r)
+			}
+		case r >= '0' && r <= '9':
+			b.WriteRune(r)
+		case r == '.' && !sawDot:
+			sawDot = true
+			b.WriteRune(r)
+		}
+	}
+	clean := b.String()
+	if clean == "" || clean == "+" || clean == "-" || clean == "." || clean == "-." || clean == "+." {
+		return 0, fmt.Errorf("invalid money %q", s)
+	}
+	v, err := strconv.ParseFloat(clean, 64)
+	if err != nil {
+		return 0, err
+	}
+	if neg {
+		v = -v
+	}
+	return v, nil
+}
+
 // absFloat parses a cost/size cell to a positive magnitude; empty or
 // unparseable cells are 0.
 func absFloat(s string) float64 {
-	v, _ := strconv.ParseFloat(strings.ReplaceAll(strings.TrimSpace(s), ",", ""), 64)
+	v, _ := parseMoney(s)
 	return math.Abs(v)
 }
 
@@ -184,6 +256,18 @@ func (g *Generic) applyMultiplier(p *ParsedExecution, row map[string]string) {
 	if p.Multiplier == 0 && p.InstrumentType != "future" {
 		p.Multiplier = DefaultMultiplier(p.InstrumentType)
 	}
+}
+
+// skipNonFillRow is true for cash-movement rows that share a Transactions
+// export with fills (dividends, interest, transfers): Action is not a
+// side, and Quantity or Price is blank. A row that still looks like a
+// fill (qty and price both present) errors on an unrecognized side so
+// garbage is not silently dropped.
+func (g *Generic) skipNonFillRow(row map[string]string) bool {
+	if ParseSideToken(g.col(row, "side")) != "" {
+		return false
+	}
+	return g.col(row, "quantity") == "" || g.col(row, "price") == ""
 }
 
 func rowHasSkipStatus(row map[string]string) bool {
@@ -243,12 +327,12 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 	// Some brokers (IBKR, ThinkOrSwim) sign the quantity instead of, or as
 	// well as, the side column; the side column is authoritative here.
 	p.Quantity = math.Abs(qty)
-	price, err := strconv.ParseFloat(g.col(row, "price"), 64)
+	price, err := parseMoney(g.col(row, "price"))
 	if err != nil {
 		return p, fmt.Errorf("invalid price")
 	}
 	p.Price = price
-	ts, err := parseTimeIn(g.col(row, "executed_at"), g.loc)
+	ts, err := parseTimeOrdered(g.col(row, "executed_at"), g.loc, g.dayFirst)
 	if err != nil {
 		return p, fmt.Errorf("invalid date %q", g.col(row, "executed_at"))
 	}
@@ -256,14 +340,8 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 	// Costs are stored as positive magnitudes: brokers disagree on sign
 	// (IBKR reports IBCommission negative), and the P&L engine subtracts
 	// fees_total from gross either way.
-	if c := g.col(row, "commission"); c != "" {
-		v, _ := strconv.ParseFloat(c, 64)
-		p.Commission = math.Abs(v)
-	}
-	if f := g.col(row, "fees"); f != "" {
-		v, _ := strconv.ParseFloat(f, 64)
-		p.Fees = math.Abs(v)
-	}
+	p.Commission = absFloat(g.col(row, "commission"))
+	p.Fees = absFloat(g.col(row, "fees"))
 	// Overnight financing on FX/CFD exports; a cost either way, like fees.
 	p.Fees += absFloat(g.col(row, "swap"))
 	p.InstrumentType = ParseInstrumentType(g.col(row, "instrument_type"), p.Symbol)
@@ -274,7 +352,7 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 		}
 		p.Strike = parseStrikeCell(g.col(row, "strike"))
 		p.Expiry = parseExpiryCell(g.col(row, "expiry"))
-		normalizeOCCOption(&p)
+		normalizeOptionContract(&p)
 	}
 	g.applyMultiplier(&p, row)
 	return p, nil
@@ -291,14 +369,12 @@ var usTzOffsets = map[string]int{
 
 var trailingTzAbbrev = regexp.MustCompile(`\s+([A-Z]{2,4})$`)
 
-func parseTime(s string) (time.Time, error) {
-	return parseTimeIn(s, time.UTC)
-}
-
-// parseTimeIn parses a broker timestamp. Offset-less layouts are read in loc;
-// a trailing US tz abbreviation (Webull "EDT") or an RFC3339 offset wins.
-func parseTimeIn(s string, loc *time.Location) (time.Time, error) {
-	s = strings.TrimSpace(s)
+// parseTimeOrdered parses a broker timestamp. Offset-less layouts are read in
+// loc; a trailing US tz abbreviation (Webull "EDT") or an RFC3339 offset wins.
+// dayFirst reads slash dates as DD/MM (see DetectDayFirst).
+func parseTimeOrdered(s string, loc *time.Location, dayFirst bool) (time.Time, error) {
+	// Go's PM layout only matches upper case; no layout below has letters.
+	s = strings.ToUpper(strings.TrimSpace(s))
 	if loc == nil {
 		loc = time.UTC
 	}
@@ -314,17 +390,17 @@ func parseTimeIn(s string, loc *time.Location) (time.Time, error) {
 		"2006-01-02 15:04:05",
 		"2006-01-02T15:04:05",
 		"2006-01-02T15:04:05.000Z",
-		"01/02/2006 15:04:05",
-		"1/2/2006 15:04:05",
-		"1/2/06 15:04:05",
-		"01/02/2006 15:04",
-		"1/2/2006 15:04",
 		"20060102;150405",     // IBKR Flex DateTime
 		"2006.01.02 15:04:05", // MetaTrader-family dotted dates (cTrader, Match-Trader)
 		"02.01.2006 15:04:05", // European day-first dotted
 		"2006-01-02 15:04",
-		"01/02/2006",
 		"2006-01-02",
+	}
+	for _, l := range slashLayouts {
+		if dayFirst {
+			l = dayFirstLayout(l)
+		}
+		layouts = append(layouts, l)
 	}
 	for _, l := range layouts {
 		if t, err := time.ParseInLocation(l, s, loc); err == nil {

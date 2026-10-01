@@ -122,7 +122,7 @@ file. `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` remain repo secrets.
 
 Android builds on [EAS Build](https://docs.expo.dev/build/introduction/) and has
 no store presence: the release-signed APK is attached to the GitHub Release page,
-which is the Android distribution channel (same shape as the tm-sync binaries).
+which is the Android distribution channel.
 
 **iOS does not build here.** EAS cloud builds are metered, and a release spent
 two of them — one per platform — so the month's quota ran out and the iOS build

@@ -10,9 +10,10 @@ import { pnlColor } from "@/components/theme-tokens";
 import { WinLossRecord } from "@/components/WinLossRecord";
 import { cn } from "@/lib/cn";
 import type { PublicShareSummary } from "@/lib/api/share";
-import { fmtPct, fmtSignedMoney } from "@/lib/format";
+import { fmtPct } from "@/lib/format";
 import { usePublicShare } from "@/lib/hooks/useShareLinks";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 export interface PublicShareViewProps {
   token: string;
@@ -116,6 +117,7 @@ function ShareEquityLine({ data }: { data: PublicShareSummary }) {
 
 /** Read-only public performance page behind a share link (`/s/$token`). */
 export function PublicShareView({ token }: PublicShareViewProps) {
+  const { fmtSignedMoney } = useMoneyFormatters();
   const { data, isPending, isError } = usePublicShare(token);
   const locale = intlLocale();
 

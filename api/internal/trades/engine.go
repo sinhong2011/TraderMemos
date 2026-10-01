@@ -19,6 +19,7 @@ type Execution struct {
 	ExecutedAt     time.Time
 	Multiplier     float64 // 1 stock, 100 option, tick-derived for futures
 	LotKey         string  // optional; isolates overlapping same-symbol round-trips
+	Seq            int     // file/insert order; 0 when unknown
 }
 
 type Trade struct {
@@ -43,9 +44,12 @@ type Trade struct {
 // Group folds executions for a SINGLE (account,symbol,instrument) stream into round-trip trades
 // using average-cost. Callers must pre-partition by symbol+instrument+account.
 func Group(fills []Execution) []Trade {
+	// Equal timestamps keep caller order (SliceStable) unless Seq is set.
+	// UUID/id is not a time proxy: date-only broker rows share a midnight
+	// and sorting them by id opened shorts from a later sell.
 	sort.SliceStable(fills, func(i, j int) bool {
 		if fills[i].ExecutedAt.Equal(fills[j].ExecutedAt) {
-			return fills[i].ID < fills[j].ID
+			return fills[i].Seq < fills[j].Seq
 		}
 		return fills[i].ExecutedAt.Before(fills[j].ExecutedAt)
 	})
@@ -64,7 +68,7 @@ func Group(fills []Execution) []Trade {
 		}
 
 		if cur == nil {
-			cur = newOpen(f, signed, mult, true)
+			cur = newOpen(f, signed, mult, 1)
 			continue
 		}
 
@@ -76,7 +80,15 @@ func Group(fills []Execution) []Trade {
 
 		// opposite direction → reduce/close, possibly cross zero
 		closeQty := min(abs(signed), abs(cur.position))
-		cur.reduce(f, closeQty, mult)
+		// A fill that crosses flat pays for both legs: its fees split by
+		// quantity between the trade it closes and the one it opens.
+		// A zero-quantity fill closes nothing; it keeps all its fees rather
+		// than dividing by zero into NaN.
+		closeShare := 1.0
+		if abs(signed) > 0 {
+			closeShare = closeQty / abs(signed)
+		}
+		cur.reduce(f, closeQty, mult, closeShare)
 
 		remaining := abs(signed) - closeQty
 		if abs(cur.position) < 1e-9 {
@@ -84,13 +96,12 @@ func Group(fills []Execution) []Trade {
 			cur = nil
 			if remaining > 1e-9 {
 				// The crossing fill closed the prior trade AND opens an opposite
-				// trade with the remainder. Its fees were already attributed to the
-				// closed trade in reduce(), so do not count them again here.
+				// trade with the remainder, which carries the rest of its fees.
 				crossSigned := remaining
 				if signed < 0 {
 					crossSigned = -remaining
 				}
-				cur = newOpen(f, crossSigned, mult, false)
+				cur = newOpen(f, crossSigned, mult, 1-closeShare)
 			}
 		}
 	}
@@ -116,9 +127,9 @@ type openState struct {
 	lastMult           float64 // multiplier of the most recent fill; used for P&L
 }
 
-// newOpen starts a new trade from a fill. countFees is false when the fill is a
-// zero-cross remainder whose fees were already booked against the closed trade.
-func newOpen(f Execution, signed, mult float64, countFees bool) *openState {
+// newOpen starts a new trade from a fill, booking feeShare (0-1) of its fees —
+// less than all of them when the fill is a zero-cross remainder.
+func newOpen(f Execution, signed, mult, feeShare float64) *openState {
 	q := abs(signed)
 	s := &openState{
 		symbol:        f.Symbol,
@@ -135,9 +146,7 @@ func newOpen(f Execution, signed, mult float64, countFees bool) *openState {
 	} else {
 		s.direction = "short"
 	}
-	if countFees {
-		s.feesTotal += f.Fees + f.Commission
-	}
+	s.feesTotal += (f.Fees + f.Commission) * feeShare
 	s.execIDs = append(s.execIDs, f.ID)
 	return s
 }
@@ -152,10 +161,10 @@ func (s *openState) scaleIn(f Execution, signed float64) {
 	s.execIDs = append(s.execIDs, f.ID)
 }
 
-func (s *openState) reduce(f Execution, closeQty, mult float64) {
+func (s *openState) reduce(f Execution, closeQty, mult, feeShare float64) {
 	s.exitNotional += f.Price * closeQty
 	s.exitQty += closeQty
-	s.feesTotal += f.Fees + f.Commission
+	s.feesTotal += (f.Fees + f.Commission) * feeShare
 	s.execIDs = append(s.execIDs, f.ID)
 	if s.position > 0 {
 		s.position -= closeQty

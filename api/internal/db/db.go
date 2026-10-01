@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
 	_ "modernc.org/sqlite"
 )
 
@@ -24,10 +25,11 @@ func Open(databaseURL string) (*sql.DB, error) {
 		conn.SetMaxOpenConns(1) // sqlite single-writer; serialize writes
 		return conn, nil
 	case DriverPostgres:
-		conn, err := sql.Open("pgx", info.OpenDSN)
+		cfg, err := pgx.ParseConfig(info.OpenDSN)
 		if err != nil {
 			return nil, err
 		}
+		conn := stdlib.OpenDB(*cfg, stdlib.OptionAfterConnect(registerUTCTimestamp))
 		conn.SetMaxOpenConns(10)
 		conn.SetMaxIdleConns(5)
 		if err := conn.Ping(); err != nil {

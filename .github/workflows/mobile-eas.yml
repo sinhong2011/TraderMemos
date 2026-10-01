@@ -1,7 +1,7 @@
 # Build the mobile app on EAS Build. iOS builds can auto-submit to TestFlight;
 # Android APK builds can be attached to the matching GitHub Release for sideloading
 # (there is no Play Store presence — the APK on the release page IS the Android
-# distribution channel, same shape as the tm-sync binaries).
+# distribution channel).
 #
 # One-time setup (see docs/release.md → "Mobile releases"):
 #   EXPO_TOKEN       repo secret — Expo access token (expo.dev → Account → Access tokens)
@@ -282,8 +282,8 @@ jobs:
             eas build "${args[@]}"
           fi
 
-      # Same shape as tm-sync binaries: the APK + its sha256 land on the GitHub
-      # Release page, which is the whole Android distribution channel.
+      # The APK + its sha256 land on the GitHub Release page, which is the
+      # whole Android distribution channel.
       - name: Attach APK to GitHub Release
         if: ${{ inputs.attach-to-release != '' }}
         env:

@@ -33,7 +33,13 @@ import type {
   EconomicEvent,
   EquityCurve,
   Filters,
+  EdgeScore,
   ExecScoreReport,
+  MissedSummary,
+  MissedTrade,
+  RoutineDay,
+  RoutineHistory,
+  RoutineItem,
   FlexSyncConnection,
   FlexSyncSettings,
   MonteCarloResult,
@@ -47,7 +53,6 @@ import type {
   SystemInfo,
   BarInterval,
   CashTransaction,
-  ChecklistTemplate,
   LlmApiSettings,
   MarketBarsResponse,
   Me,
@@ -98,6 +103,13 @@ export const queryKeys = {
   cooldownStats: (filters: Filters) => ['analytics', 'cooldowns', filters] as const,
   cash: (filters: Filters) => ['cash', filters] as const,
   checklistTemplate: () => ['settings', 'checklist-template'] as const,
+  routines: () => ['routines'] as const,
+  routineItems: (day: string) => ['routines', 'items', day] as const,
+  routineDay: (day: string) => ['routines', 'day', day] as const,
+  routineHistory: (from: string, to: string) => ['routines', 'history', from, to] as const,
+  missedTrades: () => ['missed-trades'] as const,
+  missedTradeList: (filters: Filters) => ['missed-trades', 'list', filters] as const,
+  missedSummary: (filters: Filters) => ['missed-trades', 'summary', filters] as const,
   llmSettings: (kind: LlmKind) => ['settings', kind] as const,
   accessTokens: () => ['access-tokens'] as const,
   accessTokenUses: (id: string) => ['access-tokens', id, 'uses'] as const,
@@ -107,6 +119,7 @@ export const queryKeys = {
   propStatus: (accountId: string, filters: Filters) =>
     ['accounts', accountId, 'prop-status', filters] as const,
   flexSync: (accountId: string) => ['accounts', accountId, 'flex-sync'] as const,
+  edgeScore: (filters: Filters) => ['analytics', 'edge-score', filters] as const,
   executionScore: (filters: Filters, bucket: 'week' | 'month') =>
     ['analytics', 'execution-score', bucket, filters] as const,
   monteCarlo: (filters: Filters) => ['analytics', 'montecarlo', filters] as const,
@@ -171,6 +184,8 @@ function useApiQuery<T>(
     keepPrevious?: boolean;
     /** Poll while mounted — for state the server changes on its own. */
     refetchInterval?: number;
+    /** Normalise the payload — runs on persisted cache hits too, not just fetches. */
+    select?: (data: T) => T;
   },
 ): UseQueryResult<T> {
   const { session, signIn } = useSession();
@@ -183,6 +198,7 @@ function useApiQuery<T>(
     // Cast: TanStack's NonFunctionGuard can't see that no API response type is
     // itself a function, so the generic helper never type-checks against it.
     placeholderData: options?.keepPrevious ? (keepPreviousData as never) : undefined,
+    select: options?.select,
     queryFn: () =>
       request<T>(session!, path, { params }, (tokens) => {
         void signIn({
@@ -192,6 +208,11 @@ function useApiQuery<T>(
         });
       }),
   });
+}
+
+/** Open Edge Score composite + components (web ReportsEdgeScore parity). */
+export function useEdgeScore(filters: Filters = {}) {
+  return useApiQuery<EdgeScore>(queryKeys.edgeScore(filters), '/analytics/edge-score', filters);
 }
 
 /** Execution-quality composite + per-axis series (web ReportsExecutionScore parity). */
@@ -212,11 +233,18 @@ export function useSummary(filters: Filters = {}) {
   return useApiQuery<Summary>(queryKeys.summary(filters), '/analytics/summary', filters);
 }
 
+// Older servers send `points: null` for an account with no trades, and
+// the MMKV cache can still hold that payload. Module-level so `select` keeps a
+// stable identity and TanStack reuses its result between renders.
+const withEquityPoints = (curve: EquityCurve): EquityCurve =>
+  curve.points ? curve : { ...curve, points: [] };
+
 export function useEquityCurve(filters: Filters = {}) {
   return useApiQuery<EquityCurve>(
     queryKeys.equityCurve(filters),
     '/analytics/equity-curve',
     filters,
+    { select: withEquityPoints },
   );
 }
 
@@ -437,10 +465,37 @@ export function useCash(filters: Filters = {}) {
   return useApiQuery<CashTransaction[]>(queryKeys.cash(filters), '/cash-transactions', filters);
 }
 
-export function useChecklistTemplate() {
-  return useApiQuery<ChecklistTemplate>(
-    queryKeys.checklistTemplate(),
-    '/settings/checklist-template',
+/** Active routine items; the first read seeds them from the checklist template. */
+export function useRoutineItems(day: string) {
+  return useApiQuery<{ items: RoutineItem[] }>(queryKeys.routineItems(day), '/routines', { day });
+}
+
+/**
+ * One day of the routine. staleTime 0: ticks can come from another device or
+ * the web, and a persisted cache must not answer a cold start on its own.
+ */
+export function useRoutineDay(day: string) {
+  return useApiQuery<RoutineDay>(queryKeys.routineDay(day), `/routines/day/${day}`, undefined, {
+    staleTime: 0,
+  });
+}
+
+export function useRoutineHistory(from: string, to: string) {
+  return useApiQuery<RoutineHistory>(queryKeys.routineHistory(from, to), '/routines/history', {
+    from,
+    to,
+  });
+}
+
+export function useMissedTrades(filters: Filters = {}) {
+  return useApiQuery<MissedTrade[]>(queryKeys.missedTradeList(filters), '/missed-trades', filters);
+}
+
+export function useMissedSummary(filters: Filters = {}) {
+  return useApiQuery<MissedSummary>(
+    queryKeys.missedSummary(filters),
+    '/missed-trades/summary',
+    filters,
   );
 }
 
