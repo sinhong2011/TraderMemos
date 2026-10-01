@@ -75,9 +75,14 @@ export function ToolsMenu() {
     // starts, so the editor lives in the Home stack rather than in Settings —
     // back returns you to Home, not to a settings list you never opened.
     {
-      label: t`Daily checklist`,
+      label: t`Daily routine`,
       systemImage: 'checklist',
       href: '/(tabs)/(dashboard)/daily-checklist',
+    },
+    {
+      label: t`Missed trades`,
+      systemImage: 'binoculars',
+      href: '/(tabs)/(dashboard)/missed-trades',
     },
   ];
 

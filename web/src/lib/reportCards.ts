@@ -14,13 +14,14 @@ export const REPORT_CARDS: Record<ReportsTab, ReportCardDef[]> = {
   overview: [
     { id: "summary", label: "Summary metrics" },
     { id: "period-returns", label: "Period returns" },
+    { id: "edge-score", label: "Edge Score" },
     { id: "execution-score", label: "Execution quality score" },
     { id: "playbook", label: "Playbook & Leaks" },
     { id: "r-multiple", label: "R-Multiple performance" },
     { id: "execution-grade", label: "Execution grade" },
   ],
   "win-loss": [
-    { id: "rolling-win-rate", label: "Rolling win rate" },
+    { id: "rolling-win-rate", label: "Rolling performance" },
     { id: "metric-evolution", label: "Metric evolution" },
   ],
   detailed: [

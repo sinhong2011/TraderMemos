@@ -2,11 +2,11 @@ import type { DayRecord } from "@/lib/calendar";
 import type { Trade } from "@/lib/api/types";
 import { monthGrid } from "@/lib/calendar";
 import { cn } from "@/lib/cn";
-import { fmtSignedMoneyCompact } from "@/lib/format";
+
 import { intlLocale } from "@/lib/locale";
 import { CalendarDayHoverCard } from "./CalendarDayHoverCard";
 import { pnlBgTint, pnlColor } from "./theme-tokens";
-import { usePrivacyMode } from "@/lib/displayPrefs";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 function shortMonth(year: number, month: number, locale: string): string {
   return new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString(locale, {
@@ -83,7 +83,7 @@ function YearMonthCard({
   onSelect: (month: number) => void;
   index: number;
 }) {
-  usePrivacyMode();
+  const { fmtSignedMoneyCompact } = useMoneyFormatters();
   const locale = intlLocale();
   const grid = monthGrid(year, month, dailyPnl);
   const weeks = grid.weeks.filter((week) => week.some((c) => c != null));

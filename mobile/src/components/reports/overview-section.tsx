@@ -23,6 +23,7 @@ import {
   useAccounts,
   useAnnualGoal,
   useBreakdown,
+  useEdgeScore,
   useEquityCurve,
   useExecutionScore,
   useRSummary,
@@ -31,7 +32,13 @@ import {
   type BreakdownDim,
 } from '@/api/hooks';
 import { Icon } from '@/components/icon';
-import type { ExecScoreReport, RSummary, Summary } from '@/api/types';
+import type {
+  EdgeComponents,
+  EdgeInputs,
+  ExecScoreReport,
+  RSummary,
+  Summary,
+} from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { EquityCard } from '@/components/equity-card';
 import { ErrorState, InlineError } from '@/components/error-state';
@@ -536,6 +543,149 @@ function PeriodReturnsCard({ ctx }: { ctx: ReportsMoneyContext }) {
 }
 
 // ---------------------------------------------------------------------------
+// Edge score (web ReportsEdgeScore parity)
+// ---------------------------------------------------------------------------
+
+type EdgeKey = keyof EdgeComponents;
+
+/** Rows in web order; `target` is full marks, from api/internal/analytics/edge.go. */
+function edgeRows(): { key: EdgeKey; label: string; target: string; value: (i: EdgeInputs) => string }[] {
+  return [
+    {
+      key: 'profit_factor',
+      label: t`Profit factor`,
+      target: '3.0',
+      value: (i) => (i.profit_factor == null ? t`No losses` : formatRatio(i.profit_factor)),
+    },
+    {
+      key: 'payoff',
+      label: t`Avg win / loss`,
+      target: '2.5 : 1',
+      value: (i) => (i.payoff == null ? t`No losses` : `${formatRatio(i.payoff)} : 1`),
+    },
+    {
+      key: 'win_rate',
+      label: t`Win rate`,
+      target: '60%',
+      value: (i) => formatPercent(i.win_rate, 0),
+    },
+    {
+      key: 'drawdown',
+      label: t`Max drawdown`,
+      target: t`0% of capital (25% scores 0)`,
+      value: (i) =>
+        i.max_drawdown_pct == null
+          ? t`No deposits`
+          : t`${formatPercent(i.max_drawdown_pct, 0)} of capital`,
+    },
+    {
+      key: 'consistency',
+      label: t`Consistency`,
+      target: t`best day ≤ 15% of winning days`,
+      value: (i) =>
+        i.best_day_share == null
+          ? t`No winning days`
+          : t`Best day ${formatPercent(i.best_day_share, 0)}`,
+    },
+    {
+      key: 'recovery',
+      label: t`Recovery`,
+      target: t`net P&L 3× max drawdown`,
+      value: (i) =>
+        i.recovery_factor == null ? t`No drawdown` : `${formatRatio(i.recovery_factor)}×`,
+    },
+  ];
+}
+
+function EdgeScoreCard() {
+  const filters = useReportsFilters();
+  const edge = useEdgeScore(filters);
+  const report = edge.data;
+
+  const toneClass = (value: number) =>
+    value >= 70 ? 'text-profit' : value < 40 ? 'text-loss' : 'text-foreground';
+  const barClass = (value: number) =>
+    value >= 70 ? 'bg-profit' : value < 40 ? 'bg-loss' : 'bg-primary';
+
+  return (
+    <DashboardCard title={t`Edge score`}>
+      {edge.isLoading ? (
+        <Skeleton className="h-[300px] rounded-lg" />
+      ) : edge.error && report == null ? (
+        <InlineError error={edge.error} onRetry={() => void edge.refetch()} />
+      ) : !report || report.closed_trades === 0 ? (
+        <Text className="py-4 text-[13px] text-muted-foreground">
+          {t`Add trades or adjust filters to see your score.`}
+        </Text>
+      ) : report.score == null ? (
+        <Text className="py-4 text-[13px] leading-relaxed text-muted-foreground">
+          {t`The Edge Score needs ${report.min_trades} closed trades — ${report.closed_trades} in range.`}
+        </Text>
+      ) : (
+        <>
+          <View className="items-center gap-0.5">
+            <Text
+              className={cn(
+                'text-[40px] font-semibold tabular-nums tracking-tighter',
+                toneClass(report.score),
+              )}
+            >
+              {Math.round(report.score)}
+            </Text>
+            <Text className="text-[11px] text-muted-foreground">
+              {`${execScoreBand(report.score)} · ${t`${report.closed_trades} trades`} · ${t`formula v${report.version}`}`}
+            </Text>
+          </View>
+          <View className="gap-3">
+            {edgeRows().map((row) => {
+              const value = report.components[row.key];
+              return (
+                <View key={row.key} className="gap-1">
+                  <View className="flex-row items-baseline justify-between gap-3">
+                    <Text className="shrink text-[13px] text-foreground">
+                      {row.label}
+                      <Text className="text-[11px] text-muted-foreground">
+                        {`  ${report.weights[row.key]}%`}
+                      </Text>
+                    </Text>
+                    <View className="flex-row items-baseline gap-2">
+                      <Text className="text-[11px] tabular-nums text-muted-foreground">
+                        {row.value(report.inputs)}
+                      </Text>
+                      <Text
+                        className={cn(
+                          'w-7 text-right text-[13px] font-semibold tabular-nums',
+                          toneClass(value),
+                        )}
+                      >
+                        {String(Math.round(value))}
+                      </Text>
+                    </View>
+                  </View>
+                  <Meter
+                    value={Math.max(0, Math.min(100, value))}
+                    maxValue={100}
+                    size="sm"
+                    color="muted"
+                    indicatorClassName={barClass(value)}
+                  />
+                  <Text className="text-[11px] text-muted-foreground">
+                    {t`Full marks: ${row.target}`}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+          <Text className="text-[11px] leading-relaxed text-muted-foreground">
+            {t`Each metric scores 0–100 against a fixed target and is weighted as shown.`}
+          </Text>
+        </>
+      )}
+    </DashboardCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Execution score (web ReportsExecutionScore parity)
 // ---------------------------------------------------------------------------
 
@@ -898,10 +1048,8 @@ export function OverviewSection({
   const ytd = useSummary({ ...filters, from: `${year}-01-01T00:00:00Z` });
   void accounts;
 
-  const refreshing = summary.isRefetching || equity.isRefetching;
-
   return (
-    <SectionScaffold refreshing={refreshing} onScrolledChange={onScrolledChange}>
+    <SectionScaffold onScrolledChange={onScrolledChange}>
       {summary.isLoading ? (
         <>
           <Skeleton className="h-[320px] rounded-[18px]" label={t`Loading report`} />
@@ -944,6 +1092,8 @@ export function OverviewSection({
               fxRate={ctx.fxRate}
             />
           ) : null}
+
+          <EdgeScoreCard />
 
           <ExecutionScoreCard />
 

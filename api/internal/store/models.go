@@ -244,6 +244,24 @@ type MediaFile struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+type MissedTrade struct {
+	ID         string          `json:"id"`
+	UserID     string          `json:"user_id"`
+	AccountID  sql.NullString  `json:"account_id"`
+	SetupID    sql.NullString  `json:"setup_id"`
+	Symbol     string          `json:"symbol"`
+	Direction  string          `json:"direction"`
+	ObservedAt time.Time       `json:"observed_at"`
+	Entry      sql.NullFloat64 `json:"entry"`
+	Stop       sql.NullFloat64 `json:"stop"`
+	Target     sql.NullFloat64 `json:"target"`
+	Reason     string          `json:"reason"`
+	Outcome    string          `json:"outcome"`
+	Notes      string          `json:"notes"`
+	CreatedAt  time.Time       `json:"created_at"`
+	UpdatedAt  time.Time       `json:"updated_at"`
+}
+
 type OcrSetting struct {
 	ID           int64     `json:"id"`
 	Enabled      int64     `json:"enabled"`
@@ -276,6 +294,25 @@ type RiskRule struct {
 	MaxConsecutiveLosses  sql.NullInt64   `json:"max_consecutive_losses"`
 	CooldownMinutes       sql.NullInt64   `json:"cooldown_minutes"`
 	CooldownEnabled       int64           `json:"cooldown_enabled"`
+}
+
+type RoutineCheck struct {
+	UserID    string    `json:"user_id"`
+	ItemID    string    `json:"item_id"`
+	Day       string    `json:"day"`
+	CheckedAt time.Time `json:"checked_at"`
+}
+
+type RoutineItem struct {
+	ID        string         `json:"id"`
+	UserID    string         `json:"user_id"`
+	Title     string         `json:"title"`
+	Stage     string         `json:"stage"`
+	Weekdays  int64          `json:"weekdays"`
+	Position  int64          `json:"position"`
+	StartDay  string         `json:"start_day"`
+	EndDay    sql.NullString `json:"end_day"`
+	CreatedAt time.Time      `json:"created_at"`
 }
 
 type Setup struct {

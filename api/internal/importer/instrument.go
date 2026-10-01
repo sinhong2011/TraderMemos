@@ -2,6 +2,7 @@ package importer
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -32,8 +33,31 @@ func InferOptionRight(symbol string) string {
 		if right := optionRightFromOCC(strings.ToUpper(parts[len(parts)-1])); right != "" {
 			return right
 		}
+		if right := schwabRightToken(parts[len(parts)-1], parts[len(parts)-2]); right != "" {
+			return right
+		}
 	}
 	return ""
+}
+
+// schwabRightToken is Schwab's trailing call/put mark ("22.50 C"), not the
+// word "call" and not an OCC leg. The letter counts only when the token
+// before it is a strike, so a bare ticker "C" stays a stock.
+func schwabRightToken(leg, prev string) string {
+	var right string
+	switch strings.ToUpper(strings.TrimSpace(leg)) {
+	case "C":
+		right = "call"
+	case "P":
+		right = "put"
+	default:
+		return ""
+	}
+	v, err := strconv.ParseFloat(strings.TrimPrefix(strings.TrimSpace(prev), "$"), 64)
+	if err != nil || v <= 0 {
+		return ""
+	}
+	return right
 }
 
 func optionRightFromOCC(s string) string {
@@ -99,6 +123,9 @@ func InferInstrumentFromSymbol(symbol string) string {
 			return "option"
 		}
 		if strings.EqualFold(prev, "call") || strings.EqualFold(prev, "put") {
+			return "option"
+		}
+		if schwabRightToken(leg, prev) != "" {
 			return "option"
 		}
 	}

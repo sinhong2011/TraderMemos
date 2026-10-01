@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useHeaderHeight } from 'expo-router/react-navigation';
 import { useRef, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { useAccounts, useCash, useSystemInfo } from '@/api/hooks';
 import { HeaderIconButton } from '@/components/header-icon-button';
@@ -90,12 +90,20 @@ export default function ReportsScreen() {
   // Pages need the *expanded* header height as their top padding: UIKit's
   // automatic inset adjustment does not reach a scroll view nested in the
   // pager (the same gap `usePagerBottomInset` covers at the bottom), so
-  // `automatic` would leave every page under the transparent bar. Captured
-  // once rather than read live: the hook's value shrinks as the large title
-  // collapses, and a padding that shrank with it would drag the content up
-  // mid-scroll. The screen always mounts at rest, so the first read is the
-  // expanded height.
-  const [headerHeight] = useState(useHeaderHeight());
+  // `automatic` would leave every page under the transparent bar. Not read
+  // live: the hook's value shrinks as the large title collapses, and a
+  // padding that shrank with it would drag the content up mid-scroll. Not
+  // the first read either: the native stack seeds the hook with the
+  // *compact* bar height (its default ignores large titles) and only reports
+  // the real, expanded height once the header lays out — freezing that seed
+  // parked the section strip under the "Reports" title. The screen mounts at
+  // rest, so the largest height seen is the expanded one; keep that.
+  // Android's bar is opaque (see the dashboard layout) and already takes
+  // layout space — padding for it again opened a bar-sized blank band.
+  const barHeight = useHeaderHeight();
+  const liveHeaderHeight = Platform.OS === 'ios' ? barHeight : 0;
+  const [headerHeight, setHeaderHeight] = useState(liveHeaderHeight);
+  if (liveHeaderHeight > headerHeight) setHeaderHeight(liveHeaderHeight);
 
   const selectSection = (value: ReportsSection) => {
     visit(value);

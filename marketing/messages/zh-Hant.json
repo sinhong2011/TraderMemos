@@ -108,7 +108,7 @@
       },
       "import": {
         "title": "匯入",
-        "description": "九家券商 CSV 預設、MT4/MT5 對帳單、IBKR Flex 同步 — 也可讓 tm-sync 桌面代理自動監控你的對帳單資料夾。"
+        "description": "九家券商 CSV 預設、MT4/MT5 對帳單、IBKR Flex 同步。"
       },
       "alerts": {
         "title": "警示",
@@ -136,7 +136,7 @@
       },
       "mobile": {
         "title": "行動 App（測試版）",
-        "description": "iOS 與 Android 原生隨身版 — 雙平台離線記錄；iOS 另有小工具、即時動態與 Siri / 動作按鈕快速記帳。iOS 經 TestFlight 發佈，Android 可從 GitHub Releases 下載 APK。"
+        "description": "iOS 與 Android 原生隨身版 — 雙平台離線記錄；iOS 另有小工具、即時動態與 Siri / 動作按鈕快速記帳。iOS 已上架 App Store，Android 可從 GitHub Releases 下載 APK。"
       }
     },
     "lookInsideHeading": "實際畫面",
@@ -159,7 +159,7 @@
       },
       {
         "layer": "行動裝置",
-        "value": "Expo · PanelUI + Uniwind · TestFlight / APK"
+        "value": "Expo · PanelUI + Uniwind · App Store / APK"
       },
       {
         "layer": "設計",
@@ -192,7 +192,7 @@
     "note": "一鍵按鈕僅部署 Web UI —— 請搭配 Railway 或 Docker 上的 API 使用。",
     "star": "在 GitHub 上加星",
     "appLead": "取得行動 App",
-    "appIos": "iOS · TestFlight",
+    "appIos": "iOS · App Store",
     "appAndroid": "Android · APK"
   },
   "Changelog": {
@@ -507,7 +507,7 @@
           {
             "row": "券商匯入",
             "them": "廣泛的自動同步整合",
-            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設,以及 tm-sync 資料夾監控"
+            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設"
           },
           {
             "row": "回測與重播",
@@ -564,7 +564,7 @@
           {
             "row": "券商匯入",
             "them": "900+ 券商 — 業界最廣",
-            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設,以及 tm-sync 資料夾監控"
+            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設"
           },
           {
             "row": "分析",
@@ -690,7 +690,7 @@
           {
             "row": "券商同步",
             "them": "透過聚合器連 700+ 券商",
-            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設,以及 tm-sync 資料夾監控"
+            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設"
           },
           {
             "row": "資金曲線與回撤分析",

@@ -1,6 +1,7 @@
 package analytics
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -111,4 +112,11 @@ func TestEquityCurveAndDrawdown(t *testing.T) {
 	require.Equal(t, 1050.0, curve.Points[1].Equity)
 	require.Equal(t, 1075.0, curve.Points[2].Equity)
 	require.Equal(t, 50.0, curve.MaxDrawdown) // peak 1100 -> trough 1050
+}
+
+// An account with no trades must serialise `"points": []` — clients index it.
+func TestEquityCurveEmptyIsNotNull(t *testing.T) {
+	b, err := json.Marshal(EquityCurve(0, nil, nil))
+	require.NoError(t, err)
+	require.JSONEq(t, `{"points":[],"max_drawdown":0}`, string(b))
 }

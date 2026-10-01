@@ -32,10 +32,11 @@ import {
 } from "@/lib/calendar";
 import { cn } from "@/lib/cn";
 import { normalizeFilterDate } from "@/lib/filters";
-import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact, fmtSignedPct } from "@/lib/format";
+import { fmtPct, fmtSignedPct } from "@/lib/format";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { intlLocale } from "@/lib/locale";
-import { resolveMarketTimezone, useDisplayPrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { resolveMarketTimezone, useDisplayPrefs } from "@/lib/displayPrefs";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 const DOW_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 /** Weekend day-of-week indexes (Sun=0, Sat=6) — hidden below `md` in favor of taller Mon–Fri cells. */
@@ -154,7 +155,7 @@ export function CalendarView({
   onSelectTrade,
   onOpenDayReview,
 }: CalendarViewProps) {
-  usePrivacyMode();
+  const { fmtSignedMoney, fmtSignedMoneyCompact } = useMoneyFormatters();
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
   const marketTz = resolveMarketTimezone(useDisplayPrefs((s) => s.marketTimezone));
   const [monthSummaryOpen, setMonthSummaryOpen] = useState(false);
@@ -721,6 +722,7 @@ export function CalendarView({
                             </>
                           );
                           const weekAria = formatWeekAriaLabel(
+                            fmtSignedMoney,
                             ws,
                             displayCurrency,
                             money(ws.pnl),
@@ -920,6 +922,7 @@ function formatWeekRangeTitle(firstDate: string, lastDate: string): string {
 }
 
 function formatWeekAriaLabel(
+  fmtSignedMoney: (v: number, currency: string, locale: string) => string,
   ws: { weekNumber: number | null; hasData: boolean; pnl: number },
   currency: string,
   pnlMoney: number,
@@ -948,6 +951,7 @@ function PeriodSummaryBody({
   currency: string;
   stats: { label: string; value: string }[];
 }) {
+  const { fmtSignedMoneyCompact } = useMoneyFormatters();
   return (
     <div className="flex flex-col gap-5">
       <div

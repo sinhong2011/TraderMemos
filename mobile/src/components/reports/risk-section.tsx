@@ -97,10 +97,7 @@ export function RiskSection({
     : [];
 
   return (
-    <SectionScaffold
-      refreshing={equity.isRefetching || compliance.isRefetching}
-      onScrolledChange={onScrolledChange}
-    >
+    <SectionScaffold onScrolledChange={onScrolledChange}>
       <DashboardCard title={t`Drawdown`}>
         {equity.isLoading ? (
           <Skeleton className="h-[170px] rounded-lg" label={t`Loading drawdown`} />

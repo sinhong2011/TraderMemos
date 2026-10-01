@@ -33,6 +33,7 @@ import { ApiError } from "@/lib/api/client";
 import { downloadExport, type ExportFormat } from "@/lib/api/exports";
 import type {
   Account,
+  ImportDateOrder,
   ImportPreview,
   ImportResult,
   JournalPreviewSummary,
@@ -40,8 +41,8 @@ import type {
 } from "@/lib/api/types";
 import { findBroker } from "@/lib/brokers";
 import { cn } from "@/lib/cn";
-import { marketTimezoneSelectOptions, usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtSignedMoney } from "@/lib/format";
+import { marketTimezoneSelectOptions } from "@/lib/displayPrefs";
+
 import {
   effectiveOptionRight,
   mergeOptionOverrides,
@@ -50,6 +51,7 @@ import {
 import { tradeDetailFromJournalPreview } from "@/lib/importTradePreview";
 import { intlLocale } from "@/lib/locale";
 import { useUI } from "@/lib/ui";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 // Canonical trade fields we want to map
 const CANONICAL_FIELDS = [
@@ -450,7 +452,7 @@ function JournalSummaryStrip({
   summary: JournalPreviewSummary;
   currency: string;
 }) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const netPnl = fmtSignedMoney(summary.net_pnl, currency, locale);
   const pnlTone = summary.net_pnl >= 0 ? "text-profit" : "text-destructive";
@@ -567,6 +569,61 @@ function CsvSamplePreviewTable({
   return <DataTable columns={columns} data={rows} dense maxHeight="min(60vh, 520px)" />;
 }
 
+/** "05/01/2026 09:30:00" → "05/01/2026": the date is what the order changes. */
+function datePart(cell: string | undefined): string {
+  return (cell ?? "").trim().split(/\s+/)[0] ?? "";
+}
+
+/** A calendar day (YYYY-MM-DD) with the month spelled out, so it cannot be misread. */
+function fmtCalendarDay(day: string): string {
+  return new Date(`${day}T00:00:00Z`).toLocaleDateString(intlLocale(), {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function DateOrderField({
+  info,
+  value,
+  onValueChange,
+}: {
+  info: ImportDateOrder;
+  value: string;
+  onValueChange: (value: string) => void;
+}) {
+  const example = datePart(info.example);
+  const reading = (day: string | undefined) =>
+    day ? ` — ${example} is ${fmtCalendarDay(day)}` : "";
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Field label="Date order" className="w-full items-stretch sm:max-w-sm">
+        <OptionsSelect
+          value={value}
+          onValueChange={onValueChange}
+          placeholder="Choose…"
+          ariaLabel="Date order"
+          options={[
+            { value: "month_first", label: `Month first${reading(info.example_month_first)}` },
+            { value: "day_first", label: `Day first${reading(info.example_day_first)}` },
+          ]}
+          triggerClassName="h-8 w-full text-[12px]"
+        />
+      </Field>
+      <p
+        className={cn(
+          "m-0 text-[11px] leading-relaxed",
+          value === "" ? "text-warning-foreground" : "text-muted-foreground",
+        )}
+      >
+        Every date in this file fits both orders. Pick the one your broker uses — the wrong one
+        moves trades to another month.
+      </p>
+    </div>
+  );
+}
+
 interface Step2Props {
   preview: ImportPreview;
   currency: string;
@@ -575,6 +632,7 @@ interface Step2Props {
     mapping: Record<string, string>,
     optionOverrides?: Record<number, OptionRightOverride>,
     sourceTz?: string,
+    dateOrder?: string,
   ) => Promise<void>;
   onBack: () => void;
   error: string | null;
@@ -599,6 +657,12 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
   // Zone the file's offset-less timestamps were written in. Broker presets
   // suggest their export zone; "UTC" is the legacy interpretation.
   const [sourceTz, setSourceTz] = useState(() => preview.suggested_source_tz || "UTC");
+  // A file whose slash dates fit both orders has no safe default: a wrong
+  // guess moves every early-month trade to another month without an error.
+  const dateOrderInfo = preview.date_order;
+  const askDateOrder = dateOrderInfo?.order === "ambiguous";
+  const [dateOrder, setDateOrder] = useState("");
+  const needsDateOrder = askDateOrder && dateOrder === "";
 
   function setField(field: string, value: string) {
     setMapping((prev) => ({ ...prev, [field]: value }));
@@ -613,6 +677,7 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
       skipMapping ? {} : mapping,
       optionOverrides,
       skipMapping && !isStatement ? undefined : sourceTz,
+      askDateOrder ? dateOrder : undefined,
     );
   }
 
@@ -743,6 +808,15 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
             </div>
           )}
 
+          {askDateOrder && dateOrderInfo ? (
+            <DateOrderField info={dateOrderInfo} value={dateOrder} onValueChange={setDateOrder} />
+          ) : dateOrderInfo?.order === "day_first" && dateOrderInfo.example_day_first ? (
+            <p className="m-0 text-[11px] leading-relaxed text-muted-foreground">
+              Dates read as day/month — {datePart(dateOrderInfo.example)} is{" "}
+              {fmtCalendarDay(dateOrderInfo.example_day_first)}.
+            </p>
+          ) : null}
+
           {error ? <p className="text-[11px] text-destructive">{error}</p> : null}
 
           {preview.pending_account ? (
@@ -780,7 +854,7 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
           type="button"
           variant="default"
           onClick={() => void handleCommit()}
-          disabled={loading}
+          disabled={loading || needsDateOrder}
           className="w-full sm:w-auto"
         >
           {loading ? (
@@ -792,6 +866,11 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
             "Confirm import"
           )}
         </Button>
+        {needsDateOrder ? (
+          <p className="m-0 text-[11px] text-muted-foreground">
+            Choose a date order above to import.
+          </p>
+        ) : null}
       </div>
     </div>
   );
@@ -1195,6 +1274,7 @@ export function ImportView({
     mapping: Record<string, string>,
     optionOverrides: Record<number, OptionRightOverride> = {},
     sourceTz?: string,
+    dateOrder?: string,
   ) {
     if (!preview || !stagedFile) return;
     setLoading(true);
@@ -1204,6 +1284,7 @@ export function ImportView({
       fd.append("file", stagedFile);
       fd.append("column_mapping", JSON.stringify(mapping));
       if (sourceTz) fd.append("source_tz", sourceTz);
+      if (dateOrder) fd.append("date_order", dateOrder);
       // Confirm is the only write — always use fresh commit (no preview batch).
       if (stagedAccountId) fd.append("account_id", stagedAccountId);
       if (preview.format === "journal_trades" && Object.keys(optionOverrides).length > 0) {

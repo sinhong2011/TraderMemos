@@ -28,6 +28,7 @@ import { useCooldownLiveActivitySync } from '@/lib/cooldown-live-activity';
 import { useTradingSessionSync } from '@/lib/live-activity';
 import { useNotificationRouting } from '@/lib/notifications';
 import { usePrefsSync } from '@/lib/use-prefs-sync';
+import { useWidgetRoutineSync } from '@/lib/widget-routine';
 import { useWidgetSnapshotSync } from '@/lib/widget-snapshot';
 import { ensureDropFolder, stageDroppedFile } from '@/lib/trade-import';
 import { useOutboxDrain } from '@/lib/use-outbox';
@@ -105,10 +106,13 @@ function PrefsSyncGate() {
 /**
  * Feeds the Home/Lock Screen widgets: pushes the shared App Group snapshot
  * (today's P&L, open positions, loss budget) whenever the underlying queries
- * change, and clears it on sign-out — see `lib/widget-snapshot.ts`.
+ * change, and clears it on sign-out — see `lib/widget-snapshot.ts`. Also
+ * hands the routine / missed-trade widgets and intents their session and
+ * snapshots — `lib/widget-routine.ts`.
  */
 function WidgetSnapshotGate() {
   useWidgetSnapshotSync();
+  useWidgetRoutineSync();
   return null;
 }
 
@@ -389,6 +393,9 @@ export default function RootLayout() {
             {/* Add/edit tag — a pushed card (the cash-form shape), so the
                 Tags list's rows can tap-to-edit and long-press-preview it. */}
             <Stack.Screen name="tag-form" />
+            {/* Routine item and missed-trade forms — pushed cards, same shape. */}
+            <Stack.Screen name="routine-item" />
+            <Stack.Screen name="missed-trade-form" />
           </Stack>
           {/* Above the navigator, so it stays put across pushes and sheets. */}
           <OfflineBanner />

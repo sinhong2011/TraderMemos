@@ -8,10 +8,11 @@ import { Skeleton } from "@/components/Skeleton";
 import { pnlColor } from "@/components/theme-tokens";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtDuration, fmtPct, fmtSignedMoney } from "@/lib/format";
+
+import { fmtDuration, fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import type { YearWrapped } from "@/lib/wrapped";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 export interface YearWrappedViewProps {
   wrapped: YearWrapped;
@@ -81,7 +82,7 @@ export function YearWrappedView({
   currency,
   fxRate,
 }: YearWrappedViewProps) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const money = (v: number) => fmtSignedMoney(v * fxRate, currency, locale);
   const [shareOpen, setShareOpen] = useState(false);

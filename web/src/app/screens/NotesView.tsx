@@ -43,6 +43,11 @@ export interface NotesViewProps {
   loading: boolean;
   error: boolean;
   onDelete: (id: string) => Promise<void>;
+  /**
+   * Routine done/total per local day (YYYY-MM-DD). A daily log with no task
+   * lines of its own shows its day's routine; ticks no longer live in the note.
+   */
+  routineByDay?: Record<string, { done: number; total: number }>;
 }
 
 type TypeFilter = "all" | JournalNoteType;
@@ -167,7 +172,10 @@ interface NoteRow {
 
 const PREVIEW_MAX = 140;
 
-function toNoteRow(note: JournalNote): NoteRow {
+function toNoteRow(
+  note: JournalNote,
+  routineByDay: Record<string, { done: number; total: number }> = {},
+): NoteRow {
   const flat = noteExcerpt(note.body, Number.MAX_SAFE_INTEGER);
   const symbols = note.symbols ?? [];
 
@@ -183,7 +191,9 @@ function toNoteRow(note: JournalNote): NoteRow {
   return {
     note,
     preview,
-    progress: checklistProgress(note.body),
+    progress:
+      checklistProgress(note.body) ??
+      (note.type === "daily_log" ? (routineByDay[note.occurred_at.slice(0, 10)] ?? null) : null),
     search: [note.title, flat, ...symbols.flatMap((s) => [s.symbol, s.body])]
       .join("\n")
       .toLowerCase(),
@@ -337,7 +347,7 @@ function NoteTile({
   );
 }
 
-export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
+export function NotesView({ notes, loading, error, onDelete, routineByDay }: NotesViewProps) {
   const openModal = useUI((s) => s.openModal);
   const openNoteEdit = useUI((s) => s.openNoteEdit);
   const layout = useNotesPrefs((s) => s.layout);
@@ -355,8 +365,8 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
           if (byDate !== 0) return byDate;
           return b.updated_at.localeCompare(a.updated_at);
         })
-        .map(toNoteRow),
-    [notes],
+        .map((note) => toNoteRow(note, routineByDay)),
+    [notes, routineByDay],
   );
 
   const visible = useMemo(() => {

@@ -1,10 +1,11 @@
 import type { WeekDetail } from "@/lib/calendar";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoney, fmtPct, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
+
+import { fmtPct, fmtSignedPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { pnlColor } from "./theme-tokens";
 import { Button } from "./ui/button";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 function formatWeekRange(firstDate: string, lastDate: string, locale: string): string {
   const start = new Date(`${firstDate}T12:00:00Z`);
@@ -46,7 +47,7 @@ export function CalendarWeekHoverDetails({
   detail?: WeekDetail;
   onOpenWeekReview?: () => void;
 }) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
 
   if (!hasData) {
@@ -105,6 +106,7 @@ function WeekStatRows({
   currency: string;
   fxRate: number;
 }) {
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const moneyOf = (v: number) => fmtMoney(v * fxRate, currency, locale);
   const rows: { label: string; value: string }[] = [

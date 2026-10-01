@@ -61,6 +61,13 @@ export function useBreakdown(by: string, filters: Filters) {
   });
 }
 
+export function useEdgeScore(filters: Filters) {
+  return useQuery({
+    queryKey: ["analytics", "edge-score", filters],
+    queryFn: () => analyticsApi.edgeScore(filters),
+  });
+}
+
 export function useExecutionScore(filters: Filters, bucket: "week" | "month") {
   return useQuery({
     queryKey: ["analytics", "execution-score", bucket, filters],

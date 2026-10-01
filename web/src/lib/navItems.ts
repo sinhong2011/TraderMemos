@@ -1,9 +1,11 @@
 import {
+  Binoculars,
   BookOpen,
   CalendarDays,
   Calculator,
   House,
   List,
+  ListChecks,
   Newspaper,
   PieChart,
   StickyNote,
@@ -54,6 +56,8 @@ export const PRIMARY_NAV: NavItem[] = [
 export const SECONDARY_NAV: NavItem[] = [
   { to: "/events", labelKey: "events", icon: Newspaper },
   { to: "/notes", labelKey: "notes", icon: StickyNote },
+  { to: "/routines", labelKey: "routines", icon: ListChecks },
+  { to: "/missed", labelKey: "missed", icon: Binoculars },
   { to: "/playbook", labelKey: "playbook", icon: BookOpen },
   { to: "/calculator", labelKey: "calculator", icon: Calculator },
   { to: "/import", labelKey: "import", icon: Upload },

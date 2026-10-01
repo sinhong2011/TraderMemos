@@ -140,6 +140,42 @@ export interface ExecScoreReport {
   series: ExecScorePoint[];
 }
 
+/** Per-component 0-100 scores, or their weights (Go: analytics.EdgeComponents). */
+export interface EdgeComponents {
+  win_rate: number;
+  profit_factor: number;
+  payoff: number;
+  drawdown: number;
+  recovery: number;
+  consistency: number;
+}
+
+/** Raw metrics behind each component; null when undefined for the sample. */
+export interface EdgeInputs {
+  win_rate: number;
+  /** null: no losing trades (unbounded). */
+  profit_factor: number | null;
+  payoff: number | null;
+  max_drawdown: number;
+  /** Fraction 0-1; null without any deposit to measure against. */
+  max_drawdown_pct: number | null;
+  recovery_factor: number | null;
+  /** Largest winning day's share (0-1) of all winning-day profit. */
+  best_day_share: number | null;
+}
+
+/** Payload of GET /analytics/edge-score (Go: analytics.EdgeScore). */
+export interface EdgeScore {
+  version: number;
+  /** null below min_trades closed trades. */
+  score: number | null;
+  components: EdgeComponents;
+  weights: EdgeComponents;
+  inputs: EdgeInputs;
+  closed_trades: number;
+  min_trades: number;
+}
+
 export interface Tokens {
   access_token: string;
   refresh_token: string;
@@ -234,6 +270,10 @@ export interface Trade {
   notes: string;
   tags: Tag[];
   initial_risk?: number | null;
+  /** call/put from fills when instrument_type is option */
+  option_right?: string | null;
+  option_strike?: string | null;
+  option_expiry?: string | null;
 }
 
 // TradeDetail matches tradeDetailDTO from api/internal/api/trade_detail.go
@@ -476,6 +516,21 @@ export interface ImportPreview {
   row_count?: number;
   journal_summary?: JournalPreviewSummary;
   sample_trades?: JournalTradePreview[];
+  /** CSVs with slash dates only — how day and month order was read. */
+  date_order?: ImportDateOrder;
+}
+
+/**
+ * A CSV's slash-date order. `ambiguous` means no cell proves either order and
+ * some read differently each way — the user picks, sent back as `date_order`.
+ */
+export interface ImportDateOrder {
+  order: "day_first" | "month_first" | "ambiguous";
+  /** The cell that settled the order, or an ambiguous one. */
+  example?: string;
+  /** The example's date (YYYY-MM-DD) read month-first / day-first. */
+  example_month_first?: string;
+  example_day_first?: string;
 }
 
 // ImportResult is the response from POST /imports/:id/commit

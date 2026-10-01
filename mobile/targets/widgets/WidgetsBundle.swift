@@ -5,10 +5,14 @@ import WidgetKit
 struct TraderMemosWidgets: WidgetBundle {
   var body: some Widget {
     TodayWidget()
+    RoutineWidget()
+    MissedTradesWidget()
     TradingSessionLiveActivity()
     CooldownLiveActivity()
     if #available(iOS 18.0, *) {
       QuickJournalControl()
+      NextRoutineItemControl()
+      LogMissedTradeControl()
     }
   }
 }
