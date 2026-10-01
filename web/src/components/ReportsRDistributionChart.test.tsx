@@ -9,35 +9,35 @@ import { ReportsRDistributionChart } from "./ReportsRDistributionChart";
 // content-proportional span size every tick word appears to overflow and gets
 // wrapped onto its own line. Fake both cases so ticks render as single lines.
 beforeEach(() => {
-  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
-    function (this: HTMLElement) {
-      if (this.id === "recharts_measurement_span") {
-        const width = (this.textContent ?? "").length * 6;
-        return {
-          width,
-          height: 12,
-          top: 0,
-          left: 0,
-          bottom: 12,
-          right: width,
-          x: 0,
-          y: 0,
-          toJSON: () => {},
-        } as DOMRect;
-      }
+  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    if (this.id === "recharts_measurement_span") {
+      const width = (this.textContent ?? "").length * 6;
       return {
-        width: 600,
-        height: 200,
+        width,
+        height: 12,
         top: 0,
         left: 0,
-        bottom: 200,
-        right: 600,
+        bottom: 12,
+        right: width,
         x: 0,
         y: 0,
         toJSON: () => {},
       } as DOMRect;
-    },
-  );
+    }
+    return {
+      width: 600,
+      height: 200,
+      top: 0,
+      left: 0,
+      bottom: 200,
+      right: 600,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    } as DOMRect;
+  });
 });
 
 afterEach(() => {
