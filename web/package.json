@@ -95,7 +95,7 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "11.16.0",
+      "version": "12.7.0",
       "onFail": "warn"
     },
     "runtime": {
@@ -107,7 +107,7 @@
   "engines": {
     "node": "^24.0.0"
   },
-  "packageManager": "pnpm@11.16.0",
+  "packageManager": "pnpm@12.7.0",
   "cloudflare": {
     "bindings": {
       "VITE_API": {
