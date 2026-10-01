@@ -24,10 +24,10 @@ import { Kbd } from "@/components/ui/kbd";
 import { fieldLabelClass } from "@/components/field-styles";
 import { notesApi } from "@/lib/api/notes";
 import type { JournalNoteSymbol, JournalNoteType } from "@/lib/api/types";
-import { settingsApi } from "@/lib/api/settings";
 import { cn } from "@/lib/cn";
 import { isoToWallClock } from "@/lib/displayPrefs";
 import { formatHotkeyLabel } from "@/lib/hotkeys";
+import { useCheckRoutine, useRoutineDay } from "@/lib/hooks/useRoutines";
 import { useUI } from "@/lib/ui";
 
 function nowLocalDate(): string {
@@ -53,8 +53,6 @@ export function NewNoteDrawer() {
   const queryClient = useQueryClient();
 
   const [noteType, setNoteType] = useState<JournalNoteType>("note");
-  const [checklist, setChecklist] = useState<string[]>([]);
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
   const [editorKey, setEditorKey] = useState(0);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -84,18 +82,12 @@ export function NewNoteDrawer() {
       if (isEditorEmpty(trimmed) && symbols.length === 0 && !value.title.trim()) return;
       setSaving(true);
       try {
-        const checklistBlock =
-          isDailyLog && !editingId && checklist.length > 0
-            ? `\n\nChecklist:\n${checklist
-                .map((item) => `- [${checked[item] ? "x" : " "}] ${item}`)
-                .join("\n")}`
-            : "";
         const fallbackTitle = isDailyLog ? "Daily log" : "Untitled";
         const payload = {
           type: noteType,
           occurred_at: value.occurredAt,
           title: value.title.trim() || fallbackTitle,
-          body: isEditorEmpty(trimmed) ? "" : `${trimmed}${checklistBlock}`,
+          body: isEditorEmpty(trimmed) ? "" : trimmed,
           symbols,
         };
         const note = editingId
@@ -127,10 +119,8 @@ export function NewNoteDrawer() {
   function reset() {
     form.reset();
     setNoteType("note");
-    setChecked({});
     setEditingId(null);
     setSymbolCards([]);
-    setChecklist([]);
     setEditorKey((k) => k + 1);
   }
 
@@ -149,8 +139,6 @@ export function NewNoteDrawer() {
       form.setFieldValue("occurredAt", draft.occurredAt);
       form.setFieldValue("title", draft.title);
       form.setFieldValue("body", draft.body);
-      setChecked({});
-      setChecklist([]);
       setSymbolCards(
         (draft.symbols ?? []).map((s) => ({
           key: crypto.randomUUID(),
@@ -166,16 +154,6 @@ export function NewNoteDrawer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- open/draft cycle
   }, [open]);
 
-  useEffect(() => {
-    if (!open || editingId != null || !isDailyLog) {
-      if (!isDailyLog) setChecklist([]);
-      return;
-    }
-    void settingsApi.getChecklistTemplate().then((t) => {
-      setChecklist(t.items ?? []);
-    });
-  }, [open, isDailyLog, editingId]);
-
   const isEdit = editingId != null;
   const bodyValue = useStore(form.store, (s) => s.values.body);
   const titleValue = useStore(form.store, (s) => s.values.title);
@@ -184,7 +162,7 @@ export function NewNoteDrawer() {
     !isEditorEmpty(bodyValue) ||
     titleValue.trim().length > 0 ||
     (isDailyLog && namedSymbolCount > 0);
-  const checkedCount = checklist.filter((item) => checked[item]).length;
+  const occurredAt = useStore(form.store, (s) => s.values.occurredAt);
 
   return (
     <Drawer open={open} onOpenChange={(v) => !v && !saving && close()} modal="trap-focus">
@@ -235,8 +213,6 @@ export function NewNoteDrawer() {
                   setNoteType(next);
                   if (next !== "daily_log") {
                     setSymbolCards([]);
-                    setChecklist([]);
-                    setChecked({});
                   }
                   setEditorKey((k) => k + 1);
                 }}
@@ -274,35 +250,7 @@ export function NewNoteDrawer() {
               </form.Field>
             </div>
 
-            {isDailyLog && !isEdit && checklist.length > 0 && (
-              <div className="shrink-0">
-                <div className="mb-1.5 flex items-baseline justify-between gap-2">
-                  <span className={cn(fieldLabelClass, "mb-0")}>Daily checklist</span>
-                  <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
-                    {checkedCount}/{checklist.length}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1.5 rounded-md bg-muted px-3 py-2">
-                  {checklist.map((item) => (
-                    <label
-                      key={item}
-                      className={cn(
-                        "flex cursor-pointer items-center gap-2 text-[13px] transition-colors",
-                        checked[item] ? "text-muted-foreground line-through" : "text-foreground",
-                      )}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={Boolean(checked[item])}
-                        onChange={() => setChecked((c) => ({ ...c, [item]: !c[item] }))}
-                        style={{ accentColor: "var(--primary)" }}
-                      />
-                      {item}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
+            {isDailyLog && <RoutineTicks day={occurredAt.slice(0, 10)} />}
 
             <form.Field
               name="body"
@@ -465,6 +413,47 @@ function NoteSymbolCard({
         showHints={false}
         className="bg-sidebar hover:bg-card"
       />
+    </div>
+  );
+}
+
+/**
+ * The log's day of routine, tickable in place. Ticks save straight to the
+ * routine (they are not written into the note body), so they hold whether or
+ * not the note is saved.
+ */
+function RoutineTicks({ day }: { day: string }) {
+  const dayQ = useRoutineDay(day);
+  const check = useCheckRoutine();
+  const data = dayQ.data;
+  if (!data || data.total === 0) return null;
+  return (
+    <div className="shrink-0">
+      <div className="mb-1.5 flex items-baseline justify-between gap-2">
+        <span className={cn(fieldLabelClass, "mb-0")}>Routine</span>
+        <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
+          {data.done}/{data.total}
+        </span>
+      </div>
+      <div className="flex flex-col gap-1.5 rounded-md bg-muted px-3 py-2">
+        {data.items.map((item) => (
+          <label
+            key={item.id}
+            className={cn(
+              "flex cursor-pointer items-center gap-2 text-[13px] transition-colors",
+              item.done ? "text-muted-foreground line-through" : "text-foreground",
+            )}
+          >
+            <input
+              type="checkbox"
+              checked={item.done}
+              onChange={() => check.mutate({ day, id: item.id, done: !item.done })}
+              style={{ accentColor: "var(--primary)" }}
+            />
+            {item.title}
+          </label>
+        ))}
+      </div>
     </div>
   );
 }
