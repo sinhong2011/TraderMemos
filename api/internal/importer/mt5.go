@@ -109,14 +109,7 @@ func (st *MTStatement) SampleRows(limit int) []map[string]string {
 // report's offset-less timestamps were written in; empty falls back to the
 // MetaTrader server-time convention (MTServerTZ), never UTC.
 func (st *MTStatement) Parse(sourceTZ string) ParseResult {
-	tz := sourceTZ
-	if strings.TrimSpace(tz) == "" {
-		tz = MTServerTZ
-	}
-	loc, err := time.LoadLocation(tz)
-	if err != nil {
-		loc, _ = time.LoadLocation(MTServerTZ)
-	}
+	loc := MTLocation(sourceTZ)
 	var res ParseResult
 	res.Format = "executions"
 	if st.Platform == "mt4" {
@@ -125,6 +118,85 @@ func (st *MTStatement) Parse(sourceTZ string) ParseResult {
 		st.parseMT5(loc, &res)
 	}
 	return res
+}
+
+// MTLocation resolves the zone MetaTrader wall-clock times are read in: the
+// given IANA name, or MTServerTZ when it is empty or unknown.
+func MTLocation(sourceTZ string) *time.Location {
+	tz := strings.TrimSpace(sourceTZ)
+	if tz == "" {
+		tz = MTServerTZ
+	}
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		loc, _ = time.LoadLocation(MTServerTZ)
+	}
+	return loc
+}
+
+// MT5Deal is one buy/sell deal exactly as the MetaTrader 5 terminal reports
+// it — what the TraderMemos EA posts. Time is the broker server's wall clock
+// ("2006.01.02 15:04:05"), Volume is in lots, costs keep the terminal's sign.
+type MT5Deal struct {
+	Deal       string  `json:"deal"`
+	Time       string  `json:"time"`
+	Type       string  `json:"type"`
+	Symbol     string  `json:"symbol"`
+	Volume     float64 `json:"volume"`
+	Price      float64 `json:"price"`
+	Commission float64 `json:"commission"`
+	Swap       float64 `json:"swap"`
+	Fee        float64 `json:"fee"`
+}
+
+// ParseMT5Deals maps EA-reported deals onto executions through the same
+// conversion as the Trade History Report, so a deal synced live and the same
+// deal later imported from a statement share one dedup hash.
+func ParseMT5Deals(deals []MT5Deal, sourceTZ string) ParseResult {
+	loc := MTLocation(sourceTZ)
+	res := ParseResult{Format: "executions"}
+	for i, d := range deals {
+		side := ParseSideToken(d.Type)
+		if side == "" {
+			res.Errors = append(res.Errors, RowError{Row: i + 1, Message: fmt.Sprintf("deal %s: type %q is not buy or sell", d.Deal, d.Type)})
+			continue
+		}
+		symbol := strings.ToUpper(strings.TrimSpace(d.Symbol))
+		if symbol == "" {
+			res.Errors = append(res.Errors, RowError{Row: i + 1, Message: fmt.Sprintf("deal %s: missing symbol", d.Deal)})
+			continue
+		}
+		ts, err := parseMTTime(d.Time, loc)
+		if err != nil {
+			res.Errors = append(res.Errors, RowError{Row: i + 1, Message: fmt.Sprintf("deal %s: invalid time %q", d.Deal, d.Time)})
+			continue
+		}
+		if d.Volume <= 0 || d.Price <= 0 {
+			res.Errors = append(res.Errors, RowError{Row: i + 1, Message: fmt.Sprintf("deal %s: volume and price must be positive", d.Deal)})
+			continue
+		}
+		res.Executions = append(res.Executions, mt5Execution(d.Deal, symbol, side, ts, d.Volume, d.Price, d.Commission, d.Swap, d.Fee))
+	}
+	return res
+}
+
+// mt5Execution builds the fill for one MT5 deal. Swap (and any Fee) stays in
+// Fees so commission remains its own line — the two are distinct costs on a
+// MetaTrader account.
+func mt5Execution(deal, symbol, side string, ts time.Time, volume, price, commission, swap, fee float64) ParsedExecution {
+	instrument, mult := mtInstrument(symbol)
+	return ParsedExecution{
+		ExternalID:     deal,
+		Symbol:         symbol,
+		InstrumentType: instrument,
+		Side:           side,
+		Quantity:       volume,
+		Price:          price,
+		Commission:     math.Abs(commission),
+		Fees:           math.Abs(swap) + math.Abs(fee),
+		ExecutedAt:     ts,
+		Multiplier:     mult,
+	}
 }
 
 // --- table location ---------------------------------------------------------
@@ -243,23 +315,8 @@ func (st *MTStatement) parseMT5(loc *time.Location, res *ParseResult) {
 			res.Errors = append(res.Errors, RowError{Row: i + 1, Message: fmt.Sprintf("invalid price %q", cell("price"))})
 			continue
 		}
-		instrument, mult := mtInstrument(symbol)
-		// Swap (and any Fee column) stays in Fees so commission remains its
-		// own line — the two are distinct costs on a MetaTrader account.
-		commission := math.Abs(mtMoney(cell("commission")))
-		fees := math.Abs(mtMoney(cell("swap"))) + math.Abs(mtMoney(cell("fee")))
-		res.Executions = append(res.Executions, ParsedExecution{
-			ExternalID:     cell("deal"),
-			Symbol:         symbol,
-			InstrumentType: instrument,
-			Side:           side,
-			Quantity:       volume,
-			Price:          price,
-			Commission:     commission,
-			Fees:           fees,
-			ExecutedAt:     ts,
-			Multiplier:     mult,
-		})
+		res.Executions = append(res.Executions, mt5Execution(cell("deal"), symbol, side, ts, volume, price,
+			mtMoney(cell("commission")), mtMoney(cell("swap")), mtMoney(cell("fee"))))
 	}
 }
 

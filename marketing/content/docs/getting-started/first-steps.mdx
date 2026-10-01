@@ -29,9 +29,9 @@ Three ways, mix freely:
 - **New Trade** (hotkey `c` `t`) — manual entry with execution rows, setup, tags, emotion,
   screenshots, and notes. With [AI features](/en/docs/guides/ai-features) enabled,
   **Scan to fill** extracts the fills from a broker screenshot.
-- **Automate it** — the [tm-sync](https://github.com/sinhong2011/TraderMemos/blob/main/docs/tm-sync.md)
-  desktop watcher imports MT4/MT5 statements as they appear, and IBKR accounts can auto-sync
-  on a schedule via a Flex Query (**Settings → Accounts → Flex sync**).
+- **Automate it** — the [MT5 EA](https://github.com/sinhong2011/TraderMemos/blob/main/docs/metatrader-ea.md) pushes deals from your
+  MetaTrader 5 terminal as they happen, and IBKR accounts can auto-sync on a schedule via a
+  Flex Query (**Settings → Accounts → Flex sync**).
 - **Just exploring?** Seed ~200 realistic demo trades:
   ```bash
   make demo-seed API=http://localhost:3000/api/v1 EMAIL=you@example.com PASSWORD='…'

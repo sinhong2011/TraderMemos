@@ -933,6 +933,39 @@ paths:
         "204":
           description: Reversed
 
+  /api/v1/sync/mt5:
+    post:
+      tags: [Import]
+      summary: Sync MetaTrader 5 deals (TraderMemos EA)
+      description: |
+        Endpoint the TraderMemos EA (`integrations/metatrader/TraderMemosSync.mq5`)
+        posts the terminal's buy/sell deals to. Deals go through the same
+        conversion as an MT5 Trade History Report import, so a deal synced
+        live and the same deal later imported from a statement dedup onto
+        one fill. Re-sending deals is safe: a sync that inserts nothing is
+        rolled back and leaves no import batch; one that inserts creates a
+        reversible batch with source `mt5-ea`.
+      operationId: syncMT5Deals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MT5SyncRequest"
+      responses:
+        "200":
+          description: Synced
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MT5SyncResult"
+        "400":
+          description: Missing account_id or invalid source_tz
+        "404":
+          description: Account not found
+        "413":
+          description: More than 5000 deals in one request
+
   /api/v1/exports:
     get:
       tags: [Export]
@@ -1895,6 +1928,79 @@ components:
           type: integer
         message:
           type: string
+
+    MT5Deal:
+      type: object
+      required: [time, type, symbol, volume, price]
+      properties:
+        deal:
+          type: string
+          description: Terminal deal ticket
+        time:
+          type: string
+          description: Broker server wall clock, `2006.01.02 15:04:05`
+          example: "2024.01.15 10:30:00"
+        type:
+          type: string
+          enum: [buy, sell]
+        symbol:
+          type: string
+        volume:
+          type: number
+          description: Lots
+        price:
+          type: number
+        commission:
+          type: number
+        swap:
+          type: number
+        fee:
+          type: number
+
+    MT5SyncRequest:
+      type: object
+      required: [account_id, deals]
+      properties:
+        account_id:
+          type: string
+        source_tz:
+          type: string
+          description: IANA zone of the broker server clock; empty means `Europe/Athens`
+        server_utc_offset:
+          type: integer
+          description: |
+            Terminal's current `TimeTradeServer() - TimeGMT()` in seconds. Only
+            used to warn when `source_tz` disagrees with the broker clock.
+        login:
+          type: string
+          description: MT5 account login, shown in import history
+        server:
+          type: string
+          description: MT5 trade server name, shown in import history
+        deals:
+          type: array
+          maxItems: 5000
+          items:
+            $ref: "#/components/schemas/MT5Deal"
+
+    MT5SyncResult:
+      type: object
+      properties:
+        inserted:
+          type: integer
+        skipped:
+          type: integer
+        import_batch_id:
+          type: string
+          description: Empty when nothing new was inserted
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/RowError"
+        warnings:
+          type: array
+          items:
+            type: string
 
     ImportResult:
       type: object

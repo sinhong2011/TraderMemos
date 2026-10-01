@@ -108,7 +108,7 @@
       },
       "import": {
         "title": "Import",
-        "description": "Nine broker CSV presets, MT4/MT5 statements, IBKR Flex sync — or let the tm-sync desktop agent watch your statement folder."
+        "description": "Nine broker CSV presets, MT4/MT5 statements, IBKR Flex sync — or let the MT5 EA push deals live from your terminal."
       },
       "alerts": {
         "title": "Alerts",
@@ -507,7 +507,7 @@
           {
             "row": "Broker import",
             "them": "Broad auto-sync integrations",
-            "tm": "IBKR Flex sync, MT4/MT5 statements, 9 broker CSV presets, and the tm-sync folder watcher"
+            "tm": "IBKR Flex sync, MT4/MT5 statements, 9 broker CSV presets, and a live MT5 sync EA"
           },
           {
             "row": "Backtesting & replay",
@@ -564,7 +564,7 @@
           {
             "row": "Broker import",
             "them": "900+ brokers — the widest anywhere",
-            "tm": "IBKR Flex sync, MT4/MT5 statements, 9 broker CSV presets, and the tm-sync folder watcher"
+            "tm": "IBKR Flex sync, MT4/MT5 statements, 9 broker CSV presets, and a live MT5 sync EA"
           },
           {
             "row": "Analytics",
@@ -690,7 +690,7 @@
           {
             "row": "Broker sync",
             "them": "700+ brokers via an aggregator",
-            "tm": "IBKR Flex sync, MT4/MT5 statements, 9 broker CSV presets, and the tm-sync folder watcher"
+            "tm": "IBKR Flex sync, MT4/MT5 statements, 9 broker CSV presets, and a live MT5 sync EA"
           },
           {
             "row": "Equity & drawdown analytics",

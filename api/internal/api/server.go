@@ -215,6 +215,7 @@ func (s *Server) routes() {
 	s.accountRoutes(protected)
 	s.propRoutes(protected)
 	s.flexSyncRoutes(protected)
+	s.mt5SyncRoutes(protected)
 	s.executionRoutes(protected)
 	s.cashRoutes(protected)
 	s.importRoutes(protected)

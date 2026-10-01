@@ -108,7 +108,7 @@
       },
       "import": {
         "title": "导入",
-        "description": "九家券商 CSV 预设、MT4/MT5 对账单、IBKR Flex 同步 — 也可让 tm-sync 桌面代理自动监控你的对账单文件夹。"
+        "description": "九家券商 CSV 预设、MT4/MT5 对账单、IBKR Flex 同步 — 也可让 MT5 EA 从终端实时推送成交。"
       },
       "alerts": {
         "title": "警报",
@@ -507,7 +507,7 @@
           {
             "row": "券商导入",
             "them": "广泛的自动同步集成",
-            "tm": "IBKR Flex 同步、MT4/MT5 对账单、9 家券商 CSV 预设,以及 tm-sync 文件夹监控"
+            "tm": "IBKR Flex 同步、MT4/MT5 对账单、9 家券商 CSV 预设,以及 MT5 EA 实时同步"
           },
           {
             "row": "回测与重放",
@@ -564,7 +564,7 @@
           {
             "row": "券商导入",
             "them": "900+ 券商 — 业界最广",
-            "tm": "IBKR Flex 同步、MT4/MT5 对账单、9 家券商 CSV 预设,以及 tm-sync 文件夹监控"
+            "tm": "IBKR Flex 同步、MT4/MT5 对账单、9 家券商 CSV 预设,以及 MT5 EA 实时同步"
           },
           {
             "row": "分析",
@@ -690,7 +690,7 @@
           {
             "row": "券商同步",
             "them": "通过聚合器连 700+ 券商",
-            "tm": "IBKR Flex 同步、MT4/MT5 对账单、9 家券商 CSV 预设,以及 tm-sync 文件夹监控"
+            "tm": "IBKR Flex 同步、MT4/MT5 对账单、9 家券商 CSV 预设,以及 MT5 EA 实时同步"
           },
           {
             "row": "资金曲线与回撤分析",
