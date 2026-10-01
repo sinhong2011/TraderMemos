@@ -1,11 +1,13 @@
 import { useMemo } from "react";
+import { formatCashDisplay } from "./cashAmount";
 import { PRIVACY_MASK, usePrivacyMode } from "./displayPrefs";
 import { fmtMoney, fmtMoneyCompact, fmtSignedMoney, fmtSignedMoneyCompact } from "./format";
 
 type MoneyFormatter = (v: number, currency: string, locale: string) => string;
 
 /**
- * Privacy-aware money formatters for components.
+ * Privacy-aware money formatters for components (`fmt*Money` from ./format and
+ * `formatCashDisplay` from ./cashAmount).
  *
  * The module-level `fmt*Money` functions read privacy mode from the store at
  * call time, which React Compiler cannot see: it memoizes
@@ -28,6 +30,8 @@ export function useMoneyFormatters() {
       fmtMoneyCompact: bind(fmtMoneyCompact),
       fmtSignedMoney: bind(fmtSignedMoney),
       fmtSignedMoneyCompact: bind(fmtSignedMoneyCompact),
+      formatCashDisplay: (type: string, amount: number, currency: string) =>
+        privacy ? PRIVACY_MASK : formatCashDisplay(type, amount, currency),
     };
   }, [privacy]);
 }

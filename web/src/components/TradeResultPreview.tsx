@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { fmtMoney, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
+import { fmtSignedPct } from "@/lib/format";
 import type { BatchTradePnlPreview, TradePnlPreview } from "@/lib/tradePnlPreview";
 import { pnlColor } from "./theme-tokens";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 export interface TradeResultPreviewProps {
   preview: TradePnlPreview;
@@ -49,6 +50,7 @@ export function TradeResultPreview({
   initialRisk,
   className,
 }: TradeResultPreviewProps) {
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const hasEntry = preview.avgEntry != null;
   if (!hasEntry && preview.net == null) return null;
 
@@ -148,6 +150,7 @@ export function AfterSaveResultPreview({
   initialRisk,
   className,
 }: AfterSaveResultPreviewProps) {
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   if (preview.avgEntry == null && preview.net == null) return null;
 
   const delta = preview.net ?? 0;
@@ -264,6 +267,7 @@ export function BatchTradeResultPreview({
   depositedCapital,
   className,
 }: BatchTradeResultPreviewProps) {
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   if (batch.withFills === 0 && batch.net == null) return null;
 
   const batchDelta = batch.net ?? 0;

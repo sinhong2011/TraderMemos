@@ -8,13 +8,14 @@ import { pnlColor } from "./theme-tokens";
 import { marketLabel, tradeNotional, tradeStatus } from "./tradeColumns";
 import type { TradeDetail } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { useDisplayTimePrefs } from "@/lib/displayPrefs";
+
 import { intlLocale } from "@/lib/locale";
 import { formatOptionContractLabel, optionContractFromFills } from "@/lib/optionContract";
 import { resolveTradeDirection } from "@/lib/tradeDirection";
 import type { TradeInsights } from "@/lib/tradeInsights";
 import { fmtTradeTimeline } from "@/lib/tradeTimeline";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 /**
  * The "what happened" block: identity, outcome, and the six numbers that
@@ -31,7 +32,7 @@ export function TradeSummaryCard({
   trade: TradeDetail;
   insights: TradeInsights;
 }) {
-  usePrivacyMode();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   useDisplayTimePrefs();
   const locale = intlLocale();
   const currency = trade.pnl_currency;
