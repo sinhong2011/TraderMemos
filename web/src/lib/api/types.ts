@@ -516,6 +516,21 @@ export interface ImportPreview {
   row_count?: number;
   journal_summary?: JournalPreviewSummary;
   sample_trades?: JournalTradePreview[];
+  /** CSVs with slash dates only — how day and month order was read. */
+  date_order?: ImportDateOrder;
+}
+
+/**
+ * A CSV's slash-date order. `ambiguous` means no cell proves either order and
+ * some read differently each way — the user picks, sent back as `date_order`.
+ */
+export interface ImportDateOrder {
+  order: "day_first" | "month_first" | "ambiguous";
+  /** The cell that settled the order, or an ambiguous one. */
+  example?: string;
+  /** The example's date (YYYY-MM-DD) read month-first / day-first. */
+  example_month_first?: string;
+  example_day_first?: string;
 }
 
 // ImportResult is the response from POST /imports/:id/commit

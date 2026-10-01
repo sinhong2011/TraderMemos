@@ -363,3 +363,85 @@ describe("ImportView - JSON account bypass", () => {
     expect(screen.getByText(/on confirm/i)).toBeInTheDocument();
   });
 });
+
+describe("ImportView - slash-date order", () => {
+  async function previewWith(preview: ImportPreview) {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    const onCommit = vi.fn<(...args: any[]) => any>().mockResolvedValue(mockResult);
+    renderImportView({
+      accounts,
+      accountsLoading: false,
+      onPreview: vi.fn<(...args: any[]) => any>().mockResolvedValue(preview),
+      onCommit,
+      onDone: vi.fn<(...args: any[]) => any>(),
+    });
+    const file = new File(["Date,Symbol\n05/01/2026,AAPL\n"], "fills.csv", { type: "text/csv" });
+    fireEvent.change(screen.getByLabelText("Import file input"), { target: { files: [file] } });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /preview import/i })).toBeEnabled(),
+    );
+    await user.click(screen.getByRole("button", { name: /preview import/i }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /confirm import/i })).toBeInTheDocument(),
+    );
+    return { user, onCommit };
+  }
+
+  it("blocks the import until the user picks an order for an ambiguous file", async () => {
+    const { user, onCommit } = await previewWith({
+      ...mockPreview,
+      date_order: {
+        order: "ambiguous",
+        example: "05/01/2026 09:30:00",
+        example_month_first: "2026-05-01",
+        example_day_first: "2026-01-05",
+      },
+    });
+
+    const confirm = screen.getByRole("button", { name: /confirm import/i });
+    expect(confirm).toBeDisabled();
+    expect(screen.getByText("Choose a date order above to import.")).toBeInTheDocument();
+
+    await user.click(screen.getByLabelText("Date order"));
+    const dayFirst = await screen.findByRole("option", { name: /Day first — 05\/01\/2026 is/ });
+    expect(dayFirst).toHaveTextContent("Jan 5, 2026");
+    expect(screen.getByRole("option", { name: /Month first/ })).toHaveTextContent("May 1, 2026");
+    await waitFor(
+      async () => {
+        if (screen.queryByRole("option", { name: /Day first/ })) {
+          await user.click(screen.getByRole("option", { name: /Day first/ }));
+        }
+        expect(confirm).toBeEnabled();
+      },
+      { timeout: 5000 },
+    );
+    expect(screen.queryByText("Choose a date order above to import.")).not.toBeInTheDocument();
+
+    await user.click(confirm);
+    await waitFor(() => expect(screen.getByText("Import complete")).toBeInTheDocument());
+    const fd = onCommit.mock.calls[0][1] as FormData;
+    expect(fd.get("date_order")).toBe("day_first");
+  });
+
+  it("states a proven day-first order without asking", async () => {
+    const { user, onCommit } = await previewWith({
+      ...mockPreview,
+      date_order: {
+        order: "day_first",
+        example: "13/01/2026 10:00:00",
+        example_day_first: "2026-01-13",
+      },
+    });
+
+    expect(screen.queryByLabelText("Date order")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Dates read as day\/month — 13\/01\/2026 is Jan 13, 2026/),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /confirm import/i }));
+    await waitFor(() => expect(screen.getByText("Import complete")).toBeInTheDocument());
+    const fd = onCommit.mock.calls[0][1] as FormData;
+    // The server re-detects a proven order; only a user's pick travels back.
+    expect(fd.get("date_order")).toBeNull();
+  });
+});

@@ -25,7 +25,7 @@ msgstr "「{label}」將被永久刪除，此操作無法復原。"
 #~ msgid "“{name}” is already a checklist item."
 #~ msgstr "「{name}」已在清單中。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:404
+#: src/app/(tabs)/(settings)/import-trades.tsx:453
 msgid "(skip)"
 msgstr "（略過）"
 
@@ -325,6 +325,10 @@ msgstr "{count} 筆交易"
 msgid "{events} events"
 msgstr "{events} 個事件"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:353
+msgid "{example} fits both orders. Pick the one your broker uses — the wrong one moves trades to another month."
+msgstr "{example} 兩種次序都讀得通。請選擇你的券商所用的次序，選錯的話交易會被移到另一個月份。"
+
 #: src/components/reports/overview-section.tsx:943
 msgid "{included} of {total} trades"
 msgstr "{total} 筆中的 {included} 筆"
@@ -448,12 +452,12 @@ msgid "% of balance (needs balance)"
 msgstr "佔結餘 %（需要初始結餘）"
 
 #. placeholder {0}: result.errors.length - 10
-#: src/app/(tabs)/(settings)/import-trades.tsx:283
+#: src/app/(tabs)/(settings)/import-trades.tsx:295
 msgid "+{0} more"
 msgstr "還有 {0} 個"
 
 #. placeholder {0}: trades.length - 20
-#: src/app/(tabs)/(settings)/import-trades.tsx:358
+#: src/app/(tabs)/(settings)/import-trades.tsx:407
 msgid "+{0} more trades in this file."
 msgstr "此檔案還有 {0} 筆交易。"
 
@@ -649,7 +653,7 @@ msgstr "存取權杖 API 整合 webhook"
 #: src/app/(tabs)/(settings)/account-form.tsx:225
 #: src/app/(tabs)/(settings)/export-trades.tsx:84
 #: src/app/(tabs)/(settings)/export-trades.tsx:87
-#: src/app/(tabs)/(settings)/import-trades.tsx:442
+#: src/app/(tabs)/(settings)/import-trades.tsx:493
 #: src/app/(tabs)/(settings)/user-detail.tsx:104
 #: src/app/(tabs)/(trades)/index.tsx:402
 #: src/app/cash-form.tsx:150
@@ -666,11 +670,11 @@ msgid "Account"
 msgstr "帳戶"
 
 #. placeholder {0}: preview.pending_account.name
-#: src/app/(tabs)/(settings)/import-trades.tsx:311
+#: src/app/(tabs)/(settings)/import-trades.tsx:333
 msgid "Account \"{0}\" will be created on import."
 msgstr "匯入時將建立帳戶「{0}」。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:445
+#: src/app/(tabs)/(settings)/import-trades.tsx:496
 msgid "Account \"{jsonAccountName}\" from the JSON file will be matched or created."
 msgstr "將比對或建立 JSON 檔案中的帳戶「{jsonAccountName}」。"
 
@@ -978,7 +982,7 @@ msgstr "請在「設定」›「私隱」›「提醒事項」中允許 TraderMe
 #~ msgstr "已在清單中"
 
 #. placeholder {0}: pinned.slice(1)
-#: src/app/(tabs)/(settings)/import-trades.tsx:406
+#: src/app/(tabs)/(settings)/import-trades.tsx:455
 msgid "Always \"{0}\""
 msgstr "固定為「{0}」"
 
@@ -1218,7 +1222,7 @@ msgstr "不在螢幕前"
 msgid "Axes score 0–100: profit factor caps at 3, payoff at 3×, SQN at 7; discipline falls with revenge flags, patience with holding losers past winners."
 msgstr "各軸以 0–100 計分：獲利因子上限為 3、盈虧比為 3 倍、SQN 為 7；報復性交易旗標越多，紀律分數越低；持有虧損倉位長過獲利倉位，耐性分數越低。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:430
+#: src/app/(tabs)/(settings)/import-trades.tsx:481
 #: src/app/replay.tsx:424
 #: src/app/replay.tsx:951
 #: src/app/trade-preview.tsx:107
@@ -1543,7 +1547,7 @@ msgstr "入金 出金 資金 結餘 轉帳"
 msgid "Cash left"
 msgstr "剩餘現金"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:262
+#: src/app/(tabs)/(settings)/import-trades.tsx:274
 msgid "Cash transactions"
 msgstr "資金往來"
 
@@ -1616,10 +1620,14 @@ msgstr "檢查中…"
 msgid "Checklist"
 msgstr "清單"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:323
+msgid "Choose a date order first"
+msgstr "請先選擇日期次序"
+
 #~ msgid "Choose a file first."
 #~ msgstr "請先選擇檔案。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:499
+#: src/app/(tabs)/(settings)/import-trades.tsx:550
 msgid "Choose CSV or JSON file"
 msgstr "選擇 CSV 或 JSON 檔案"
 
@@ -2001,12 +2009,12 @@ msgstr "無法載入模型"
 #~ msgid "Could not load your account."
 #~ msgstr "無法載入帳戶資料。"
 
-#: src/app/_layout.tsx:77
+#: src/app/_layout.tsx:78
 msgid "Could not open file"
 msgstr "無法開啟檔案"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:193
-#: src/app/(tabs)/(settings)/import-trades.tsx:513
+#: src/app/(tabs)/(settings)/import-trades.tsx:202
+#: src/app/(tabs)/(settings)/import-trades.tsx:564
 msgid "Could not preview"
 msgstr "無法預覽"
 
@@ -2090,7 +2098,7 @@ msgstr "無法儲存"
 msgid "Could not save tag"
 msgstr "無法儲存標籤"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:227
+#: src/app/(tabs)/(settings)/import-trades.tsx:239
 msgid "Could not save the sample"
 msgstr "無法儲存範例檔"
 
@@ -2177,7 +2185,7 @@ msgstr "加密貨幣"
 msgid "CSV / JSON file"
 msgstr "CSV / JSON 檔案"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:489
+#: src/app/(tabs)/(settings)/import-trades.tsx:540
 msgid "CSV file"
 msgstr "CSV 檔案"
 
@@ -2323,12 +2331,30 @@ msgstr "資料與備份"
 msgid "Date"
 msgstr "日期"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:356
+msgid "Date order"
+msgstr "日期次序"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:352
+#: src/app/(tabs)/(settings)/import-trades.tsx:372
+msgid "Dates"
+msgstr "日期"
+
+#. placeholder {0}: formatDayKey(dateOrderInfo.example_day_first)
+#: src/app/(tabs)/(settings)/import-trades.tsx:373
+msgid "Dates read as day/month — {example} is {0}."
+msgstr "日期按日/月讀取：{example} 即 {0}。"
+
 #: src/app/(tabs)/(calendar)/day/[date].tsx:271
 #: src/components/breakdown-card.tsx:25
 #: src/components/reports-filter-menu.tsx:53
 #: src/components/reports/winloss-section.tsx:88
 msgid "Day"
 msgstr "星期"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:366
+msgid "Day first"
+msgstr "日在前"
 
 #: src/components/reports/detailed-section.tsx:158
 #: src/components/reports/detailed-section.tsx:165
@@ -2473,7 +2499,7 @@ msgstr "詳細"
 msgid "Details"
 msgstr "詳細資料"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:322
+#: src/app/(tabs)/(settings)/import-trades.tsx:344
 msgid "Detected broker"
 msgstr "偵測到的券商"
 
@@ -2550,7 +2576,7 @@ msgstr "金額"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:196
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:219
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:235
-#: src/app/(tabs)/(settings)/import-trades.tsx:289
+#: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
 #: src/components/time-picker.tsx:100
 msgid "Done"
@@ -2898,11 +2924,11 @@ msgid "Equity curve"
 msgstr "資金曲線"
 
 #. placeholder {0}: result.errors.length
-#: src/app/(tabs)/(settings)/import-trades.tsx:274
+#: src/app/(tabs)/(settings)/import-trades.tsx:286
 msgid "Errors ({0})"
 msgstr "錯誤（{0}）"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:339
+#: src/app/(tabs)/(settings)/import-trades.tsx:388
 msgid "Est. net P&L"
 msgstr "預估淨損益"
 
@@ -3142,9 +3168,9 @@ msgstr "取得模型"
 msgid "Fetching rate…"
 msgstr "取得匯率中…"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:308
-#: src/app/(tabs)/(settings)/import-trades.tsx:315
-#: src/app/(tabs)/(settings)/import-trades.tsx:470
+#: src/app/(tabs)/(settings)/import-trades.tsx:330
+#: src/app/(tabs)/(settings)/import-trades.tsx:337
+#: src/app/(tabs)/(settings)/import-trades.tsx:521
 msgid "File"
 msgstr "檔案"
 
@@ -3162,7 +3188,7 @@ msgstr "成交 {0}"
 msgid "Fill CSV"
 msgstr "成交 CSV"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:473
+#: src/app/(tabs)/(settings)/import-trades.tsx:524
 msgid "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 msgstr "支援券商成交 CSV、日誌 CSV 匯出檔，或 TraderMemos JSON 備份。"
 
@@ -3177,16 +3203,16 @@ msgstr "成交價與圖表不符 — 重播途中的盈虧以圖表計價，可�
 #~ msgid "Fill prices disagree with the tape — replay P&L is approximate until the exit."
 #~ msgstr "成交價與行情不符 — 平倉前的重播盈虧只屬約數。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:336
+#: src/app/(tabs)/(settings)/import-trades.tsx:385
 #: src/components/trade-form.tsx:414
 msgid "Fills"
 msgstr "成交"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:250
+#: src/app/(tabs)/(settings)/import-trades.tsx:262
 msgid "Fills inserted"
 msgstr "新增成交"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:418
+#: src/app/(tabs)/(settings)/import-trades.tsx:467
 msgid "Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map."
 msgstr "成交、日誌、資金及策略設定會直接從 JSON 檔案讀取 — 無需對應欄位。"
 
@@ -3291,7 +3317,7 @@ msgstr "由"
 #~ msgid "from {0} →"
 #~ msgstr "由 {0} →"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:456
+#: src/app/(tabs)/(settings)/import-trades.tsx:507
 msgid "From file"
 msgstr "從檔案"
 
@@ -3564,16 +3590,16 @@ msgstr "影響程度"
 #~ msgstr "匯入"
 
 #. placeholder {0}: preview.row_count ?? 0
-#: src/app/(tabs)/(settings)/import-trades.tsx:304
+#: src/app/(tabs)/(settings)/import-trades.tsx:326
 msgid "Import {0} rows"
 msgstr "匯入 {0} 列"
 
 #. placeholder {0}: summary?.trade_count ?? trades.length
-#: src/app/(tabs)/(settings)/import-trades.tsx:303
+#: src/app/(tabs)/(settings)/import-trades.tsx:325
 msgid "Import {0} trades"
 msgstr "匯入 {0} 筆交易"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:290
+#: src/app/(tabs)/(settings)/import-trades.tsx:302
 msgid "Import another file"
 msgstr "匯入另一個檔案"
 
@@ -3592,7 +3618,7 @@ msgstr "匯入券商成交或備份；以 JSON、CSV 或 ZIP 匯出交易。設�
 msgid "Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots."
 msgstr "匯入券商成交紀錄、日誌 CSV 或 TraderMemos 備份。匯出可選 JSON、CSV，或包含截圖的 ZIP。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:244
+#: src/app/(tabs)/(settings)/import-trades.tsx:256
 msgid "Import complete"
 msgstr "匯入完成"
 
@@ -3603,11 +3629,11 @@ msgstr "匯入完成"
 msgid "import export backup restore csv json zip"
 msgstr "匯入 匯出 備份 還原 CSV JSON ZIP"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:215
+#: src/app/(tabs)/(settings)/import-trades.tsx:227
 msgid "Import failed"
 msgstr "匯入失敗"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:451
+#: src/app/(tabs)/(settings)/import-trades.tsx:502
 msgid "Import into"
 msgstr "匯入至"
 
@@ -3621,7 +3647,7 @@ msgstr "已還原匯入"
 msgid "Import trades"
 msgstr "匯入交易"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:424
+#: src/app/(tabs)/(settings)/import-trades.tsx:474
 msgid "Importing…"
 msgstr "匯入中…"
 
@@ -3640,7 +3666,7 @@ msgstr "包含股息紀錄。"
 msgid "Initial risk"
 msgstr "初始風險"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:250
+#: src/app/(tabs)/(settings)/import-trades.tsx:262
 msgid "Inserted"
 msgstr "已新增"
 
@@ -3704,7 +3730,7 @@ msgstr "項目"
 msgid "Journal"
 msgstr "交易日誌"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:257
+#: src/app/(tabs)/(settings)/import-trades.tsx:269
 msgid "Journal annotated"
 msgstr "日誌已註記"
 
@@ -3718,7 +3744,7 @@ msgstr "已平倉交易的日誌試算表。"
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:38
 #: src/app/(tabs)/(settings)/import-trades.tsx:76
-#: src/app/(tabs)/(settings)/import-trades.tsx:489
+#: src/app/(tabs)/(settings)/import-trades.tsx:540
 msgid "JSON backup"
 msgstr "JSON 備份"
 
@@ -4090,7 +4116,7 @@ msgstr "手動"
 msgid "Manual only"
 msgstr "只限手動"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:381
+#: src/app/(tabs)/(settings)/import-trades.tsx:430
 msgid "Map columns"
 msgstr "對應欄位"
 
@@ -4117,7 +4143,7 @@ msgstr "市場時段"
 msgid "Market timezone"
 msgstr "市場時區"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:382
+#: src/app/(tabs)/(settings)/import-trades.tsx:431
 msgid "Match each field to a column from the file."
 msgstr "將每個欄位對應到檔案中的欄。"
 
@@ -4303,6 +4329,10 @@ msgstr "蒙地卡羅"
 #: src/components/reports/winloss-section.tsx:90
 msgid "Month"
 msgstr "本月"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:362
+msgid "Month first"
+msgstr "月在前"
 
 #: src/components/reports/overview-section.tsx:506
 #: src/components/reports/overview-section.tsx:770
@@ -4532,7 +4562,7 @@ msgstr "找不到帳戶 — 請在設定 → 帳戶建立。"
 msgid "No accounts yet"
 msgstr "尚未有帳戶"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:465
+#: src/app/(tabs)/(settings)/import-trades.tsx:516
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "尚未有帳戶 — 請選擇包含帳戶資料的 JSON 備份，或先新增帳戶。"
 
@@ -5353,7 +5383,7 @@ msgstr "選擇開始和結束日期"
 msgid "Pick a symbol"
 msgstr "選擇標的"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:513
+#: src/app/(tabs)/(settings)/import-trades.tsx:564
 msgid "Pick an account first."
 msgstr "請先選擇帳戶。"
 
@@ -5483,7 +5513,7 @@ msgstr "前值"
 msgid "Preview"
 msgstr "預覽"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:508
+#: src/app/(tabs)/(settings)/import-trades.tsx:559
 msgid "Preview import"
 msgstr "預覽匯入"
 
@@ -5738,7 +5768,7 @@ msgstr "已達成"
 msgid "Reading {settled} of {0}… Screenshots are parsed by your vision endpoint; CSV and JSON parse on this device."
 msgstr "正在讀取 {settled} / {0}… 截圖由視覺端點解析，CSV 和 JSON 在裝置上解析。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:508
+#: src/app/(tabs)/(settings)/import-trades.tsx:559
 #: src/components/trade-scan-overlay.tsx:65
 msgid "Reading…"
 msgstr "讀取中…"
@@ -6173,15 +6203,15 @@ msgstr "例行勾選"
 
 #. placeholder {0}: error.row
 #. placeholder {1}: error.message
-#: src/app/(tabs)/(settings)/import-trades.tsx:278
+#: src/app/(tabs)/(settings)/import-trades.tsx:290
 msgid "Row {0}: {1}"
 msgstr "第 {0} 列：{1}"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:318
+#: src/app/(tabs)/(settings)/import-trades.tsx:340
 msgid "Rows"
 msgstr "列數"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:345
+#: src/app/(tabs)/(settings)/import-trades.tsx:394
 msgid "Rows with errors"
 msgstr "有錯誤的列"
 
@@ -6223,15 +6253,15 @@ msgstr "留倉部分"
 msgid "Runner stop"
 msgstr "留倉止蝕"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:547
+#: src/app/(tabs)/(settings)/import-trades.tsx:598
 msgid "Sample CSV"
 msgstr "範例 CSV"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:542
+#: src/app/(tabs)/(settings)/import-trades.tsx:593
 msgid "Sample files"
 msgstr "範例檔案"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:552
+#: src/app/(tabs)/(settings)/import-trades.tsx:603
 msgid "Sample JSON"
 msgstr "範例 JSON"
 
@@ -6251,7 +6281,7 @@ msgstr "六"
 msgid "Save"
 msgstr "儲存"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:543
+#: src/app/(tabs)/(settings)/import-trades.tsx:594
 msgid "Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties."
 msgstr "儲存範例檔即可了解預期格式。檔案只會留在你的伺服器，不會傳送給第三方。"
 
@@ -6562,7 +6592,7 @@ msgstr "策略評分"
 msgid "Setups"
 msgstr "策略設定"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:267
+#: src/app/(tabs)/(settings)/import-trades.tsx:279
 msgid "Setups restored"
 msgstr "已還原策略設定"
 
@@ -6722,7 +6752,7 @@ msgstr "倉位 ×{0}"
 #~ msgid "sk-…"
 #~ msgstr "sk-…"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:253
+#: src/app/(tabs)/(settings)/import-trades.tsx:265
 msgid "Skipped (duplicates)"
 msgstr "略過（重複）"
 
@@ -6816,7 +6846,7 @@ msgstr "尚餘：{0}"
 msgid "Stock"
 msgstr "股票"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:333
+#: src/app/(tabs)/(settings)/import-trades.tsx:382
 msgid "Stocks / options"
 msgstr "股票 / 期權"
 
@@ -6909,7 +6939,7 @@ msgstr "建議風險"
 msgid "Suggested size as a percent of account equity."
 msgstr "以帳戶權益百分比建議的倉位大小。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:329
+#: src/app/(tabs)/(settings)/import-trades.tsx:378
 msgid "Summary"
 msgstr "摘要"
 
@@ -6921,7 +6951,7 @@ msgstr "日"
 msgid "superb"
 msgstr "卓越"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:520
+#: src/app/(tabs)/(settings)/import-trades.tsx:571
 msgid "Supported formats"
 msgstr "支援格式"
 
@@ -7101,7 +7131,7 @@ msgstr "點按可改名或改日子，滑動可由今天起移除，拖曳可重
 msgid "Tap the current rating to clear it."
 msgstr "點一下目前的評分即可清除。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:474
+#: src/app/(tabs)/(settings)/import-trades.tsx:525
 msgid "Tap the file to swap it for another one."
 msgstr "點一下檔案即可更換另一個檔案。"
 
@@ -7596,14 +7626,14 @@ msgstr "TraderMemos 標記"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:233
 #: src/app/(tabs)/(settings)/account-form.tsx:388
 #: src/app/(tabs)/(settings)/data-backup.tsx:66
-#: src/app/(tabs)/(settings)/import-trades.tsx:330
-#: src/app/(tabs)/(settings)/import-trades.tsx:356
+#: src/app/(tabs)/(settings)/import-trades.tsx:379
+#: src/app/(tabs)/(settings)/import-trades.tsx:405
 #: src/app/(tabs)/(trades)/_layout.tsx:38
 #: src/components/symbol-journal.tsx:488
 msgid "Trades"
 msgstr "交易"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:246
+#: src/app/(tabs)/(settings)/import-trades.tsx:258
 msgid "Trades created"
 msgstr "建立的交易"
 

@@ -25,7 +25,7 @@ msgstr "“{label}”이(가) 완전히 삭제됩니다. 되돌릴 수 없습니
 #~ msgid "“{name}” is already a checklist item."
 #~ msgstr "\"{name}\"은(는) 이미 체크리스트 항목입니다."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:404
+#: src/app/(tabs)/(settings)/import-trades.tsx:453
 msgid "(skip)"
 msgstr "(건너뛰기)"
 
@@ -325,6 +325,10 @@ msgstr "트레이드 {count}건"
 msgid "{events} events"
 msgstr "이벤트 {events}건"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:353
+msgid "{example} fits both orders. Pick the one your broker uses — the wrong one moves trades to another month."
+msgstr "{example}은(는) 두 순서 모두로 읽을 수 있습니다. 증권사가 쓰는 순서를 고르세요. 잘못 고르면 거래가 다른 달로 옮겨집니다."
+
 #: src/components/reports/overview-section.tsx:943
 msgid "{included} of {total} trades"
 msgstr "{total}건 중 {included}건"
@@ -448,12 +452,12 @@ msgid "% of balance (needs balance)"
 msgstr "잔고 대비 % (시작 잔고 필요)"
 
 #. placeholder {0}: result.errors.length - 10
-#: src/app/(tabs)/(settings)/import-trades.tsx:283
+#: src/app/(tabs)/(settings)/import-trades.tsx:295
 msgid "+{0} more"
 msgstr "외 {0}개"
 
 #. placeholder {0}: trades.length - 20
-#: src/app/(tabs)/(settings)/import-trades.tsx:358
+#: src/app/(tabs)/(settings)/import-trades.tsx:407
 msgid "+{0} more trades in this file."
 msgstr "이 파일에 매매 {0}건이 더 있습니다."
 
@@ -649,7 +653,7 @@ msgstr "액세스 토큰 연동 API 웹훅"
 #: src/app/(tabs)/(settings)/account-form.tsx:225
 #: src/app/(tabs)/(settings)/export-trades.tsx:84
 #: src/app/(tabs)/(settings)/export-trades.tsx:87
-#: src/app/(tabs)/(settings)/import-trades.tsx:442
+#: src/app/(tabs)/(settings)/import-trades.tsx:493
 #: src/app/(tabs)/(settings)/user-detail.tsx:104
 #: src/app/(tabs)/(trades)/index.tsx:402
 #: src/app/cash-form.tsx:150
@@ -666,11 +670,11 @@ msgid "Account"
 msgstr "계좌"
 
 #. placeholder {0}: preview.pending_account.name
-#: src/app/(tabs)/(settings)/import-trades.tsx:311
+#: src/app/(tabs)/(settings)/import-trades.tsx:333
 msgid "Account \"{0}\" will be created on import."
 msgstr "가져오기 시 계좌 \"{0}\"이(가) 생성됩니다."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:445
+#: src/app/(tabs)/(settings)/import-trades.tsx:496
 msgid "Account \"{jsonAccountName}\" from the JSON file will be matched or created."
 msgstr "JSON 파일의 계좌 \"{jsonAccountName}\"을(를) 찾아 연결하거나 새로 생성합니다."
 
@@ -978,7 +982,7 @@ msgstr "설정 › 개인 정보 보호 › 미리 알림에서 TraderMemos의 �
 #~ msgstr "이미 목록에 있음"
 
 #. placeholder {0}: pinned.slice(1)
-#: src/app/(tabs)/(settings)/import-trades.tsx:406
+#: src/app/(tabs)/(settings)/import-trades.tsx:455
 msgid "Always \"{0}\""
 msgstr "항상 \"{0}\""
 
@@ -1218,7 +1222,7 @@ msgstr "자리를 비움"
 msgid "Axes score 0–100: profit factor caps at 3, payoff at 3×, SQN at 7; discipline falls with revenge flags, patience with holding losers past winners."
 msgstr "각 축은 0–100점: 프로핏 팩터는 3, 페이오프는 3배, SQN은 7이 상한입니다. 복수 매매 플래그가 늘면 규율이, 손실 트레이드를 수익보다 오래 들고 있으면 인내 점수가 내려갑니다."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:430
+#: src/app/(tabs)/(settings)/import-trades.tsx:481
 #: src/app/replay.tsx:424
 #: src/app/replay.tsx:951
 #: src/app/trade-preview.tsx:107
@@ -1543,7 +1547,7 @@ msgstr "입금 출금 자금 잔액 이체"
 msgid "Cash left"
 msgstr "남은 현금"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:262
+#: src/app/(tabs)/(settings)/import-trades.tsx:274
 msgid "Cash transactions"
 msgstr "현금 거래"
 
@@ -1616,10 +1620,14 @@ msgstr "확인 중…"
 msgid "Checklist"
 msgstr "체크리스트"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:323
+msgid "Choose a date order first"
+msgstr "먼저 날짜 순서를 고르세요"
+
 #~ msgid "Choose a file first."
 #~ msgstr "먼저 파일을 선택하세요."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:499
+#: src/app/(tabs)/(settings)/import-trades.tsx:550
 msgid "Choose CSV or JSON file"
 msgstr "CSV 또는 JSON 파일 선택"
 
@@ -2001,12 +2009,12 @@ msgstr "모델을 불러오지 못했습니다"
 #~ msgid "Could not load your account."
 #~ msgstr "계정 정보를 불러올 수 없습니다."
 
-#: src/app/_layout.tsx:77
+#: src/app/_layout.tsx:78
 msgid "Could not open file"
 msgstr "파일을 열지 못했습니다"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:193
-#: src/app/(tabs)/(settings)/import-trades.tsx:513
+#: src/app/(tabs)/(settings)/import-trades.tsx:202
+#: src/app/(tabs)/(settings)/import-trades.tsx:564
 msgid "Could not preview"
 msgstr "미리보기를 할 수 없습니다"
 
@@ -2090,7 +2098,7 @@ msgstr "저장하지 못했습니다"
 msgid "Could not save tag"
 msgstr "태그를 저장하지 못했습니다"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:227
+#: src/app/(tabs)/(settings)/import-trades.tsx:239
 msgid "Could not save the sample"
 msgstr "샘플을 저장할 수 없습니다"
 
@@ -2177,7 +2185,7 @@ msgstr "암호화폐"
 msgid "CSV / JSON file"
 msgstr "CSV / JSON 파일"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:489
+#: src/app/(tabs)/(settings)/import-trades.tsx:540
 msgid "CSV file"
 msgstr "CSV 파일"
 
@@ -2323,12 +2331,30 @@ msgstr "데이터 및 백업"
 msgid "Date"
 msgstr "날짜"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:356
+msgid "Date order"
+msgstr "날짜 순서"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:352
+#: src/app/(tabs)/(settings)/import-trades.tsx:372
+msgid "Dates"
+msgstr "날짜"
+
+#. placeholder {0}: formatDayKey(dateOrderInfo.example_day_first)
+#: src/app/(tabs)/(settings)/import-trades.tsx:373
+msgid "Dates read as day/month — {example} is {0}."
+msgstr "날짜를 일/월 순서로 읽었습니다. {example}은(는) {0}입니다."
+
 #: src/app/(tabs)/(calendar)/day/[date].tsx:271
 #: src/components/breakdown-card.tsx:25
 #: src/components/reports-filter-menu.tsx:53
 #: src/components/reports/winloss-section.tsx:88
 msgid "Day"
 msgstr "요일"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:366
+msgid "Day first"
+msgstr "일 먼저"
 
 #: src/components/reports/detailed-section.tsx:158
 #: src/components/reports/detailed-section.tsx:165
@@ -2473,7 +2499,7 @@ msgstr "상세"
 msgid "Details"
 msgstr "세부 정보"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:322
+#: src/app/(tabs)/(settings)/import-trades.tsx:344
 msgid "Detected broker"
 msgstr "감지된 증권사"
 
@@ -2550,7 +2576,7 @@ msgstr "금액"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:196
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:219
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:235
-#: src/app/(tabs)/(settings)/import-trades.tsx:289
+#: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
 #: src/components/time-picker.tsx:100
 msgid "Done"
@@ -2898,11 +2924,11 @@ msgid "Equity curve"
 msgstr "자산 곡선"
 
 #. placeholder {0}: result.errors.length
-#: src/app/(tabs)/(settings)/import-trades.tsx:274
+#: src/app/(tabs)/(settings)/import-trades.tsx:286
 msgid "Errors ({0})"
 msgstr "오류 ({0})"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:339
+#: src/app/(tabs)/(settings)/import-trades.tsx:388
 msgid "Est. net P&L"
 msgstr "예상 순손익"
 
@@ -3142,9 +3168,9 @@ msgstr "모델 가져오기"
 msgid "Fetching rate…"
 msgstr "환율 가져오는 중…"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:308
-#: src/app/(tabs)/(settings)/import-trades.tsx:315
-#: src/app/(tabs)/(settings)/import-trades.tsx:470
+#: src/app/(tabs)/(settings)/import-trades.tsx:330
+#: src/app/(tabs)/(settings)/import-trades.tsx:337
+#: src/app/(tabs)/(settings)/import-trades.tsx:521
 msgid "File"
 msgstr "파일"
 
@@ -3162,7 +3188,7 @@ msgstr "체결 {0}"
 msgid "Fill CSV"
 msgstr "체결 CSV"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:473
+#: src/app/(tabs)/(settings)/import-trades.tsx:524
 msgid "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 msgstr "증권사 체결 CSV, 일지 CSV 내보내기, 또는 TraderMemos JSON 백업을 지원합니다."
 
@@ -3177,16 +3203,16 @@ msgstr "체결가가 차트와 일치하지 않습니다 — 재생 중 손익�
 #~ msgid "Fill prices disagree with the tape — replay P&L is approximate until the exit."
 #~ msgstr "체결 가격이 차트와 일치하지 않습니다 — 청산 전까지 리플레이 손익은 근사치입니다."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:336
+#: src/app/(tabs)/(settings)/import-trades.tsx:385
 #: src/components/trade-form.tsx:414
 msgid "Fills"
 msgstr "체결"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:250
+#: src/app/(tabs)/(settings)/import-trades.tsx:262
 msgid "Fills inserted"
 msgstr "추가된 체결"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:418
+#: src/app/(tabs)/(settings)/import-trades.tsx:467
 msgid "Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map."
 msgstr "체결, 일지, 현금, 셋업은 JSON 파일에서 바로 읽어옵니다 — 매핑이 필요 없습니다."
 
@@ -3291,7 +3317,7 @@ msgstr "변환 전"
 #~ msgid "from {0} →"
 #~ msgstr "{0}에서 →"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:456
+#: src/app/(tabs)/(settings)/import-trades.tsx:507
 msgid "From file"
 msgstr "파일에서"
 
@@ -3564,16 +3590,16 @@ msgstr "중요도"
 #~ msgstr "가져오기"
 
 #. placeholder {0}: preview.row_count ?? 0
-#: src/app/(tabs)/(settings)/import-trades.tsx:304
+#: src/app/(tabs)/(settings)/import-trades.tsx:326
 msgid "Import {0} rows"
 msgstr "{0}개 행 가져오기"
 
 #. placeholder {0}: summary?.trade_count ?? trades.length
-#: src/app/(tabs)/(settings)/import-trades.tsx:303
+#: src/app/(tabs)/(settings)/import-trades.tsx:325
 msgid "Import {0} trades"
 msgstr "매매 {0}건 가져오기"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:290
+#: src/app/(tabs)/(settings)/import-trades.tsx:302
 msgid "Import another file"
 msgstr "다른 파일 가져오기"
 
@@ -3592,7 +3618,7 @@ msgstr "증권사 체결이나 백업을 가져오고, 매매를 JSON·CSV·ZIP�
 msgid "Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots."
 msgstr "증권사 체결 내역, 저널 CSV, TraderMemos 백업을 가져옵니다. 내보내기는 JSON, CSV, 스크린샷이 포함된 ZIP으로 제공됩니다."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:244
+#: src/app/(tabs)/(settings)/import-trades.tsx:256
 msgid "Import complete"
 msgstr "가져오기 완료"
 
@@ -3603,11 +3629,11 @@ msgstr "가져오기 완료"
 msgid "import export backup restore csv json zip"
 msgstr "가져오기 내보내기 백업 복원 CSV JSON ZIP"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:215
+#: src/app/(tabs)/(settings)/import-trades.tsx:227
 msgid "Import failed"
 msgstr "가져오기 실패"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:451
+#: src/app/(tabs)/(settings)/import-trades.tsx:502
 msgid "Import into"
 msgstr "가져올 계좌"
 
@@ -3621,7 +3647,7 @@ msgstr "가져오기를 롤백했습니다"
 msgid "Import trades"
 msgstr "매매 가져오기"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:424
+#: src/app/(tabs)/(settings)/import-trades.tsx:474
 msgid "Importing…"
 msgstr "가져오는 중…"
 
@@ -3640,7 +3666,7 @@ msgstr "배당 기록이 포함됩니다."
 msgid "Initial risk"
 msgstr "초기 리스크"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:250
+#: src/app/(tabs)/(settings)/import-trades.tsx:262
 msgid "Inserted"
 msgstr "추가됨"
 
@@ -3704,7 +3730,7 @@ msgstr "항목"
 msgid "Journal"
 msgstr "저널"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:257
+#: src/app/(tabs)/(settings)/import-trades.tsx:269
 msgid "Journal annotated"
 msgstr "일지 주석 추가"
 
@@ -3718,7 +3744,7 @@ msgstr "청산된 매매의 일지 스프레드시트."
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:38
 #: src/app/(tabs)/(settings)/import-trades.tsx:76
-#: src/app/(tabs)/(settings)/import-trades.tsx:489
+#: src/app/(tabs)/(settings)/import-trades.tsx:540
 msgid "JSON backup"
 msgstr "JSON 백업"
 
@@ -4090,7 +4116,7 @@ msgstr "수동"
 msgid "Manual only"
 msgstr "수동 전용"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:381
+#: src/app/(tabs)/(settings)/import-trades.tsx:430
 msgid "Map columns"
 msgstr "열 매핑"
 
@@ -4117,7 +4143,7 @@ msgstr "시장 세션"
 msgid "Market timezone"
 msgstr "시장 시간대"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:382
+#: src/app/(tabs)/(settings)/import-trades.tsx:431
 msgid "Match each field to a column from the file."
 msgstr "각 필드를 파일의 열과 연결하세요."
 
@@ -4303,6 +4329,10 @@ msgstr "몬테카를로"
 #: src/components/reports/winloss-section.tsx:90
 msgid "Month"
 msgstr "이번 달"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:362
+msgid "Month first"
+msgstr "월 먼저"
 
 #: src/components/reports/overview-section.tsx:506
 #: src/components/reports/overview-section.tsx:770
@@ -4532,7 +4562,7 @@ msgstr "계좌가 없습니다 — 설정 → 계좌에서 만드세요."
 msgid "No accounts yet"
 msgstr "아직 계좌가 없습니다"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:465
+#: src/app/(tabs)/(settings)/import-trades.tsx:516
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "계좌가 없습니다 — 계좌 정보가 포함된 JSON 백업을 선택하거나 먼저 계좌를 추가하세요."
 
@@ -5353,7 +5383,7 @@ msgstr "시작일과 종료일 선택"
 msgid "Pick a symbol"
 msgstr "종목 선택"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:513
+#: src/app/(tabs)/(settings)/import-trades.tsx:564
 msgid "Pick an account first."
 msgstr "먼저 계좌를 선택하세요."
 
@@ -5483,7 +5513,7 @@ msgstr "이전"
 msgid "Preview"
 msgstr "미리 보기"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:508
+#: src/app/(tabs)/(settings)/import-trades.tsx:559
 msgid "Preview import"
 msgstr "가져오기 미리보기"
 
@@ -5738,7 +5768,7 @@ msgstr "달성"
 msgid "Reading {settled} of {0}… Screenshots are parsed by your vision endpoint; CSV and JSON parse on this device."
 msgstr "{settled} / {0} 읽는 중… 스크린샷은 비전 엔드포인트로 해석하고 CSV와 JSON은 기기에서 해석합니다."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:508
+#: src/app/(tabs)/(settings)/import-trades.tsx:559
 #: src/components/trade-scan-overlay.tsx:65
 msgid "Reading…"
 msgstr "읽는 중…"
@@ -6173,15 +6203,15 @@ msgstr "루틴 체크"
 
 #. placeholder {0}: error.row
 #. placeholder {1}: error.message
-#: src/app/(tabs)/(settings)/import-trades.tsx:278
+#: src/app/(tabs)/(settings)/import-trades.tsx:290
 msgid "Row {0}: {1}"
 msgstr "{0}행: {1}"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:318
+#: src/app/(tabs)/(settings)/import-trades.tsx:340
 msgid "Rows"
 msgstr "행 수"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:345
+#: src/app/(tabs)/(settings)/import-trades.tsx:394
 msgid "Rows with errors"
 msgstr "오류가 있는 행"
 
@@ -6223,15 +6253,15 @@ msgstr "러너"
 msgid "Runner stop"
 msgstr "러너 스톱"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:547
+#: src/app/(tabs)/(settings)/import-trades.tsx:598
 msgid "Sample CSV"
 msgstr "샘플 CSV"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:542
+#: src/app/(tabs)/(settings)/import-trades.tsx:593
 msgid "Sample files"
 msgstr "샘플 파일"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:552
+#: src/app/(tabs)/(settings)/import-trades.tsx:603
 msgid "Sample JSON"
 msgstr "샘플 JSON"
 
@@ -6251,7 +6281,7 @@ msgstr "토"
 msgid "Save"
 msgstr "저장"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:543
+#: src/app/(tabs)/(settings)/import-trades.tsx:594
 msgid "Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties."
 msgstr "샘플 파일을 저장해 예상 형식을 확인하세요. 파일은 내 서버에 남으며 제3자에게 전송되지 않습니다."
 
@@ -6562,7 +6592,7 @@ msgstr "셋업 평가"
 msgid "Setups"
 msgstr "셋업"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:267
+#: src/app/(tabs)/(settings)/import-trades.tsx:279
 msgid "Setups restored"
 msgstr "복원된 셋업"
 
@@ -6722,7 +6752,7 @@ msgstr "규모 ×{0}"
 #~ msgid "sk-…"
 #~ msgstr "sk-…"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:253
+#: src/app/(tabs)/(settings)/import-trades.tsx:265
 msgid "Skipped (duplicates)"
 msgstr "건너뜀 (중복)"
 
@@ -6816,7 +6846,7 @@ msgstr "남은 항목: {0}"
 msgid "Stock"
 msgstr "주식"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:333
+#: src/app/(tabs)/(settings)/import-trades.tsx:382
 msgid "Stocks / options"
 msgstr "주식 / 옵션"
 
@@ -6909,7 +6939,7 @@ msgstr "권장 리스크"
 msgid "Suggested size as a percent of account equity."
 msgstr "계좌 자산 대비 권장 포지션 크기(%)입니다."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:329
+#: src/app/(tabs)/(settings)/import-trades.tsx:378
 msgid "Summary"
 msgstr "요약"
 
@@ -6921,7 +6951,7 @@ msgstr "일"
 msgid "superb"
 msgstr "탁월"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:520
+#: src/app/(tabs)/(settings)/import-trades.tsx:571
 msgid "Supported formats"
 msgstr "지원 형식"
 
@@ -7101,7 +7131,7 @@ msgstr "탭하면 이름이나 요일 변경, 스와이프하면 오늘부터 �
 msgid "Tap the current rating to clear it."
 msgstr "현재 평점을 탭하면 해제됩니다."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:474
+#: src/app/(tabs)/(settings)/import-trades.tsx:525
 msgid "Tap the file to swap it for another one."
 msgstr "파일을 탭하면 다른 파일로 바꿀 수 있습니다."
 
@@ -7596,14 +7626,14 @@ msgstr "TraderMemos 마크"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:233
 #: src/app/(tabs)/(settings)/account-form.tsx:388
 #: src/app/(tabs)/(settings)/data-backup.tsx:66
-#: src/app/(tabs)/(settings)/import-trades.tsx:330
-#: src/app/(tabs)/(settings)/import-trades.tsx:356
+#: src/app/(tabs)/(settings)/import-trades.tsx:379
+#: src/app/(tabs)/(settings)/import-trades.tsx:405
 #: src/app/(tabs)/(trades)/_layout.tsx:38
 #: src/components/symbol-journal.tsx:488
 msgid "Trades"
 msgstr "거래"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:246
+#: src/app/(tabs)/(settings)/import-trades.tsx:258
 msgid "Trades created"
 msgstr "생성된 매매"
 

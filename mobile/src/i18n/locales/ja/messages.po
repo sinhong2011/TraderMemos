@@ -25,7 +25,7 @@ msgstr "「{label}」は完全に削除されます。この操作は取り消�
 #~ msgid "“{name}” is already a checklist item."
 #~ msgstr "「{name}」はすでにチェックリストにあります。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:404
+#: src/app/(tabs)/(settings)/import-trades.tsx:453
 msgid "(skip)"
 msgstr "（スキップ）"
 
@@ -325,6 +325,10 @@ msgstr "{count}件のトレード"
 msgid "{events} events"
 msgstr "{events}件のイベント"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:353
+msgid "{example} fits both orders. Pick the one your broker uses — the wrong one moves trades to another month."
+msgstr "{example} はどちらの順序でも読めます。ブローカーが使う順序を選んでください。間違えると取引が別の月に移ります。"
+
 #: src/components/reports/overview-section.tsx:943
 msgid "{included} of {total} trades"
 msgstr "{total}件中{included}件"
@@ -448,12 +452,12 @@ msgid "% of balance (needs balance)"
 msgstr "残高比 %（開始残高が必要）"
 
 #. placeholder {0}: result.errors.length - 10
-#: src/app/(tabs)/(settings)/import-trades.tsx:283
+#: src/app/(tabs)/(settings)/import-trades.tsx:295
 msgid "+{0} more"
 msgstr "ほか{0}件"
 
 #. placeholder {0}: trades.length - 20
-#: src/app/(tabs)/(settings)/import-trades.tsx:358
+#: src/app/(tabs)/(settings)/import-trades.tsx:407
 msgid "+{0} more trades in this file."
 msgstr "このファイルにはほかに{0}件のトレードがあります。"
 
@@ -649,7 +653,7 @@ msgstr "アクセス トークン 連携 API ウェブフック"
 #: src/app/(tabs)/(settings)/account-form.tsx:225
 #: src/app/(tabs)/(settings)/export-trades.tsx:84
 #: src/app/(tabs)/(settings)/export-trades.tsx:87
-#: src/app/(tabs)/(settings)/import-trades.tsx:442
+#: src/app/(tabs)/(settings)/import-trades.tsx:493
 #: src/app/(tabs)/(settings)/user-detail.tsx:104
 #: src/app/(tabs)/(trades)/index.tsx:402
 #: src/app/cash-form.tsx:150
@@ -666,11 +670,11 @@ msgid "Account"
 msgstr "アカウント"
 
 #. placeholder {0}: preview.pending_account.name
-#: src/app/(tabs)/(settings)/import-trades.tsx:311
+#: src/app/(tabs)/(settings)/import-trades.tsx:333
 msgid "Account \"{0}\" will be created on import."
 msgstr "インポート時にアカウント「{0}」が作成されます。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:445
+#: src/app/(tabs)/(settings)/import-trades.tsx:496
 msgid "Account \"{jsonAccountName}\" from the JSON file will be matched or created."
 msgstr "JSONファイルのアカウント「{jsonAccountName}」を照合、または新規作成します。"
 
@@ -978,7 +982,7 @@ msgstr "「設定」›「プライバシー」›「リマインダー」でTra
 #~ msgstr "すでにリストにあります"
 
 #. placeholder {0}: pinned.slice(1)
-#: src/app/(tabs)/(settings)/import-trades.tsx:406
+#: src/app/(tabs)/(settings)/import-trades.tsx:455
 msgid "Always \"{0}\""
 msgstr "常に「{0}」"
 
@@ -1218,7 +1222,7 @@ msgstr "画面を離れていた"
 msgid "Axes score 0–100: profit factor caps at 3, payoff at 3×, SQN at 7; discipline falls with revenge flags, patience with holding losers past winners."
 msgstr "各軸は0–100で採点：プロフィットファクターは3、ペイオフは3倍、SQNは7が上限。リベンジ取引のフラグが増えると規律が、負けトレードを勝ちより長く持つと忍耐が下がります。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:430
+#: src/app/(tabs)/(settings)/import-trades.tsx:481
 #: src/app/replay.tsx:424
 #: src/app/replay.tsx:951
 #: src/app/trade-preview.tsx:107
@@ -1543,7 +1547,7 @@ msgstr "入金 出金 資金 残高 振替"
 msgid "Cash left"
 msgstr "残り資金"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:262
+#: src/app/(tabs)/(settings)/import-trades.tsx:274
 msgid "Cash transactions"
 msgstr "入出金"
 
@@ -1616,10 +1620,14 @@ msgstr "確認中…"
 msgid "Checklist"
 msgstr "チェックリスト"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:323
+msgid "Choose a date order first"
+msgstr "先に日付の順序を選んでください"
+
 #~ msgid "Choose a file first."
 #~ msgstr "まずファイルを選択してください。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:499
+#: src/app/(tabs)/(settings)/import-trades.tsx:550
 msgid "Choose CSV or JSON file"
 msgstr "CSVまたはJSONファイルを選択"
 
@@ -2001,12 +2009,12 @@ msgstr "モデルを取得できませんでした"
 #~ msgid "Could not load your account."
 #~ msgstr "アカウント情報を読み込めませんでした。"
 
-#: src/app/_layout.tsx:77
+#: src/app/_layout.tsx:78
 msgid "Could not open file"
 msgstr "ファイルを開けませんでした"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:193
-#: src/app/(tabs)/(settings)/import-trades.tsx:513
+#: src/app/(tabs)/(settings)/import-trades.tsx:202
+#: src/app/(tabs)/(settings)/import-trades.tsx:564
 msgid "Could not preview"
 msgstr "プレビューできませんでした"
 
@@ -2090,7 +2098,7 @@ msgstr "保存できませんでした"
 msgid "Could not save tag"
 msgstr "タグを保存できませんでした"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:227
+#: src/app/(tabs)/(settings)/import-trades.tsx:239
 msgid "Could not save the sample"
 msgstr "サンプルを保存できませんでした"
 
@@ -2177,7 +2185,7 @@ msgstr "暗号資産"
 msgid "CSV / JSON file"
 msgstr "CSV / JSONファイル"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:489
+#: src/app/(tabs)/(settings)/import-trades.tsx:540
 msgid "CSV file"
 msgstr "CSV ファイル"
 
@@ -2323,12 +2331,30 @@ msgstr "データとバックアップ"
 msgid "Date"
 msgstr "日付"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:356
+msgid "Date order"
+msgstr "日付の順序"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:352
+#: src/app/(tabs)/(settings)/import-trades.tsx:372
+msgid "Dates"
+msgstr "日付"
+
+#. placeholder {0}: formatDayKey(dateOrderInfo.example_day_first)
+#: src/app/(tabs)/(settings)/import-trades.tsx:373
+msgid "Dates read as day/month — {example} is {0}."
+msgstr "日付は日/月の順で読み取りました。{example} は {0} です。"
+
 #: src/app/(tabs)/(calendar)/day/[date].tsx:271
 #: src/components/breakdown-card.tsx:25
 #: src/components/reports-filter-menu.tsx:53
 #: src/components/reports/winloss-section.tsx:88
 msgid "Day"
 msgstr "曜日"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:366
+msgid "Day first"
+msgstr "日が先"
 
 #: src/components/reports/detailed-section.tsx:158
 #: src/components/reports/detailed-section.tsx:165
@@ -2473,7 +2499,7 @@ msgstr "詳細"
 msgid "Details"
 msgstr "詳細"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:322
+#: src/app/(tabs)/(settings)/import-trades.tsx:344
 msgid "Detected broker"
 msgstr "検出したブローカー"
 
@@ -2550,7 +2576,7 @@ msgstr "金額"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:196
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:219
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:235
-#: src/app/(tabs)/(settings)/import-trades.tsx:289
+#: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
 #: src/components/time-picker.tsx:100
 msgid "Done"
@@ -2898,11 +2924,11 @@ msgid "Equity curve"
 msgstr "資産曲線"
 
 #. placeholder {0}: result.errors.length
-#: src/app/(tabs)/(settings)/import-trades.tsx:274
+#: src/app/(tabs)/(settings)/import-trades.tsx:286
 msgid "Errors ({0})"
 msgstr "エラー（{0}）"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:339
+#: src/app/(tabs)/(settings)/import-trades.tsx:388
 msgid "Est. net P&L"
 msgstr "推定純損益"
 
@@ -3142,9 +3168,9 @@ msgstr "モデルを取得"
 msgid "Fetching rate…"
 msgstr "レート取得中…"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:308
-#: src/app/(tabs)/(settings)/import-trades.tsx:315
-#: src/app/(tabs)/(settings)/import-trades.tsx:470
+#: src/app/(tabs)/(settings)/import-trades.tsx:330
+#: src/app/(tabs)/(settings)/import-trades.tsx:337
+#: src/app/(tabs)/(settings)/import-trades.tsx:521
 msgid "File"
 msgstr "ファイル"
 
@@ -3162,7 +3188,7 @@ msgstr "約定 {0}"
 msgid "Fill CSV"
 msgstr "約定 CSV"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:473
+#: src/app/(tabs)/(settings)/import-trades.tsx:524
 msgid "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 msgstr "ブローカーの約定CSV、ジャーナルCSVエクスポート、またはTraderMemosのJSONバックアップに対応。"
 
@@ -3177,16 +3203,16 @@ msgstr "約定価格がチャートと一致しません — 再生中の損益�
 #~ msgid "Fill prices disagree with the tape — replay P&L is approximate until the exit."
 #~ msgstr "約定価格がチャートと一致しません — 決済までのリプレイ損益は概算です。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:336
+#: src/app/(tabs)/(settings)/import-trades.tsx:385
 #: src/components/trade-form.tsx:414
 msgid "Fills"
 msgstr "約定"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:250
+#: src/app/(tabs)/(settings)/import-trades.tsx:262
 msgid "Fills inserted"
 msgstr "追加された約定"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:418
+#: src/app/(tabs)/(settings)/import-trades.tsx:467
 msgid "Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map."
 msgstr "約定・ジャーナル・入出金・セットアップはJSONファイルから直接読み込まれます — マッピングは不要です。"
 
@@ -3291,7 +3317,7 @@ msgstr "変換元"
 #~ msgid "from {0} →"
 #~ msgstr "{0}から →"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:456
+#: src/app/(tabs)/(settings)/import-trades.tsx:507
 msgid "From file"
 msgstr "ファイルから"
 
@@ -3564,16 +3590,16 @@ msgstr "重要度"
 #~ msgstr "インポート"
 
 #. placeholder {0}: preview.row_count ?? 0
-#: src/app/(tabs)/(settings)/import-trades.tsx:304
+#: src/app/(tabs)/(settings)/import-trades.tsx:326
 msgid "Import {0} rows"
 msgstr "{0}行をインポート"
 
 #. placeholder {0}: summary?.trade_count ?? trades.length
-#: src/app/(tabs)/(settings)/import-trades.tsx:303
+#: src/app/(tabs)/(settings)/import-trades.tsx:325
 msgid "Import {0} trades"
 msgstr "{0}件のトレードをインポート"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:290
+#: src/app/(tabs)/(settings)/import-trades.tsx:302
 msgid "Import another file"
 msgstr "別のファイルをインポート"
 
@@ -3592,7 +3618,7 @@ msgstr "ブローカーの約定やバックアップをインポート。トレ
 msgid "Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots."
 msgstr "証券会社の約定、ジャーナル CSV、または TraderMemos のバックアップを取り込みます。エクスポートは JSON・CSV・スクリーンショット入り ZIP から選べます。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:244
+#: src/app/(tabs)/(settings)/import-trades.tsx:256
 msgid "Import complete"
 msgstr "インポート完了"
 
@@ -3603,11 +3629,11 @@ msgstr "インポート完了"
 msgid "import export backup restore csv json zip"
 msgstr "インポート エクスポート バックアップ 復元 CSV JSON ZIP"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:215
+#: src/app/(tabs)/(settings)/import-trades.tsx:227
 msgid "Import failed"
 msgstr "インポートに失敗しました"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:451
+#: src/app/(tabs)/(settings)/import-trades.tsx:502
 msgid "Import into"
 msgstr "インポート先"
 
@@ -3621,7 +3647,7 @@ msgstr "インポートをロールバックしました"
 msgid "Import trades"
 msgstr "トレードをインポート"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:424
+#: src/app/(tabs)/(settings)/import-trades.tsx:474
 msgid "Importing…"
 msgstr "インポート中…"
 
@@ -3640,7 +3666,7 @@ msgstr "配当の記録を含みます。"
 msgid "Initial risk"
 msgstr "初期リスク"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:250
+#: src/app/(tabs)/(settings)/import-trades.tsx:262
 msgid "Inserted"
 msgstr "追加"
 
@@ -3704,7 +3730,7 @@ msgstr "項目"
 msgid "Journal"
 msgstr "ジャーナル"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:257
+#: src/app/(tabs)/(settings)/import-trades.tsx:269
 msgid "Journal annotated"
 msgstr "ジャーナル注記"
 
@@ -3718,7 +3744,7 @@ msgstr "クローズ済みトレードのジャーナル表。"
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:38
 #: src/app/(tabs)/(settings)/import-trades.tsx:76
-#: src/app/(tabs)/(settings)/import-trades.tsx:489
+#: src/app/(tabs)/(settings)/import-trades.tsx:540
 msgid "JSON backup"
 msgstr "JSONバックアップ"
 
@@ -4090,7 +4116,7 @@ msgstr "手動"
 msgid "Manual only"
 msgstr "手動のみ"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:381
+#: src/app/(tabs)/(settings)/import-trades.tsx:430
 msgid "Map columns"
 msgstr "列のマッピング"
 
@@ -4117,7 +4143,7 @@ msgstr "市場セッション"
 msgid "Market timezone"
 msgstr "市場タイムゾーン"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:382
+#: src/app/(tabs)/(settings)/import-trades.tsx:431
 msgid "Match each field to a column from the file."
 msgstr "各フィールドをファイルの列に対応付けてください。"
 
@@ -4303,6 +4329,10 @@ msgstr "モンテカルロ"
 #: src/components/reports/winloss-section.tsx:90
 msgid "Month"
 msgstr "今月"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:362
+msgid "Month first"
+msgstr "月が先"
 
 #: src/components/reports/overview-section.tsx:506
 #: src/components/reports/overview-section.tsx:770
@@ -4532,7 +4562,7 @@ msgstr "口座が見つかりません — 設定 → 口座で作成してく�
 msgid "No accounts yet"
 msgstr "口座がまだありません"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:465
+#: src/app/(tabs)/(settings)/import-trades.tsx:516
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "アカウントがありません — アカウント情報を含むJSONバックアップを選ぶか、先にアカウントを追加してください。"
 
@@ -5353,7 +5383,7 @@ msgstr "開始日と終了日を選択"
 msgid "Pick a symbol"
 msgstr "銘柄を選択"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:513
+#: src/app/(tabs)/(settings)/import-trades.tsx:564
 msgid "Pick an account first."
 msgstr "まずアカウントを選択してください。"
 
@@ -5483,7 +5513,7 @@ msgstr "前回"
 msgid "Preview"
 msgstr "プレビュー"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:508
+#: src/app/(tabs)/(settings)/import-trades.tsx:559
 msgid "Preview import"
 msgstr "インポートをプレビュー"
 
@@ -5738,7 +5768,7 @@ msgstr "達成"
 msgid "Reading {settled} of {0}… Screenshots are parsed by your vision endpoint; CSV and JSON parse on this device."
 msgstr "{settled} / {0} を読み取り中… スクリーンショットはビジョンエンドポイントで解析し、CSV と JSON は端末内で解析します。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:508
+#: src/app/(tabs)/(settings)/import-trades.tsx:559
 #: src/components/trade-scan-overlay.tsx:65
 msgid "Reading…"
 msgstr "読み込み中…"
@@ -6173,15 +6203,15 @@ msgstr "ルーティンのチェック"
 
 #. placeholder {0}: error.row
 #. placeholder {1}: error.message
-#: src/app/(tabs)/(settings)/import-trades.tsx:278
+#: src/app/(tabs)/(settings)/import-trades.tsx:290
 msgid "Row {0}: {1}"
 msgstr "{0}行目: {1}"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:318
+#: src/app/(tabs)/(settings)/import-trades.tsx:340
 msgid "Rows"
 msgstr "行数"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:345
+#: src/app/(tabs)/(settings)/import-trades.tsx:394
 msgid "Rows with errors"
 msgstr "エラーのある行"
 
@@ -6223,15 +6253,15 @@ msgstr "ランナー"
 msgid "Runner stop"
 msgstr "ランナーのストップ"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:547
+#: src/app/(tabs)/(settings)/import-trades.tsx:598
 msgid "Sample CSV"
 msgstr "サンプル CSV"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:542
+#: src/app/(tabs)/(settings)/import-trades.tsx:593
 msgid "Sample files"
 msgstr "サンプルファイル"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:552
+#: src/app/(tabs)/(settings)/import-trades.tsx:603
 msgid "Sample JSON"
 msgstr "サンプル JSON"
 
@@ -6251,7 +6281,7 @@ msgstr "土"
 msgid "Save"
 msgstr "保存"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:543
+#: src/app/(tabs)/(settings)/import-trades.tsx:594
 msgid "Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties."
 msgstr "サンプルを保存すると想定される形式を確認できます。ファイルは自分のサーバーに留まり、第三者に送信されることはありません。"
 
@@ -6562,7 +6592,7 @@ msgstr "セットアップ評価"
 msgid "Setups"
 msgstr "セットアップ"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:267
+#: src/app/(tabs)/(settings)/import-trades.tsx:279
 msgid "Setups restored"
 msgstr "復元されたセットアップ"
 
@@ -6722,7 +6752,7 @@ msgstr "サイズ ×{0}"
 #~ msgid "sk-…"
 #~ msgstr "sk-…"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:253
+#: src/app/(tabs)/(settings)/import-trades.tsx:265
 msgid "Skipped (duplicates)"
 msgstr "スキップ（重複）"
 
@@ -6816,7 +6846,7 @@ msgstr "残り：{0}"
 msgid "Stock"
 msgstr "株式"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:333
+#: src/app/(tabs)/(settings)/import-trades.tsx:382
 msgid "Stocks / options"
 msgstr "株式 / オプション"
 
@@ -6909,7 +6939,7 @@ msgstr "推奨リスク"
 msgid "Suggested size as a percent of account equity."
 msgstr "口座エクイティに対する推奨サイズ（%）。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:329
+#: src/app/(tabs)/(settings)/import-trades.tsx:378
 msgid "Summary"
 msgstr "概要"
 
@@ -6921,7 +6951,7 @@ msgstr "日"
 msgid "superb"
 msgstr "卓越"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:520
+#: src/app/(tabs)/(settings)/import-trades.tsx:571
 msgid "Supported formats"
 msgstr "対応フォーマット"
 
@@ -7101,7 +7131,7 @@ msgstr "タップで名前や曜日を変更、スワイプで今日から外し
 msgid "Tap the current rating to clear it."
 msgstr "現在の評価をタップすると解除できます。"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:474
+#: src/app/(tabs)/(settings)/import-trades.tsx:525
 msgid "Tap the file to swap it for another one."
 msgstr "ファイルをタップすると別のファイルに差し替えられます。"
 
@@ -7596,14 +7626,14 @@ msgstr "TraderMemos マーク"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:233
 #: src/app/(tabs)/(settings)/account-form.tsx:388
 #: src/app/(tabs)/(settings)/data-backup.tsx:66
-#: src/app/(tabs)/(settings)/import-trades.tsx:330
-#: src/app/(tabs)/(settings)/import-trades.tsx:356
+#: src/app/(tabs)/(settings)/import-trades.tsx:379
+#: src/app/(tabs)/(settings)/import-trades.tsx:405
 #: src/app/(tabs)/(trades)/_layout.tsx:38
 #: src/components/symbol-journal.tsx:488
 msgid "Trades"
 msgstr "トレード"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:246
+#: src/app/(tabs)/(settings)/import-trades.tsx:258
 msgid "Trades created"
 msgstr "作成されたトレード"
 

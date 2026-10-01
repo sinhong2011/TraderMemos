@@ -26,7 +26,7 @@ msgstr "“{label}” is removed for good. This cannot be undone."
 #~ msgid "“{name}” is already a checklist item."
 #~ msgstr "“{name}” is already a checklist item."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:404
+#: src/app/(tabs)/(settings)/import-trades.tsx:453
 msgid "(skip)"
 msgstr "(skip)"
 
@@ -338,6 +338,10 @@ msgstr "{count} trades"
 msgid "{events} events"
 msgstr "{events} events"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:353
+msgid "{example} fits both orders. Pick the one your broker uses — the wrong one moves trades to another month."
+msgstr "{example} fits both orders. Pick the one your broker uses — the wrong one moves trades to another month."
+
 #: src/components/reports/overview-section.tsx:943
 msgid "{included} of {total} trades"
 msgstr "{included} of {total} trades"
@@ -467,12 +471,12 @@ msgid "% of balance (needs balance)"
 msgstr "% of balance (needs balance)"
 
 #. placeholder {0}: result.errors.length - 10
-#: src/app/(tabs)/(settings)/import-trades.tsx:283
+#: src/app/(tabs)/(settings)/import-trades.tsx:295
 msgid "+{0} more"
 msgstr "+{0} more"
 
 #. placeholder {0}: trades.length - 20
-#: src/app/(tabs)/(settings)/import-trades.tsx:358
+#: src/app/(tabs)/(settings)/import-trades.tsx:407
 msgid "+{0} more trades in this file."
 msgstr "+{0} more trades in this file."
 
@@ -673,7 +677,7 @@ msgstr "access token integration webhook"
 #: src/app/(tabs)/(settings)/account-form.tsx:225
 #: src/app/(tabs)/(settings)/export-trades.tsx:84
 #: src/app/(tabs)/(settings)/export-trades.tsx:87
-#: src/app/(tabs)/(settings)/import-trades.tsx:442
+#: src/app/(tabs)/(settings)/import-trades.tsx:493
 #: src/app/(tabs)/(settings)/user-detail.tsx:104
 #: src/app/(tabs)/(trades)/index.tsx:402
 #: src/app/cash-form.tsx:150
@@ -690,11 +694,11 @@ msgid "Account"
 msgstr "Account"
 
 #. placeholder {0}: preview.pending_account.name
-#: src/app/(tabs)/(settings)/import-trades.tsx:311
+#: src/app/(tabs)/(settings)/import-trades.tsx:333
 msgid "Account \"{0}\" will be created on import."
 msgstr "Account \"{0}\" will be created on import."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:445
+#: src/app/(tabs)/(settings)/import-trades.tsx:496
 msgid "Account \"{jsonAccountName}\" from the JSON file will be matched or created."
 msgstr "Account \"{jsonAccountName}\" from the JSON file will be matched or created."
 
@@ -1016,7 +1020,7 @@ msgstr "Allow TraderMemos to add reminders in Settings › Privacy › Reminders
 #~ msgstr "Already on the list"
 
 #. placeholder {0}: pinned.slice(1)
-#: src/app/(tabs)/(settings)/import-trades.tsx:406
+#: src/app/(tabs)/(settings)/import-trades.tsx:455
 msgid "Always \"{0}\""
 msgstr "Always \"{0}\""
 
@@ -1264,7 +1268,7 @@ msgstr "Away from screen"
 msgid "Axes score 0–100: profit factor caps at 3, payoff at 3×, SQN at 7; discipline falls with revenge flags, patience with holding losers past winners."
 msgstr "Axes score 0–100: profit factor caps at 3, payoff at 3×, SQN at 7; discipline falls with revenge flags, patience with holding losers past winners."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:430
+#: src/app/(tabs)/(settings)/import-trades.tsx:481
 #: src/app/replay.tsx:424
 #: src/app/replay.tsx:951
 #: src/app/trade-preview.tsx:107
@@ -1596,7 +1600,7 @@ msgstr "cash funding ledger balance transfer"
 msgid "Cash left"
 msgstr "Cash left"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:262
+#: src/app/(tabs)/(settings)/import-trades.tsx:274
 msgid "Cash transactions"
 msgstr "Cash transactions"
 
@@ -1672,11 +1676,15 @@ msgstr "Checking…"
 msgid "Checklist"
 msgstr "Checklist"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:323
+msgid "Choose a date order first"
+msgstr "Choose a date order first"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:477
 #~ msgid "Choose a file first."
 #~ msgstr "Choose a file first."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:499
+#: src/app/(tabs)/(settings)/import-trades.tsx:550
 msgid "Choose CSV or JSON file"
 msgstr "Choose CSV or JSON file"
 
@@ -2073,12 +2081,12 @@ msgstr "Could not load models"
 #~ msgid "Could not load your account."
 #~ msgstr "Could not load your account."
 
-#: src/app/_layout.tsx:77
+#: src/app/_layout.tsx:78
 msgid "Could not open file"
 msgstr "Could not open file"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:193
-#: src/app/(tabs)/(settings)/import-trades.tsx:513
+#: src/app/(tabs)/(settings)/import-trades.tsx:202
+#: src/app/(tabs)/(settings)/import-trades.tsx:564
 msgid "Could not preview"
 msgstr "Could not preview"
 
@@ -2165,7 +2173,7 @@ msgstr "Could not save"
 msgid "Could not save tag"
 msgstr "Could not save tag"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:227
+#: src/app/(tabs)/(settings)/import-trades.tsx:239
 msgid "Could not save the sample"
 msgstr "Could not save the sample"
 
@@ -2260,7 +2268,7 @@ msgstr "Crypto"
 msgid "CSV / JSON file"
 msgstr "CSV / JSON file"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:489
+#: src/app/(tabs)/(settings)/import-trades.tsx:540
 msgid "CSV file"
 msgstr "CSV file"
 
@@ -2418,12 +2426,30 @@ msgstr "Data & backup"
 msgid "Date"
 msgstr "Date"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:356
+msgid "Date order"
+msgstr "Date order"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:352
+#: src/app/(tabs)/(settings)/import-trades.tsx:372
+msgid "Dates"
+msgstr "Dates"
+
+#. placeholder {0}: formatDayKey(dateOrderInfo.example_day_first)
+#: src/app/(tabs)/(settings)/import-trades.tsx:373
+msgid "Dates read as day/month — {example} is {0}."
+msgstr "Dates read as day/month — {example} is {0}."
+
 #: src/app/(tabs)/(calendar)/day/[date].tsx:271
 #: src/components/breakdown-card.tsx:25
 #: src/components/reports-filter-menu.tsx:53
 #: src/components/reports/winloss-section.tsx:88
 msgid "Day"
 msgstr "Day"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:366
+msgid "Day first"
+msgstr "Day first"
 
 #: src/components/reports/detailed-section.tsx:158
 #: src/components/reports/detailed-section.tsx:165
@@ -2574,7 +2600,7 @@ msgstr "Detailed"
 msgid "Details"
 msgstr "Details"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:322
+#: src/app/(tabs)/(settings)/import-trades.tsx:344
 msgid "Detected broker"
 msgstr "Detected broker"
 
@@ -2657,7 +2683,7 @@ msgstr "Dollars"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:196
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:219
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:235
-#: src/app/(tabs)/(settings)/import-trades.tsx:289
+#: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
 #: src/components/time-picker.tsx:100
 msgid "Done"
@@ -3019,11 +3045,11 @@ msgid "Equity curve"
 msgstr "Equity curve"
 
 #. placeholder {0}: result.errors.length
-#: src/app/(tabs)/(settings)/import-trades.tsx:274
+#: src/app/(tabs)/(settings)/import-trades.tsx:286
 msgid "Errors ({0})"
 msgstr "Errors ({0})"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:339
+#: src/app/(tabs)/(settings)/import-trades.tsx:388
 msgid "Est. net P&L"
 msgstr "Est. net P&L"
 
@@ -3273,9 +3299,9 @@ msgstr "Fetch models"
 msgid "Fetching rate…"
 msgstr "Fetching rate…"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:308
-#: src/app/(tabs)/(settings)/import-trades.tsx:315
-#: src/app/(tabs)/(settings)/import-trades.tsx:470
+#: src/app/(tabs)/(settings)/import-trades.tsx:330
+#: src/app/(tabs)/(settings)/import-trades.tsx:337
+#: src/app/(tabs)/(settings)/import-trades.tsx:521
 msgid "File"
 msgstr "File"
 
@@ -3293,7 +3319,7 @@ msgstr "Fill {0}"
 msgid "Fill CSV"
 msgstr "Fill CSV"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:473
+#: src/app/(tabs)/(settings)/import-trades.tsx:524
 msgid "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 msgstr "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 
@@ -3309,16 +3335,16 @@ msgstr "Fill prices disagree with the tape — in-flight P&L is marked to the ch
 #~ msgid "Fill prices disagree with the tape — replay P&L is approximate until the exit."
 #~ msgstr "Fill prices disagree with the tape — replay P&L is approximate until the exit."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:336
+#: src/app/(tabs)/(settings)/import-trades.tsx:385
 #: src/components/trade-form.tsx:414
 msgid "Fills"
 msgstr "Fills"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:250
+#: src/app/(tabs)/(settings)/import-trades.tsx:262
 msgid "Fills inserted"
 msgstr "Fills inserted"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:418
+#: src/app/(tabs)/(settings)/import-trades.tsx:467
 msgid "Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map."
 msgstr "Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map."
 
@@ -3434,7 +3460,7 @@ msgstr "From"
 #~ msgid "from {0} →"
 #~ msgstr "from {0} →"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:456
+#: src/app/(tabs)/(settings)/import-trades.tsx:507
 msgid "From file"
 msgstr "From file"
 
@@ -3716,16 +3742,16 @@ msgstr "Impact"
 #~ msgstr "Import"
 
 #. placeholder {0}: preview.row_count ?? 0
-#: src/app/(tabs)/(settings)/import-trades.tsx:304
+#: src/app/(tabs)/(settings)/import-trades.tsx:326
 msgid "Import {0} rows"
 msgstr "Import {0} rows"
 
 #. placeholder {0}: summary?.trade_count ?? trades.length
-#: src/app/(tabs)/(settings)/import-trades.tsx:303
+#: src/app/(tabs)/(settings)/import-trades.tsx:325
 msgid "Import {0} trades"
 msgstr "Import {0} trades"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:290
+#: src/app/(tabs)/(settings)/import-trades.tsx:302
 msgid "Import another file"
 msgstr "Import another file"
 
@@ -3745,7 +3771,7 @@ msgstr "Import broker fills or a backup; export trades as JSON, CSV, or ZIP. Con
 msgid "Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots."
 msgstr "Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:244
+#: src/app/(tabs)/(settings)/import-trades.tsx:256
 msgid "Import complete"
 msgstr "Import complete"
 
@@ -3757,11 +3783,11 @@ msgstr "Import complete"
 msgid "import export backup restore csv json zip"
 msgstr "import export backup restore csv json zip"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:215
+#: src/app/(tabs)/(settings)/import-trades.tsx:227
 msgid "Import failed"
 msgstr "Import failed"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:451
+#: src/app/(tabs)/(settings)/import-trades.tsx:502
 msgid "Import into"
 msgstr "Import into"
 
@@ -3775,7 +3801,7 @@ msgstr "Import rolled back"
 msgid "Import trades"
 msgstr "Import trades"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:424
+#: src/app/(tabs)/(settings)/import-trades.tsx:474
 msgid "Importing…"
 msgstr "Importing…"
 
@@ -3795,7 +3821,7 @@ msgstr "Includes a dividend entry."
 msgid "Initial risk"
 msgstr "Initial risk"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:250
+#: src/app/(tabs)/(settings)/import-trades.tsx:262
 msgid "Inserted"
 msgstr "Inserted"
 
@@ -3860,7 +3886,7 @@ msgstr "Item"
 msgid "Journal"
 msgstr "Journal"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:257
+#: src/app/(tabs)/(settings)/import-trades.tsx:269
 msgid "Journal annotated"
 msgstr "Journal annotated"
 
@@ -3874,7 +3900,7 @@ msgstr "Journal spreadsheet of closed trades."
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:38
 #: src/app/(tabs)/(settings)/import-trades.tsx:76
-#: src/app/(tabs)/(settings)/import-trades.tsx:489
+#: src/app/(tabs)/(settings)/import-trades.tsx:540
 msgid "JSON backup"
 msgstr "JSON backup"
 
@@ -4252,7 +4278,7 @@ msgstr "Manual"
 msgid "Manual only"
 msgstr "Manual only"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:381
+#: src/app/(tabs)/(settings)/import-trades.tsx:430
 msgid "Map columns"
 msgstr "Map columns"
 
@@ -4279,7 +4305,7 @@ msgstr "Market sessions"
 msgid "Market timezone"
 msgstr "Market timezone"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:382
+#: src/app/(tabs)/(settings)/import-trades.tsx:431
 msgid "Match each field to a column from the file."
 msgstr "Match each field to a column from the file."
 
@@ -4469,6 +4495,10 @@ msgstr "Monte Carlo"
 #: src/components/reports/winloss-section.tsx:90
 msgid "Month"
 msgstr "Month"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:362
+msgid "Month first"
+msgstr "Month first"
 
 #: src/components/reports/overview-section.tsx:506
 #: src/components/reports/overview-section.tsx:770
@@ -4705,7 +4735,7 @@ msgstr "No account found — create one in Settings → Accounts."
 msgid "No accounts yet"
 msgstr "No accounts yet"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:465
+#: src/app/(tabs)/(settings)/import-trades.tsx:516
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "No accounts yet — pick a JSON backup with account details, or add an account first."
 
@@ -5543,7 +5573,7 @@ msgstr "Pick a start and an end"
 msgid "Pick a symbol"
 msgstr "Pick a symbol"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:513
+#: src/app/(tabs)/(settings)/import-trades.tsx:564
 msgid "Pick an account first."
 msgstr "Pick an account first."
 
@@ -5688,7 +5718,7 @@ msgstr "Prev"
 msgid "Preview"
 msgstr "Preview"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:508
+#: src/app/(tabs)/(settings)/import-trades.tsx:559
 msgid "Preview import"
 msgstr "Preview import"
 
@@ -5952,7 +5982,7 @@ msgstr "reached"
 msgid "Reading {settled} of {0}… Screenshots are parsed by your vision endpoint; CSV and JSON parse on this device."
 msgstr "Reading {settled} of {0}… Screenshots are parsed by your vision endpoint; CSV and JSON parse on this device."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:508
+#: src/app/(tabs)/(settings)/import-trades.tsx:559
 #: src/components/trade-scan-overlay.tsx:65
 msgid "Reading…"
 msgstr "Reading…"
@@ -6403,15 +6433,15 @@ msgstr "Routine tick"
 
 #. placeholder {0}: error.row
 #. placeholder {1}: error.message
-#: src/app/(tabs)/(settings)/import-trades.tsx:278
+#: src/app/(tabs)/(settings)/import-trades.tsx:290
 msgid "Row {0}: {1}"
 msgstr "Row {0}: {1}"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:318
+#: src/app/(tabs)/(settings)/import-trades.tsx:340
 msgid "Rows"
 msgstr "Rows"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:345
+#: src/app/(tabs)/(settings)/import-trades.tsx:394
 msgid "Rows with errors"
 msgstr "Rows with errors"
 
@@ -6454,15 +6484,15 @@ msgstr "Runner"
 msgid "Runner stop"
 msgstr "Runner stop"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:547
+#: src/app/(tabs)/(settings)/import-trades.tsx:598
 msgid "Sample CSV"
 msgstr "Sample CSV"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:542
+#: src/app/(tabs)/(settings)/import-trades.tsx:593
 msgid "Sample files"
 msgstr "Sample files"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:552
+#: src/app/(tabs)/(settings)/import-trades.tsx:603
 msgid "Sample JSON"
 msgstr "Sample JSON"
 
@@ -6482,7 +6512,7 @@ msgstr "Sat"
 msgid "Save"
 msgstr "Save"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:543
+#: src/app/(tabs)/(settings)/import-trades.tsx:594
 msgid "Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties."
 msgstr "Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties."
 
@@ -6808,7 +6838,7 @@ msgstr "Setup rating"
 msgid "Setups"
 msgstr "Setups"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:267
+#: src/app/(tabs)/(settings)/import-trades.tsx:279
 msgid "Setups restored"
 msgstr "Setups restored"
 
@@ -6970,7 +7000,7 @@ msgstr "size ×{0}"
 #~ msgid "sk-…"
 #~ msgstr "sk-…"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:253
+#: src/app/(tabs)/(settings)/import-trades.tsx:265
 msgid "Skipped (duplicates)"
 msgstr "Skipped (duplicates)"
 
@@ -7065,7 +7095,7 @@ msgstr "Still to do: {0}"
 msgid "Stock"
 msgstr "Stock"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:333
+#: src/app/(tabs)/(settings)/import-trades.tsx:382
 msgid "Stocks / options"
 msgstr "Stocks / options"
 
@@ -7160,7 +7190,7 @@ msgstr "suggested risk"
 msgid "Suggested size as a percent of account equity."
 msgstr "Suggested size as a percent of account equity."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:329
+#: src/app/(tabs)/(settings)/import-trades.tsx:378
 msgid "Summary"
 msgstr "Summary"
 
@@ -7172,7 +7202,7 @@ msgstr "Sun"
 msgid "superb"
 msgstr "superb"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:520
+#: src/app/(tabs)/(settings)/import-trades.tsx:571
 msgid "Supported formats"
 msgstr "Supported formats"
 
@@ -7360,7 +7390,7 @@ msgstr "Tap an item to rename it or change its days, swipe to remove it from tod
 msgid "Tap the current rating to clear it."
 msgstr "Tap the current rating to clear it."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:474
+#: src/app/(tabs)/(settings)/import-trades.tsx:525
 msgid "Tap the file to swap it for another one."
 msgstr "Tap the file to swap it for another one."
 
@@ -7879,14 +7909,14 @@ msgstr "TraderMemos mark"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:233
 #: src/app/(tabs)/(settings)/account-form.tsx:388
 #: src/app/(tabs)/(settings)/data-backup.tsx:66
-#: src/app/(tabs)/(settings)/import-trades.tsx:330
-#: src/app/(tabs)/(settings)/import-trades.tsx:356
+#: src/app/(tabs)/(settings)/import-trades.tsx:379
+#: src/app/(tabs)/(settings)/import-trades.tsx:405
 #: src/app/(tabs)/(trades)/_layout.tsx:38
 #: src/components/symbol-journal.tsx:488
 msgid "Trades"
 msgstr "Trades"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:246
+#: src/app/(tabs)/(settings)/import-trades.tsx:258
 msgid "Trades created"
 msgstr "Trades created"
 
