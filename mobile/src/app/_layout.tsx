@@ -367,6 +367,9 @@ export default function RootLayout() {
             {/* Add/edit tag — a pushed card (the cash-form shape), so the
                 Tags list's rows can tap-to-edit and long-press-preview it. */}
             <Stack.Screen name="tag-form" />
+            {/* Routine item and missed-trade forms — pushed cards, same shape. */}
+            <Stack.Screen name="routine-item" />
+            <Stack.Screen name="missed-trade-form" />
           </Stack>
           {/* Above the navigator, so it stays put across pushes and sheets. */}
           <OfflineBanner />

@@ -142,6 +142,7 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   shield: 'verified_user',
   eye: 'visibility',
   'eye.slash': 'visibility_off',
+  binoculars: 'search_insights',
   'person.2': 'people',
   'person.crop.circle': 'account_circle',
 

@@ -120,7 +120,7 @@ export default function TradingJournalScreen() {
               rather than popping to Home. */}
           <NavRow
             systemImage="checkmark.circle"
-            label={t`Daily checklist`}
+            label={t`Daily routine`}
             onPress={() => router.push('/daily-checklist')}
           />
           <NavRow

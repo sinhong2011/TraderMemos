@@ -1,170 +1,109 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Alert } from 'react-native';
 
-import { queryKeys, useChecklistTemplate, useNotes } from '@/api/hooks';
-import type { Note, NoteBody } from '@/api/types';
+import { queryKeys, useRoutineDay, useRoutineItems } from '@/api/hooks';
+import type { RoutineStage } from '@/api/types';
 import { t } from '@lingui/core/macro';
-import {
-  appendTaskBlock,
-  isWeekend,
-  parseTasks,
-  taskBlock,
-  toggleTask,
-  todayNoteDay,
-  useWeekdaysOnly,
-} from '@/lib/checklist';
+import { todayNoteDay } from '@/lib/checklist';
 import { useChecklistReminderSync } from '@/lib/checklist-reminders';
 import { errorMessage } from '@/lib/errors';
-import { applyPendingNotes, usePendingOps } from '@/lib/outbox';
-import { useQueuedNoteOps } from '@/lib/use-outbox';
+import { applyPendingChecks, usePendingOps } from '@/lib/outbox';
+import { useQueuedRoutineCheck } from '@/lib/use-outbox';
+
+export type RoutineRow = { id: string; text: string; stage: RoutineStage; done: boolean };
 
 /**
- * Today's checklist run — the state the Home card and the Daily checklist
- * screen share (web has this on the New Note drawer).
+ * Today's routine run — the state the Home card and the Daily checklist screen
+ * share.
  *
- * The boxes are the day's `daily_log` note body — the first toggle writes the
- * template into today's log, every toggle after that flips a `- [ ]` in it. So
- * a run started here is the same object the note editor, the notes list badge
- * and the web app already show; nothing is stored on the side.
+ * Ticks are routine checks (`/routines/day/:day/items/:id`), one row per item
+ * per day on the server, not `- [x]` lines in the day's daily log as the old
+ * checklist kept them: that is what gives the routine a history, and it means
+ * a tick can never fight a note edit over the same body. Offline, a tick lands
+ * in the outbox and shows at once through `applyPendingChecks`.
  *
- * `sync` mirrors the run into the Reminders app (when that is switched on) and
- * ticks back anything completed over there. Exactly one always-mounted caller
- * passes it — the Home card — so the mirror runs once, not once per screen
- * that happens to be showing the run.
+ * `sync` mirrors the routine into the Reminders app (when that is switched on)
+ * and ticks back anything completed over there. Exactly one always-mounted
+ * caller passes it — the Home card — so the mirror runs once, not once per
+ * screen that happens to be showing the run.
  */
 export function useChecklistRun({ sync = false }: { sync?: boolean } = {}) {
   const queryClient = useQueryClient();
-  // Queue-aware saves: a tick with the server unreachable lands in the
-  // offline outbox instead of an alert, and today's log may itself be a
-  // queued create the overlay surfaces (lib/outbox.ts).
-  const { createNote, updateNote } = useQueuedNoteOps();
-  const pendingOps = usePendingOps();
-
-  const template = useChecklistTemplate();
-  const weekdaysOnly = useWeekdaysOnly();
   const today = todayNoteDay();
-  // `from` only, filtered below: `occurred_at` is stored as written, so a `to`
-  // bound would drop a log saved with a time component on the same day.
-  const notesFilter = { from: today };
-  const notes = useNotes(notesFilter);
-  const serverLog = applyPendingNotes(notes.data, pendingOps, notesFilter).find(
-    (note) => note.type === 'daily_log' && note.occurred_at.slice(0, 10) === today,
-  );
+  const items = useRoutineItems(today);
+  const day = useRoutineDay(today);
+  const pendingOps = usePendingOps();
+  const { saveCheck } = useQueuedRoutineCheck();
 
-  /** Optimistic body, held until the invalidated notes query catches up. */
-  const [draft, setDraft] = useState<string | null>(null);
-  /**
-   * The log this run created, before the notes query has refetched. Without
-   * it a second tap arriving in that window would see no log and post a
-   * *second* daily log for the day.
-   */
-  const created = useRef<{ day: string; note: Note } | null>(null);
-  // Writes queue behind each other: every save sends the whole body, so two in
-  // flight at once would race and the loser would restore its stale copy.
-  const queue = useRef<Promise<unknown>>(Promise.resolve());
-  const inFlight = useRef(0);
+  /** Ticks shown before the server answers; cleared as each one settles. */
+  const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
 
-  const save = useMutation({
-    mutationFn: (body: string) => {
-      const run = queue.current.then(async () => {
-        // Read inside the queued step, not at call time: an earlier tap in the
-        // same batch may have just created the note this one has to patch.
-        const target =
-          serverLog ?? (created.current?.day === today ? created.current.note : undefined);
-        if (target) {
-          return updateNote(target.id, {
-            type: 'daily_log',
-            occurred_at: target.occurred_at,
-            title: target.title,
-            body,
-            symbols: target.symbols,
-          } satisfies NoteBody);
-        }
-        const { note } = await createNote({
-          type: 'daily_log',
-          occurred_at: today,
-          body,
-        } satisfies NoteBody);
-        created.current = { day: today, note };
-        return note;
-      });
-      queue.current = run.catch(() => undefined);
-      return run;
-    },
-    onMutate: () => {
-      inFlight.current += 1;
-    },
-    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
-    // The draft only stands down once the queue has drained and the refetched
-    // note carries every tap — dropping it between two queued writes would
-    // flash the boxes back to their pre-tap state.
-    onSettled: async () => {
-      inFlight.current -= 1;
-      if (inFlight.current > 0) return;
-      await queryClient.invalidateQueries({ queryKey: queryKeys.notes(notesFilter) });
-      setDraft(null);
-    },
-  });
-
-  const items = template.data?.items ?? [];
-  // `created` is deliberately not consulted here — it exists for the queue,
-  // and the draft already covers the render between a tap and its refetch.
-  const body = draft ?? serverLog?.body ?? '';
-  const tasks = parseTasks(body);
-  // Before the day's first tick there is no run yet — the template stands in,
-  // every box open.
-  const started = tasks.length > 0;
-  const rows = started ? tasks : items.map((text) => ({ text, done: false }));
+  const data = applyPendingChecks(day.data, pendingOps);
+  const rows: RoutineRow[] = (data?.items ?? []).map((item) => ({
+    id: item.id,
+    text: item.title,
+    stage: item.stage,
+    done: optimistic[item.id] ?? item.done,
+  }));
   const done = rows.filter((row) => row.done).length;
-  /** No routine to run today (weekdays-only template on a weekend). */
-  const offDay = weekdaysOnly && isWeekend();
+  const active = items.data?.items ?? [];
 
-  // The day's rows go over before any of them is ticked — a reminder that only
-  // appears once you have started working the list has already missed the
-  // moment it exists for. An off-day (or a non-`sync` caller) sends nothing.
-  useChecklistReminderSync({
-    day: today,
-    tasks: sync && !offDay ? rows : [],
-    onPulled: (texts) => {
-      if (!sync) return;
-      // Today's log may exist and simply not have arrived yet; the same guess
-      // `toggle` refuses to make.
-      if (notes.isLoading) return;
-      const wanted = new Set(texts);
-      // Completing a reminder before the first tap starts the day's run, just
-      // as tapping the box here would.
-      const base = started ? body : appendTaskBlock(body, taskBlock(items), t`Checklist`);
-      let updated = base;
-      parseTasks(base).forEach((task, index) => {
-        if (!task.done && wanted.has(task.text)) updated = toggleTask(updated, index, true);
-      });
-      // Nothing matched an open box: an unstarted day stays unstarted rather
-      // than being logged for a tick that isn't there.
-      if (updated === base) return;
-      setDraft(updated);
-      save.mutate(updated);
-    },
-  });
-
-  function toggle(index: number, next: boolean) {
-    // Today's log may exist and simply not have arrived yet; starting a run on
-    // top of that guess would strand the real one.
-    if (notes.isLoading) return;
-    const updated = started
-      ? toggleTask(body, index, next)
-      : appendTaskBlock(body, taskBlock(items, index), t`Checklist`);
-    setDraft(updated);
-    save.mutate(updated);
+  function settle(id: string) {
+    setOptimistic((cur) => {
+      const next = { ...cur };
+      delete next[id];
+      return next;
+    });
   }
 
+  function toggle(id: string, next: boolean) {
+    setOptimistic((cur) => ({ ...cur, [id]: next }));
+    saveCheck(today, id, next)
+      .then((result) => {
+        if (result.day) queryClient.setQueryData(queryKeys.routineDay(today), result.day);
+        settle(id);
+        void queryClient.invalidateQueries({ queryKey: ['routines', 'history'] });
+      })
+      .catch((err: unknown) => {
+        settle(id);
+        Alert.alert(t`Could not save`, errorMessage(err));
+      });
+  }
+
+  // Every active item goes over, scheduled today or not — a series dropped on
+  // its off-days would be deleted and recreated every week, and an alarm on a
+  // day the app never opened is the whole point. Only today's items carry a
+  // tick to mirror.
+  const doneToday = new Map(rows.map((row) => [row.id, row.done]));
+  useChecklistReminderSync({
+    day: today,
+    tasks: sync
+      ? active.map((item) => ({
+          text: item.title,
+          weekdays: item.weekdays,
+          today: doneToday.has(item.id),
+          done: doneToday.get(item.id) ?? false,
+        }))
+      : [],
+    onPulled: (texts) => {
+      if (!sync || day.isLoading) return;
+      const wanted = new Set(texts);
+      for (const row of rows) {
+        if (!row.done && wanted.has(row.text)) toggle(row.id, true);
+      }
+    },
+  });
+
   return {
-    /** The day's boxes — the run when started, the template standing in before. */
+    /** The day's scheduled items, in stage order. */
     rows,
     done,
-    /** False until a template exists — nothing to run, nothing to show. */
-    hasTemplate: items.length > 0,
-    offDay,
+    /** False until the routine has any item — nothing to run, nothing to show. */
+    hasTemplate: active.length > 0,
+    /** Items exist, none of them on today's schedule. */
+    offDay: active.length > 0 && day.data != null && rows.length === 0,
+    loading: day.isLoading || items.isLoading,
     toggle,
   };
 }
