@@ -18,7 +18,7 @@
 | Wave | Work | Source | Notes |
 |---|---|---|---|
 | **1** | cTrader / DXtrade / MatchTrader CSV presets · Public share pages · Monte Carlo on Reports | Competitive Plans 1A, 3, 5 | Cheap, independent, disjoint files — parallelizable across worktrees |
-| **2** | MT4/MT5 statement parsers → `tm-sync` local watcher | Competitive Plans 1B–D, 2 | Shipped; `tm-sync` later replaced by the MT5 EA ([metatrader-ea.md](metatrader-ea.md)) |
+| **2** | MT4/MT5 statement parsers → `tm-sync` local watcher | Competitive Plans 1B–D, 2 | Parsers shipped; `tm-sync` shipped then removed (no MT users — statement upload covers it) |
 | **3** | Mobile natives: WidgetKit widgets → Live Activity (shared snapshot layer) · Siri / App Intents / Action Button · share card styles · offline write queue | Monetization candidates 1–5 | Runs in parallel with Waves 1–2 (different surface). Offline queue: check overlap with the existing `feat/mobile-offline-ux` worktree first |
 | **4** | Free-symbol replay (the backtester) | Competitive Plan 4 | Largest single item; paper-account flag first |
 | **5** | Journal alerts (**free** — see decision below) · Portfolio mode across accounts · Marketing feature/comparison pages | Competitive Plans 6–8 | Alerts reuse `compliance.go` / prop / jobs; portfolio needs the currency decision first |

@@ -108,7 +108,7 @@
       },
       "import": {
         "title": "匯入",
-        "description": "九家券商 CSV 預設、MT4/MT5 對帳單、IBKR Flex 同步 — 也可讓 MT5 EA 從終端機即時推送成交。"
+        "description": "九家券商 CSV 預設、MT4/MT5 對帳單、IBKR Flex 同步。"
       },
       "alerts": {
         "title": "警示",
@@ -507,7 +507,7 @@
           {
             "row": "券商匯入",
             "them": "廣泛的自動同步整合",
-            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設,以及 MT5 EA 即時同步"
+            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設"
           },
           {
             "row": "回測與重播",
@@ -564,7 +564,7 @@
           {
             "row": "券商匯入",
             "them": "900+ 券商 — 業界最廣",
-            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設,以及 MT5 EA 即時同步"
+            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設"
           },
           {
             "row": "分析",
@@ -690,7 +690,7 @@
           {
             "row": "券商同步",
             "them": "透過聚合器連 700+ 券商",
-            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設,以及 MT5 EA 即時同步"
+            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設"
           },
           {
             "row": "資金曲線與回撤分析",
