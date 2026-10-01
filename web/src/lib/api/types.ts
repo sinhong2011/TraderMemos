@@ -140,6 +140,42 @@ export interface ExecScoreReport {
   series: ExecScorePoint[];
 }
 
+/** Per-component 0-100 scores, or their weights (Go: analytics.EdgeComponents). */
+export interface EdgeComponents {
+  win_rate: number;
+  profit_factor: number;
+  payoff: number;
+  drawdown: number;
+  recovery: number;
+  consistency: number;
+}
+
+/** Raw metrics behind each component; null when undefined for the sample. */
+export interface EdgeInputs {
+  win_rate: number;
+  /** null: no losing trades (unbounded). */
+  profit_factor: number | null;
+  payoff: number | null;
+  max_drawdown: number;
+  /** Fraction 0-1; null without any deposit to measure against. */
+  max_drawdown_pct: number | null;
+  recovery_factor: number | null;
+  /** Largest winning day's share (0-1) of all winning-day profit. */
+  best_day_share: number | null;
+}
+
+/** Payload of GET /analytics/edge-score (Go: analytics.EdgeScore). */
+export interface EdgeScore {
+  version: number;
+  /** null below min_trades closed trades. */
+  score: number | null;
+  components: EdgeComponents;
+  weights: EdgeComponents;
+  inputs: EdgeInputs;
+  closed_trades: number;
+  min_trades: number;
+}
+
 export interface Tokens {
   access_token: string;
   refresh_token: string;
