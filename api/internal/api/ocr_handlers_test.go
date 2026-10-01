@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/api"
@@ -113,6 +114,7 @@ func TestOCRParse_surfacesUpstreamError(t *testing.T) {
 
 	s := testServerWithOCR(t, ocr.VisionConfig{
 		Enabled: true, BaseURL: srv.URL, APIKey: "k", HTTPClient: srv.Client(),
+		RetryDelays: []time.Duration{time.Millisecond},
 	})
 	tok := registerAndLogin(t, s, "ocr-err@example.com")
 
@@ -132,6 +134,36 @@ func TestOCRParse_surfacesUpstreamError(t *testing.T) {
 	require.Equal(t, http.StatusBadGateway, rec.Code)
 	require.Contains(t, rec.Body.String(), "ocr_failed")
 	require.Contains(t, rec.Body.String(), "Hello from gateway")
+}
+
+func TestOCRParse_busyUpstream(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_, _ = w.Write([]byte(`{"error":{"message":"This model is currently experiencing high demand."}}`))
+	}))
+	defer srv.Close()
+
+	s := testServerWithOCR(t, ocr.VisionConfig{
+		Enabled: true, BaseURL: srv.URL, APIKey: "k", HTTPClient: srv.Client(),
+		RetryDelays: []time.Duration{time.Millisecond},
+	})
+	tok := registerAndLogin(t, s, "ocr-busy@example.com")
+
+	var buf bytes.Buffer
+	w := multipart.NewWriter(&buf)
+	fw, err := w.CreateFormFile("file", "fill.png")
+	require.NoError(t, err)
+	_, err = fw.Write([]byte("fake"))
+	require.NoError(t, err)
+	require.NoError(t, w.Close())
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/ocr/parse", &buf)
+	req.Header.Set("Content-Type", w.FormDataContentType())
+	req.Header.Set("Authorization", "Bearer "+tok)
+	rec := httptest.NewRecorder()
+	s.Echo.ServeHTTP(rec, req)
+	require.Equal(t, http.StatusServiceUnavailable, rec.Code)
+	require.Contains(t, rec.Body.String(), "ocr_busy")
 }
 
 func TestOCRSettings_roundTripAndMask(t *testing.T) {

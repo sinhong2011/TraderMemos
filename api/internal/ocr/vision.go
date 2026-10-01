@@ -23,6 +23,27 @@ const DefaultVisionTimeout = 90 * time.Second
 // ErrTimeout means the vision upstream did not respond before the client deadline.
 var ErrTimeout = errors.New("ocr vision timeout")
 
+// ErrBusy means the vision upstream kept shedding load (429 / 503) through every retry.
+var ErrBusy = errors.New("ocr vision busy")
+
+// DefaultVisionRetryDelays is the wait before each retry of a transient upstream
+// status. Providers answer demand spikes with 503 "high demand", which usually
+// clears in seconds — one failed tap shouldn't surface it.
+var DefaultVisionRetryDelays = []time.Duration{1 * time.Second, 3 * time.Second}
+
+// retryableStatus reports whether an upstream status is worth another attempt.
+func retryableStatus(code int) bool {
+	switch code {
+	case http.StatusTooManyRequests,
+		http.StatusInternalServerError,
+		http.StatusBadGateway,
+		http.StatusServiceUnavailable,
+		http.StatusGatewayTimeout:
+		return true
+	}
+	return false
+}
+
 // VisionConfig configures an OpenAI-compatible vision endpoint for screenshot parse.
 type VisionConfig struct {
 	Enabled bool
@@ -35,6 +56,9 @@ type VisionConfig struct {
 	Timeout time.Duration
 	// HTTPClient optional; defaults to a client with Timeout.
 	HTTPClient *http.Client
+	// RetryDelays between attempts on a transient upstream status; nil uses
+	// DefaultVisionRetryDelays.
+	RetryDelays []time.Duration
 }
 
 func (c VisionConfig) Ready() bool {
@@ -60,6 +84,13 @@ func (c VisionConfig) timeout() time.Duration {
 		return c.Timeout
 	}
 	return DefaultVisionTimeout
+}
+
+func (c VisionConfig) retryDelays() []time.Duration {
+	if c.RetryDelays != nil {
+		return c.RetryDelays
+	}
+	return DefaultVisionRetryDelays
 }
 
 func (c VisionConfig) client() *http.Client {
@@ -204,33 +235,9 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 	}
 
 	base := strings.TrimRight(strings.TrimSpace(cfg.BaseURL), "/")
-	url := base + "/chat/completions"
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
+	raw, err := postVision(ctx, cfg, base, payload)
 	if err != nil {
 		return TradeExtract{}, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+strings.TrimSpace(cfg.APIKey))
-
-	res, err := cfg.client().Do(req)
-	if err != nil {
-		if isTimeoutErr(err) {
-			return TradeExtract{}, fmt.Errorf(
-				"%w: vision API at %s did not respond within %s",
-				ErrTimeout,
-				base,
-				cfg.timeout(),
-			)
-		}
-		return TradeExtract{}, err
-	}
-	defer res.Body.Close()
-	raw, err := io.ReadAll(io.LimitReader(res.Body, 4<<20))
-	if err != nil {
-		return TradeExtract{}, err
-	}
-	if res.StatusCode >= 300 {
-		return TradeExtract{}, fmt.Errorf("vision api %s: %s", res.Status, truncateRunes(string(raw), 300))
 	}
 
 	var api visionAPIResponse
@@ -318,6 +325,59 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 		out.Confidence = visionConfidenceFloor + 0.2
 	}
 	return out, nil
+}
+
+// postVision sends the chat completion and returns the 2xx body, retrying
+// transient upstream statuses with cfg.retryDelays() between attempts.
+// Timeouts are not retried: the attempt already spent the whole client deadline.
+func postVision(ctx context.Context, cfg VisionConfig, base string, payload []byte) ([]byte, error) {
+	url := base + "/chat/completions"
+	delays := cfg.retryDelays()
+	for attempt := 0; ; attempt++ {
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+strings.TrimSpace(cfg.APIKey))
+
+		res, err := cfg.client().Do(req)
+		if err != nil {
+			if isTimeoutErr(err) {
+				return nil, fmt.Errorf(
+					"%w: vision API at %s did not respond within %s",
+					ErrTimeout,
+					base,
+					cfg.timeout(),
+				)
+			}
+			return nil, err
+		}
+		raw, err := io.ReadAll(io.LimitReader(res.Body, 4<<20))
+		res.Body.Close()
+		if err != nil {
+			return nil, err
+		}
+		if res.StatusCode < 300 {
+			return raw, nil
+		}
+
+		statusErr := fmt.Errorf("vision api %s: %s", res.Status, truncateRunes(string(raw), 300))
+		if !retryableStatus(res.StatusCode) {
+			return nil, statusErr
+		}
+		if attempt >= len(delays) {
+			if res.StatusCode == http.StatusTooManyRequests || res.StatusCode == http.StatusServiceUnavailable {
+				return nil, fmt.Errorf("%w: %w", ErrBusy, statusErr)
+			}
+			return nil, statusErr
+		}
+		select {
+		case <-ctx.Done():
+			return nil, statusErr
+		case <-time.After(delays[attempt]):
+		}
+	}
 }
 
 func stripJSONFence(s string) string {

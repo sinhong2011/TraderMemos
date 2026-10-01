@@ -67,6 +67,15 @@ func (s *Server) handleOCRParse(c *echo.Context) error {
 				nil,
 			)
 		}
+		if errors.Is(err, ocr.ErrBusy) {
+			c.Logger().Warn("ocr parse upstream busy", "err", err)
+			return Fail(
+				http.StatusServiceUnavailable,
+				"ocr_busy",
+				"The vision model is overloaded right now — try again in a minute, or switch models in OCR settings",
+				nil,
+			)
+		}
 		c.Logger().Warn("ocr parse failed", "err", err)
 		msg := strings.TrimSpace(err.Error())
 		if msg == "" {
