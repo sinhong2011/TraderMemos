@@ -1856,6 +1856,29 @@ components:
           items:
             type: object
             additionalProperties: true
+        date_order:
+          description: >
+            CSVs with slash dates only. How their day and month order was
+            read: `day_first` or `month_first` when a cell proves it
+            (13/01/2026, 01/13/2026), `ambiguous` when no cell does and some
+            read differently each way — send the user's choice back as
+            `date_order` on commit.
+          type: object
+          properties:
+            order:
+              type: string
+              enum: [day_first, month_first, ambiguous]
+            example:
+              type: string
+              description: The cell that settled the order, or an ambiguous one.
+            example_month_first:
+              type: string
+              format: date
+              description: The example's date read month-first; absent if it cannot be.
+            example_day_first:
+              type: string
+              format: date
+              description: The example's date read day-first; absent if it cannot be.
 
     ImportCommitForm:
       type: object
@@ -1887,6 +1910,12 @@ components:
           description: >
             Journal CSVs only — JSON object of row number → option right
             (`call`/`put`) for ambiguous option rows.
+        date_order:
+          type: string
+          enum: [day_first, month_first]
+          description: >
+            Fill and journal CSVs — the slash-date order to read the file in,
+            for a preview that reported `ambiguous`. Omit to detect it.
 
     RowError:
       type: object

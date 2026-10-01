@@ -43,6 +43,9 @@ type Journal struct{}
 
 type JournalParseOptions struct {
 	OptionRightByRow map[int]string // 1-based CSV row → call|put
+	// DateOrder pins the slash-date order the user chose for an ambiguous
+	// file (DateOrderDayFirst or DateOrderMonthFirst); empty detects it.
+	DateOrder string
 }
 
 func NewJournal() *Journal { return &Journal{} }
@@ -57,15 +60,14 @@ func (j *Journal) ParseRows(rows []map[string]string) ParseResult {
 
 func (j *Journal) ParseRowsWithOptions(rows []map[string]string, opts *JournalParseOptions) ParseResult {
 	res := ParseResult{Format: "journal_trades"}
-	var stamps []string
-	for _, row := range rows {
-		for _, key := range journalDateKeys {
-			if v := lookup(row, key); v != "" {
-				stamps = append(stamps, v)
-			}
-		}
+	order := ""
+	if opts != nil {
+		order = opts.DateOrder
 	}
-	dayFirst := DetectDayFirst(stamps)
+	dayFirst, err := ResolveDayFirst(order, JournalDateStamps(rows))
+	if err != nil {
+		dayFirst = DetectDayFirst(JournalDateStamps(rows))
+	}
 	for i, row := range rows {
 		override := ""
 		if opts != nil && opts.OptionRightByRow != nil {
@@ -91,6 +93,20 @@ func (j *Journal) ParseRowsWithOptions(rows []map[string]string, opts *JournalPa
 
 // Every header a journal row's open or close date may sit under.
 var journalDateKeys = []string{"open date", "opendate", "open_date", "date", "close date", "closed at"}
+
+// JournalDateStamps returns every open/close date cell in a journal file, the
+// input to slash-date order detection.
+func JournalDateStamps(rows []map[string]string) []string {
+	var stamps []string
+	for _, row := range rows {
+		for _, key := range journalDateKeys {
+			if v := lookup(row, key); v != "" {
+				stamps = append(stamps, v)
+			}
+		}
+	}
+	return stamps
+}
 
 func parseJournalRow(row map[string]string, optionRightOverride string, dayFirst bool) ([]ParsedExecution, *TradeAnnotation, error) {
 	get := func(keys ...string) string {

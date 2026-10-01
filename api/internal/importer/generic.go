@@ -20,12 +20,38 @@ type Generic struct {
 	// Quantities are lots (FX/CFD platforms), not units/shares — resolve the
 	// contract size per symbol instead of the conventional multiplier.
 	lotSized bool
-	// Slash dates read DD/MM, settled per file by ParseRows (DetectDayFirst).
-	dayFirst bool
+	// Slash dates read DD/MM, settled per file by ParseRows: the user's
+	// explicit dateOrder when set, otherwise DetectDayFirst.
+	dayFirst  bool
+	dateOrder string
 }
 
 func NewGeneric(mapping map[string]string) *Generic {
 	return &Generic{mapping: mapping, loc: time.UTC}
+}
+
+// WithDateOrder pins the file's slash-date order (DateOrderDayFirst or
+// DateOrderMonthFirst) the user chose for an ambiguous file. Anything else
+// leaves ParseRows to detect it.
+func (g *Generic) WithDateOrder(order string) *Generic {
+	if order == DateOrderDayFirst || order == DateOrderMonthFirst {
+		g.dateOrder = order
+	}
+	return g
+}
+
+// DateStamps returns every mapped timestamp cell, the input to slash-date
+// order detection.
+func (g *Generic) DateStamps(rows []map[string]string) []string {
+	var stamps []string
+	for _, row := range rows {
+		for _, field := range []string{"executed_at", "open_time", "close_time"} {
+			if v := g.col(row, field); v != "" {
+				stamps = append(stamps, v)
+			}
+		}
+	}
+	return stamps
 }
 
 // WithSourceTZ sets the IANA zone for offset-less timestamps. Empty or
@@ -61,15 +87,7 @@ var skipStatuses = map[string]bool{
 func (g *Generic) ParseRows(rows []map[string]string) ParseResult {
 	var res ParseResult
 	roundTrip := g.roundTrip()
-	var stamps []string
-	for _, row := range rows {
-		for _, field := range []string{"executed_at", "open_time", "close_time"} {
-			if v := g.col(row, field); v != "" {
-				stamps = append(stamps, v)
-			}
-		}
-	}
-	g.dayFirst = DetectDayFirst(stamps)
+	g.dayFirst, _ = ResolveDayFirst(g.dateOrder, g.DateStamps(rows))
 	for i, row := range rows {
 		if rowHasSkipStatus(row) || g.skipNonFillRow(row) {
 			continue

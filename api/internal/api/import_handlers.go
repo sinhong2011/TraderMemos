@@ -216,6 +216,11 @@ func (s *Server) handleImportPreview(c *echo.Context) error {
 		resp["journal_summary"] = summary
 		resp["sample_trades"] = sampleTrades
 	}
+	if info := previewDateOrder(loaded, suggested); info.Order != "" {
+		// Commit re-detects the same order; only an ambiguous file needs the
+		// client to send the user's choice back as date_order.
+		resp["date_order"] = info
+	}
 
 	if accountID == "" && pendingAccount != nil {
 		resp["account_id"] = ""
@@ -225,6 +230,30 @@ func (s *Server) handleImportPreview(c *echo.Context) error {
 
 	resp["account_id"] = accountID
 	return c.JSON(http.StatusOK, resp)
+}
+
+// previewDateOrder reads the slash-date order of a CSV's timestamp cells: the
+// journal's date columns, or the suggested mapping's time columns — every
+// cell when nothing is mapped yet, since the user maps columns after preview.
+// Statements and JSON carry unambiguous dates.
+func previewDateOrder(loaded loadedImport, suggested map[string]string) importer.DateOrderInfo {
+	if loaded.Source != "csv" {
+		return importer.DateOrderInfo{}
+	}
+	if loaded.Format == "journal_trades" {
+		return importer.DetectDateOrder(importer.JournalDateStamps(loaded.Rows))
+	}
+	stamps := importer.NewGeneric(suggested).DateStamps(loaded.Rows)
+	if len(stamps) == 0 {
+		for _, row := range loaded.Rows {
+			for _, h := range loaded.Headers {
+				if v := row[h]; v != "" {
+					stamps = append(stamps, v)
+				}
+			}
+		}
+	}
+	return importer.DetectDateOrder(stamps)
 }
 
 func pendingAccountJSON(meta *importer.JSONAccountMeta) map[string]any {
@@ -401,6 +430,13 @@ func (s *Server) finishImportCommit(c *echo.Context, uid string, batch store.Imp
 	// cannot cancel the import halfway through.
 	ctx := context.WithoutCancel(c.Request().Context())
 
+	// The user's pick for a file whose slash dates fit both orders; empty
+	// lets the parser detect it.
+	dateOrder := strings.TrimSpace(c.FormValue("date_order"))
+	if _, err := importer.ResolveDayFirst(dateOrder, nil); err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", "invalid 'date_order' (want day_first or month_first)", nil)
+	}
+
 	var parsed importer.ParseResult
 	switch {
 	case loaded.Source == "json":
@@ -422,6 +458,12 @@ func (s *Server) finishImportCommit(c *echo.Context, uid string, batch store.Imp
 		parsed = loaded.Statement.Parse(sourceTZ)
 	case loaded.Format == "journal_trades":
 		opts := journalOptionOverrides(c)
+		if dateOrder != "" {
+			if opts == nil {
+				opts = &importer.JournalParseOptions{}
+			}
+			opts.DateOrder = dateOrder
+		}
 		parsed = importer.NewJournal().ParseRowsWithOptions(loaded.Rows, opts)
 	default:
 		var mapping map[string]string
@@ -443,6 +485,7 @@ func (s *Server) finishImportCommit(c *echo.Context, uid string, batch store.Imp
 			sourceTZ = presetTZ
 		}
 		parsed = importer.NewGeneric(mapping).WithSourceTZ(sourceTZ).
+			WithDateOrder(dateOrder).
 			WithLotSizedQuantity(importer.LotSizedBroker(loaded.Headers)).
 			ParseRows(loaded.Rows)
 		parsed.Format = "executions"

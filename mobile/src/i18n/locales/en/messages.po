@@ -22,11 +22,11 @@ msgstr "“{0}” stops working immediately. This cannot be undone."
 msgid "“{label}” is removed for good. This cannot be undone."
 msgstr "“{label}” is removed for good. This cannot be undone."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:118
+#: src/app/(tabs)/(dashboard)/checklist.tsx:119
 msgid "“{name}” is already a checklist item."
 msgstr "“{name}” is already a checklist item."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:404
+#: src/app/(tabs)/(settings)/import-trades.tsx:453
 msgid "(skip)"
 msgstr "(skip)"
 
@@ -82,7 +82,7 @@ msgid "{0} closed trades · {1} win rate · {2} trading days"
 msgstr "{0} closed trades · {1} win rate · {2} trading days"
 
 #. placeholder {0}: rSummary.excluded
-#: src/components/reports/overview-section.tsx:804
+#: src/components/reports/overview-section.tsx:808
 msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "{0} closed trades excluded (no stop recorded)."
 
@@ -135,12 +135,12 @@ msgstr "{0} of {1}"
 
 #. placeholder {0}: risk.included
 #. placeholder {1}: risk.included + risk.excluded
-#: src/components/reports/risk-section.tsx:135
+#: src/components/reports/risk-section.tsx:132
 msgid "{0} of {1} trades"
 msgstr "{0} of {1} trades"
 
 #. placeholder {0}: report.compliant_days
-#: src/components/reports/risk-section.tsx:182
+#: src/components/reports/risk-section.tsx:179
 msgid "{0} of {scoredDays} days"
 msgstr "{0} of {scoredDays} days"
 
@@ -180,7 +180,7 @@ msgstr "{0} per +1R"
 
 #. placeholder {0}: sim.paths
 #. placeholder {1}: sim.trades
-#: src/components/reports/risk-section.tsx:339
+#: src/components/reports/risk-section.tsx:336
 msgid "{0} resamples of your {1} closed trades' net P&L — assumes each trade is an independent draw from your history, so streaks and changing conditions are understated."
 msgstr "{0} resamples of your {1} closed trades' net P&L — assumes each trade is an independent draw from your history, so streaks and changing conditions are understated."
 
@@ -213,8 +213,8 @@ msgstr "{0} symbols found"
 #: src/components/reports/detailed-section.tsx:268
 #: src/components/reports/overview-section.tsx:286
 #: src/components/reports/overview-section.tsx:457
-#: src/components/reports/overview-section.tsx:639
-#: src/components/reports/risk-section.tsx:219
+#: src/components/reports/overview-section.tsx:649
+#: src/components/reports/risk-section.tsx:216
 msgid "{0} trades"
 msgstr "{0} trades"
 
@@ -244,7 +244,7 @@ msgid "{0} trades from {1} rows — {2} fills inserted, {3} duplicates skipped."
 msgstr "{0} trades from {1} rows — {2} fills inserted, {3} duplicates skipped."
 
 #. placeholder {0}: report.unknown_risk
-#: src/components/reports/risk-section.tsx:208
+#: src/components/reports/risk-section.tsx:205
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 
@@ -295,7 +295,7 @@ msgstr "{0}W · {1}L"
 #. placeholder {1}: group.summary.losses
 #. placeholder {1}: summary.losses
 #: src/components/reports/overview-section.tsx:174
-#: src/components/reports/overview-section.tsx:865
+#: src/components/reports/overview-section.tsx:869
 msgid "{0}W {1}L"
 msgstr "{0}W {1}L"
 
@@ -309,7 +309,7 @@ msgstr "{charts} charts"
 
 #: src/app/(tabs)/(calendar)/index.tsx:1524
 #: src/app/(tabs)/(calendar)/index.tsx:1687
-#: src/app/(tabs)/(trades)/index.tsx:490
+#: src/app/(tabs)/(trades)/index.tsx:492
 msgid "{count} trades"
 msgstr "{count} trades"
 
@@ -321,7 +321,11 @@ msgstr "{count} trades"
 msgid "{events} events"
 msgstr "{events} events"
 
-#: src/components/reports/overview-section.tsx:789
+#: src/app/(tabs)/(settings)/import-trades.tsx:353
+msgid "{example} fits both orders. Pick the one your broker uses — the wrong one moves trades to another month."
+msgstr "{example} fits both orders. Pick the one your broker uses — the wrong one moves trades to another month."
+
+#: src/components/reports/overview-section.tsx:793
 msgid "{included} of {total} trades"
 msgstr "{included} of {total} trades"
 
@@ -360,16 +364,16 @@ msgstr "{screenshots} screenshots upload after saving."
 #~ msgid "{shown} of {total} events"
 #~ msgstr "{shown} of {total} events"
 
-#: src/app/replay.tsx:390
+#: src/app/replay.tsx:391
 msgid "{symbol} replay"
 msgstr "{symbol} replay"
 
-#: src/app/replay.tsx:386
+#: src/app/replay.tsx:387
 msgid "{symbol} replay at {barClock}"
 msgstr "{symbol} replay at {barClock}"
 
 #. placeholder {0}: formatPnl(frame?.net ?? 0, currency)
-#: src/app/replay.tsx:385
+#: src/app/replay.tsx:386
 msgid "{symbol} replay at {barClock} — {0}"
 msgstr "{symbol} replay at {barClock} — {0}"
 
@@ -446,12 +450,12 @@ msgid "% of balance (needs balance)"
 msgstr "% of balance (needs balance)"
 
 #. placeholder {0}: result.errors.length - 10
-#: src/app/(tabs)/(settings)/import-trades.tsx:283
+#: src/app/(tabs)/(settings)/import-trades.tsx:295
 msgid "+{0} more"
 msgstr "+{0} more"
 
 #. placeholder {0}: trades.length - 20
-#: src/app/(tabs)/(settings)/import-trades.tsx:358
+#: src/app/(tabs)/(settings)/import-trades.tsx:407
 msgid "+{0} more trades in this file."
 msgstr "+{0} more trades in this file."
 
@@ -501,7 +505,7 @@ msgid "1 file scanned"
 msgstr "1 file scanned"
 
 #. placeholder {0}: money.formatCompact(-sim.max_drawdown.p95)
-#: src/components/reports/risk-section.tsx:308
+#: src/components/reports/risk-section.tsx:305
 msgid "1 in 20 worse than {0}"
 msgstr "1 in 20 worse than {0}"
 
@@ -568,7 +572,7 @@ msgstr "30 days"
 msgid "30d"
 msgstr "30d"
 
-#: src/components/reports/risk-section.tsx:301
+#: src/components/reports/risk-section.tsx:298
 msgid "5th percentile"
 msgstr "5th percentile"
 
@@ -585,7 +589,7 @@ msgstr "90 days"
 msgid "90d"
 msgstr "90d"
 
-#: src/components/reports/risk-section.tsx:294
+#: src/components/reports/risk-section.tsx:291
 msgid "95th percentile"
 msgstr "95th percentile"
 
@@ -632,26 +636,26 @@ msgstr "access token integration webhook"
 #: src/app/(tabs)/(settings)/account-form.tsx:225
 #: src/app/(tabs)/(settings)/export-trades.tsx:84
 #: src/app/(tabs)/(settings)/export-trades.tsx:87
-#: src/app/(tabs)/(settings)/import-trades.tsx:442
+#: src/app/(tabs)/(settings)/import-trades.tsx:493
 #: src/app/(tabs)/(settings)/user-detail.tsx:104
 #: src/app/(tabs)/(trades)/index.tsx:402
 #: src/app/cash-form.tsx:150
 #: src/app/cash-form.tsx:156
 #: src/app/cash-form.tsx:167
-#: src/components/account-menu.tsx:123
-#: src/components/account-pill.tsx:41
-#: src/components/account-pill.tsx:54
-#: src/components/account-pill.tsx:58
+#: src/components/account-menu.tsx:118
+#: src/components/account-pill.tsx:42
+#: src/components/account-pill.tsx:55
+#: src/components/account-pill.tsx:59
 #: src/components/trade-form.tsx:680
 msgid "Account"
 msgstr "Account"
 
 #. placeholder {0}: preview.pending_account.name
-#: src/app/(tabs)/(settings)/import-trades.tsx:311
+#: src/app/(tabs)/(settings)/import-trades.tsx:333
 msgid "Account \"{0}\" will be created on import."
 msgstr "Account \"{0}\" will be created on import."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:445
+#: src/app/(tabs)/(settings)/import-trades.tsx:496
 msgid "Account \"{jsonAccountName}\" from the JSON file will be matched or created."
 msgstr "Account \"{jsonAccountName}\" from the JSON file will be matched or created."
 
@@ -709,7 +713,7 @@ msgstr "Actual"
 msgid "Actual risk is below your target."
 msgstr "Actual risk is below your target."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:128
+#: src/app/(tabs)/(dashboard)/checklist.tsx:129
 #: src/app/(tabs)/(settings)/account-form.tsx:232
 #: src/app/(tabs)/(settings)/user-form.tsx:89
 #: src/components/add-menu.tsx:37
@@ -775,7 +779,7 @@ msgstr "Add fill"
 #~ msgid "Add gap"
 #~ msgstr "Add gap"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:255
+#: src/app/(tabs)/(dashboard)/checklist.tsx:256
 msgid "Add item"
 msgstr "Add item"
 
@@ -787,8 +791,8 @@ msgstr "Add item"
 #~ msgid "Add pre-market routine"
 #~ msgstr "Add pre-market routine"
 
-#: src/components/attachments-card.tsx:197
-#: src/components/screenshot-queue.tsx:126
+#: src/components/attachments-card.tsx:198
+#: src/components/screenshot-queue.tsx:127
 msgid "Add screenshot"
 msgstr "Add screenshot"
 
@@ -815,7 +819,7 @@ msgstr "Add tier"
 msgid "Add to authenticator"
 msgstr "Add to authenticator"
 
-#: src/components/reports/overview-section.tsx:623
+#: src/components/reports/overview-section.tsx:633
 msgid "Add trades or adjust filters to see your score."
 msgstr "Add trades or adjust filters to see your score."
 
@@ -842,7 +846,7 @@ msgstr "Address"
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "Adds a 6-digit code from an authenticator app to your password at sign-in."
 
-#: src/components/reports/risk-section.tsx:180
+#: src/components/reports/risk-section.tsx:177
 msgid "Adherence"
 msgstr "Adherence"
 
@@ -889,7 +893,7 @@ msgid "AI — vision scan & coach"
 msgstr "AI — vision scan & coach"
 
 #: src/app/(tabs)/(settings)/ai.tsx:29
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:36
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:37
 msgid "AI coach"
 msgstr "AI coach"
 
@@ -923,7 +927,7 @@ msgid "All"
 msgstr "All"
 
 #: src/app/(tabs)/(trades)/index.tsx:338
-#: src/components/account-menu.tsx:134
+#: src/components/account-menu.tsx:129
 msgid "All accounts"
 msgstr "All accounts"
 
@@ -947,7 +951,7 @@ msgstr "All time"
 msgid "Allow notifications for TraderMemos in iOS Settings, and use a physical device."
 msgstr "Allow notifications for TraderMemos in iOS Settings, and use a physical device."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:76
+#: src/app/(tabs)/(dashboard)/checklist.tsx:77
 msgid "Allow Reminders for TraderMemos in Settings → Privacy to mirror the checklist."
 msgstr "Allow Reminders for TraderMemos in Settings → Privacy to mirror the checklist."
 
@@ -955,12 +959,12 @@ msgstr "Allow Reminders for TraderMemos in Settings → Privacy to mirror the ch
 msgid "Allow TraderMemos to add reminders in Settings › Privacy › Reminders."
 msgstr "Allow TraderMemos to add reminders in Settings › Privacy › Reminders."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:118
+#: src/app/(tabs)/(dashboard)/checklist.tsx:119
 msgid "Already on the list"
 msgstr "Already on the list"
 
 #. placeholder {0}: pinned.slice(1)
-#: src/app/(tabs)/(settings)/import-trades.tsx:406
+#: src/app/(tabs)/(settings)/import-trades.tsx:455
 msgid "Always \"{0}\""
 msgstr "Always \"{0}\""
 
@@ -1002,7 +1006,7 @@ msgstr "Any"
 msgid "Any duration"
 msgstr "Any duration"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:282
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 
@@ -1010,8 +1014,8 @@ msgstr "Any OpenAI-compatible endpoint works. Test uses the values above, saved 
 msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 msgstr "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:214
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:337
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:215
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:338
 msgid "API key"
 msgstr "API key"
 
@@ -1058,7 +1062,7 @@ msgstr "appearance dark light mode system"
 #~ msgid "appearance theme dark mode hide amounts market timezone"
 #~ msgstr "appearance theme dark mode hide amounts market timezone"
 
-#: src/components/date-range-sheet.tsx:135
+#: src/components/date-range-sheet.tsx:136
 msgid "Apply"
 msgstr "Apply"
 
@@ -1086,7 +1090,7 @@ msgstr "At least {MIN_LENGTH} characters"
 #~ msgid "At least {MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in."
 #~ msgstr "At least {MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in."
 
-#: src/components/reports/risk-section.tsx:126
+#: src/components/reports/risk-section.tsx:123
 msgid "at the highs"
 msgstr "at the highs"
 
@@ -1154,7 +1158,7 @@ msgstr "Avg hold"
 msgid "Avg loser hold"
 msgstr "Avg loser hold"
 
-#: src/components/reports/overview-section.tsx:793
+#: src/components/reports/overview-section.tsx:797
 msgid "Avg losing R"
 msgstr "Avg losing R"
 
@@ -1163,11 +1167,11 @@ msgstr "Avg losing R"
 msgid "Avg loss"
 msgstr "Avg loss"
 
-#: src/components/reports/overview-section.tsx:787
+#: src/components/reports/overview-section.tsx:791
 msgid "Avg R / trade"
 msgstr "Avg R / trade"
 
-#: src/components/reports/risk-section.tsx:131
+#: src/components/reports/risk-section.tsx:128
 msgid "Avg risk / trade"
 msgstr "Avg risk / trade"
 
@@ -1184,7 +1188,7 @@ msgstr "Avg win"
 msgid "Avg winner hold"
 msgstr "Avg winner hold"
 
-#: src/components/reports/overview-section.tsx:792
+#: src/components/reports/overview-section.tsx:796
 msgid "Avg winning R"
 msgstr "Avg winning R"
 
@@ -1192,9 +1196,9 @@ msgstr "Avg winning R"
 msgid "Axes score 0–100: profit factor caps at 3, payoff at 3×, SQN at 7; discipline falls with revenge flags, patience with holding losers past winners."
 msgstr "Axes score 0–100: profit factor caps at 3, payoff at 3×, SQN at 7; discipline falls with revenge flags, patience with holding losers past winners."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:430
-#: src/app/replay.tsx:423
-#: src/app/replay.tsx:950
+#: src/app/(tabs)/(settings)/import-trades.tsx:481
+#: src/app/replay.tsx:424
+#: src/app/replay.tsx:951
 #: src/app/trade-preview.tsx:107
 #: src/components/form-sheet.tsx:149
 msgid "Back"
@@ -1205,7 +1209,7 @@ msgstr "Back"
 #~ msgid "Back to this week"
 #~ msgstr "Back to this week"
 
-#: src/app/(tabs)/(trades)/[id].tsx:517
+#: src/app/(tabs)/(trades)/[id].tsx:518
 msgid "Back to trades"
 msgstr "Back to trades"
 
@@ -1239,8 +1243,8 @@ msgstr "Balance, {0}, from {1}"
 msgid "Base currency"
 msgstr "Base currency"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:191
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:285
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:192
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:286
 msgid "Base URL"
 msgstr "Base URL"
 
@@ -1257,7 +1261,7 @@ msgstr "Baseline P&L"
 msgid "Batches appear here after a sync or file import."
 msgstr "Batches appear here after a sync or file import."
 
-#: src/app/(tabs)/(trades)/[id].tsx:129
+#: src/app/(tabs)/(trades)/[id].tsx:130
 #: src/components/share-card.tsx:162
 msgid "BE"
 msgstr "BE"
@@ -1279,15 +1283,15 @@ msgstr "Behind pace"
 msgid "below average"
 msgstr "below average"
 
-#: src/components/reports/risk-section.tsx:148
+#: src/components/reports/risk-section.tsx:145
 msgid "Below peak"
 msgstr "Below peak"
 
-#: src/components/reports/overview-section.tsx:794
+#: src/components/reports/overview-section.tsx:798
 msgid "Best / worst"
 msgstr "Best / worst"
 
-#: src/components/reports/risk-section.tsx:292
+#: src/components/reports/risk-section.tsx:289
 msgid "Best case"
 msgstr "Best case"
 
@@ -1392,13 +1396,13 @@ msgstr "budget {0}"
 msgid "Busiest month: {0} with {1} trades."
 msgstr "Busiest month: {0} with {1} trades."
 
-#: src/app/replay.tsx:902
+#: src/app/replay.tsx:903
 #: src/components/trade-form.tsx:116
 #: src/components/trade-summary.tsx:84
 msgid "Buy"
 msgstr "Buy"
 
-#: src/app/(tabs)/(trades)/[id].tsx:841
+#: src/app/(tabs)/(trades)/[id].tsx:842
 msgid "BUY"
 msgstr "BUY"
 
@@ -1417,7 +1421,7 @@ msgstr "Calendar not configured"
 msgid "Call"
 msgstr "Call"
 
-#: src/app/(tabs)/(trades)/[id].tsx:214
+#: src/app/(tabs)/(trades)/[id].tsx:215
 msgid "CALL"
 msgstr "CALL"
 
@@ -1448,13 +1452,13 @@ msgstr "Can't reach the server"
 #: src/app/(tabs)/(settings)/tags.tsx:97
 #: src/app/(tabs)/(settings)/user-detail.tsx:80
 #: src/app/(tabs)/(settings)/web-address.tsx:41
-#: src/app/(tabs)/(trades)/[id].tsx:576
+#: src/app/(tabs)/(trades)/[id].tsx:577
 #: src/app/edit-note.tsx:79
 #: src/app/new-setup.tsx:159
-#: src/app/replay.tsx:868
-#: src/components/attachments-card.tsx:151
+#: src/app/replay.tsx:869
+#: src/components/attachments-card.tsx:152
 #: src/components/form-sheet.tsx:149
-#: src/components/note-images.tsx:136
+#: src/components/note-images.tsx:137
 #: src/components/swipeable-trade-row.tsx:46
 #: src/components/trade-scan-overlay.tsx:281
 #: src/components/use-prompt.tsx:46
@@ -1507,7 +1511,7 @@ msgstr "cash funding ledger balance transfer"
 msgid "Cash left"
 msgstr "Cash left"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:262
+#: src/app/(tabs)/(settings)/import-trades.tsx:274
 msgid "Cash transactions"
 msgstr "Cash transactions"
 
@@ -1515,7 +1519,7 @@ msgstr "Cash transactions"
 msgid "cash-limited"
 msgstr "cash-limited"
 
-#: src/components/reports/risk-section.tsx:313
+#: src/components/reports/risk-section.tsx:310
 msgid "Chance of profit"
 msgstr "Chance of profit"
 
@@ -1553,7 +1557,7 @@ msgstr "Changing your password signs out your other devices."
 #~ msgid "Changing your password signs out your other devices. Two-factor authentication isn't available yet."
 #~ msgstr "Changing your password signs out your other devices. Two-factor authentication isn't available yet."
 
-#: src/components/note-images.tsx:213
+#: src/components/note-images.tsx:214
 #: src/components/trade-chart.tsx:77
 msgid "Chart"
 msgstr "Chart"
@@ -1575,7 +1579,7 @@ msgstr "Check the fills"
 msgid "Checking…"
 msgstr "Checking…"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:199
+#: src/app/(tabs)/(dashboard)/checklist.tsx:200
 #: src/app/new-note.tsx:74
 #: src/app/new-note.tsx:74
 #: src/app/new-setup.tsx:234
@@ -1584,11 +1588,15 @@ msgstr "Checking…"
 msgid "Checklist"
 msgstr "Checklist"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:323
+msgid "Choose a date order first"
+msgstr "Choose a date order first"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:477
 #~ msgid "Choose a file first."
 #~ msgstr "Choose a file first."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:499
+#: src/app/(tabs)/(settings)/import-trades.tsx:550
 msgid "Choose CSV or JSON file"
 msgstr "Choose CSV or JSON file"
 
@@ -1620,9 +1628,9 @@ msgstr "Clear"
 msgid "Clear address"
 msgstr "Clear address"
 
-#: src/components/event-filter-menu.tsx:103
-#: src/components/trade-filter-menu.tsx:103
-#: src/components/trade-filter-menu.tsx:143
+#: src/components/event-filter-menu.tsx:106
+#: src/components/trade-filter-menu.tsx:104
+#: src/components/trade-filter-menu.tsx:144
 msgid "Clear filters"
 msgstr "Clear filters"
 
@@ -1651,7 +1659,7 @@ msgid "Clock"
 msgstr "Clock"
 
 #: src/app/new-token.tsx:80
-#: src/app/replay.tsx:1058
+#: src/app/replay.tsx:1059
 #: src/app/share-reports-link.tsx:106
 #: src/app/share-trade.tsx:81
 #: src/app/share-wrapped.tsx:91
@@ -1661,7 +1669,7 @@ msgstr "Clock"
 msgid "Close"
 msgstr "Close"
 
-#: src/app/replay.tsx:924
+#: src/app/replay.tsx:925
 msgid "Close & save"
 msgstr "Close & save"
 
@@ -1694,7 +1702,7 @@ msgstr "Close time"
 msgid "Close trades with hold times to see the scatter."
 msgstr "Close trades with hold times to see the scatter."
 
-#: src/app/(tabs)/(trades)/[id].tsx:334
+#: src/app/(tabs)/(trades)/[id].tsx:335
 #: src/app/trade-preview.tsx:157
 #: src/components/replay-controls.tsx:37
 msgid "Closed"
@@ -1721,7 +1729,7 @@ msgid "Color"
 msgstr "Color"
 
 #. placeholder {0}: list.length
-#: src/components/account-menu.tsx:135
+#: src/components/account-menu.tsx:130
 msgid "Combined view · {0} accounts"
 msgstr "Combined view · {0} accounts"
 
@@ -1796,7 +1804,7 @@ msgstr "Connect once — new fills arrive on their own."
 msgid "Connect to your TraderMemos server."
 msgstr "Connect to your TraderMemos server."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:280
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
 msgid "Connection"
 msgstr "Connection"
 
@@ -1810,7 +1818,7 @@ msgstr "Connection"
 #~ msgstr "Connection OK"
 
 #. placeholder {0}: formatLatency(elapsedMs)
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:159
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:160
 msgid "Connection OK · {0}"
 msgstr "Connection OK · {0}"
 
@@ -1901,7 +1909,7 @@ msgstr "Could not change role"
 msgid "Could not clear trades"
 msgstr "Could not clear trades"
 
-#: src/app/(tabs)/(trades)/[id].tsx:556
+#: src/app/(tabs)/(trades)/[id].tsx:557
 msgid "Could not compute excursion"
 msgstr "Could not compute excursion"
 
@@ -1918,10 +1926,10 @@ msgid "Could not create token"
 msgstr "Could not create token"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:59
-#: src/app/(tabs)/(trades)/[id].tsx:568
+#: src/app/(tabs)/(trades)/[id].tsx:569
 #: src/app/edit-note.tsx:64
 #: src/app/new-setup.tsx:126
-#: src/components/attachments-card.tsx:54
+#: src/components/attachments-card.tsx:55
 #: src/components/swipeable-trade-row.tsx:38
 msgid "Could not delete"
 msgstr "Could not delete"
@@ -1962,8 +1970,8 @@ msgstr "Could not import"
 msgid "Could not import config"
 msgstr "Could not import config"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:180
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:186
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:181
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:187
 msgid "Could not load models"
 msgstr "Could not load models"
 
@@ -1983,8 +1991,8 @@ msgstr "Could not load models"
 msgid "Could not open file"
 msgstr "Could not open file"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:193
-#: src/app/(tabs)/(settings)/import-trades.tsx:513
+#: src/app/(tabs)/(settings)/import-trades.tsx:202
+#: src/app/(tabs)/(settings)/import-trades.tsx:564
 msgid "Could not preview"
 msgstr "Could not preview"
 
@@ -2033,7 +2041,7 @@ msgstr "Could not roll back"
 #: src/app/(tabs)/(settings)/account-form.tsx:172
 #: src/app/(tabs)/(settings)/account-form.tsx:176
 #: src/app/(tabs)/(settings)/account-form.tsx:185
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:139
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:140
 #: src/app/(tabs)/(settings)/alerts.tsx:34
 #: src/app/(tabs)/(settings)/flex-sync.tsx:61
 #: src/app/(tabs)/(settings)/flex-sync.tsx:90
@@ -2053,14 +2061,14 @@ msgstr "Could not roll back"
 #: src/app/new-setup.tsx:117
 #: src/app/new-setup.tsx:143
 #: src/app/quick-journal.tsx:84
-#: src/app/replay.tsx:395
-#: src/app/replay.tsx:774
+#: src/app/replay.tsx:396
+#: src/app/replay.tsx:775
 #: src/lib/save-trades.ts:71
 #: src/lib/use-checklist-run.ts:98
 msgid "Could not save"
 msgstr "Could not save"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:100
+#: src/app/(tabs)/(dashboard)/checklist.tsx:101
 msgid "Could not save checklist"
 msgstr "Could not save checklist"
 
@@ -2068,7 +2076,7 @@ msgstr "Could not save checklist"
 msgid "Could not save tag"
 msgstr "Could not save tag"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:227
+#: src/app/(tabs)/(settings)/import-trades.tsx:239
 msgid "Could not save the sample"
 msgstr "Could not save the sample"
 
@@ -2076,7 +2084,7 @@ msgstr "Could not save the sample"
 #~ msgid "Could not scan"
 #~ msgstr "Could not scan"
 
-#: src/app/replay.tsx:357
+#: src/app/replay.tsx:358
 #: src/app/share-trade.tsx:66
 #: src/app/share-wrapped.tsx:76
 msgid "Could not share"
@@ -2094,8 +2102,8 @@ msgstr "Could not turn off"
 msgid "Could not unregister"
 msgstr "Could not unregister"
 
-#: src/components/attachments-card.tsx:92
-#: src/components/note-images.tsx:81
+#: src/components/attachments-card.tsx:93
+#: src/components/note-images.tsx:82
 msgid "Could not upload"
 msgstr "Could not upload"
 
@@ -2107,7 +2115,7 @@ msgstr "Couldn't add the reminder"
 #~ msgid "Couldn't load this trade"
 #~ msgstr "Couldn't load this trade"
 
-#: src/app/(tabs)/(trades)/[id].tsx:422
+#: src/app/(tabs)/(trades)/[id].tsx:423
 msgid "Couldn't reach the server. The figures above are from your last sync."
 msgstr "Couldn't reach the server. The figures above are from your last sync."
 
@@ -2163,7 +2171,7 @@ msgstr "Crypto"
 msgid "CSV / JSON file"
 msgstr "CSV / JSON file"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:489
+#: src/app/(tabs)/(settings)/import-trades.tsx:540
 msgid "CSV file"
 msgstr "CSV file"
 
@@ -2190,7 +2198,7 @@ msgstr "Currency"
 msgid "Currency converter"
 msgstr "Currency converter"
 
-#: src/components/reports/risk-section.tsx:124
+#: src/components/reports/risk-section.tsx:121
 msgid "Current"
 msgstr "Current"
 
@@ -2257,7 +2265,7 @@ msgstr "Daily checklist"
 msgid "Daily log"
 msgstr "Daily log"
 
-#: src/components/reports/risk-section.tsx:222
+#: src/components/reports/risk-section.tsx:219
 msgid "daily loss"
 msgstr "daily loss"
 
@@ -2313,12 +2321,30 @@ msgstr "Data & backup"
 msgid "Date"
 msgstr "Date"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:356
+msgid "Date order"
+msgstr "Date order"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:352
+#: src/app/(tabs)/(settings)/import-trades.tsx:372
+msgid "Dates"
+msgstr "Dates"
+
+#. placeholder {0}: formatDayKey(dateOrderInfo.example_day_first)
+#: src/app/(tabs)/(settings)/import-trades.tsx:373
+msgid "Dates read as day/month — {example} is {0}."
+msgstr "Dates read as day/month — {example} is {0}."
+
 #: src/app/(tabs)/(calendar)/day/[date].tsx:271
 #: src/components/breakdown-card.tsx:25
 #: src/components/reports-filter-menu.tsx:53
 #: src/components/reports/winloss-section.tsx:80
 msgid "Day"
 msgstr "Day"
+
+#: src/app/(tabs)/(settings)/import-trades.tsx:366
+msgid "Day first"
+msgstr "Day first"
 
 #: src/components/reports/detailed-section.tsx:158
 #: src/components/reports/detailed-section.tsx:165
@@ -2327,7 +2353,7 @@ msgstr "Day"
 msgid "Day of week"
 msgstr "Day of week"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:298
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:299
 msgid "Default"
 msgstr "Default"
 
@@ -2347,7 +2373,7 @@ msgstr "Default model"
 msgid "Define the profit target, drawdown, and daily-loss rules to track this evaluation."
 msgstr "Define the profit target, drawdown, and daily-loss rules to track this evaluation."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:216
+#: src/app/(tabs)/(dashboard)/checklist.tsx:217
 #: src/app/(tabs)/(dashboard)/notes.tsx:83
 #: src/app/(tabs)/(dashboard)/notes.tsx:158
 #: src/app/(tabs)/(settings)/account-form.tsx:214
@@ -2451,13 +2477,13 @@ msgstr "Deposits, withdrawals, and fees drive the equity curve alongside trade P
 msgid "Detailed"
 msgstr "Detailed"
 
-#: src/app/(tabs)/(trades)/[id].tsx:328
-#: src/app/(tabs)/(trades)/[id].tsx:419
-#: src/app/(tabs)/(trades)/[id].tsx:443
+#: src/app/(tabs)/(trades)/[id].tsx:329
+#: src/app/(tabs)/(trades)/[id].tsx:420
+#: src/app/(tabs)/(trades)/[id].tsx:444
 msgid "Details"
 msgstr "Details"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:322
+#: src/app/(tabs)/(settings)/import-trades.tsx:344
 msgid "Detected broker"
 msgstr "Detected broker"
 
@@ -2471,12 +2497,12 @@ msgstr "Developer"
 msgid "Direction"
 msgstr "Direction"
 
-#: src/app/replay.tsx:869
-#: src/app/replay.tsx:931
+#: src/app/replay.tsx:870
+#: src/app/replay.tsx:932
 msgid "Discard"
 msgstr "Discard"
 
-#: src/app/replay.tsx:867
+#: src/app/replay.tsx:868
 msgid "Discard session?"
 msgstr "Discard session?"
 
@@ -2512,7 +2538,7 @@ msgstr "Display currency"
 msgid "Display timezone"
 msgstr "Display timezone"
 
-#: src/components/reports/risk-section.tsx:152
+#: src/components/reports/risk-section.tsx:149
 msgid "Distance below the running equity peak."
 msgstr "Distance below the running equity peak."
 
@@ -2525,7 +2551,7 @@ msgstr "Distance below the running equity peak."
 msgid "Dividend"
 msgstr "Dividend"
 
-#: src/app/(tabs)/(trades)/[id].tsx:295
+#: src/app/(tabs)/(trades)/[id].tsx:296
 msgid "Dividends"
 msgstr "Dividends"
 
@@ -2537,10 +2563,10 @@ msgstr "Document why you closed — stop hit, thesis broken, or emotion — so y
 msgid "Dollars"
 msgstr "Dollars"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:195
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:218
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:234
-#: src/app/(tabs)/(settings)/import-trades.tsx:289
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:196
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:219
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:235
+#: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
 #: src/components/time-picker.tsx:100
 msgid "Done"
@@ -2554,7 +2580,7 @@ msgstr "Download & share"
 msgid "download backup csv json zip share"
 msgstr "download backup csv json zip share"
 
-#: src/components/reports/risk-section.tsx:104
+#: src/components/reports/risk-section.tsx:101
 msgid "Drawdown"
 msgstr "Drawdown"
 
@@ -2563,7 +2589,7 @@ msgid "Drawdown ({drawdownModeLabel})"
 msgstr "Drawdown ({drawdownModeLabel})"
 
 #. placeholder {0}: money.formatCompact(-sim.ruin_threshold)
-#: src/components/reports/risk-section.tsx:322
+#: src/components/reports/risk-section.tsx:319
 msgid "drawdown ≥ {0}"
 msgstr "drawdown ≥ {0}"
 
@@ -2575,7 +2601,7 @@ msgstr "drawdown floor hit"
 msgid "Drawdown model"
 msgstr "Drawdown model"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:285
+#: src/app/(tabs)/(dashboard)/checklist.tsx:286
 msgid "Due at"
 msgstr "Due at"
 
@@ -2607,7 +2633,7 @@ msgstr "e.g. FOMO"
 msgid "e.g. Main Account"
 msgstr "e.g. Main Account"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:273
+#: src/app/(tabs)/(dashboard)/checklist.tsx:274
 msgid "Each item becomes a reminder in your TraderMemos list. Completing one there ticks it here, and ticking it here completes it there."
 msgstr "Each item becomes a reminder in your TraderMemos list. Completing one there ticks it here, and ticking it here completes it there."
 
@@ -2643,7 +2669,7 @@ msgstr "Edit"
 msgid "Edit checklist"
 msgstr "Edit checklist"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:138
+#: src/app/(tabs)/(dashboard)/checklist.tsx:139
 msgid "Edit item"
 msgstr "Edit item"
 
@@ -2661,7 +2687,7 @@ msgstr "Edit setup"
 msgid "Edit tag"
 msgstr "Edit tag"
 
-#: src/app/(tabs)/(trades)/[id].tsx:635
+#: src/app/(tabs)/(trades)/[id].tsx:636
 #: src/app/edit-trade.tsx:111
 #: src/app/edit-trade.tsx:132
 msgid "Edit trade"
@@ -2675,7 +2701,7 @@ msgstr "Edit transaction"
 #~ msgid "Email"
 #~ msgstr "Email"
 
-#: src/app/(tabs)/(trades)/[id].tsx:766
+#: src/app/(tabs)/(trades)/[id].tsx:767
 #: src/app/manage-tags.tsx:116
 #: src/components/trade-form.tsx:503
 msgid "Emotion"
@@ -2685,7 +2711,7 @@ msgstr "Emotion"
 msgid "Enable alerts"
 msgstr "Enable alerts"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:270
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:271
 msgid "Enabled"
 msgstr "Enabled"
 
@@ -2693,7 +2719,7 @@ msgstr "Enabled"
 msgid "End date"
 msgstr "End date"
 
-#: src/components/tools-menu.tsx:101
+#: src/components/tools-menu.tsx:98
 msgid "End Lock Screen session"
 msgstr "End Lock Screen session"
 
@@ -2796,7 +2822,7 @@ msgstr "Enter your username"
 msgid "Enter your username and password"
 msgstr "Enter your username and password"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:247
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:248
 msgid "Entered — not saved yet"
 msgstr "Entered — not saved yet"
 
@@ -2836,7 +2862,7 @@ msgstr "Entry premium"
 msgid "Entry price"
 msgstr "Entry price"
 
-#: src/app/(tabs)/(trades)/[id].tsx:780
+#: src/app/(tabs)/(trades)/[id].tsx:781
 #: src/app/quick-journal.tsx:96
 #: src/components/trade-form.tsx:538
 msgid "Entry reason"
@@ -2863,11 +2889,11 @@ msgid "Equity curve"
 msgstr "Equity curve"
 
 #. placeholder {0}: result.errors.length
-#: src/app/(tabs)/(settings)/import-trades.tsx:274
+#: src/app/(tabs)/(settings)/import-trades.tsx:286
 msgid "Errors ({0})"
 msgstr "Errors ({0})"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:339
+#: src/app/(tabs)/(settings)/import-trades.tsx:388
 msgid "Est. net P&L"
 msgstr "Est. net P&L"
 
@@ -2907,12 +2933,12 @@ msgstr "Exec {grade}"
 msgid "Executed at"
 msgstr "Executed at"
 
-#: src/components/reports/overview-section.tsx:825
-#: src/components/reports/overview-section.tsx:841
+#: src/components/reports/overview-section.tsx:829
+#: src/components/reports/overview-section.tsx:845
 msgid "Execution grade"
 msgstr "Execution grade"
 
-#: src/app/(tabs)/(trades)/[id].tsx:777
+#: src/app/(tabs)/(trades)/[id].tsx:778
 #: src/app/manage-tags.tsx:139
 #: src/app/quick-journal.tsx:108
 #: src/components/trade-form.tsx:548
@@ -2920,11 +2946,11 @@ msgstr "Execution grade"
 msgid "Execution rating"
 msgstr "Execution rating"
 
-#: src/components/reports/overview-section.tsx:604
+#: src/components/reports/overview-section.tsx:614
 msgid "Execution score"
 msgstr "Execution score"
 
-#: src/app/(tabs)/(trades)/[id].tsx:828
+#: src/app/(tabs)/(trades)/[id].tsx:829
 msgid "Executions"
 msgstr "Executions"
 
@@ -2940,7 +2966,7 @@ msgstr "Exit dodged ~{r}R of drawdown"
 msgid "Exit ladder"
 msgstr "Exit ladder"
 
-#: src/app/(tabs)/(trades)/[id].tsx:781
+#: src/app/(tabs)/(trades)/[id].tsx:782
 #: src/components/trade-form.tsx:570
 msgid "Exit reason"
 msgstr "Exit reason"
@@ -2998,7 +3024,7 @@ msgstr "Expires {0}"
 msgid "Expiry"
 msgstr "Expiry"
 
-#: src/components/reports/overview-section.tsx:976
+#: src/components/reports/overview-section.tsx:978
 msgid "Explore"
 msgstr "Explore"
 
@@ -3029,11 +3055,11 @@ msgstr "Export failed"
 msgid "export.json plus trade screenshots under attachments/."
 msgstr "export.json plus trade screenshots under attachments/."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:43
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:44
 msgid "Extra instructions for reading screenshots — broker quirks, date formats."
 msgstr "Extra instructions for reading screenshots — broker quirks, date formats."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:38
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:39
 msgid "Extra instructions for the review — tone, what to focus on, what to ignore."
 msgstr "Extra instructions for the review — tone, what to focus on, what to ignore."
 
@@ -3075,7 +3101,7 @@ msgstr "Fee"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:345
 #: src/app/(tabs)/(settings)/import-trades.tsx:50
-#: src/app/(tabs)/(trades)/[id].tsx:292
+#: src/app/(tabs)/(trades)/[id].tsx:293
 #: src/app/trade-preview.tsx:154
 #: src/components/performance-card.tsx:75
 #: src/components/reports/overview-section.tsx:213
@@ -3101,7 +3127,7 @@ msgstr "Fees paid"
 msgid "Fees took a large bite of gross P&L"
 msgstr "Fees took a large bite of gross P&L"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:326
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:327
 msgid "Fetch models"
 msgstr "Fetch models"
 
@@ -3109,9 +3135,9 @@ msgstr "Fetch models"
 msgid "Fetching rate…"
 msgstr "Fetching rate…"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:308
-#: src/app/(tabs)/(settings)/import-trades.tsx:315
-#: src/app/(tabs)/(settings)/import-trades.tsx:470
+#: src/app/(tabs)/(settings)/import-trades.tsx:330
+#: src/app/(tabs)/(settings)/import-trades.tsx:337
+#: src/app/(tabs)/(settings)/import-trades.tsx:521
 msgid "File"
 msgstr "File"
 
@@ -3129,7 +3155,7 @@ msgstr "Fill {0}"
 msgid "Fill CSV"
 msgstr "Fill CSV"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:473
+#: src/app/(tabs)/(settings)/import-trades.tsx:524
 msgid "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 msgstr "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 
@@ -3145,22 +3171,22 @@ msgstr "Fill prices disagree with the tape — in-flight P&L is marked to the ch
 #~ msgid "Fill prices disagree with the tape — replay P&L is approximate until the exit."
 #~ msgstr "Fill prices disagree with the tape — replay P&L is approximate until the exit."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:336
+#: src/app/(tabs)/(settings)/import-trades.tsx:385
 #: src/components/trade-form.tsx:414
 msgid "Fills"
 msgstr "Fills"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:250
+#: src/app/(tabs)/(settings)/import-trades.tsx:262
 msgid "Fills inserted"
 msgstr "Fills inserted"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:418
+#: src/app/(tabs)/(settings)/import-trades.tsx:467
 msgid "Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map."
 msgstr "Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map."
 
 #: src/components/event-filter-menu.tsx:60
-#: src/components/trade-filter-menu.tsx:71
-#: src/components/trade-filter-menu.tsx:87
+#: src/components/trade-filter-menu.tsx:72
+#: src/components/trade-filter-menu.tsx:88
 msgid "Filter"
 msgstr "Filter"
 
@@ -3265,7 +3291,7 @@ msgstr "From"
 #~ msgid "from {0} →"
 #~ msgstr "from {0} →"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:456
+#: src/app/(tabs)/(settings)/import-trades.tsx:507
 msgid "From file"
 msgstr "From file"
 
@@ -3386,7 +3412,7 @@ msgstr "Gross"
 msgid "Gross (before fees)"
 msgstr "Gross (before fees)"
 
-#: src/app/(tabs)/(trades)/[id].tsx:286
+#: src/app/(tabs)/(trades)/[id].tsx:287
 msgid "Gross P&L"
 msgstr "Gross P&L"
 
@@ -3505,9 +3531,9 @@ msgstr "IBKR Flex sync"
 msgid "If you lose your authenticator"
 msgstr "If you lose your authenticator"
 
-#: src/components/attachments-card.tsx:211
-#: src/components/note-images.tsx:227
-#: src/components/screenshot-queue.tsx:140
+#: src/components/attachments-card.tsx:212
+#: src/components/note-images.tsx:228
+#: src/components/screenshot-queue.tsx:141
 #: src/components/trade-prefill-bar.tsx:104
 msgid "Image files"
 msgstr "Image files"
@@ -3525,16 +3551,16 @@ msgstr "Impact"
 #~ msgstr "Import"
 
 #. placeholder {0}: preview.row_count ?? 0
-#: src/app/(tabs)/(settings)/import-trades.tsx:304
+#: src/app/(tabs)/(settings)/import-trades.tsx:326
 msgid "Import {0} rows"
 msgstr "Import {0} rows"
 
 #. placeholder {0}: summary?.trade_count ?? trades.length
-#: src/app/(tabs)/(settings)/import-trades.tsx:303
+#: src/app/(tabs)/(settings)/import-trades.tsx:325
 msgid "Import {0} trades"
 msgstr "Import {0} trades"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:290
+#: src/app/(tabs)/(settings)/import-trades.tsx:302
 msgid "Import another file"
 msgstr "Import another file"
 
@@ -3554,7 +3580,7 @@ msgstr "Import broker fills or a backup; export trades as JSON, CSV, or ZIP. Con
 msgid "Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots."
 msgstr "Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:244
+#: src/app/(tabs)/(settings)/import-trades.tsx:256
 msgid "Import complete"
 msgstr "Import complete"
 
@@ -3566,11 +3592,11 @@ msgstr "Import complete"
 msgid "import export backup restore csv json zip"
 msgstr "import export backup restore csv json zip"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:215
+#: src/app/(tabs)/(settings)/import-trades.tsx:227
 msgid "Import failed"
 msgstr "Import failed"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:451
+#: src/app/(tabs)/(settings)/import-trades.tsx:502
 msgid "Import into"
 msgstr "Import into"
 
@@ -3584,7 +3610,7 @@ msgstr "Import rolled back"
 msgid "Import trades"
 msgstr "Import trades"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:424
+#: src/app/(tabs)/(settings)/import-trades.tsx:474
 msgid "Importing…"
 msgstr "Importing…"
 
@@ -3600,11 +3626,11 @@ msgstr "imports batches rollback flex sync history"
 msgid "Includes a dividend entry."
 msgstr "Includes a dividend entry."
 
-#: src/app/(tabs)/(trades)/[id].tsx:703
+#: src/app/(tabs)/(trades)/[id].tsx:704
 msgid "Initial risk"
 msgstr "Initial risk"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:250
+#: src/app/(tabs)/(settings)/import-trades.tsx:262
 msgid "Inserted"
 msgstr "Inserted"
 
@@ -3632,7 +3658,7 @@ msgstr "Interest"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:176
 #: src/app/(tabs)/(dashboard)/backtest.tsx:179
-#: src/app/replay.tsx:440
+#: src/app/replay.tsx:441
 msgid "Interval"
 msgstr "Interval"
 
@@ -3640,7 +3666,7 @@ msgstr "Interval"
 msgid "Intraday P&L"
 msgstr "Intraday P&L"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:200
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:201
 msgid "Invalid URL"
 msgstr "Invalid URL"
 
@@ -3648,7 +3674,7 @@ msgstr "Invalid URL"
 msgid "Issue"
 msgstr "Issue"
 
-#: src/components/note-images.tsx:135
+#: src/components/note-images.tsx:136
 msgid "It is deleted from this note and from the server."
 msgstr "It is deleted from this note and from the server."
 
@@ -3656,16 +3682,16 @@ msgstr "It is deleted from this note and from the server."
 #~ msgid "It may have been deleted on another device."
 #~ msgstr "It may have been deleted on another device."
 
-#: src/app/(tabs)/(trades)/[id].tsx:445
-#: src/app/(tabs)/(trades)/[id].tsx:745
-#: src/app/(tabs)/(trades)/[id].tsx:787
+#: src/app/(tabs)/(trades)/[id].tsx:446
+#: src/app/(tabs)/(trades)/[id].tsx:746
+#: src/app/(tabs)/(trades)/[id].tsx:788
 #: src/components/swipeable-trade-row.tsx:72
-#: src/components/tools-menu.tsx:114
+#: src/components/tools-menu.tsx:111
 #: src/components/trade-form.tsx:485
 msgid "Journal"
 msgstr "Journal"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:257
+#: src/app/(tabs)/(settings)/import-trades.tsx:269
 msgid "Journal annotated"
 msgstr "Journal annotated"
 
@@ -3679,7 +3705,7 @@ msgstr "Journal spreadsheet of closed trades."
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:38
 #: src/app/(tabs)/(settings)/import-trades.tsx:76
-#: src/app/(tabs)/(settings)/import-trades.tsx:489
+#: src/app/(tabs)/(settings)/import-trades.tsx:540
 msgid "JSON backup"
 msgstr "JSON backup"
 
@@ -3759,11 +3785,11 @@ msgstr "Leave blank to clear the goal."
 msgid "Leave blank to drop this rule."
 msgstr "Leave blank to drop this rule."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:216
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:217
 msgid "Leave blank to keep the key already stored on the server."
 msgstr "Leave blank to keep the key already stored on the server."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:382
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:383
 msgid "Leave blank to use the built-in prompt"
 msgstr "Leave blank to use the built-in prompt"
 
@@ -3825,19 +3851,19 @@ msgstr "Loading calendar"
 msgid "Loading chart"
 msgstr "Loading chart"
 
-#: src/components/reports/risk-section.tsx:160
+#: src/components/reports/risk-section.tsx:157
 msgid "Loading compliance"
 msgstr "Loading compliance"
 
-#: src/components/reports/risk-section.tsx:106
+#: src/components/reports/risk-section.tsx:103
 msgid "Loading drawdown"
 msgstr "Loading drawdown"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:326
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:327
 msgid "Loading models…"
 msgstr "Loading models…"
 
-#: src/components/reports/overview-section.tsx:903
+#: src/components/reports/overview-section.tsx:905
 msgid "Loading report"
 msgstr "Loading report"
 
@@ -3849,7 +3875,7 @@ msgstr "Loading session summary"
 msgid "Loading the calendar"
 msgstr "Loading the calendar"
 
-#: src/app/(tabs)/(trades)/[id].tsx:438
+#: src/app/(tabs)/(trades)/[id].tsx:439
 msgid "Loading trade"
 msgstr "Loading trade"
 
@@ -3877,10 +3903,10 @@ msgstr "Loading your playbook"
 msgid "Loading your recap"
 msgstr "Loading your recap"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:246
+#: src/app/(tabs)/(dashboard)/checklist.tsx:247
 #: src/app/(tabs)/(settings)/account-form.tsx:70
 #: src/app/(tabs)/(settings)/ai.tsx:71
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:83
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:84
 #: src/app/(tabs)/(settings)/profile.tsx:36
 #: src/app/(tabs)/(settings)/risk-rules.tsx:232
 #: src/app/(tabs)/(settings)/user-detail.tsx:92
@@ -3922,9 +3948,9 @@ msgstr "Logs"
 msgid "Long"
 msgstr "Long"
 
-#: src/app/(tabs)/(trades)/[id].tsx:212
+#: src/app/(tabs)/(trades)/[id].tsx:213
 #: src/app/quick-journal.tsx:159
-#: src/app/replay.tsx:505
+#: src/app/replay.tsx:506
 #: src/components/share-card.tsx:231
 msgid "LONG"
 msgstr "LONG"
@@ -3933,7 +3959,7 @@ msgstr "LONG"
 msgid "Long {position}"
 msgstr "Long {position}"
 
-#: src/components/attachments-card.tsx:167
+#: src/components/attachments-card.tsx:168
 msgid "Long-press to remove"
 msgstr "Long-press to remove"
 
@@ -3957,7 +3983,7 @@ msgstr "losers vs winners"
 msgid "Losing hold"
 msgstr "Losing hold"
 
-#: src/app/(tabs)/(trades)/[id].tsx:125
+#: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/components/share-card.tsx:158
 msgid "LOSS"
 msgstr "LOSS"
@@ -3970,7 +3996,7 @@ msgstr "Loss aversion"
 msgid "Loss exceeded plan at {r}R"
 msgstr "Loss exceeded plan at {r}R"
 
-#: src/components/reports/risk-section.tsx:226
+#: src/components/reports/risk-section.tsx:223
 msgid "loss streak"
 msgstr "loss streak"
 
@@ -4004,7 +4030,7 @@ msgstr "Low setup grade on a loser"
 msgid "Lowest P&L"
 msgstr "Lowest P&L"
 
-#: src/app/(tabs)/(trades)/[id].tsx:710
+#: src/app/(tabs)/(trades)/[id].tsx:711
 msgid "MAE"
 msgstr "MAE"
 
@@ -4016,7 +4042,7 @@ msgstr "MAE was ~{r}× your recorded risk. Either the stop was widened or the pl
 msgid "Main leak"
 msgstr "Main leak"
 
-#: src/components/account-menu.tsx:160
+#: src/components/account-menu.tsx:155
 msgid "Manage accounts"
 msgstr "Manage accounts"
 
@@ -4034,7 +4060,7 @@ msgstr "Manual"
 msgid "Manual only"
 msgstr "Manual only"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:381
+#: src/app/(tabs)/(settings)/import-trades.tsx:430
 msgid "Map columns"
 msgstr "Map columns"
 
@@ -4047,7 +4073,7 @@ msgid "Mark key S/R levels"
 msgstr "Mark key S/R levels"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:142
-#: src/app/(tabs)/(trades)/index.tsx:433
+#: src/app/(tabs)/(trades)/index.tsx:435
 #: src/components/trade-form.tsx:331
 #: src/components/trade-form.tsx:334
 msgid "Market"
@@ -4061,11 +4087,11 @@ msgstr "Market sessions"
 msgid "Market timezone"
 msgstr "Market timezone"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:382
+#: src/app/(tabs)/(settings)/import-trades.tsx:431
 msgid "Match each field to a column from the file."
 msgstr "Match each field to a column from the file."
 
-#: src/components/reports/risk-section.tsx:118
+#: src/components/reports/risk-section.tsx:115
 msgid "Max"
 msgstr "Max"
 
@@ -4129,7 +4155,7 @@ msgstr "median {0}"
 msgid "Median loss"
 msgstr "Median loss"
 
-#: src/components/reports/risk-section.tsx:285
+#: src/components/reports/risk-section.tsx:282
 msgid "Median outcome"
 msgstr "Median outcome"
 
@@ -4167,7 +4193,7 @@ msgstr "Mental state self-score"
 msgid "Metric evolution"
 msgstr "Metric evolution"
 
-#: src/app/(tabs)/(trades)/[id].tsx:717
+#: src/app/(tabs)/(trades)/[id].tsx:718
 msgid "MFE"
 msgstr "MFE"
 
@@ -4191,7 +4217,7 @@ msgstr "Minute"
 #~ msgid "Mirror the checklist into the iOS Reminders app, so it reaches you on the lock screen, the Watch and Siri."
 #~ msgstr "Mirror the checklist into the iOS Reminders app, so it reaches you on the lock screen, the Watch and Siri."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:274
+#: src/app/(tabs)/(dashboard)/checklist.tsx:275
 msgid "Mirror the checklist into the system Reminders app, so it reaches you on the lock screen, the Watch and Siri."
 msgstr "Mirror the checklist into the system Reminders app, so it reaches you on the lock screen, the Watch and Siri."
 
@@ -4203,7 +4229,7 @@ msgstr "Missing entry reason"
 msgid "Missing exit reason on a loser"
 msgstr "Missing exit reason on a loser"
 
-#: src/components/reports/overview-section.tsx:736
+#: src/components/reports/overview-section.tsx:740
 #: src/lib/tags.ts:6
 msgid "Mistake"
 msgstr "Mistake"
@@ -4218,9 +4244,9 @@ msgstr "Mistake type"
 msgid "Mistake: {tag}"
 msgstr "Mistake: {tag}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:231
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:292
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:294
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:232
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:293
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:295
 msgid "Model"
 msgstr "Model"
 
@@ -4228,7 +4254,7 @@ msgstr "Model"
 msgid "Mon"
 msgstr "Mon"
 
-#: src/components/reports/risk-section.tsx:271
+#: src/components/reports/risk-section.tsx:268
 msgid "Monte Carlo"
 msgstr "Monte Carlo"
 
@@ -4238,8 +4264,12 @@ msgstr "Monte Carlo"
 msgid "Month"
 msgstr "Month"
 
+#: src/app/(tabs)/(settings)/import-trades.tsx:362
+msgid "Month first"
+msgstr "Month first"
+
 #: src/components/reports/overview-section.tsx:499
-#: src/components/reports/overview-section.tsx:610
+#: src/components/reports/overview-section.tsx:620
 msgid "Monthly"
 msgstr "Monthly"
 
@@ -4287,7 +4317,7 @@ msgstr "Multiple fills increase fee drag and slippage. Make sure each add had a 
 msgid "Multiplier"
 msgstr "Multiplier"
 
-#: src/components/reports/overview-section.tsx:700
+#: src/components/reports/overview-section.tsx:704
 msgid "n/a"
 msgstr "n/a"
 
@@ -4314,7 +4344,7 @@ msgstr "Needs setup"
 msgid "Negative Kelly means this win rate and payoff have no positive edge."
 msgstr "Negative Kelly means this win rate and payoff have no positive edge."
 
-#: src/app/(tabs)/(trades)/index.tsx:493
+#: src/app/(tabs)/(trades)/index.tsx:495
 #: src/components/performance-card.tsx:64
 msgid "Net"
 msgstr "Net"
@@ -4329,7 +4359,7 @@ msgstr "Net (after fees)"
 #: src/app/(tabs)/(calendar)/index.tsx:1589
 #: src/app/(tabs)/(dashboard)/playbook.tsx:130
 #: src/app/(tabs)/(dashboard)/playbook.tsx:240
-#: src/app/(tabs)/(trades)/[id].tsx:301
+#: src/app/(tabs)/(trades)/[id].tsx:302
 #: src/components/share-card.tsx:353
 #: src/components/symbol-journal.tsx:474
 msgid "Net P&L"
@@ -4374,7 +4404,7 @@ msgstr "New account"
 msgid "New daily log"
 msgstr "New daily log"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:126
+#: src/app/(tabs)/(dashboard)/checklist.tsx:127
 msgid "New item"
 msgstr "New item"
 
@@ -4457,7 +4487,7 @@ msgstr "No account found — create one in Settings → Accounts."
 msgid "No accounts yet"
 msgstr "No accounts yet"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:465
+#: src/app/(tabs)/(settings)/import-trades.tsx:516
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "No accounts yet — pick a JSON backup with account details, or add an account first."
 
@@ -4481,8 +4511,8 @@ msgstr "No breakdown data yet."
 msgid "No chart data for this symbol."
 msgstr "No chart data for this symbol."
 
-#: src/app/replay.tsx:487
-#: src/app/replay.tsx:998
+#: src/app/replay.tsx:488
+#: src/app/replay.tsx:999
 msgid "No chart data for this window."
 msgstr "No chart data for this window."
 
@@ -4519,7 +4549,7 @@ msgstr "No closed trades yet"
 #~ msgstr "No connection"
 
 #: src/components/equity-card.tsx:82
-#: src/components/reports/risk-section.tsx:110
+#: src/components/reports/risk-section.tsx:107
 msgid "No equity data in this range."
 msgstr "No equity data in this range."
 
@@ -4539,7 +4569,7 @@ msgstr "No export needed."
 msgid "no IP"
 msgstr "no IP"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:249
+#: src/app/(tabs)/(dashboard)/checklist.tsx:250
 #: src/app/(tabs)/(dashboard)/daily-checklist.tsx:49
 msgid "No items yet"
 msgstr "No items yet"
@@ -4552,11 +4582,11 @@ msgstr "No limit"
 msgid "No matching notes"
 msgstr "No matching notes"
 
-#: src/components/reports/overview-section.tsx:746
+#: src/components/reports/overview-section.tsx:750
 msgid "No mistakes tagged."
 msgstr "No mistakes tagged."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:184
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:185
 msgid "No models"
 msgstr "No models"
 
@@ -4577,7 +4607,7 @@ msgstr "No response from {0}. Check your connection, or that the server is runni
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 
-#: src/components/reports/risk-section.tsx:166
+#: src/components/reports/risk-section.tsx:163
 msgid "No risk rules configured — set max risk per trade and max daily loss to score every trading day against your own process."
 msgstr "No risk rules configured — set max risk per trade and max daily loss to score every trading day against your own process."
 
@@ -4591,7 +4621,7 @@ msgid "No settings match “{0}”."
 msgstr "No settings match “{0}”."
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:257
-#: src/components/reports/overview-section.tsx:746
+#: src/components/reports/overview-section.tsx:750
 msgid "No setups traded in this range."
 msgstr "No setups traded in this range."
 
@@ -4599,7 +4629,7 @@ msgstr "No setups traded in this range."
 msgid "No setups yet"
 msgstr "No setups yet"
 
-#: src/components/reports/risk-section.tsx:136
+#: src/components/reports/risk-section.tsx:133
 msgid "no stops recorded"
 msgstr "no stops recorded"
 
@@ -4607,7 +4637,7 @@ msgstr "no stops recorded"
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "No streak patterns detected — flags trades sized up right after a winning streak."
 
-#: src/components/reports/detailed-section.tsx:312
+#: src/components/reports/detailed-section.tsx:309
 msgid "No tagged trades in this range."
 msgstr "No tagged trades in this range."
 
@@ -4642,16 +4672,16 @@ msgstr "No trades"
 #: src/components/reports/detailed-section.tsx:174
 #: src/components/reports/detailed-section.tsx:207
 #: src/components/reports/detailed-section.tsx:237
-#: src/components/reports/detailed-section.tsx:301
+#: src/components/reports/detailed-section.tsx:298
 #: src/components/reports/pnl-heatmap-card.tsx:88
 msgid "No trades in this range."
 msgstr "No trades in this range."
 
-#: src/app/(tabs)/(trades)/index.tsx:508
+#: src/app/(tabs)/(trades)/index.tsx:510
 msgid "No trades match this filter."
 msgstr "No trades match this filter."
 
-#: src/app/(tabs)/(trades)/index.tsx:506
+#: src/app/(tabs)/(trades)/index.tsx:508
 msgid "No trades matching \"{search}\""
 msgstr "No trades matching \"{search}\""
 
@@ -4663,7 +4693,7 @@ msgstr "No trades on this day."
 msgid "No trades to review yet"
 msgstr "No trades to review yet"
 
-#: src/components/reports/overview-section.tsx:769
+#: src/components/reports/overview-section.tsx:773
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "No trades with a knowable initial risk — set stops to unlock R analytics."
 
@@ -4720,7 +4750,7 @@ msgstr "Not found"
 msgid "Not rated"
 msgstr "Not rated"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:251
 #: src/app/(tabs)/(settings)/integrations.tsx:27
 #: src/app/(tabs)/(settings)/integrations.tsx:56
 #: src/app/(tabs)/(settings)/prop-settings.tsx:112
@@ -4766,7 +4796,7 @@ msgstr "Note not found"
 #: src/app/(tabs)/(dashboard)/index.tsx:217
 #: src/app/(tabs)/(dashboard)/notes.tsx:176
 #: src/app/(tabs)/(dashboard)/notes.tsx:227
-#: src/app/(tabs)/(trades)/[id].tsx:818
+#: src/app/(tabs)/(trades)/[id].tsx:819
 #: src/components/tools-menu.tsx:64
 msgid "Notes"
 msgstr "Notes"
@@ -4783,11 +4813,11 @@ msgstr "Nothing imported yet"
 msgid "Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written."
 msgstr "Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written."
 
-#: src/app/(tabs)/(trades)/[id].tsx:791
+#: src/app/(tabs)/(trades)/[id].tsx:792
 msgid "Nothing logged yet. A minute of review now is what makes this trade worth something later."
 msgstr "Nothing logged yet. A minute of review now is what makes this trade worth something later."
 
-#: src/app/(tabs)/(trades)/[id].tsx:790
+#: src/app/(tabs)/(trades)/[id].tsx:791
 msgid "Nothing logged yet. Note the setup and why you took it while it's fresh."
 msgstr "Nothing logged yet. Note the setup and why you took it while it's fresh."
 
@@ -4795,12 +4825,12 @@ msgstr "Nothing logged yet. Note the setup and why you took it while it's fresh.
 #~ msgid "Nothing matches the filters this week."
 #~ msgstr "Nothing matches the filters this week."
 
-#: src/app/replay.tsx:191
-#: src/app/replay.tsx:218
+#: src/app/replay.tsx:192
+#: src/app/replay.tsx:219
 msgid "Nothing to replay."
 msgstr "Nothing to replay."
 
-#: src/app/(tabs)/(trades)/[id].tsx:345
+#: src/app/(tabs)/(trades)/[id].tsx:346
 msgid "Notional"
 msgstr "Notional"
 
@@ -4860,7 +4890,7 @@ msgstr "On track"
 msgid "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 msgstr "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:127
+#: src/app/(tabs)/(dashboard)/checklist.tsx:128
 msgid "One rule to clear before you trade."
 msgstr "One rule to clear before you trade."
 
@@ -4881,12 +4911,12 @@ msgid "Only an owner can manage the accounts on this server."
 msgstr "Only an owner can manage the accounts on this server."
 
 #. placeholder {0}: assets.length
-#: src/components/attachments-card.tsx:137
+#: src/components/attachments-card.tsx:138
 msgid "Only the first {0} files fit under the cap."
 msgstr "Only the first {0} files fit under the cap."
 
-#: src/app/(tabs)/(trades)/[id].tsx:231
-#: src/app/(tabs)/(trades)/[id].tsx:338
+#: src/app/(tabs)/(trades)/[id].tsx:232
+#: src/app/(tabs)/(trades)/[id].tsx:339
 #: src/app/(tabs)/(trades)/index.tsx:294
 #: src/app/quick-journal.tsx:155
 #: src/app/trade-preview.tsx:147
@@ -4899,7 +4929,7 @@ msgstr "Only the first {0} files fit under the cap."
 msgid "Open"
 msgstr "Open"
 
-#: src/app/(tabs)/(trades)/[id].tsx:127
+#: src/app/(tabs)/(trades)/[id].tsx:128
 #: src/components/share-card.tsx:160
 msgid "OPEN"
 msgstr "OPEN"
@@ -4921,7 +4951,7 @@ msgstr "Open date"
 msgid "Open price"
 msgstr "Open price"
 
-#: src/components/reports/risk-section.tsx:172
+#: src/components/reports/risk-section.tsx:169
 msgid "Open risk rules"
 msgstr "Open risk rules"
 
@@ -4937,7 +4967,7 @@ msgstr "Open time"
 msgid "openai model screenshot scan coach key"
 msgstr "openai model screenshot scan coach key"
 
-#: src/app/(tabs)/(trades)/[id].tsx:330
+#: src/app/(tabs)/(trades)/[id].tsx:331
 msgid "Opened"
 msgstr "Opened"
 
@@ -4974,7 +5004,7 @@ msgstr "Optional note"
 msgid "Options"
 msgstr "Options"
 
-#: src/app/replay.tsx:1048
+#: src/app/replay.tsx:1049
 msgid "Order"
 msgstr "Order"
 
@@ -5007,7 +5037,7 @@ msgid "over the last {windowSize} trades"
 msgstr "over the last {windowSize} trades"
 
 #. placeholder {0}: sim.horizon
-#: src/components/reports/risk-section.tsx:287
+#: src/components/reports/risk-section.tsx:284
 msgid "over the next {0} trades"
 msgstr "over the next {0} trades"
 
@@ -5017,12 +5047,12 @@ msgstr "over-risked"
 
 #. placeholder {0}: day.risk_violations
 #: src/app/(tabs)/(calendar)/day/[date].tsx:162
-#: src/components/reports/risk-section.tsx:227
+#: src/components/reports/risk-section.tsx:224
 msgid "over-risked ×{0}"
 msgstr "over-risked ×{0}"
 
 #: src/components/reports/risk-section.tsx:85
-#: src/components/reports/risk-section.tsx:224
+#: src/components/reports/risk-section.tsx:221
 msgid "over-traded"
 msgstr "over-traded"
 
@@ -5065,8 +5095,8 @@ msgstr "Owner"
 msgid "Owners can add, remove and reset every account on this server, including yours."
 msgstr "Owners can add, remove and reset every account on this server, including yours."
 
-#: src/app/(tabs)/(trades)/[id].tsx:284
-#: src/app/(tabs)/(trades)/[id].tsx:415
+#: src/app/(tabs)/(trades)/[id].tsx:285
+#: src/app/(tabs)/(trades)/[id].tsx:416
 #: src/components/reports/winloss-section.tsx:85
 msgid "P&L"
 msgstr "P&L"
@@ -5086,11 +5116,11 @@ msgstr "P&L bridge"
 msgid "P&L heatmap"
 msgstr "P&L heatmap"
 
-#: src/components/reports/risk-section.tsx:193
+#: src/components/reports/risk-section.tsx:190
 msgid "P&L, rules broken"
 msgstr "P&L, rules broken"
 
-#: src/components/reports/risk-section.tsx:187
+#: src/components/reports/risk-section.tsx:184
 msgid "P&L, rules followed"
 msgstr "P&L, rules followed"
 
@@ -5129,7 +5159,7 @@ msgstr "Password reset"
 msgid "Passwords do not match."
 msgstr "Passwords do not match."
 
-#: src/components/reports/risk-section.tsx:315
+#: src/components/reports/risk-section.tsx:312
 msgid "paths ending above zero"
 msgstr "paths ending above zero"
 
@@ -5215,7 +5245,7 @@ msgstr "Permanently deletes {0} with its trades and cash records."
 msgid "Permanently deletes {tradeCount} trades and their executions from {0}."
 msgstr "Permanently deletes {tradeCount} trades and their executions from {0}."
 
-#: src/app/(tabs)/(trades)/[id].tsx:574
+#: src/app/(tabs)/(trades)/[id].tsx:575
 #: src/components/swipeable-trade-row.tsx:44
 msgid "Permanently deletes this trade and all of its fills. This cannot be undone."
 msgstr "Permanently deletes this trade and all of its fills. This cannot be undone."
@@ -5225,14 +5255,14 @@ msgstr "Permanently deletes this trade and all of its fills. This cannot be undo
 msgid "PF"
 msgstr "PF"
 
-#: src/components/attachments-card.tsx:205
-#: src/components/note-images.tsx:221
-#: src/components/screenshot-queue.tsx:134
+#: src/components/attachments-card.tsx:206
+#: src/components/note-images.tsx:222
+#: src/components/screenshot-queue.tsx:135
 #: src/components/trade-prefill-bar.tsx:98
 msgid "Photo Library"
 msgstr "Photo Library"
 
-#: src/components/date-range-sheet.tsx:89
+#: src/components/date-range-sheet.tsx:91
 msgid "Pick a start and an end"
 msgstr "Pick a start and an end"
 
@@ -5240,7 +5270,7 @@ msgstr "Pick a start and an end"
 msgid "Pick a symbol"
 msgstr "Pick a symbol"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:513
+#: src/app/(tabs)/(settings)/import-trades.tsx:564
 msgid "Pick an account first."
 msgstr "Pick an account first."
 
@@ -5266,7 +5296,7 @@ msgstr "Pick where you trade. We'll route you to the fastest way to get its data
 msgid "Plan"
 msgstr "Plan"
 
-#: src/app/(tabs)/(trades)/[id].tsx:695
+#: src/app/(tabs)/(trades)/[id].tsx:696
 msgid "Plan & risk"
 msgstr "Plan & risk"
 
@@ -5286,7 +5316,7 @@ msgstr "Playback speed"
 msgid "Playbook"
 msgstr "Playbook"
 
-#: src/components/reports/overview-section.tsx:740
+#: src/components/reports/overview-section.tsx:744
 msgid "Playbook & leaks"
 msgstr "Playbook & leaks"
 
@@ -5339,11 +5369,11 @@ msgstr "Position size"
 msgid "Position value"
 msgstr "Position value"
 
-#: src/app/(tabs)/(trades)/[id].tsx:731
+#: src/app/(tabs)/(trades)/[id].tsx:732
 msgid "Post-exit MAE"
 msgstr "Post-exit MAE"
 
-#: src/app/(tabs)/(trades)/[id].tsx:724
+#: src/app/(tabs)/(trades)/[id].tsx:725
 msgid "Post-exit MFE"
 msgstr "Post-exit MFE"
 
@@ -5378,7 +5408,7 @@ msgstr "Prev"
 msgid "Preview"
 msgstr "Preview"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:508
+#: src/app/(tabs)/(settings)/import-trades.tsx:559
 msgid "Preview import"
 msgstr "Preview import"
 
@@ -5496,8 +5526,8 @@ msgstr "Profit target"
 #~ msgid "Profit target — {0}"
 #~ msgstr "Profit target — {0}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:377
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:387
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:378
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:388
 msgid "Prompt"
 msgstr "Prompt"
 
@@ -5543,11 +5573,11 @@ msgstr "Push unavailable"
 msgid "Put"
 msgstr "Put"
 
-#: src/app/(tabs)/(trades)/[id].tsx:216
+#: src/app/(tabs)/(trades)/[id].tsx:217
 msgid "PUT"
 msgstr "PUT"
 
-#: src/app/replay.tsx:1031
+#: src/app/replay.tsx:1032
 msgid "Qty"
 msgstr "Qty"
 
@@ -5582,7 +5612,7 @@ msgstr "Quick loss — thesis failed fast"
 msgid "R calculator"
 msgstr "R calculator"
 
-#: src/app/(tabs)/(trades)/[id].tsx:706
+#: src/app/(tabs)/(trades)/[id].tsx:707
 msgid "R multiple"
 msgstr "R multiple"
 
@@ -5591,8 +5621,8 @@ msgstr "R multiple"
 msgid "R multiple {0}"
 msgstr "R multiple {0}"
 
-#: src/components/reports/overview-section.tsx:767
-#: src/components/reports/overview-section.tsx:784
+#: src/components/reports/overview-section.tsx:771
+#: src/components/reports/overview-section.tsx:788
 msgid "R-multiple"
 msgstr "R-multiple"
 
@@ -5600,7 +5630,7 @@ msgstr "R-multiple"
 msgid "R-Multiple"
 msgstr "R-Multiple"
 
-#: src/components/screenshot-queue.tsx:41
+#: src/components/screenshot-queue.tsx:42
 msgid "Raise the cap under Settings → Display to queue more."
 msgstr "Raise the cap under Settings → Display to queue more."
 
@@ -5637,12 +5667,12 @@ msgstr "reached"
 msgid "Reading {settled} of {0}… Screenshots are parsed by your vision endpoint; CSV and JSON parse on this device."
 msgstr "Reading {settled} of {0}… Screenshots are parsed by your vision endpoint; CSV and JSON parse on this device."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:508
+#: src/app/(tabs)/(settings)/import-trades.tsx:559
 #: src/components/trade-scan-overlay.tsx:65
 msgid "Reading…"
 msgstr "Reading…"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:42
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:43
 msgid "Reads broker screenshots into executions on Import."
 msgstr "Reads broker screenshots into executions on Import."
 
@@ -5664,7 +5694,7 @@ msgstr "Realized P&L"
 msgid "Recap"
 msgstr "Recap"
 
-#: src/components/reports/risk-section.tsx:214
+#: src/components/reports/risk-section.tsx:211
 msgid "Recent breach days"
 msgstr "Recent breach days"
 
@@ -5676,7 +5706,7 @@ msgstr "Recent events"
 msgid "Recent trades"
 msgstr "Recent trades"
 
-#: src/app/(tabs)/(trades)/[id].tsx:660
+#: src/app/(tabs)/(trades)/[id].tsx:661
 msgid "Recompute MAE/MFE"
 msgstr "Recompute MAE/MFE"
 
@@ -5700,7 +5730,7 @@ msgstr "Regenerate"
 msgid "Regular hours"
 msgstr "Regular hours"
 
-#: src/app/(tabs)/(trades)/[id].tsx:342
+#: src/app/(tabs)/(trades)/[id].tsx:343
 msgid "Remaining"
 msgstr "Remaining"
 
@@ -5708,11 +5738,11 @@ msgstr "Remaining"
 msgid "Remind me"
 msgstr "Remind me"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:270
+#: src/app/(tabs)/(dashboard)/checklist.tsx:271
 msgid "Reminders"
 msgstr "Reminders"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:74
+#: src/app/(tabs)/(dashboard)/checklist.tsx:75
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:755
 msgid "Reminders access needed"
 msgstr "Reminders access needed"
@@ -5721,7 +5751,7 @@ msgstr "Reminders access needed"
 msgid "Reminders need a rebuild"
 msgstr "Reminders need a rebuild"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:74
+#: src/app/(tabs)/(dashboard)/checklist.tsx:75
 msgid "Reminders unavailable"
 msgstr "Reminders unavailable"
 
@@ -5730,16 +5760,16 @@ msgstr "Reminders unavailable"
 #: src/app/(tabs)/(settings)/funding.tsx:153
 #: src/app/(tabs)/(settings)/prop-settings.tsx:107
 #: src/app/(tabs)/(settings)/risk-rules.tsx:116
-#: src/app/(tabs)/(trades)/[id].tsx:577
-#: src/components/attachments-card.tsx:152
-#: src/components/note-images.tsx:138
+#: src/app/(tabs)/(trades)/[id].tsx:578
+#: src/components/attachments-card.tsx:153
+#: src/components/note-images.tsx:139
 #: src/components/swipeable-trade-row.tsx:47
 #: src/components/swipeable-trade-row.tsx:87
 msgid "Remove"
 msgstr "Remove"
 
 #. placeholder {0}: shot.name
-#: src/components/screenshot-queue.tsx:104
+#: src/components/screenshot-queue.tsx:105
 msgid "Remove {0}"
 msgstr "Remove {0}"
 
@@ -5768,11 +5798,11 @@ msgstr "Remove Flex sync?"
 #~ msgid "Remove gap"
 #~ msgstr "Remove gap"
 
-#: src/components/note-images.tsx:175
+#: src/components/note-images.tsx:176
 msgid "Remove image"
 msgstr "Remove image"
 
-#: src/components/note-images.tsx:135
+#: src/components/note-images.tsx:136
 msgid "Remove image?"
 msgstr "Remove image?"
 
@@ -5796,7 +5826,7 @@ msgstr "Remove reminder"
 #~ msgid "Remove rule?"
 #~ msgstr "Remove rule?"
 
-#: src/components/attachments-card.tsx:150
+#: src/components/attachments-card.tsx:151
 msgid "Remove screenshot?"
 msgstr "Remove screenshot?"
 
@@ -5811,11 +5841,11 @@ msgstr "Remove symbol"
 msgid "Remove tier"
 msgstr "Remove tier"
 
-#: src/app/(tabs)/(trades)/[id].tsx:669
+#: src/app/(tabs)/(trades)/[id].tsx:670
 msgid "Remove trade"
 msgstr "Remove trade"
 
-#: src/app/(tabs)/(trades)/[id].tsx:573
+#: src/app/(tabs)/(trades)/[id].tsx:574
 msgid "Remove trade?"
 msgstr "Remove trade?"
 
@@ -5859,7 +5889,7 @@ msgstr "Repeat password"
 msgid "Replay {symbol}"
 msgstr "Replay {symbol}"
 
-#: src/app/replay.tsx:450
+#: src/app/replay.tsx:451
 msgid "Replay actions"
 msgstr "Replay actions"
 
@@ -5867,7 +5897,7 @@ msgstr "Replay actions"
 msgid "Replay this trade"
 msgstr "Replay this trade"
 
-#: src/app/(tabs)/(trades)/[id].tsx:641
+#: src/app/(tabs)/(trades)/[id].tsx:642
 msgid "Replay trade"
 msgstr "Replay trade"
 
@@ -5880,7 +5910,7 @@ msgid "Report an issue"
 msgstr "Report an issue"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:128
-#: src/app/(tabs)/(dashboard)/reports.tsx:110
+#: src/app/(tabs)/(dashboard)/reports.tsx:118
 #: src/components/tools-menu.tsx:40
 msgid "Reports"
 msgstr "Reports"
@@ -5923,7 +5953,7 @@ msgstr "Results"
 msgid "Retry"
 msgstr "Retry"
 
-#: src/app/(tabs)/(trades)/[id].tsx:427
+#: src/app/(tabs)/(trades)/[id].tsx:428
 #: src/components/error-state.tsx:83
 msgid "Retrying…"
 msgstr "Retrying…"
@@ -5941,7 +5971,7 @@ msgstr "revenge trades ×{0}"
 msgid "Revenge trading"
 msgstr "Revenge trading"
 
-#: src/app/(tabs)/(trades)/[id].tsx:747
+#: src/app/(tabs)/(trades)/[id].tsx:748
 #: src/app/quick-journal.tsx:90
 #: src/app/quick-journal.tsx:210
 #: src/components/trade-form.tsx:546
@@ -5956,17 +5986,17 @@ msgstr "Review & save"
 msgid "Review import"
 msgstr "Review import"
 
-#: src/app/(tabs)/(trades)/[id].tsx:782
+#: src/app/(tabs)/(trades)/[id].tsx:783
 #: src/app/quick-journal.tsx:100
 #: src/components/trade-form.tsx:576
 msgid "Review notes"
 msgstr "Review notes"
 
-#: src/app/replay.tsx:1068
+#: src/app/replay.tsx:1069
 msgid "Reviewing an earlier bar — step forward to trade."
 msgstr "Reviewing an earlier bar — step forward to trade."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:37
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:38
 msgid "Reviews your journal and trades to surface patterns on the dashboard."
 msgstr "Reviews your journal and trades to surface patterns on the dashboard."
 
@@ -6005,7 +6035,7 @@ msgstr "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgid "Risk journaled before the trade, blended with rule compliance when rules are set."
 msgstr "Risk journaled before the trade, blended with rule compliance when rules are set."
 
-#: src/components/reports/risk-section.tsx:320
+#: src/components/reports/risk-section.tsx:317
 msgid "Risk of ruin"
 msgstr "Risk of ruin"
 
@@ -6066,19 +6096,19 @@ msgstr "routine morning pre-market process rules"
 
 #. placeholder {0}: error.row
 #. placeholder {1}: error.message
-#: src/app/(tabs)/(settings)/import-trades.tsx:278
+#: src/app/(tabs)/(settings)/import-trades.tsx:290
 msgid "Row {0}: {1}"
 msgstr "Row {0}: {1}"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:318
+#: src/app/(tabs)/(settings)/import-trades.tsx:340
 msgid "Rows"
 msgstr "Rows"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:345
+#: src/app/(tabs)/(settings)/import-trades.tsx:394
 msgid "Rows with errors"
 msgstr "Rows with errors"
 
-#: src/components/reports/risk-section.tsx:158
+#: src/components/reports/risk-section.tsx:155
 msgid "Rule compliance"
 msgstr "Rule compliance"
 
@@ -6117,15 +6147,15 @@ msgstr "Runner"
 msgid "Runner stop"
 msgstr "Runner stop"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:547
+#: src/app/(tabs)/(settings)/import-trades.tsx:598
 msgid "Sample CSV"
 msgstr "Sample CSV"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:542
+#: src/app/(tabs)/(settings)/import-trades.tsx:593
 msgid "Sample files"
 msgstr "Sample files"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:552
+#: src/app/(tabs)/(settings)/import-trades.tsx:603
 msgid "Sample JSON"
 msgstr "Sample JSON"
 
@@ -6134,7 +6164,7 @@ msgid "Sat"
 msgstr "Sat"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:262
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6145,7 +6175,7 @@ msgstr "Sat"
 msgid "Save"
 msgstr "Save"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:543
+#: src/app/(tabs)/(settings)/import-trades.tsx:594
 msgid "Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties."
 msgstr "Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties."
 
@@ -6157,7 +6187,7 @@ msgstr "Save a starter file to see the expected shape. Your file stays on your s
 #~ msgid "Save checklist"
 #~ msgstr "Save checklist"
 
-#: src/app/replay.tsx:461
+#: src/app/replay.tsx:462
 msgid "Save frame to note"
 msgstr "Save frame to note"
 
@@ -6169,7 +6199,7 @@ msgstr "Save frame to note"
 #~ msgid "Save risk rules"
 #~ msgstr "Save risk rules"
 
-#: src/app/replay.tsx:913
+#: src/app/replay.tsx:914
 msgid "Save session"
 msgstr "Save session"
 
@@ -6177,7 +6207,7 @@ msgstr "Save session"
 msgid "Save trade"
 msgstr "Save trade"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:249
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
 msgid "Saved"
 msgstr "Saved"
 
@@ -6186,7 +6216,7 @@ msgstr "Saved"
 #~ msgstr "Saved — leave blank to keep"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:262
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6215,7 +6245,7 @@ msgstr "Scanning with AI…"
 #~ msgid "Scanning…"
 #~ msgstr "Scanning…"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:259
+#: src/app/(tabs)/(dashboard)/checklist.tsx:260
 msgid "Schedule"
 msgstr "Schedule"
 
@@ -6224,7 +6254,7 @@ msgstr "Schedule"
 msgid "Scheduled sync"
 msgstr "Scheduled sync"
 
-#: src/components/reports/overview-section.tsx:627
+#: src/components/reports/overview-section.tsx:637
 msgid "Scores unlock at 5 closed trades — journaled risk and auto MAE/MFE sharpen every axis."
 msgstr "Scores unlock at 5 closed trades — journaled risk and auto MAE/MFE sharpen every axis."
 
@@ -6232,9 +6262,9 @@ msgstr "Scores unlock at 5 closed trades — journaled risk and auto MAE/MFE sha
 msgid "Scratch trade"
 msgstr "Scratch trade"
 
-#: src/components/attachments-card.tsx:63
-#: src/components/attachments-card.tsx:136
-#: src/components/screenshot-queue.tsx:40
+#: src/components/attachments-card.tsx:64
+#: src/components/attachments-card.tsx:137
+#: src/components/screenshot-queue.tsx:41
 msgid "Screenshot limit reached"
 msgstr "Screenshot limit reached"
 
@@ -6243,7 +6273,7 @@ msgstr "Screenshot limit reached"
 msgid "Screenshot upload failed ({0})"
 msgstr "Screenshot upload failed ({0})"
 
-#: src/components/attachments-card.tsx:159
+#: src/components/attachments-card.tsx:160
 #: src/components/trade-form.tsx:611
 msgid "Screenshots"
 msgstr "Screenshots"
@@ -6307,8 +6337,8 @@ msgstr "Search settings"
 msgid "Search symbol"
 msgstr "Search symbol"
 
-#: src/app/(tabs)/(trades)/index.tsx:452
-#: src/app/(tabs)/(trades)/index.tsx:517
+#: src/app/(tabs)/(trades)/index.tsx:454
+#: src/app/(tabs)/(trades)/index.tsx:519
 msgid "Search symbol or tag"
 msgstr "Search symbol or tag"
 
@@ -6338,13 +6368,13 @@ msgstr "security credentials reset"
 msgid "Self-hosted — your trade data stays on your stack."
 msgstr "Self-hosted — your trade data stays on your stack."
 
-#: src/app/replay.tsx:903
+#: src/app/replay.tsx:904
 #: src/components/trade-form.tsx:117
 #: src/components/trade-summary.tsx:84
 msgid "Sell"
 msgstr "Sell"
 
-#: src/app/(tabs)/(trades)/[id].tsx:841
+#: src/app/(tabs)/(trades)/[id].tsx:842
 msgid "SELL"
 msgstr "SELL"
 
@@ -6374,13 +6404,13 @@ msgstr "Server error"
 msgid "Server URL"
 msgstr "Server URL"
 
-#: src/app/(tabs)/(trades)/[id].tsx:761
-#: src/components/tools-menu.tsx:98
+#: src/app/(tabs)/(trades)/[id].tsx:762
+#: src/components/tools-menu.tsx:95
 #: src/components/trade-form.tsx:496
 msgid "Session"
 msgstr "Session"
 
-#: src/app/replay.tsx:967
+#: src/app/replay.tsx:968
 msgid "Session actions"
 msgstr "Session actions"
 
@@ -6439,9 +6469,9 @@ msgstr "Sets a new password for {0} without their current one."
 msgid "Settings"
 msgstr "Settings"
 
-#: src/app/(tabs)/(trades)/[id].tsx:753
+#: src/app/(tabs)/(trades)/[id].tsx:754
 #: src/components/breakdown-card.tsx:26
-#: src/components/reports/overview-section.tsx:735
+#: src/components/reports/overview-section.tsx:739
 msgid "Setup"
 msgstr "Setup"
 
@@ -6453,7 +6483,7 @@ msgstr "Setup {grade}"
 msgid "Setup key copied"
 msgstr "Setup key copied"
 
-#: src/app/(tabs)/(trades)/[id].tsx:776
+#: src/app/(tabs)/(trades)/[id].tsx:777
 #: src/app/manage-tags.tsx:126
 #: src/components/trade-form.tsx:516
 #: src/components/trade-form.tsx:518
@@ -6465,7 +6495,7 @@ msgstr "Setup rating"
 msgid "Setups"
 msgstr "Setups"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:267
+#: src/app/(tabs)/(settings)/import-trades.tsx:279
 msgid "Setups restored"
 msgstr "Setups restored"
 
@@ -6476,13 +6506,13 @@ msgstr "Setups restored"
 msgid "Share"
 msgstr "Share"
 
-#: src/app/(tabs)/(trades)/[id].tsx:651
+#: src/app/(tabs)/(trades)/[id].tsx:652
 #: src/app/share-trade.tsx:80
 #: src/app/share-wrapped.tsx:90
 msgid "Share card"
 msgstr "Share card"
 
-#: src/app/replay.tsx:467
+#: src/app/replay.tsx:468
 msgid "Share frame"
 msgstr "Share frame"
 
@@ -6513,7 +6543,7 @@ msgstr "Share links will use whatever your server reports."
 msgid "Share of each trade's peak open profit kept at the close."
 msgstr "Share of each trade's peak open profit kept at the close."
 
-#: src/app/replay.tsx:354
+#: src/app/replay.tsx:355
 msgid "Share replay frame"
 msgstr "Share replay frame"
 
@@ -6545,9 +6575,9 @@ msgstr "Shares"
 msgid "Short"
 msgstr "Short"
 
-#: src/app/(tabs)/(trades)/[id].tsx:212
+#: src/app/(tabs)/(trades)/[id].tsx:213
 #: src/app/quick-journal.tsx:159
-#: src/app/replay.tsx:505
+#: src/app/replay.tsx:506
 #: src/components/share-card.tsx:231
 msgid "SHORT"
 msgstr "SHORT"
@@ -6571,7 +6601,7 @@ msgstr "Show amounts"
 msgid "Show password"
 msgstr "Show password"
 
-#: src/components/tools-menu.tsx:108
+#: src/components/tools-menu.tsx:105
 msgid "Show session on Lock Screen"
 msgstr "Show session on Lock Screen"
 
@@ -6624,7 +6654,7 @@ msgstr "size ×{0}"
 #~ msgid "sk-…"
 #~ msgstr "sk-…"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:253
+#: src/app/(tabs)/(settings)/import-trades.tsx:265
 msgid "Skipped (duplicates)"
 msgstr "Skipped (duplicates)"
 
@@ -6655,7 +6685,7 @@ msgid "Something went wrong"
 msgstr "Something went wrong"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:151
-#: src/app/(tabs)/(trades)/index.tsx:441
+#: src/app/(tabs)/(trades)/index.tsx:443
 msgid "Sort"
 msgstr "Sort"
 
@@ -6690,7 +6720,7 @@ msgstr "Static — fixed floor"
 
 #: src/app/(tabs)/(settings)/about.tsx:64
 #: src/app/(tabs)/(settings)/flex-sync.tsx:154
-#: src/app/(tabs)/(trades)/index.tsx:425
+#: src/app/(tabs)/(trades)/index.tsx:427
 msgid "Status"
 msgstr "Status"
 
@@ -6710,13 +6740,13 @@ msgstr "Step forward"
 msgid "Stock"
 msgstr "Stock"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:333
+#: src/app/(tabs)/(settings)/import-trades.tsx:382
 msgid "Stocks / options"
 msgstr "Stocks / options"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:339
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:663
-#: src/app/(tabs)/(trades)/[id].tsx:700
+#: src/app/(tabs)/(trades)/[id].tsx:701
 #: src/app/new-setup.tsx:228
 #: src/app/tool-position-size.tsx:87
 #: src/components/trade-form.tsx:471
@@ -6760,7 +6790,7 @@ msgstr "Stop premium must be below entry premium"
 msgid "Stop when today's realized loss hits this amount."
 msgstr "Stop when today's realized loss hits this amount."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:217
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:218
 msgid "Stored on your server, never on this phone."
 msgstr "Stored on your server, never on this phone."
 
@@ -6792,7 +6822,7 @@ msgstr "Strong +{r}R result"
 #~ msgid "Suggested"
 #~ msgstr "Suggested"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:178
+#: src/app/(tabs)/(dashboard)/checklist.tsx:179
 msgid "Suggested items"
 msgstr "Suggested items"
 
@@ -6804,7 +6834,7 @@ msgstr "suggested risk"
 msgid "Suggested size as a percent of account equity."
 msgstr "Suggested size as a percent of account equity."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:329
+#: src/app/(tabs)/(settings)/import-trades.tsx:378
 msgid "Summary"
 msgstr "Summary"
 
@@ -6816,7 +6846,7 @@ msgstr "Sun"
 msgid "superb"
 msgstr "superb"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:520
+#: src/app/(tabs)/(settings)/import-trades.tsx:571
 msgid "Supported formats"
 msgstr "Supported formats"
 
@@ -6875,7 +6905,7 @@ msgstr "Symbol A–Z"
 msgid "Symbol journal"
 msgstr "Symbol journal"
 
-#: src/app/(tabs)/(trades)/[id].tsx:160
+#: src/app/(tabs)/(trades)/[id].tsx:161
 msgid "Symbol journal for {symbol}"
 msgstr "Symbol journal for {symbol}"
 
@@ -6885,7 +6915,7 @@ msgid "Symbol, e.g. SPY"
 msgstr "Symbol, e.g. SPY"
 
 #: src/app/trade-preview.tsx:151
-#: src/components/reports/detailed-section.tsx:298
+#: src/components/reports/detailed-section.tsx:295
 msgid "Symbols"
 msgstr "Symbols"
 
@@ -6921,7 +6951,7 @@ msgstr "Sync off"
 msgid "Sync on"
 msgstr "Sync on"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:278
+#: src/app/(tabs)/(dashboard)/checklist.tsx:279
 msgid "Sync to Reminders"
 msgstr "Sync to Reminders"
 
@@ -6944,9 +6974,9 @@ msgstr "System"
 #: src/app/(tabs)/(settings)/_layout.tsx:43
 #: src/app/(tabs)/(settings)/index.tsx:259
 #: src/app/(tabs)/(settings)/trading-journal.tsx:131
-#: src/app/(tabs)/(trades)/[id].tsx:806
+#: src/app/(tabs)/(trades)/[id].tsx:807
 #: src/app/manage-tags.tsx:75
-#: src/components/reports/detailed-section.tsx:309
+#: src/components/reports/detailed-section.tsx:306
 #: src/components/trade-form.tsx:525
 msgid "Tags"
 msgstr "Tags"
@@ -6975,7 +7005,7 @@ msgstr "Tap + to generate one and authenticate scripts against your server."
 msgid "Tap + to log a deposit, withdrawal, or fee — they drive the equity curve alongside trade P&L."
 msgstr "Tap + to log a deposit, withdrawal, or fee — they drive the equity curve alongside trade P&L."
 
-#: src/app/(tabs)/(trades)/index.tsx:509
+#: src/app/(tabs)/(trades)/index.tsx:511
 msgid "Tap + to log a trade, or import from Settings → Import trades."
 msgstr "Tap + to log a trade, or import from Settings → Import trades."
 
@@ -6999,7 +7029,7 @@ msgstr "Tap + to write the first play you trade — trades link to it from the t
 msgid "Tap the current rating to clear it."
 msgstr "Tap the current rating to clear it."
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:474
+#: src/app/(tabs)/(settings)/import-trades.tsx:525
 msgid "Tap the file to swap it for another one."
 msgstr "Tap the file to swap it for another one."
 
@@ -7012,7 +7042,7 @@ msgstr "Tap the pencil to write the routine you clear before you trade."
 #~ msgstr "Tap to rate"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:665
-#: src/app/(tabs)/(trades)/[id].tsx:697
+#: src/app/(tabs)/(trades)/[id].tsx:698
 #: src/app/new-setup.tsx:222
 #: src/components/trade-form.tsx:464
 msgid "Target"
@@ -7040,11 +7070,11 @@ msgstr "target reached"
 msgid "Tempo"
 msgstr "Tempo"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:367
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:368
 msgid "Test connection"
 msgstr "Test connection"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:367
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:368
 msgid "Testing…"
 msgstr "Testing…"
 
@@ -7075,7 +7105,7 @@ msgstr "The {MAX_TRADE_ROWS} most recent of {0} trades."
 msgid "The AI review failed — try again."
 msgstr "The AI review failed — try again."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:200
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:201
 msgid "The base URL must start with http:// or https://."
 msgstr "The base URL must start with http:// or https://."
 
@@ -7087,11 +7117,11 @@ msgstr "The end of the window has to fall after its start."
 #~ msgid "The endpoint answered successfully."
 #~ msgstr "The endpoint answered successfully."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:160
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:161
 msgid "The endpoint did not answer."
 msgstr "The endpoint did not answer."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:184
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:185
 msgid "The endpoint listed no models."
 msgstr "The endpoint listed no models."
 
@@ -7128,7 +7158,7 @@ msgstr "The market timezone defines the day — calendar cells, date filters, an
 #~ msgid "The market timezone defines the trading day — calendar days and hourly stats follow it. The display timezone only formats clock times."
 #~ msgstr "The market timezone defines the trading day — calendar days and hourly stats follow it. The display timezone only formats clock times."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:232
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:233
 msgid "The model id as the endpoint spells it, e.g. gpt-4o-mini."
 msgstr "The model id as the endpoint spells it, e.g. gpt-4o-mini."
 
@@ -7137,7 +7167,7 @@ msgstr "The model id as the endpoint spells it, e.g. gpt-4o-mini."
 msgid "The new passwords don't match."
 msgstr "The new passwords don't match."
 
-#: src/app/replay.tsx:867
+#: src/app/replay.tsx:868
 msgid "The orders you placed will not be saved."
 msgstr "The orders you placed will not be saved."
 
@@ -7145,7 +7175,7 @@ msgstr "The orders you placed will not be saved."
 msgid "The owner account — the first user created on this server."
 msgstr "The owner account — the first user created on this server."
 
-#: src/components/reports/overview-section.tsx:651
+#: src/components/reports/overview-section.tsx:661
 msgid "The radar needs at least three scored axes — journal initial risk and run auto MAE/MFE to light up the rest."
 msgstr "The radar needs at least three scored axes — journal initial risk and run auto MAE/MFE to light up the rest."
 
@@ -7161,7 +7191,7 @@ msgstr "The recap appears once a year has closed trades."
 msgid "The replay starts a few bars in for context, then reveals one bar at a time. Orders fill at the bar's close."
 msgstr "The replay starts a few bars in for context, then reveals one bar at a time. Orders fill at the bar's close."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:192
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:193
 msgid "The root of an OpenAI-compatible API, ending in /v1."
 msgstr "The root of an OpenAI-compatible API, ending in /v1."
 
@@ -7177,7 +7207,7 @@ msgstr "The server has no economic-calendar provider configured."
 msgid "The server is rate limiting this app. Try again in a moment."
 msgstr "The server is rate limiting this app. Try again in a moment."
 
-#: src/components/reports/risk-section.tsx:278
+#: src/components/reports/risk-section.tsx:275
 msgid "The simulation needs at least 10 closed trades to resample."
 msgstr "The simulation needs at least 10 closed trades to resample."
 
@@ -7214,7 +7244,7 @@ msgstr "Theme"
 #~ msgid "These run on Home each morning and seed every new daily log. Tap an item to edit it, swipe to delete or reorder."
 #~ msgstr "These run on Home each morning and seed every new daily log. Tap an item to edit it, swipe to delete or reorder."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:200
+#: src/app/(tabs)/(dashboard)/checklist.tsx:201
 msgid "These run on Home each morning and seed every new daily log. Tap an item to edit it, swipe to delete, drag to reorder."
 msgstr "These run on Home each morning and seed every new daily log. Tap an item to edit it, swipe to delete, drag to reorder."
 
@@ -7234,7 +7264,7 @@ msgstr "This account no longer exists."
 msgid "This also deletes every account, trade, note and screenshot they own. There is no undo."
 msgstr "This also deletes every account, trade, note and screenshot they own. There is no undo."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:77
+#: src/app/(tabs)/(dashboard)/checklist.tsx:78
 msgid "This build can't reach the Reminders app. Rebuild the dev client and try again."
 msgstr "This build can't reach the Reminders app. Rebuild the dev client and try again."
 
@@ -7279,7 +7309,7 @@ msgid "This session expired. Sign in again to continue."
 msgstr "This session expired. Sign in again to continue."
 
 #. placeholder {0}: trade.attachments.length
-#: src/components/attachments-card.tsx:64
+#: src/components/attachments-card.tsx:65
 msgid "This trade already has {0} screenshots — raise the cap under Settings → Display."
 msgstr "This trade already has {0} screenshots — raise the cap under Settings → Display."
 
@@ -7399,7 +7429,7 @@ msgid "Too many requests"
 msgstr "Too many requests"
 
 #: src/components/tools-menu.tsx:86
-#: src/components/tools-menu.tsx:125
+#: src/components/tools-menu.tsx:122
 msgid "Tools"
 msgstr "Tools"
 
@@ -7425,12 +7455,12 @@ msgstr "Top symbol"
 msgid "Total"
 msgstr "Total"
 
-#: src/app/(tabs)/(trades)/[id].tsx:308
+#: src/app/(tabs)/(trades)/[id].tsx:309
 msgid "Total P&L"
 msgstr "Total P&L"
 
-#: src/app/(tabs)/(trades)/[id].tsx:408
-#: src/app/(tabs)/(trades)/[id].tsx:510
+#: src/app/(tabs)/(trades)/[id].tsx:409
+#: src/app/(tabs)/(trades)/[id].tsx:511
 msgid "Trade"
 msgstr "Trade"
 
@@ -7439,7 +7469,7 @@ msgstr "Trade"
 msgid "Trade {0}"
 msgstr "Trade {0}"
 
-#: src/app/(tabs)/(trades)/[id].tsx:622
+#: src/app/(tabs)/(trades)/[id].tsx:623
 msgid "Trade actions"
 msgstr "Trade actions"
 
@@ -7457,7 +7487,7 @@ msgstr "Trade lands on"
 
 #: src/app/edit-trade.tsx:120
 #: src/app/quick-journal.tsx:215
-#: src/app/replay.tsx:162
+#: src/app/replay.tsx:163
 #: src/app/share-trade.tsx:98
 msgid "Trade not found"
 msgstr "Trade not found"
@@ -7502,14 +7532,14 @@ msgstr "TraderMemos mark"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:233
 #: src/app/(tabs)/(settings)/account-form.tsx:388
 #: src/app/(tabs)/(settings)/data-backup.tsx:66
-#: src/app/(tabs)/(settings)/import-trades.tsx:330
-#: src/app/(tabs)/(settings)/import-trades.tsx:356
+#: src/app/(tabs)/(settings)/import-trades.tsx:379
+#: src/app/(tabs)/(settings)/import-trades.tsx:405
 #: src/app/(tabs)/(trades)/_layout.tsx:38
 #: src/components/symbol-journal.tsx:488
 msgid "Trades"
 msgstr "Trades"
 
-#: src/app/(tabs)/(settings)/import-trades.tsx:246
+#: src/app/(tabs)/(settings)/import-trades.tsx:258
 msgid "Trades created"
 msgstr "Trades created"
 
@@ -7574,7 +7604,7 @@ msgid "Try a different search."
 msgstr "Try a different search."
 
 #: src/app/(tabs)/(settings)/users.tsx:80
-#: src/app/(tabs)/(trades)/[id].tsx:427
+#: src/app/(tabs)/(trades)/[id].tsx:428
 #: src/components/error-state.tsx:83
 msgid "Try again"
 msgstr "Try again"
@@ -7626,7 +7656,7 @@ msgstr "Two-factor is on"
 msgid "Type"
 msgstr "Type"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:332
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:333
 msgid "Type a model id…"
 msgstr "Type a model id…"
 
@@ -7634,7 +7664,7 @@ msgstr "Type a model id…"
 msgid "Type broker name"
 msgstr "Type broker name"
 
-#: src/components/reports/risk-section.tsx:306
+#: src/components/reports/risk-section.tsx:303
 msgid "Typical max drawdown"
 msgstr "Typical max drawdown"
 
@@ -7662,7 +7692,7 @@ msgstr "Unknown client"
 msgid "Unknown symbol"
 msgstr "Unknown symbol"
 
-#: src/components/reports/overview-section.tsx:849
+#: src/components/reports/overview-section.tsx:853
 msgid "Unrated"
 msgstr "Unrated"
 
@@ -7684,9 +7714,9 @@ msgstr "Untitled"
 #~ msgstr "Upload CSV / JSON"
 
 #. placeholder {0}: response.status
-#: src/app/replay.tsx:381
-#: src/components/attachments-card.tsx:87
-#: src/components/note-images.tsx:74
+#: src/app/replay.tsx:382
+#: src/components/attachments-card.tsx:88
+#: src/components/note-images.tsx:75
 msgid "Upload failed ({0})"
 msgstr "Upload failed ({0})"
 
@@ -7756,12 +7786,12 @@ msgstr "version build server licence"
 msgid "View all"
 msgstr "View all"
 
-#: src/components/reports/risk-section.tsx:199
+#: src/components/reports/risk-section.tsx:196
 msgid "Violations"
 msgstr "Violations"
 
 #: src/app/(tabs)/(settings)/ai.tsx:28
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:41
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:42
 msgid "Vision scan"
 msgstr "Vision scan"
 
@@ -7825,16 +7855,16 @@ msgstr "Week {0}, {1}"
 msgid "Week {0}, No trades"
 msgstr "Week {0}, No trades"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:263
+#: src/app/(tabs)/(dashboard)/checklist.tsx:264
 msgid "Weekdays only"
 msgstr "Weekdays only"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:260
+#: src/app/(tabs)/(dashboard)/checklist.tsx:261
 msgid "Weekends hide the card on Home. Turn this off if you trade Saturday or Sunday sessions."
 msgstr "Weekends hide the card on Home. Turn this off if you trade Saturday or Sunday sessions."
 
 #: src/components/reports/overview-section.tsx:498
-#: src/components/reports/overview-section.tsx:609
+#: src/components/reports/overview-section.tsx:619
 msgid "Weekly"
 msgstr "Weekly"
 
@@ -7884,7 +7914,7 @@ msgstr "Why did you enter?"
 msgid "Why did you exit?"
 msgstr "Why did you exit?"
 
-#: src/app/(tabs)/(trades)/[id].tsx:123
+#: src/app/(tabs)/(trades)/[id].tsx:124
 #: src/components/share-card.tsx:156
 msgid "WIN"
 msgstr "WIN"
@@ -7939,7 +7969,7 @@ msgstr "wins in a row"
 msgid "Withdrawal"
 msgstr "Withdrawal"
 
-#: src/components/reports/risk-section.tsx:299
+#: src/components/reports/risk-section.tsx:296
 msgid "Worst case"
 msgstr "Worst case"
 
@@ -7956,7 +7986,7 @@ msgstr "Worst streak"
 msgid "Worst trade"
 msgstr "Worst trade"
 
-#: src/app/(tabs)/(trades)/[id].tsx:795
+#: src/app/(tabs)/(trades)/[id].tsx:796
 msgid "Write review"
 msgstr "Write review"
 
@@ -7976,7 +8006,7 @@ msgstr "Year"
 #: src/app/(tabs)/(dashboard)/_layout.tsx:149
 #: src/app/(tabs)/(dashboard)/reports.tsx:58
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:452
-#: src/components/reports/overview-section.tsx:972
+#: src/components/reports/overview-section.tsx:974
 msgid "Year Wrapped"
 msgstr "Year Wrapped"
 

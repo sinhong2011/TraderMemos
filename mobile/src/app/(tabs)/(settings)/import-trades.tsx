@@ -98,6 +98,11 @@ async function readJsonAccountName(file: PickedFile): Promise<string | null> {
   }
 }
 
+/** "05/01/2026 09:30:00" → "05/01/2026": the date is what the order changes. */
+function datePart(cell: string | undefined): string {
+  return (cell ?? '').trim().split(/\s+/)[0] ?? '';
+}
+
 /** A sentence inside a section card, on the grouped row metrics. */
 function NoteRow({ children }: { children: string }) {
   return (
@@ -115,7 +120,7 @@ function NoteRow({ children }: { children: string }) {
  * POST /imports/commit re-uploads the file with the confirmed column mapping.
  */
 export default function ImportTradesScreen() {
-  const { formatPnl } = useFormatters();
+  const { formatPnl, formatDayKey } = useFormatters();
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRaw();
@@ -132,6 +137,9 @@ export default function ImportTradesScreen() {
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [result, setResult] = useState<ImportResult | null>(null);
+  // The user's pick for a file whose slash dates fit both orders — there is no
+  // safe default, a wrong guess moves early-month trades to another month.
+  const [dateOrder, setDateOrder] = useState('');
 
   const selectedAccount =
     accountId ?? (jsonAccountName != null ? ACCOUNT_FROM_FILE : (accounts?.[0]?.id ?? ''));
@@ -188,6 +196,7 @@ export default function ImportTradesScreen() {
         if (suggested) initial[field.key] = suggested;
       }
       setMapping(initial);
+      setDateOrder('');
       setPreview(data);
     } catch (err) {
       Alert.alert(t`Could not preview`, errorMessage(err));
@@ -206,6 +215,9 @@ export default function ImportTradesScreen() {
         ? Object.fromEntries(Object.entries(mapping).filter(([, value]) => value !== SKIP))
         : {};
       fd.append('column_mapping', JSON.stringify(cleaned));
+      if (preview.date_order?.order === 'ambiguous' && dateOrder !== '') {
+        fd.append('date_order', dateOrder);
+      }
       const response = await api('/imports/commit', { method: 'POST', formData: fd });
       setResult((await response.json()) as ImportResult);
       // Imports touch trades, analytics, cash, setups, tags, and accounts —
@@ -299,9 +311,19 @@ export default function ImportTradesScreen() {
     const isCsvFills = preview.source === 'csv' && preview.format === 'executions';
     const summary = preview.journal_summary;
     const trades = preview.sample_trades ?? [];
-    const commitLabel = isJournal
-      ? t`Import ${summary?.trade_count ?? trades.length} trades`
-      : t`Import ${preview.row_count ?? 0} rows`;
+    const dateOrderInfo = preview.date_order;
+    const askDateOrder = dateOrderInfo?.order === 'ambiguous';
+    const needsDateOrder = askDateOrder && dateOrder === '';
+    const example = datePart(dateOrderInfo?.example);
+    const reading = (order: string, day: string | undefined) =>
+      day ? `${order} · ${formatDayKey(day)}` : order;
+    // The label carries the block, not just `disabled`: a disabled PanelUI
+    // Button looks unchanged on Android, so a silent tap would read as broken.
+    const commitLabel = needsDateOrder
+      ? t`Choose a date order first`
+      : isJournal
+        ? t`Import ${summary?.trade_count ?? trades.length} trades`
+        : t`Import ${preview.row_count ?? 0} rows`;
     return (
       <SettingsForm>
         <SettingsSection
@@ -324,6 +346,33 @@ export default function ImportTradesScreen() {
             </SettingsRow>
           ) : null}
         </SettingsSection>
+
+        {askDateOrder ? (
+          <SettingsSection
+            title={t`Dates`}
+            footer={t`${example} fits both orders. Pick the one your broker uses — the wrong one moves trades to another month.`}
+          >
+            <SettingsPicker
+              label={t`Date order`}
+              selectedValue={dateOrder}
+              onValueChange={setDateOrder}
+              items={[
+                {
+                  value: 'month_first',
+                  label: reading(t`Month first`, dateOrderInfo?.example_month_first),
+                },
+                {
+                  value: 'day_first',
+                  label: reading(t`Day first`, dateOrderInfo?.example_day_first),
+                },
+              ]}
+            />
+          </SettingsSection>
+        ) : dateOrderInfo?.order === 'day_first' && dateOrderInfo.example_day_first ? (
+          <SettingsSection title={t`Dates`}>
+            <NoteRow>{t`Dates read as day/month — ${example} is ${formatDayKey(dateOrderInfo.example_day_first)}.`}</NoteRow>
+          </SettingsSection>
+        ) : null}
 
         {isJournal && summary != null ? (
           <SettingsSection title={t`Summary`}>
@@ -420,9 +469,11 @@ export default function ImportTradesScreen() {
         ) : null}
 
         <View className="gap-2">
+          {/* Disabled until an ambiguous file's date order is chosen. */}
           <CenteredButton
             label={busy ? t`Importing…` : commitLabel}
             loading={busy}
+            disabled={needsDateOrder}
             onPress={() => {
               if (!busy) void runCommit();
             }}
