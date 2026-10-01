@@ -9,7 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import type { RSummary } from "@/lib/api/types";
-import { usePrivacyMode } from "@/lib/displayPrefs";
+
 import { Card } from "./Card";
 import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
@@ -34,7 +34,6 @@ export function ReportsRMultiplePerformance({
   loading,
   error,
 }: ReportsRMultiplePerformanceProps) {
-  usePrivacyMode();
   // `total_trades` here is already the R-eligible (included) count — `excluded`
   // is a disjoint count of trades skipped for missing risk, not a subset of it.
   const included = rSummary?.total_trades ?? 0;

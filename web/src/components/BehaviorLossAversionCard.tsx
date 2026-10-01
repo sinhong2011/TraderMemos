@@ -1,5 +1,5 @@
 import type { BehaviorReport } from "@/lib/api/types";
-import { usePrivacyMode } from "@/lib/displayPrefs";
+
 import { fmtDayShort, fmtDuration } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { Card } from "./Card";
@@ -26,7 +26,6 @@ export function BehaviorLossAversionCard({
   error,
   onSelectTradeId,
 }: BehaviorLossAversionCardProps) {
-  usePrivacyMode();
   const money = useReportsMoney();
   const locale = intlLocale();
 

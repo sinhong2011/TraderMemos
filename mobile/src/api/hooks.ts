@@ -31,6 +31,7 @@ import type {
   EconomicEvent,
   EquityCurve,
   Filters,
+  EdgeScore,
   ExecScoreReport,
   MissedSummary,
   MissedTrade,
@@ -114,6 +115,7 @@ export const queryKeys = {
   propStatus: (accountId: string, filters: Filters) =>
     ['accounts', accountId, 'prop-status', filters] as const,
   flexSync: (accountId: string) => ['accounts', accountId, 'flex-sync'] as const,
+  edgeScore: (filters: Filters) => ['analytics', 'edge-score', filters] as const,
   executionScore: (filters: Filters, bucket: 'week' | 'month') =>
     ['analytics', 'execution-score', bucket, filters] as const,
   monteCarlo: (filters: Filters) => ['analytics', 'montecarlo', filters] as const,
@@ -199,6 +201,11 @@ function useApiQuery<T>(
         });
       }),
   });
+}
+
+/** Open Edge Score composite + components (web ReportsEdgeScore parity). */
+export function useEdgeScore(filters: Filters = {}) {
+  return useApiQuery<EdgeScore>(queryKeys.edgeScore(filters), '/analytics/edge-score', filters);
 }
 
 /** Execution-quality composite + per-axis series (web ReportsExecutionScore parity). */

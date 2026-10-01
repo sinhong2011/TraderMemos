@@ -68,8 +68,7 @@ import type { TradeExtract } from "@/lib/api/ocr";
 import { tradesApi } from "@/lib/api/trades";
 import { parseAmountToNumber } from "@/lib/amountInput";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoney, fmtSignedMoney } from "@/lib/format";
+
 import { soleAccountId, useFilters } from "@/lib/filters";
 import {
   CUSTOM_PRESET_ID,
@@ -135,6 +134,7 @@ import { getIntlLocale, getStoredLocale } from "@/lib/locale";
 import { listTradeTemplates, saveTradeTemplate, type TradeTemplate } from "@/lib/tradeTemplates";
 import { isImportPreviewEditId } from "@/lib/importTradePreview";
 import { useUI } from "@/lib/ui";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 const MARKETS = [
   { value: "stock", label: "STOCK" },
@@ -243,6 +243,7 @@ function FillAmountCell({
   locale: string;
   emptyLabel?: string;
 }) {
+  const { fmtMoney } = useMoneyFormatters();
   const amount = quantity > 0 && price > 0 ? quantity * price * multiplier : null;
   const empty = amount == null;
   return (
@@ -276,6 +277,7 @@ function FillPnlCell({
   locale: string;
   emptyLabel?: string;
 }) {
+  const { fmtSignedMoney } = useMoneyFormatters();
   const empty = value == null;
   return (
     <span
@@ -510,6 +512,7 @@ function SymbolCard({
   onRemoveScreenshot: (fileIndex: number) => void;
   onRemove: () => void;
 }) {
+  const { fmtSignedMoney } = useMoneyFormatters();
   const base = `trades[${index}]` as const;
   const reduceMotion = useReducedMotion();
   /**
@@ -1278,7 +1281,6 @@ function SymbolCard({
 }
 
 export function NewTradeDrawer() {
-  usePrivacyMode();
   const reduceMotion = useReducedMotion();
   const navigate = useNavigate();
   const open = useUI((s) => s.modal === "new-trade");

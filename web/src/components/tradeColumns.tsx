@@ -1,7 +1,7 @@
 import type { ColumnDef, ColumnPinningState } from "@/lib/table";
 import type { Trade } from "@/lib/api/types";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtDateTime, fmtDuration, fmtMoney, fmtSignedMoney, fmtTradeDay } from "@/lib/format";
+
+import { fmtDateTime, fmtDuration, fmtTradeDay } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { formatOptionContractLabel, optionContractFromTrade } from "@/lib/optionContract";
 import { resolveTradeDirection } from "@/lib/tradeDirection";
@@ -9,6 +9,7 @@ import { DirCell } from "./DirCell";
 import { Pill, type PillTone } from "./Pill";
 import { pnlColor } from "./theme-tokens";
 import { TradeRowMenu, type TradeRowActions } from "./TradeRowMenu";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 export type { TradeRowActions };
 
@@ -74,7 +75,7 @@ function MoneyCell({
   currency: string;
   fxRate?: number;
 }) {
-  usePrivacyMode();
+  const { fmtMoney } = useMoneyFormatters();
   if (value == null) return muted("-");
   const text = fmtMoney(value * fxRate, currency, intlLocale());
   return (
@@ -93,7 +94,7 @@ function SignedMoneyCell({
   currency: string;
   fxRate?: number;
 }) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const text = fmtSignedMoney(value * fxRate, currency, intlLocale());
   return (
     <span className={`tabular-nums font-semibold ${pnlColor(value)}`} title={text}>

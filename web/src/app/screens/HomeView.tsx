@@ -33,11 +33,12 @@ import { TradeListItem } from "@/components/TradeListItem";
 import type { Account, BreakGroup, EquityPoint, Summary, Trade } from "@/lib/api/types";
 import type { DayRecord } from "@/lib/calendar";
 import { uniqueDayTicks } from "@/lib/chartTicks";
-import { accountBaseCurrency, useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { accountBaseCurrency, useDisplayTimePrefs } from "@/lib/displayPrefs";
 import { soleAccountId } from "@/lib/filters";
 import { COMPACT_VIEWPORT, useMediaQuery } from "@/lib/hooks/use-mobile";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
-import { fmtDayShort, fmtMoney, fmtMoneyCompact } from "@/lib/format";
+import { fmtDayShort } from "@/lib/format";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { intlLocale } from "@/lib/locale";
 import type { TradeStatusFilter } from "@/lib/tradeFilters";
 
@@ -121,7 +122,7 @@ function EquityCurveChart({
   fxRate?: number;
   range: string;
 }) {
-  usePrivacyMode();
+  const { fmtMoney, fmtMoneyCompact } = useMoneyFormatters();
   useDisplayTimePrefs();
   const cutoff = rangeCutoff(range);
   const visible = useMemo(() => {
