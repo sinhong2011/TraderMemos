@@ -17,11 +17,12 @@ import { Button } from "@/components/ui/button";
 import type { BarInterval } from "@/lib/api/market";
 import { cn } from "@/lib/cn";
 import { localDateString } from "@/lib/dateRangePresets";
-import { fmtSignedMoney } from "@/lib/format";
+
 import { useAccounts, useCreateAccount } from "@/lib/hooks/useAccounts";
 import { useCreateExecutions } from "@/lib/hooks/useExecutions";
 import { snapChartTime, useMarketBars } from "@/lib/hooks/useMarketBars";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 const SYMBOL_RE = /^[A-Z0-9./-]{1,15}$/;
 const BACKTEST_CURRENCY = "USD";
@@ -335,6 +336,7 @@ function ReplaySession({ spec, onExit }: { spec: SessionSpec; onExit: () => void
 }
 
 function ReplayReadout({ replay }: { replay: ReturnType<typeof useBacktestReplay> }) {
+  const { fmtSignedMoney } = useMoneyFormatters();
   const pnl = replay.pnl;
   const net = pnl?.net ?? 0;
   return (

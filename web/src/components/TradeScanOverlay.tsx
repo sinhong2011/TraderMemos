@@ -15,11 +15,12 @@ import { ocrApi, type TradeExtract } from "@/lib/api/ocr";
 import { parseAmountToNumber } from "@/lib/amountInput";
 import { cn } from "@/lib/cn";
 import { parseFillFile } from "@/lib/fillFile";
-import { fmtMoney, fmtSignedMoney } from "@/lib/format";
+
 import { OCR_SCAN_MAX_FILES } from "@/lib/hooks/useOcrParse";
 import { blockMultiplier, tradesFromOcrExtract, type SymbolTradeBlock } from "@/lib/newTradeBlocks";
 import { mergeTradeExtracts, partitionOcrWarnings } from "@/lib/ocrSymbolGroups";
 import { previewFillNetPnls, previewTradePnl } from "@/lib/tradePnlPreview";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 /**
  * Web port of the mobile trade-scan overlay (mobile/src/components/
@@ -246,6 +247,7 @@ function ScanBlockSummary({
   currency: string;
   locale: string;
 }) {
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const parsedRows = block.rows.map((r) => ({
     side: r.side,
     quantity: parseAmountToNumber(r.quantity) ?? 0,

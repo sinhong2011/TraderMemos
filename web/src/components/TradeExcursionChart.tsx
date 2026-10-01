@@ -11,14 +11,14 @@ import {
   YAxis,
 } from "recharts";
 import type { TradeDetail } from "@/lib/api/types";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoneyCompact, fmtSignedMoney, fmtSignedMoneyCompact } from "@/lib/format";
+
 import { chartWindowFromTrade, defaultBarInterval, useMarketBars } from "@/lib/hooks/useMarketBars";
 import { intlLocale } from "@/lib/locale";
 import { chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { computeExcursionSeries, trimBarsToHold } from "./charts/excursionSeries";
 import { formatReplayBarTime } from "./charts/replayPnl";
 import { Skeleton } from "./Skeleton";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 /**
  * Dashed reference line label rendered as a value pill hugging the right edge,
@@ -74,7 +74,7 @@ export interface TradeExcursionChartProps {
  * window aren't available — the numeric excursion grid stays the fallback.
  */
 export function TradeExcursionChart({ trade }: TradeExcursionChartProps) {
-  usePrivacyMode();
+  const { fmtMoneyCompact, fmtSignedMoney, fmtSignedMoneyCompact } = useMoneyFormatters();
   const locale = intlLocale();
   const currency = trade.pnl_currency;
 

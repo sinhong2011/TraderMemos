@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { TradeDetail } from "@/lib/api/types";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { buildTradeShareCard, type ShareCardData } from "@/lib/shareCard";
 import type { TradeInsights } from "@/lib/tradeInsights";
 import { ShareCardModal } from "@/components/ShareCard";
@@ -22,10 +23,12 @@ export function TradeShareModal({
   onOpenChange: (open: boolean) => void;
 }) {
   const [showAmounts, setShowAmounts] = useState(false);
+  const { fmtSignedMoney } = useMoneyFormatters();
 
   const data = useMemo(
-    () => buildTradeShareCard(trade, insights, { showAmounts, locale: intlLocale() }),
-    [trade, insights, showAmounts],
+    () =>
+      buildTradeShareCard(trade, insights, { showAmounts, locale: intlLocale(), fmtSignedMoney }),
+    [trade, insights, showAmounts, fmtSignedMoney],
   );
 
   return (
