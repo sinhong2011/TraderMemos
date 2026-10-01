@@ -169,7 +169,8 @@ func EquityCurve(startingBalance float64, flows []CashFlow, ts []ClosedTrade) Eq
 
 	eq := startingBalance
 	peak := startingBalance
-	var out Equity
+	// Non-nil so an account with no trades serialises `"points": []`, not null.
+	out := Equity{Points: make([]EquityPoint, 0, len(evs))}
 	for _, e := range evs {
 		eq = money.Round2(eq + e.amount)
 		if eq > peak {

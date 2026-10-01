@@ -1,11 +1,11 @@
 import type { TradeDetail } from "@/lib/api/types";
-import { fmtMoney } from "@/lib/format";
+
 import { intlLocale } from "@/lib/locale";
 import { computeRiskReward, type RiskRewardMetrics } from "@/lib/riskReward";
 import { cn } from "@/lib/cn";
 import { cardSectionLabelClass } from "./StatCell";
 import { pnlColor } from "./theme-tokens";
-import { usePrivacyMode } from "@/lib/displayPrefs";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 const sectionLabelClass = cn(cardSectionLabelClass, "mb-3");
 
@@ -28,7 +28,11 @@ function StatCell({
   );
 }
 
-function formatMoneyOrDash(v: number | null, currency: string): string {
+function formatMoneyOrDash(
+  fmtMoney: (v: number, currency: string, locale: string) => string,
+  v: number | null,
+  currency: string,
+): string {
   if (v == null) return "-";
   return fmtMoney(v, currency, intlLocale());
 }
@@ -47,12 +51,16 @@ export function RiskRewardPanel({
   className,
   hideWhenEmpty = false,
 }: RiskRewardPanelProps) {
-  usePrivacyMode();
+  const { fmtMoney } = useMoneyFormatters();
   const m = metrics ?? computeRiskReward(trade);
   const currency = trade.pnl_currency;
 
   const maxProfitValue =
-    m.maxProfit != null ? formatMoneyOrDash(m.maxProfit, currency) : m.target != null ? "∞" : null;
+    m.maxProfit != null
+      ? formatMoneyOrDash(fmtMoney, m.maxProfit, currency)
+      : m.target != null
+        ? "∞"
+        : null;
 
   const cells: { label: string; value: string; valueClassName?: string }[] = [];
 
@@ -72,7 +80,7 @@ export function RiskRewardPanel({
   if (m.maxLoss != null) {
     cells.push({
       label: "Max loss",
-      value: formatMoneyOrDash(m.maxLoss, currency),
+      value: formatMoneyOrDash(fmtMoney, m.maxLoss, currency),
       valueClassName: pnlColor(m.maxLoss),
     });
   }

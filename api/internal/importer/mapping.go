@@ -4,12 +4,12 @@ import "strings"
 
 // canonical field -> candidate header substrings (lowercased)
 var fieldHints = map[string][]string{
-	"symbol":      {"symbol", "ticker", "instrument"},
-	"side":        {"side", "b/s", "action", "buy/sell"},
-	"quantity":    {"qty", "quantity", "shares", "contracts"},
-	"price":       {"fill price", "price", "avg price", "exec price"},
-	"executed_at": {"trade date", "date/time", "datetime", "time", "date"},
-	"fees":        {"fee", "fees"},
+	"symbol":          {"symbol", "ticker", "instrument"},
+	"side":            {"side", "b/s", "action", "buy/sell"},
+	"quantity":        {"qty", "quantity", "shares", "contracts"},
+	"price":           {"fill price", "price", "avg price", "exec price"},
+	"executed_at":     {"trade date", "date/time", "datetime", "time", "date"},
+	"fees":            {"fee", "fees"},
 	"commission":      {"commission", "comm"},
 	"instrument_type": {"market", "instrument type", "asset type", "sec type", "product type", "asset class"},
 	"option_right":    {"call/put", "option right", "option type", "right", "cp"},
@@ -40,6 +40,31 @@ func SuggestMapping(headers []string) map[string]string {
 		if best != "" {
 			out[field] = best
 		}
+	}
+	return out
+}
+
+// MergeSuggestedWithPreset overlays a detected broker's mapping onto
+// header-guessed fields. A physical column already claimed by the preset is
+// not also bound to a guessed field — Schwab "Fees & Comm" would otherwise
+// land on both fees and commission and double-count the cost.
+func MergeSuggestedWithPreset(suggested, preset map[string]string) map[string]string {
+	out := make(map[string]string, len(suggested)+len(preset))
+	claimed := make(map[string]struct{}, len(preset))
+	for _, h := range preset {
+		if h == "" || strings.HasPrefix(h, "=") {
+			continue
+		}
+		claimed[h] = struct{}{}
+	}
+	for field, h := range suggested {
+		if _, taken := claimed[h]; taken {
+			continue
+		}
+		out[field] = h
+	}
+	for field, h := range preset {
+		out[field] = h
 	}
 	return out
 }

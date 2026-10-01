@@ -5,7 +5,6 @@ import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
 import type { BreakGroup } from "@/lib/api/types";
-import { usePrivacyMode } from "@/lib/displayPrefs";
 
 export interface ReportsSymbolHeatmapProps {
   breakdown: BreakGroup[];
@@ -99,7 +98,6 @@ export function HeatCell({
 }
 
 export function ReportsSymbolHeatmap({ breakdown, loading, error }: ReportsSymbolHeatmapProps) {
-  usePrivacyMode();
   const money = useReportsMoney();
   const nodes = buildHeatmapNodes(breakdown, (g) => money.pnl(g.summary));
   const maxAbs = Math.max(1, ...nodes.map((n) => Math.abs(n.netPnl)));

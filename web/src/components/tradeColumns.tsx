@@ -1,13 +1,15 @@
 import type { ColumnDef, ColumnPinningState } from "@/lib/table";
 import type { Trade } from "@/lib/api/types";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtDateTime, fmtDuration, fmtMoney, fmtSignedMoney, fmtTradeDay } from "@/lib/format";
+
+import { fmtDateTime, fmtDuration, fmtTradeDay } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { formatOptionContractLabel, optionContractFromTrade } from "@/lib/optionContract";
 import { resolveTradeDirection } from "@/lib/tradeDirection";
 import { DirCell } from "./DirCell";
 import { Pill, type PillTone } from "./Pill";
 import { pnlColor } from "./theme-tokens";
 import { TradeRowMenu, type TradeRowActions } from "./TradeRowMenu";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 export type { TradeRowActions };
 
@@ -73,7 +75,7 @@ function MoneyCell({
   currency: string;
   fxRate?: number;
 }) {
-  usePrivacyMode();
+  const { fmtMoney } = useMoneyFormatters();
   if (value == null) return muted("-");
   const text = fmtMoney(value * fxRate, currency, intlLocale());
   return (
@@ -92,7 +94,7 @@ function SignedMoneyCell({
   currency: string;
   fxRate?: number;
 }) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const text = fmtSignedMoney(value * fxRate, currency, intlLocale());
   return (
     <span className={`tabular-nums font-semibold ${pnlColor(value)}`} title={text}>
@@ -143,6 +145,7 @@ export function tradeColumns(
         resolveTradeDirection({
           direction: row.direction,
           instrumentType: row.instrument_type,
+          optionRight: row.option_right,
           symbol: row.symbol,
         }).sortKey,
       header: "Direction",
@@ -154,7 +157,12 @@ export function tradeColumns(
       cell: (i) => {
         const t = i.row.original;
         return (
-          <DirCell direction={t.direction} instrumentType={t.instrument_type} symbol={t.symbol} />
+          <DirCell
+            direction={t.direction}
+            instrumentType={t.instrument_type}
+            optionRight={t.option_right}
+            symbol={t.symbol}
+          />
         );
       },
     },
@@ -167,6 +175,25 @@ export function tradeColumns(
           {marketLabel(i.getValue<string>())}
         </Pill>
       ),
+    },
+    {
+      id: "contract",
+      accessorFn: (row) => formatOptionContractLabel(optionContractFromTrade(row)),
+      header: "Contract",
+      meta: {
+        label: "Contract",
+        headerTitle: "Option strike, call/put, and expiry",
+        minWidth: 140,
+      },
+      cell: (i) => {
+        const label = i.getValue<string>();
+        if (!label) return muted("—");
+        return (
+          <span className="tabular-nums text-muted-foreground" title={label}>
+            {label}
+          </span>
+        );
+      },
     },
     {
       accessorKey: "qty_opened",
@@ -432,6 +459,7 @@ export const TRADE_SORT_COLUMNS: { id: string; label: string }[] = [
   { id: "status", label: "Status" },
   { id: "direction", label: "Direction" },
   { id: "instrument_type", label: "Market" },
+  { id: "contract", label: "Contract" },
   { id: "qty_opened", label: "Qty" },
   { id: "avg_entry_price", label: "Entry" },
   { id: "avg_exit_price", label: "Exit" },
@@ -451,6 +479,7 @@ export const TRADE_VIEW_COLUMNS: { id: string; label: string }[] = [
   { id: "status", label: "Status" },
   { id: "direction", label: "Direction" },
   { id: "instrument_type", label: "Market" },
+  { id: "contract", label: "Contract" },
   { id: "qty_opened", label: "Qty" },
   { id: "avg_entry_price", label: "Entry" },
   { id: "avg_exit_price", label: "Exit" },

@@ -2,10 +2,10 @@ import type { ReactNode } from "react";
 import type { Summary, Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { type InsightRow, buildInsightPanels, computeHomeInsights } from "@/lib/homeInsights";
-import { fmtDuration, fmtMoney, fmtPct, fmtSignedMoney } from "@/lib/format";
+import { fmtDuration, fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { WinLossRecord } from "./WinLossRecord";
-import { usePrivacyMode } from "@/lib/displayPrefs";
 
 export interface HomeInsightBentoProps {
   summary: Summary;
@@ -118,7 +118,7 @@ export function HomeInsightBento({
   fxRate = 1,
   maxDrawdown,
 }: HomeInsightBentoProps) {
-  usePrivacyMode();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const insights = computeHomeInsights(trades);
   const panels = buildInsightPanels(summary, insights, currency, locale, maxDrawdown, {

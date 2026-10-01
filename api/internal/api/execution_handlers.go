@@ -54,6 +54,9 @@ func (s *Server) handleCreateExecution(c *echo.Context) error {
 	if in.AccountID == "" || in.Symbol == "" || (in.Side != "buy" && in.Side != "sell") {
 		return Fail(http.StatusBadRequest, "bad_request", "account_id, symbol, and side(buy|sell) required", nil)
 	}
+	if !(in.Quantity > 0) {
+		return Fail(http.StatusBadRequest, "bad_request", "quantity must be > 0", nil)
+	}
 	if in.ExecutedAt.IsZero() {
 		return Fail(http.StatusBadRequest, "bad_request", "executed_at is required", nil)
 	}
@@ -191,9 +194,9 @@ func (s *Server) handleUpdateExecution(c *echo.Context) error {
 	if ex.Details.Valid && ex.Details.String != "" {
 		_ = json.Unmarshal([]byte(ex.Details.String), &details)
 	}
-	hash := importer.DedupHash(
+	hash := importer.DedupHashOccurrence(
 		importer.OptionDedupSymbolFromDetails(ex.Symbol, ex.InstrumentType, details),
-		in.Side, in.Quantity, in.Price, in.ExecutedAt,
+		in.Side, in.Quantity, in.Price, in.ExecutedAt, importer.OccurrenceFromDetails(details),
 	)
 	n, err := s.deps.Store.UpdateExecution(c.Request().Context(), store.UpdateExecutionParams{
 		Side: in.Side, Quantity: in.Quantity, Price: in.Price,

@@ -23,6 +23,7 @@ import {
   useBehavior,
   useBreakdown,
   useCompliance,
+  useEdgeScore,
   useEquityCurve,
   useExecutionScore,
   useMonteCarlo,
@@ -156,6 +157,7 @@ function ReportsPage() {
   const monteCarloQ = useMonteCarlo(analyticsFilters, tab === "risk");
   const [execScoreBucket, setExecScoreBucket] = useState<ExecScoreBucket>("week");
   const execScoreQ = useExecutionScore(analyticsFilters, execScoreBucket);
+  const edgeScoreQ = useEdgeScore(analyticsFilters);
   const accountsQ = useAccounts();
   const cashQ = useCash(filters);
   const annualGoalQ = useAnnualGoal(goalYear);
@@ -214,6 +216,9 @@ function ReportsPage() {
         monteCarlo={monteCarloQ.data}
         monteCarloLoading={monteCarloQ.isLoading}
         monteCarloError={monteCarloQ.isError}
+        edgeScore={edgeScoreQ.data}
+        edgeScoreLoading={edgeScoreQ.isLoading}
+        edgeScoreError={edgeScoreQ.isError}
         execScore={execScoreQ.data}
         execScoreLoading={execScoreQ.isLoading}
         execScoreError={execScoreQ.isError}

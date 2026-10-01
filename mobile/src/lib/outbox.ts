@@ -30,14 +30,27 @@ import { Alert } from 'react-native';
 import { create } from 'zustand';
 
 import { ApiError, NetworkError, UnauthorizedError, type RequestOptions } from '@/api/client';
-import type { Note, NoteBody, PatchTradeRequest } from '@/api/types';
+import type { Note, NoteBody, PatchTradeRequest, RoutineDay } from '@/api/types';
 import { t } from '@lingui/core/macro';
 
 export type OutboxOp =
   | { id: number; kind: 'note-create'; localId: string; body: NoteBody; createdAt: string }
   | { id: number; kind: 'note-update'; noteId: string; body: NoteBody; createdAt: string }
   | { id: number; kind: 'note-delete'; noteId: string; createdAt: string }
-  | { id: number; kind: 'trade-journal'; tradeId: string; body: PatchTradeRequest; createdAt: string };
+  | { id: number; kind: 'trade-journal'; tradeId: string; body: PatchTradeRequest; createdAt: string }
+  | {
+      id: number;
+      kind: 'routine-check';
+      day: string;
+      itemId: string;
+      done: boolean;
+      createdAt: string;
+    };
+
+/** A routine tick's outbox key: one row per item per day, the latest tick wins. */
+function routineTarget(day: string, itemId: string): string {
+  return `${day}|${itemId}`;
+}
 
 /** Queued-note ids wear a prefix no server id can have, so every consumer can
  *  tell "not created yet" from a real record with one string check. */
@@ -117,6 +130,11 @@ function rowToOp(row: OutboxRow): OutboxOp | null {
           body: JSON.parse(row.payload) as PatchTradeRequest,
           createdAt: row.created_at,
         };
+      case 'routine-check': {
+        const [day, itemId] = row.target_id.split('|');
+        const { done } = JSON.parse(row.payload) as { done: boolean };
+        return { id: row.id, kind: 'routine-check', day, itemId, done, createdAt: row.created_at };
+      }
       default:
         return null;
     }
@@ -274,6 +292,39 @@ export function enqueueTradeJournal(tradeId: string, body: PatchTradeRequest) {
   ).changes;
   if (changed === 0) insertOp('trade-journal', tradeId, body);
   refreshOps();
+}
+
+/** Queue a routine tick, replacing any tick still waiting for the same box. */
+export function enqueueRoutineCheck(day: string, itemId: string, done: boolean) {
+  ensureOutboxHydrated();
+  const target = routineTarget(day, itemId);
+  const changed = db().runSync(
+    "UPDATE outbox SET payload = ? WHERE kind = 'routine-check' AND target_id = ?",
+    JSON.stringify({ done }),
+    target,
+  ).changes;
+  if (changed === 0) insertOp('routine-check', target, { done });
+  refreshOps();
+}
+
+export function hasPendingRoutineCheck(day: string, itemId: string): boolean {
+  return useOutboxStore
+    .getState()
+    .ops.some((op) => op.kind === 'routine-check' && op.day === day && op.itemId === itemId);
+}
+
+/** A day's routine with its queued ticks applied, so offline ticks show at once. */
+export function applyPendingChecks(data: RoutineDay | undefined, ops: OutboxOp[]): RoutineDay | undefined {
+  if (!data) return data;
+  const pending = new Map<string, boolean>();
+  for (const op of ops) {
+    if (op.kind === 'routine-check' && op.day === data.day) pending.set(op.itemId, op.done);
+  }
+  if (pending.size === 0) return data;
+  const items = data.items.map((item) =>
+    pending.has(item.id) ? { ...item, done: pending.get(item.id) ?? item.done } : item,
+  );
+  return { ...data, items, done: items.filter((item) => item.done).length };
 }
 
 // ---------------------------------------------------------------------------
@@ -436,6 +487,12 @@ async function sendOp(api: ApiFn, queryClient: QueryClient, op: OutboxOp): Promi
     case 'trade-journal':
       await api(`/trades/${op.tradeId}`, { method: 'PATCH', body: op.body });
       return;
+    case 'routine-check':
+      await api(`/routines/day/${op.day}/items/${op.itemId}`, {
+        method: 'PUT',
+        body: { done: op.done },
+      });
+      return;
   }
 }
 
@@ -451,6 +508,8 @@ function opLabel(op: OutboxOp): string {
       return t`Note deletion`;
     case 'trade-journal':
       return t`Trade review`;
+    case 'routine-check':
+      return t`Routine tick`;
   }
 }
 

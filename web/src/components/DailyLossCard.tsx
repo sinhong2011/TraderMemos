@@ -1,7 +1,7 @@
 import { useRiskRules } from "@/lib/hooks/useRiskRules";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoney, fmtSignedMoney } from "@/lib/format";
+
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { Card } from "./Card";
 import { cn } from "@/lib/cn";
 
@@ -18,7 +18,7 @@ export interface DailyLossCardProps {
  * a tracker with no limit is just another P&L number.
  */
 export function DailyLossCard({ todayNetPnl, currency, fxRate = 1 }: DailyLossCardProps) {
-  usePrivacyMode();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const { data: rules } = useRiskRules();
   const limit = rules?.max_daily_loss ?? null;

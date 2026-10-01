@@ -7,7 +7,7 @@
  */
 
 import { useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useRef, useState, type ReactNode } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
@@ -88,11 +88,9 @@ export const ReportsScrollProvider = ReportsScrollContext.Provider;
 
 /** One pager page: a pull-to-refresh card stack under the floating switcher. */
 export function SectionScaffold({
-  refreshing,
   onScrolledChange,
   children,
 }: {
-  refreshing: boolean;
   /** Fires when content crosses under the bar — the index shows the title then. */
   onScrolledChange?: (scrolled: boolean) => void;
   children: ReactNode;
@@ -108,6 +106,17 @@ export function SectionScaffold({
   const softTopEdge = useSoftTopEdge();
 
   const scrollNode = useRef<unknown>(null);
+  // The spinner answers the user's own pull, never a background refetch
+  // (the trade detail screen's rule). A cold launch revalidates the persisted
+  // cache as the page mounts, and a RefreshControl switched on
+  // programmatically drags the content down 60pt that UIKit never gives back
+  // under this manual-inset setup — the switcher strip then rested well
+  // below the large title.
+  const [pulled, setPulled] = useState(false);
+  const pullToRefresh = () => {
+    setPulled(true);
+    void queryClient.invalidateQueries().finally(() => setPulled(false));
+  };
 
   return (
     <ScrollView
@@ -131,12 +140,7 @@ export function SectionScaffold({
         // repeat nominations dedupe natively.
         nominateSoftTopEdge(scrollNode.current);
       }}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={() => void queryClient.invalidateQueries()}
-        />
-      }
+      refreshControl={<RefreshControl refreshing={pulled} onRefresh={pullToRefresh} />}
     >
       {switcher ? (
         <View className="px-4 pt-1">

@@ -49,8 +49,19 @@ func (s *Server) buildTradeDetail(ctx context.Context, userID string, t store.Tr
 	}
 	d.Fills = toExecutionDTOs(fills)
 	if t.InstrumentType == "option" {
-		if right := optionRightFromFills(fills); right != "" {
-			d.OptionRight = &right
+		if c := optionContractFromFills(fills); c.Right != "" || c.Strike != "" || c.Expiry != "" {
+			if c.Right != "" {
+				right := c.Right
+				d.OptionRight = &right
+			}
+			if c.Strike != "" {
+				strike := c.Strike
+				d.OptionStrike = &strike
+			}
+			if c.Expiry != "" {
+				expiry := c.Expiry
+				d.OptionExpiry = &expiry
+			}
 		}
 	}
 

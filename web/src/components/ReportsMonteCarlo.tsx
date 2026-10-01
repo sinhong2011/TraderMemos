@@ -9,9 +9,10 @@ import {
   YAxis,
 } from "recharts";
 import type { MonteCarloResult } from "@/lib/api/types";
-import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoneyCompact, fmtPct } from "@/lib/format";
+import { useDisplayTimePrefs } from "@/lib/displayPrefs";
+import { fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { Card } from "./Card";
 import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
@@ -37,7 +38,7 @@ export function ReportsMonteCarlo({
   error,
   currency,
 }: ReportsMonteCarloProps) {
-  usePrivacyMode();
+  const { fmtMoneyCompact } = useMoneyFormatters();
   useDisplayTimePrefs();
   const money = useReportsMoney();
   const locale = intlLocale();

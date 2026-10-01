@@ -2,9 +2,10 @@ import { StatBar } from "./StatBar";
 import { pnlColor } from "./theme-tokens";
 import type { Summary, Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoney, fmtPct, fmtSignedMoney } from "@/lib/format";
+
+import { fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import type { TradeStatusFilter } from "@/lib/tradeFilters";
 
 export interface PerformanceStripProps {
@@ -34,7 +35,7 @@ export function PerformanceStrip({
   tradeStatusFilter,
   onToggleTradeStatus,
 }: PerformanceStripProps) {
-  usePrivacyMode();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const total = Math.max(summary.total_trades, 1);
   const allTotal = Math.max(trades.length, 1);

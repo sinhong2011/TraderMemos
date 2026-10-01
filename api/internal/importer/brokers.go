@@ -18,7 +18,8 @@ type BrokerPreset struct {
 	// contract size (LotContractSize) instead of the conventional multiplier.
 	LotSized bool
 	// All of these (lowercased) must be present for the preset to match.
-	// Chosen to be distinctive enough that generic CSVs never collide.
+	// Chosen to be distinctive enough that generic CSVs never collide. A
+	// signature entry may list alternatives separated by `|` (any one wins).
 	signature []string
 	fields    map[string][]string
 }
@@ -28,13 +29,13 @@ var brokerPresets = []BrokerPreset{
 		Key:       "ibkr",
 		Name:      "Interactive Brokers (Flex/Activity)",
 		TZ:        "America/New_York",
-		signature: []string{"buy/sell", "tradeprice"},
+		signature: []string{"buy/sell", "tradeprice|price"},
 		fields: map[string][]string{
 			"symbol":          {"symbol"},
 			"side":            {"buy/sell"},
 			"quantity":        {"quantity"},
-			"price":           {"tradeprice"},
-			"executed_at":     {"datetime", "tradedate"},
+			"price":           {"tradeprice", "price"},
+			"executed_at":     {"date/time", "datetime", "tradedate"},
 			"commission":      {"ibcommission", "commission"},
 			"instrument_type": {"assetclass", "assetcategory"},
 			"option_right":    {"put/call"},
@@ -211,7 +212,14 @@ func matchPreset(headers []string) (BrokerPreset, map[string]string, bool) {
 	for _, p := range brokerPresets {
 		matched := true
 		for _, sig := range p.signature {
-			if _, present := byLower[sig]; !present {
+			present := false
+			for _, alt := range strings.Split(sig, "|") {
+				if _, ok := byLower[alt]; ok {
+					present = true
+					break
+				}
+			}
+			if !present {
 				matched = false
 				break
 			}

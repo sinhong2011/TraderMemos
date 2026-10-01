@@ -30,7 +30,12 @@ const SWIFT_FILES = [
   'TodaySnapshot.swift',
   'WidgetTheme.swift',
   'TodayWidget.swift',
+  'TMShared.swift',
+  'RoutineIntents.swift',
+  'RoutineWidget.swift',
+  'MissedTradesWidget.swift',
   'QuickJournalControl.swift',
+  'RoutineControls.swift',
   'TradingSessionAttributes.swift',
   'TradingSessionLiveActivity.swift',
   'WidgetsBundle.swift',
@@ -38,8 +43,12 @@ const SWIFT_FILES = [
 // The ActivityKit attributes are canonical in the live-activity module (the
 // app compiles them through its pod); the extension gets a prebuild-time copy
 // so the two targets can never drift.
+// targets/shared/ holds the API client and intents the widget buttons share
+// with the app target's Siri intents (with-app-intents copies them too).
 const SHARED_FROM_MODULES = {
   'TradingSessionAttributes.swift': ['modules', 'live-activity', 'ios'],
+  'TMShared.swift': ['targets', 'shared'],
+  'RoutineIntents.swift': ['targets', 'shared'],
 };
 const TARGET_FILES = [...SWIFT_FILES, 'Info.plist', `${TARGET_NAME}.entitlements`];
 

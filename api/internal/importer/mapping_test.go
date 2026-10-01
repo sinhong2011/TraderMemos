@@ -16,3 +16,19 @@ func TestSuggestMapping(t *testing.T) {
 	require.Equal(t, "Trade Date", m["executed_at"])
 	require.Equal(t, "Commission", m["commission"])
 }
+
+func TestMergeSuggestedWithPresetDropsClaimedColumns(t *testing.T) {
+	headers := []string{"Date", "Action", "Symbol", "Description", "Quantity", "Price", "Fees & Comm", "Amount"}
+	suggested := SuggestMapping(headers)
+	require.Equal(t, "Fees & Comm", suggested["fees"])
+	require.Equal(t, "Fees & Comm", suggested["commission"])
+
+	_, preset, _, ok := MatchBroker(headers)
+	require.True(t, ok)
+
+	merged := MergeSuggestedWithPreset(suggested, preset)
+	require.Equal(t, "Fees & Comm", merged["fees"])
+	require.NotEqual(t, "Fees & Comm", merged["commission"])
+	require.Equal(t, "Action", merged["side"])
+	require.Equal(t, "Price", merged["price"])
+}

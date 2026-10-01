@@ -9,14 +9,14 @@ import { t } from '@lingui/core/macro';
 import { useChecklistRun } from '@/lib/use-checklist-run';
 
 /**
- * Today's checklist on Home, as a summary: count, progress, and the next open
+ * Today's routine on Home, as a summary: count, progress, and the next open
  * item. The boxes themselves live on the Daily checklist screen — a seven-row
  * tick list was the tallest thing on a dashboard whose subject is the curve.
  *
  * This card is the run's one always-mounted home, so it owns the Reminders
  * mirror (`sync`) even though the ticking happens a push away.
  *
- * Renders nothing until a template exists — the card is a routine to work
+ * Renders nothing until the routine has items — the card is a routine to work
  * through, not a prompt to go set one up (DailyLossCard's rule). Off-days hide
  * it rather than showing an untouched 0/7 — an unrun checklist on a Saturday
  * reads as a routine you skipped.
@@ -27,13 +27,13 @@ export function ChecklistCard() {
   const router = useRouter();
   const { rows, done, hasTemplate, offDay } = useChecklistRun({ sync: true });
 
-  if (!hasTemplate || offDay) return null;
+  if (!hasTemplate || offDay || rows.length === 0) return null;
 
   const next = rows.find((row) => !row.done);
 
   return (
     <DashboardCard
-      title={t`Daily checklist`}
+      title={t`Today's routine`}
       action={{
         label: t`Edit`,
         onPress: () => router.push('/(tabs)/(dashboard)/checklist'),
@@ -42,7 +42,7 @@ export function ChecklistCard() {
       <Pressable
         onPress={() => router.push('/(tabs)/(dashboard)/daily-checklist')}
         accessibilityRole="button"
-        accessibilityLabel={t`Daily checklist`}
+        accessibilityLabel={t`Today's routine`}
         className="gap-3 active:opacity-70"
       >
         <View className="flex-row items-baseline gap-2">
@@ -50,7 +50,7 @@ export function ChecklistCard() {
             {done}/{rows.length}
           </Text>
           <Text className="flex-1 text-[13px] text-muted-foreground">
-            {done === rows.length ? t`Ready to trade` : t`Before the open`}
+            {done === rows.length ? t`All done` : t`Next up`}
           </Text>
           <Icon name="chevron.right" size={12} tintColor={mutedForeground} />
         </View>

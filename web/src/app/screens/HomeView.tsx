@@ -33,11 +33,12 @@ import { TradeListItem } from "@/components/TradeListItem";
 import type { Account, BreakGroup, EquityPoint, Summary, Trade } from "@/lib/api/types";
 import type { DayRecord } from "@/lib/calendar";
 import { uniqueDayTicks } from "@/lib/chartTicks";
-import { accountBaseCurrency, useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { accountBaseCurrency, useDisplayTimePrefs } from "@/lib/displayPrefs";
 import { soleAccountId } from "@/lib/filters";
 import { COMPACT_VIEWPORT, useMediaQuery } from "@/lib/hooks/use-mobile";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
-import { fmtDayShort, fmtMoney, fmtMoneyCompact } from "@/lib/format";
+import { fmtDayShort } from "@/lib/format";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { intlLocale } from "@/lib/locale";
 import type { TradeStatusFilter } from "@/lib/tradeFilters";
 
@@ -52,6 +53,8 @@ export interface HomeViewProps {
   tradesLoading: boolean;
   tradesError: boolean;
   trades: Trade[];
+  /** Account/date/base-filter scope before selecting an outcome. */
+  baselineTrades: Trade[];
   accounts: Account[];
   selectedAccountIds: string[] | undefined;
   tradeStatusFilter?: TradeStatusFilter;
@@ -119,7 +122,7 @@ function EquityCurveChart({
   fxRate?: number;
   range: string;
 }) {
-  usePrivacyMode();
+  const { fmtMoney, fmtMoneyCompact } = useMoneyFormatters();
   useDisplayTimePrefs();
   const cutoff = rangeCutoff(range);
   const visible = useMemo(() => {
@@ -206,6 +209,7 @@ export function HomeView({
   tradesLoading,
   tradesError,
   trades,
+  baselineTrades,
   accounts,
   selectedAccountIds,
   tradeStatusFilter,
@@ -256,7 +260,7 @@ export function HomeView({
     !summaryError &&
     !tradesError &&
     summary?.total_trades === 0 &&
-    trades.length === 0;
+    baselineTrades.length === 0;
 
   if (noData) {
     const emptyActions = (
@@ -341,7 +345,7 @@ export function HomeView({
           <div className="min-h-[265px] lg:col-span-2">
             <PerformanceStrip
               summary={summary}
-              trades={trades}
+              trades={baselineTrades}
               currency={currency}
               fxRate={fxRate}
               tradeStatusFilter={tradeStatusFilter}
@@ -376,7 +380,7 @@ export function HomeView({
       {summary && !summaryLoading && !summaryError ? (
         <HomeInsightBento
           summary={summary}
-          trades={trades}
+          trades={baselineTrades}
           currency={currency}
           fxRate={fxRate}
           maxDrawdown={maxDrawdown}
@@ -384,7 +388,7 @@ export function HomeView({
       ) : null}
 
       <HomeAccountContribution
-        trades={trades}
+        trades={baselineTrades}
         accounts={accounts}
         currency={currency}
         fxRate={fxRate}

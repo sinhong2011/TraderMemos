@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ComplianceReport } from "@/lib/api/types";
-import { usePrivacyMode } from "@/lib/displayPrefs";
+
 import { fmtDayShort } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { Card } from "./Card";
@@ -22,7 +22,6 @@ export interface ReportsRuleComplianceProps {
  * persuasive discipline chart a journal can show.
  */
 export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleComplianceProps) {
-  usePrivacyMode();
   const money = useReportsMoney();
   const locale = intlLocale();
 
