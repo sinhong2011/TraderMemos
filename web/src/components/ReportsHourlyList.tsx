@@ -1,6 +1,6 @@
 import type { BreakGroup } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { formatHourKeyLabel, useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { formatHourKeyLabel, useDisplayTimePrefs } from "@/lib/displayPrefs";
 import { fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { EmptyState } from "./EmptyState";
@@ -16,7 +16,6 @@ export interface ReportsHourlyListProps {
 
 /** Tradervue-style hourly list with magnitude bars. API keys are already on the trader's clock. */
 export function ReportsHourlyList({ breakdown, loading, error }: ReportsHourlyListProps) {
-  usePrivacyMode();
   useDisplayTimePrefs();
   const locale = intlLocale();
   const money = useReportsMoney();

@@ -436,10 +436,10 @@ export function isPrivacyMode(): boolean {
 }
 
 /**
- * Subscribe to privacy mode in any component that renders `fmtMoney*`.
- * Formatters read privacy via `getState()` at render time. Under React Compiler,
- * parent subscriptions do not remask memoized children — call this in the same
- * component that formats money (or a leaf like MoneyCell).
+ * Subscribe to privacy mode. Formatters read privacy via `getState()` at call
+ * time, which React Compiler cannot see — a bare `usePrivacyMode();` call does
+ * NOT remask memoized output. Use the returned flag as an input, or format
+ * through `useMoneyFormatters()` / `useReportsMoney()`, which do that for you.
  */
 export function usePrivacyMode(): boolean {
   return useDisplayPrefs((s) => s.privacyMode);

@@ -1,10 +1,11 @@
 import type { Account } from "@/lib/api/types";
 import { usePropStatus } from "@/lib/hooks/useProp";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
+
 import { marketTz } from "@/lib/filters";
-import { fmtMoney, fmtSignedMoney } from "@/lib/format";
+
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { Card } from "./Card";
 import { Pill } from "./Pill";
 import { StatCard } from "./StatCard";
@@ -55,7 +56,7 @@ function RuleBar({
  * Renders only when a single prop account is selected and has rules saved.
  */
 export function PropStatusCard({ accounts, selectedAccountId }: PropStatusCardProps) {
-  usePrivacyMode();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const account = accounts.find((a) => a.id === selectedAccountId);
   const isProp = account?.account_type === "prop";

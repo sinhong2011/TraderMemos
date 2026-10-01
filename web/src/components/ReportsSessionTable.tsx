@@ -6,9 +6,9 @@ import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
 import { pnlColor } from "./theme-tokens";
 import type { BreakGroup, Summary } from "@/lib/api/types";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtPct, fmtSignedMoney } from "@/lib/format";
+import { fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 /** Net P&L cell — the only session-table column that honors the Reports
  * net/gross + $/% display mode; PF/avg-trade/expectancy stay net-$ (the API
@@ -30,6 +30,7 @@ export interface ReportsSessionTableProps {
 }
 
 function buildSessionColumns(
+  fmtSignedMoney: (v: number, currency: string, locale: string) => string,
   currency: string,
   locale: string,
   fxRate: number,
@@ -111,7 +112,7 @@ export function ReportsSessionTable({
   currency,
   fxRate = 1,
 }: ReportsSessionTableProps) {
-  usePrivacyMode();
+  const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
 
   return (
@@ -131,7 +132,10 @@ export function ReportsSessionTable({
         </div>
       ) : (
         <div style={{ maxHeight: 280 }}>
-          <DataTable columns={buildSessionColumns(currency, locale, fxRate)} data={breakdown} />
+          <DataTable
+            columns={buildSessionColumns(fmtSignedMoney, currency, locale, fxRate)}
+            data={breakdown}
+          />
         </div>
       )}
     </Card>
