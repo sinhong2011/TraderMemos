@@ -1,20 +1,19 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { Frame, Sortable, Text as UIText, reorderItems } from 'panelui-native';
 import { Alert, Pressable } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
-import { queryKeys, useApiRequest, useChecklistTemplate } from '@/api/hooks';
-import type { ChecklistTemplate } from '@/api/types';
+import { queryKeys, useApiRequest, useRoutineItems } from '@/api/hooks';
+import type { RoutineItem, RoutineStage } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { Icon } from '@/components/icon';
 import { SettingsButton, SettingsSection, SettingsToggle } from '@/components/settings-rows';
 import { SettingsForm } from '@/components/settings-form';
 import { Menu } from '@/components/sheet-menu';
 import { Swipe } from '@/components/swipe';
-import { usePrompt } from '@/components/use-prompt';
 import { DateField } from '@/components/date-field';
-import { preMarketRoutine, setWeekdaysOnly, taskBlock, useWeekdaysOnly } from '@/lib/checklist';
+import { preMarketRoutine, todayNoteDay } from '@/lib/checklist';
 import {
   setRemindersSync,
   setRemindersTime,
@@ -24,41 +23,39 @@ import {
   useRemindersTime,
 } from '@/lib/checklist-reminders';
 import { errorMessage } from '@/lib/errors';
+import { MON_TO_FRI, STAGES, stageLabel, weekdaysLabel } from '@/lib/routines';
 
 /**
- * Daily checklist template editor.
+ * Routine editor.
  *
  * Lives in the Home stack, not Settings: the routine is a start-of-day thing,
- * reached from the Home card's Edit or the Daily checklist screen's pencil,
- * and back should land where the run is. It still uses the settings *form*
- * idiom — grouped sections of rows with no Save button, each edit persisting
- * on its own.
+ * reached from the Home card's Edit or the Daily routine screen's pencil, and
+ * back should land where the run is. It still uses the settings *form* idiom —
+ * grouped sections of rows with no Save button, each edit persisting on its
+ * own.
  *
- * Items are rows, not markdown: tap to rename, swipe to delete, drag the grip
- * to reorder, add from the bottom row, instead of asking anyone to hand-type
- * `- [ ]` into a textarea. The wire format stays the markdown `content` string
- * the web editor round-trips.
+ * One section per stage. Tap a row to edit it (its own form: title, stage,
+ * days), swipe to remove it from the routine from today on, drag the grip to
+ * reorder within the stage, add from each section's bottom row.
  */
 export default function ChecklistScreen() {
   const [foreground, mutedForeground] = useCSSVariable([
     '--color-foreground',
     '--color-muted-foreground',
   ]) as [string, string];
+  const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  // Single-value editing: `Alert.prompt` on iOS, a dialog everywhere else.
-  const { prompt, element: promptElement } = usePrompt();
-  const checklist = useChecklistTemplate();
-  const items = checklist.data?.items ?? [];
-  const weekdaysOnly = useWeekdaysOnly();
+  const today = todayNoteDay();
+  const routine = useRoutineItems(today);
+  const items = routine.data?.items ?? [];
   const remindersOn = useRemindersEnabled();
   const remindersTime = useRemindersTime();
 
-  // Compared case-insensitively because that is how the server folds
-  // duplicates: an item typed as "check news events" already covers the
-  // suggestion, and offering it again would only earn a clash alert.
-  const taken = new Set(items.map((item) => item.toLowerCase()));
-  const suggestions = checklist.isLoading
+  // Compared case-insensitively: an item typed as "check news events" already
+  // covers the suggestion.
+  const taken = new Set(items.map((item) => item.title.toLowerCase()));
+  const suggestions = routine.isLoading
     ? []
     : preMarketRoutine().filter((item) => !taken.has(item.toLowerCase()));
 
@@ -74,93 +71,75 @@ export default function ChecklistScreen() {
       Alert.alert(
         result === 'denied' ? t`Reminders access needed` : t`Reminders unavailable`,
         result === 'denied'
-          ? t`Allow Reminders for TraderMemos in Settings → Privacy to mirror the checklist.`
+          ? t`Allow Reminders for TraderMemos in Settings → Privacy to mirror the routine.`
           : t`This build can't reach the Reminders app. Rebuild the dev client and try again.`,
       );
     });
   }
 
-  const save = useMutation({
-    mutationFn: (next: string[]) =>
-      api<ChecklistTemplate>('/settings/checklist-template', {
-        method: 'PUT',
-        body: { content: taskBlock(next) },
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.routines() });
+  const onError = (err: unknown) => Alert.alert(t`Could not save`, errorMessage(err));
+
+  const add = useMutation({
+    mutationFn: (title: string) =>
+      api<RoutineItem>('/routines', {
+        method: 'POST',
+        body: { title, stage: 'pre', weekdays: MON_TO_FRI, day: today },
       }),
-    // Written straight into the cache: a row that lags a round-trip behind the
-    // tap that renamed it reads as a dropped edit.
-    onMutate: (next) => {
-      const previous = queryClient.getQueryData<ChecklistTemplate>(queryKeys.checklistTemplate());
-      queryClient.setQueryData<ChecklistTemplate>(queryKeys.checklistTemplate(), {
-        items: next,
-        content: taskBlock(next),
-      });
-      return { previous };
-    },
-    onError: (err, _next, context) => {
-      queryClient.setQueryData(queryKeys.checklistTemplate(), context?.previous);
-      Alert.alert(t`Could not save checklist`, errorMessage(err));
-    },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.checklistTemplate() });
-    },
+    onSuccess: invalidate,
+    onError,
   });
 
-  /**
-   * The server folds duplicates together case-insensitively, so a second copy
-   * would silently vanish on the next load — refused here instead.
-   */
-  function commit(next: string[], added: string, atIndex: number) {
-    const name = added.trim();
-    if (!name) return;
-    const clash = next.some(
-      (item, index) => index !== atIndex && item.toLowerCase() === name.toLowerCase(),
-    );
-    if (clash) {
-      Alert.alert(t`Already on the list`, t`“${name}” is already a checklist item.`);
-      return;
-    }
-    save.mutate(next);
-  }
+  const archive = useMutation({
+    mutationFn: (id: string) => api<void>(`/routines/${id}?day=${today}`, { method: 'DELETE' }),
+    onMutate: (id) => {
+      // Gone from the list at once: a swiped row that springs back for a round
+      // trip reads as a delete that didn't take.
+      const key = queryKeys.routineItems(today);
+      const previous = queryClient.getQueryData<{ items: RoutineItem[] }>(key);
+      if (previous) {
+        queryClient.setQueryData(key, { items: previous.items.filter((item) => item.id !== id) });
+      }
+      return { previous };
+    },
+    onError: (err, _id, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKeys.routineItems(today), context.previous);
+      onError(err);
+    },
+    onSettled: invalidate,
+  });
 
-  function promptAdd() {
-    prompt({
-      title: t`New item`,
-      message: t`One rule to clear before you trade.`,
-      confirmLabel: t`Add`,
-      onSubmit: (value) => {
-        const name = value.trim();
-        if (name) commit([...items, name], name, items.length);
-      },
-    });
-  }
+  const order = useMutation({
+    mutationFn: (ids: string[]) => api<void>('/routines/order', { method: 'PUT', body: { ids } }),
+    onMutate: (ids) => {
+      const key = queryKeys.routineItems(today);
+      const previous = queryClient.getQueryData<{ items: RoutineItem[] }>(key);
+      if (previous) {
+        const byId = new Map(previous.items.map((item) => [item.id, item]));
+        queryClient.setQueryData(key, {
+          items: ids
+            .map((id, position) => {
+              const item = byId.get(id);
+              return item ? { ...item, position } : undefined;
+            })
+            .filter((item): item is RoutineItem => item != null),
+        });
+      }
+      return { previous };
+    },
+    onError: (err, _ids, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKeys.routineItems(today), context.previous);
+      onError(err);
+    },
+    onSettled: invalidate,
+  });
 
-  function promptRename(index: number) {
-    prompt({
-      title: t`Edit item`,
-      defaultValue: items[index],
-      onSubmit: (value) => {
-        const name = value.trim();
-        if (!name) return;
-        commit(
-          items.map((item, i) => (i === index ? name : item)),
-          name,
-          index,
-        );
-      },
-    });
-  }
-
-  function remove(index: number) {
-    save.mutate(items.filter((_, i) => i !== index));
-  }
-
-  /**
-   * `Sortable` hands back the settled order alongside the indices it moved
-   * between, so the list is rebuilt with the same helper the component used to
-   * draw the drag — no index arithmetic of our own to get wrong.
-   */
-  function move(from: number, to: number) {
-    save.mutate(reorderItems(items, from, to));
+  /** Reorder within one stage; positions are global, so every item is sent. */
+  function move(stage: RoutineStage, from: number, to: number) {
+    const stageItems = items.filter((item) => item.stage === stage);
+    const moved = reorderItems(stageItems, from, to);
+    const others = items.filter((item) => item.stage !== stage);
+    order.mutate([...others, ...moved].map((item) => item.id));
   }
 
   /**
@@ -184,7 +163,7 @@ export default function ChecklistScreen() {
         </Menu.Trigger>
         <Menu.Content>
           {suggestions.map((item) => (
-            <Menu.Item key={item} onSelect={() => commit([...items, item], item, items.length)}>
+            <Menu.Item key={item} onSelect={() => add.mutate(item)}>
               {item}
             </Menu.Item>
           ))}
@@ -196,83 +175,83 @@ export default function ChecklistScreen() {
     <>
       <Stack.Screen options={{ headerRight: () => suggestionsMenu }} />
       <SettingsForm>
-        <SettingsSection
-          title={t`Checklist`}
-          footer={t`These run on Home each morning and seed every new daily log. Tap an item to edit it, swipe to delete, drag to reorder.`}
-        >
-          {/* Row IDs have to survive a rename, and the text is all the server
-              gives us — so the index carries the identity and the text only
-              makes it unique while two rows share one. */}
-          <Sortable
-            value={items.map((item, index) => `${index}-${item}`)}
-            onReorder={(_order, { from, to }) => move(from, to)}
-          >
-            {items.map((item, index) => (
-              <Sortable.Item key={`${index}-${item}`} id={`${index}-${item}`}>
-                <Swipe>
-                  <Swipe.End>
-                    <Swipe.Action
-                      color="destructive"
-                      icon={<Icon name="trash.fill" />}
-                      label={t`Delete`}
-                      onPress={() => remove(index)}
-                    />
-                  </Swipe.End>
-                  <Frame.Row divided={index > 0} onPress={() => promptRename(index)}>
-                    <Frame.Content>
-                      <Frame.Title>{item}</Frame.Title>
-                    </Frame.Content>
-                    {/* The reorder grip, in place of the position number: a row
-                        already says where it sits in the run by sitting there,
-                        and nothing said it could be moved. */}
-                    <Frame.Actions>
-                      <Sortable.Handle>
-                        <Icon name="line.3.horizontal" size={15} tintColor={mutedForeground} />
-                      </Sortable.Handle>
-                    </Frame.Actions>
-                  </Frame.Row>
-                </Swipe>
-              </Sortable.Item>
-            ))}
-          </Sortable>
+        {STAGES.map((stage, sectionIndex) => {
+          const stageItems = items.filter((item) => item.stage === stage);
+          return (
+            <SettingsSection
+              key={stage}
+              title={stageLabel(stage)}
+              footer={
+                sectionIndex === STAGES.length - 1
+                  ? t`Tap an item to rename it or change its days, swipe to remove it from today on, drag to reorder.`
+                  : undefined
+              }
+            >
+              <Sortable
+                value={stageItems.map((item) => item.id)}
+                onReorder={(_order, { from, to }) => move(stage, from, to)}
+              >
+                {stageItems.map((item, index) => (
+                  <Sortable.Item key={item.id} id={item.id}>
+                    <Swipe>
+                      <Swipe.End>
+                        <Swipe.Action
+                          color="destructive"
+                          icon={<Icon name="trash.fill" />}
+                          label={t`Remove`}
+                          onPress={() => archive.mutate(item.id)}
+                        />
+                      </Swipe.End>
+                      <Frame.Row
+                        divided={index > 0}
+                        onPress={() => router.push({ pathname: '/routine-item', params: { id: item.id } })}
+                      >
+                        <Frame.Content>
+                          <Frame.Title>{item.title}</Frame.Title>
+                          <Frame.Description>{weekdaysLabel(item.weekdays)}</Frame.Description>
+                        </Frame.Content>
+                        <Frame.Actions>
+                          <Sortable.Handle>
+                            <Icon name="line.3.horizontal" size={15} tintColor={mutedForeground} />
+                          </Sortable.Handle>
+                        </Frame.Actions>
+                      </Frame.Row>
+                    </Swipe>
+                  </Sortable.Item>
+                ))}
+              </Sortable>
 
-          {/* A failed load has to be said out loud here: "No items yet" over a
-              routine that exists on the server invites you to type it all again,
-              and the Add row below is right there. */}
-          {items.length === 0 ? (
-            <Frame.Row>
-              <Frame.Content>
-                <UIText size="sm" muted>
-                  {checklist.isLoading
-                    ? t`Loading…`
-                    : checklist.error
-                      ? errorMessage(checklist.error)
-                      : t`No items yet`}
-                </UIText>
-              </Frame.Content>
-            </Frame.Row>
-          ) : null}
+              {/* A failed load has to be said out loud: an empty stage over a
+                  routine that exists on the server invites retyping it all. */}
+              {stage === 'pre' && items.length === 0 ? (
+                <Frame.Row>
+                  <Frame.Content>
+                    <UIText size="sm" muted>
+                      {routine.isLoading
+                        ? t`Loading…`
+                        : routine.error
+                          ? errorMessage(routine.error)
+                          : t`No items yet`}
+                    </UIText>
+                  </Frame.Content>
+                </Frame.Row>
+              ) : null}
 
-          <SettingsButton systemImage="plus.circle.fill" label={t`Add item`} onPress={promptAdd} />
-        </SettingsSection>
-
-        <SettingsSection
-          title={t`Schedule`}
-          footer={t`Weekends hide the card on Home. Turn this off if you trade Saturday or Sunday sessions.`}
-        >
-          <SettingsToggle
-            label={t`Weekdays only`}
-            value={weekdaysOnly}
-            onValueChange={setWeekdaysOnly}
-          />
-        </SettingsSection>
+              <SettingsButton
+                systemImage="plus.circle.fill"
+                label={t`Add item`}
+                onPress={() => router.push({ pathname: '/routine-item', params: { stage } })}
+              />
+            </SettingsSection>
+          );
+        })}
 
         <SettingsSection
           title={t`Reminders`}
           footer={
             remindersOn
-              ? t`Each item becomes a reminder in your TraderMemos list. Completing one there ticks it here, and ticking it here completes it there.`
-              : t`Mirror the checklist into the system Reminders app, so it reaches you on the lock screen, the Watch and Siri.`
+              ? t`Each item becomes a reminder in your TraderMemos list, repeating on its own days. Completing one there ticks it here, and ticking it here completes it there.`
+              : t`Mirror the routine into the system Reminders app, so it reaches you on the lock screen, the Watch and Siri.`
           }
         >
           <SettingsToggle
@@ -296,7 +275,6 @@ export default function ChecklistScreen() {
           ) : null}
         </SettingsSection>
       </SettingsForm>
-      {promptElement}
     </>
   );
 }

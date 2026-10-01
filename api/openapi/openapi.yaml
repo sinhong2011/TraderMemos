@@ -28,6 +28,8 @@ tags:
   - name: Tags
   - name: Setups
   - name: Notes
+  - name: Routines
+  - name: Missed trades
   - name: Alerts
   - name: Admin
 paths:
@@ -1015,6 +1017,24 @@ paths:
         "200":
           description: Equity points
 
+  /api/v1/analytics/edge-score:
+    get:
+      tags: [Analytics]
+      summary: Edge Score
+      description: >-
+        Versioned 0-100 composite of win rate, profit factor, payoff, drawdown,
+        recovery and consistency. Each component scales linearly to a documented
+        full-marks threshold; `score` is null below `min_trades` closed trades.
+        Drawdown is measured on trade P&L against the capital in the account.
+      operationId: analyticsEdgeScore
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Edge Score with per-component scores, weights and raw inputs
+
   /api/v1/tags:
     get:
       tags: [Tags]
@@ -1091,6 +1111,257 @@ paths:
       responses:
         "201":
           description: Created
+
+  /api/v1/routines:
+    get:
+      tags: [Routines]
+      summary: List active routine items
+      description: >-
+        Active items ordered by stage (pre, during, post) then position. The
+        first call seeds items from the daily checklist template (pre-session,
+        Monday to Friday) and imports ticked `- [x]` lines from daily logs as
+        history.
+      operationId: listRoutines
+      parameters:
+        - name: day
+          in: query
+          description: The caller's local calendar day (YYYY-MM-DD); defaults to the UTC date.
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: "`{items: [{id, title, stage, weekdays, position, start_day}]}`; weekdays are 0 (Sunday) to 6"
+    post:
+      tags: [Routines]
+      summary: Create routine item
+      operationId: createRoutine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, stage, weekdays]
+              properties:
+                title:
+                  type: string
+                stage:
+                  type: string
+                  enum: [pre, during, post]
+                weekdays:
+                  type: array
+                  items:
+                    type: integer
+                    minimum: 0
+                    maximum: 6
+                day:
+                  type: string
+                  format: date
+                  description: First local day the item is on the list.
+      responses:
+        "201":
+          description: Created
+  /api/v1/routines/order:
+    put:
+      tags: [Routines]
+      summary: Reorder routine items
+      operationId: orderRoutines
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "204":
+          description: Reordered
+  /api/v1/routines/{id}:
+    patch:
+      tags: [Routines]
+      summary: Edit routine item
+      description: >-
+        A title edit is in place. A stage or weekdays edit never rewrites past
+        days: the item ends on `day` and a successor (new id, returned) carries
+        the new schedule from `day` on, taking that day's ticks.
+      operationId: updateRoutine
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                stage:
+                  type: string
+                  enum: [pre, during, post]
+                weekdays:
+                  type: array
+                  items:
+                    type: integer
+                day:
+                  type: string
+                  format: date
+      responses:
+        "200":
+          description: The item (or its successor)
+    delete:
+      tags: [Routines]
+      summary: Retire routine item
+      description: Removes the item from `day` on; earlier days keep it and its ticks.
+      operationId: archiveRoutine
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+        - name: day
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "204":
+          description: Retired
+  /api/v1/routines/day/{day}:
+    get:
+      tags: [Routines]
+      summary: One day's routine
+      operationId: getRoutineDay
+      parameters:
+        - name: day
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: "`{day, items: [... , done], total, done}`"
+  /api/v1/routines/day/{day}/items/{id}:
+    put:
+      tags: [Routines]
+      summary: Tick or untick an item on a day
+      description: Idempotent both ways. Returns the day.
+      operationId: checkRoutine
+      parameters:
+        - name: day
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [done]
+              properties:
+                done:
+                  type: boolean
+      responses:
+        "200":
+          description: The day
+  /api/v1/routines/history:
+    get:
+      tags: [Routines]
+      summary: Routine completion history
+      description: >-
+        Per-day done/total over [from, to] (defaults to the 13 weeks ending
+        `to`), overall completion rate, current streak (`to` is today) and
+        per-stage totals. At most 400 days.
+      operationId: routineHistory
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: History
+
+  /api/v1/missed-trades:
+    get:
+      tags: [Missed trades]
+      summary: List missed trades
+      description: Setups seen and not taken, newest first. Never part of trade stats.
+      operationId: listMissedTrades
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Missed trades, each with `planned_r` and `r` (what it would have made)
+    post:
+      tags: [Missed trades]
+      summary: Log a missed trade
+      operationId: createMissedTrade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MissedTradeInput"
+      responses:
+        "201":
+          description: Created
+  /api/v1/missed-trades/summary:
+    get:
+      tags: [Missed trades]
+      summary: What the misses would have made
+      description: >-
+        R left on the table (target hits at planned R), R avoided (stop-outs at
+        -1R), net R, and both grouped by reason and by setup.
+      operationId: missedTradeSummary
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Summary
+  /api/v1/missed-trades/{id}:
+    put:
+      tags: [Missed trades]
+      summary: Replace a missed trade
+      operationId: updateMissedTrade
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MissedTradeInput"
+      responses:
+        "200":
+          description: Updated
+    delete:
+      tags: [Missed trades]
+      summary: Delete a missed trade
+      operationId: deleteMissedTrade
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Deleted
 
   /api/v1/me/preferences:
     get:
@@ -1498,6 +1769,42 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    MissedTradeInput:
+      type: object
+      required: [symbol, direction, observed_at]
+      properties:
+        symbol:
+          type: string
+        direction:
+          type: string
+          enum: [long, short]
+        observed_at:
+          type: string
+          format: date-time
+        account_id:
+          type: string
+          nullable: true
+        setup_id:
+          type: string
+          nullable: true
+        entry:
+          type: number
+          nullable: true
+        stop:
+          type: number
+          nullable: true
+        target:
+          type: number
+          nullable: true
+          description: With entry and stop, must be coherent for the direction.
+        reason:
+          type: string
+          enum: ["", hesitated, away, rules, other]
+        outcome:
+          type: string
+          enum: [unknown, target, stop, no_trigger]
+        notes:
+          type: string
     Error:
       type: object
       properties:

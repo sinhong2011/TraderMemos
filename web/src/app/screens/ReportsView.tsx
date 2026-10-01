@@ -46,6 +46,7 @@ import {
 } from "@/components/ReportsDisplayContext";
 import { ReportsDurationScatter } from "@/components/ReportsDurationScatter";
 import { ReportsExecutionGrade } from "@/components/ReportsExecutionGrade";
+import { ReportsEdgeScore } from "@/components/ReportsEdgeScore";
 import { type ExecScoreBucket, ReportsExecutionScore } from "@/components/ReportsExecutionScore";
 import { ReportsHourlyList } from "@/components/ReportsHourlyList";
 import { ReportsPeriodReturns } from "@/components/ReportsPeriodReturns";
@@ -72,6 +73,7 @@ import type {
   BreakGroup,
   ComplianceReport,
   EquityCurve,
+  EdgeScore,
   ExecScoreReport,
   MonteCarloResult,
   RSummary,
@@ -172,6 +174,9 @@ export interface ReportsViewProps {
   monteCarlo?: MonteCarloResult;
   monteCarloLoading?: boolean;
   monteCarloError?: boolean;
+  edgeScore?: EdgeScore;
+  edgeScoreLoading?: boolean;
+  edgeScoreError?: boolean;
   execScore?: ExecScoreReport;
   execScoreLoading?: boolean;
   execScoreError?: boolean;
@@ -623,6 +628,9 @@ export function ReportsView({
   monteCarlo,
   monteCarloLoading = false,
   monteCarloError = false,
+  edgeScore,
+  edgeScoreLoading = false,
+  edgeScoreError = false,
   execScore,
   execScoreLoading = false,
   execScoreError = false,
@@ -737,6 +745,9 @@ export function ReportsView({
           fxRate={fxRate}
           denominator={denominator}
         />
+      ),
+      "edge-score": (
+        <ReportsEdgeScore edge={edgeScore} loading={edgeScoreLoading} error={edgeScoreError} />
       ),
       "execution-score": (
         <ReportsExecutionScore

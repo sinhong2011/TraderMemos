@@ -3,15 +3,10 @@ import { Eye, EyeOff, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { currencyIcon, currencyRegion, currencySymbol } from "@/lib/currency";
-import {
-  accountBaseCurrency,
-  DISPLAY_CURRENCIES,
-  useDisplayPrefs,
-  usePrivacyMode,
-} from "@/lib/displayPrefs";
+import { accountBaseCurrency, DISPLAY_CURRENCIES, useDisplayPrefs } from "@/lib/displayPrefs";
 import { useFilterParams, useFilters } from "@/lib/filters";
 import { useHotkeyLabel } from "@/lib/keybindings";
-import { fmtMoney, fmtPct, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
+import { fmtPct, fmtSignedPct } from "@/lib/format";
 import { computeHeaderStats } from "@/lib/headerStats";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useSummary } from "@/lib/hooks/useAnalytics";
@@ -38,6 +33,7 @@ import {
   MenuTrigger,
 } from "./ui/menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 const AUTO_VALUE = "__auto__";
 
@@ -247,8 +243,8 @@ function PrivacyToggle() {
 }
 
 export function HeaderBar() {
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const paletteLabel = useHotkeyLabel("palette");
-  usePrivacyMode();
   const filters = useFilterParams();
   const accountIds = useFilters((s) => s.accountIds);
   const setAccounts = useFilters((s) => s.setAccounts);

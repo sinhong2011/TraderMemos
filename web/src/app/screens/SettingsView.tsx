@@ -85,13 +85,6 @@ export interface SettingsViewProps {
   annualGoalSaving: boolean;
   onSaveAnnualGoal: (body: { year: number; amount: number }) => Promise<void>;
   onClearAnnualGoal: (year: number) => Promise<void>;
-
-  checklistItems: string[];
-  checklistContent: string;
-  checklistLoading: boolean;
-  checklistError: boolean;
-  checklistSaving: boolean;
-  onSaveChecklist: (body: { items?: string[]; content: string }) => Promise<void>;
 }
 
 const NAV_ICONS: Record<SettingsSectionId, typeof Wallet> = {
@@ -154,12 +147,6 @@ export function SettingsView(props: SettingsViewProps) {
             annualGoalSaving={props.annualGoalSaving}
             onSaveAnnualGoal={props.onSaveAnnualGoal}
             onClearAnnualGoal={props.onClearAnnualGoal}
-            checklistItems={props.checklistItems}
-            checklistContent={props.checklistContent}
-            checklistLoading={props.checklistLoading}
-            checklistError={props.checklistError}
-            checklistSaving={props.checklistSaving}
-            onSaveChecklist={props.onSaveChecklist}
           />
         )}
         {section === "rules" && <AlertsSection />}

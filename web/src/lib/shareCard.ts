@@ -44,7 +44,12 @@ function signedR(v: number): string {
 export function buildTradeShareCard(
   trade: TradeDetail,
   insights: TradeInsights,
-  opts: { showAmounts: boolean; locale: string },
+  opts: {
+    showAmounts: boolean;
+    locale: string;
+    /** Privacy-bound formatter from useMoneyFormatters(); defaults to the module one. */
+    fmtSignedMoney?: typeof fmtSignedMoney;
+  },
 ): ShareCardData {
   const net = trade.net_pnl ?? 0;
   const closed = trade.status === "closed";
@@ -67,7 +72,10 @@ export function buildTradeShareCard(
 
   let hero: ShareCardStat;
   if (opts.showAmounts) {
-    hero = { label: "Net P&L", value: fmtSignedMoney(net, trade.pnl_currency, opts.locale) };
+    hero = {
+      label: "Net P&L",
+      value: (opts.fmtSignedMoney ?? fmtSignedMoney)(net, trade.pnl_currency, opts.locale),
+    };
   } else if (r != null) {
     hero = { label: "R multiple", value: signedR(r) };
   } else if (pct != null) {
@@ -112,10 +120,13 @@ export function buildWrappedShareCard(
     fxRate: number;
     /** True while the year is still running (current year → "Year to date"). */
     inProgress?: boolean;
+    /** Privacy-bound formatter from useMoneyFormatters(); defaults to the module one. */
+    fmtSignedMoney?: typeof fmtSignedMoney;
   },
 ): ShareCardData {
   const tone: ShareCardTone = wrapped.netPnl > 0 ? "profit" : wrapped.netPnl < 0 ? "loss" : "flat";
-  const money = (v: number) => fmtSignedMoney(v * opts.fxRate, opts.currency, opts.locale);
+  const money = (v: number) =>
+    (opts.fmtSignedMoney ?? fmtSignedMoney)(v * opts.fxRate, opts.currency, opts.locale);
   const winRate = fmtPct(wrapped.winRate, opts.locale);
   const profitFactor = wrapped.profitFactor > 0 ? wrapped.profitFactor.toFixed(2) : "0.00";
 

@@ -1,7 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { SettingsView } from "@/app/screens/SettingsView";
-import { settingsApi } from "@/lib/api/settings";
 import { useAccounts, useCreateAccount } from "@/lib/hooks/useAccounts";
 import { useCash, useCreateCash, useDeleteCash, useUpdateCash } from "@/lib/hooks/useCash";
 import { useRiskRules, useSaveRiskRules } from "@/lib/hooks/useRiskRules";
@@ -13,7 +11,6 @@ export const Route = createFileRoute("/settings")({
 });
 
 function SettingsPage() {
-  const qc = useQueryClient();
   const goalYear = new Date().getFullYear();
 
   // Accounts
@@ -40,21 +37,6 @@ function SettingsPage() {
   const annualGoalQ = useAnnualGoal(goalYear);
   const saveAnnualGoalM = useSaveAnnualGoal();
   const clearAnnualGoalM = useClearAnnualGoal();
-
-  // Checklist template
-  const checklistQ = useQuery({
-    queryKey: ["settings", "checklist-template"],
-    queryFn: () => settingsApi.getChecklistTemplate(),
-  });
-  const saveChecklistM = useMutation({
-    mutationFn: (body: { items?: string[]; content: string }) =>
-      settingsApi.putChecklistTemplate(body),
-    onSuccess: () => {
-      void qc.invalidateQueries({
-        queryKey: ["settings", "checklist-template"],
-      });
-    },
-  });
 
   return (
     <SettingsView
@@ -104,14 +86,6 @@ function SettingsPage() {
       }}
       onClearAnnualGoal={async (year) => {
         await clearAnnualGoalM.mutateAsync(year);
-      }}
-      checklistItems={checklistQ.data?.items ?? []}
-      checklistContent={checklistQ.data?.content ?? ""}
-      checklistLoading={checklistQ.isLoading}
-      checklistError={checklistQ.isError}
-      checklistSaving={saveChecklistM.isPending}
-      onSaveChecklist={async (body) => {
-        await saveChecklistM.mutateAsync(body);
       }}
     />
   );

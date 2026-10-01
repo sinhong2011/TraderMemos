@@ -244,8 +244,8 @@ export default function SettingsScreen() {
     },
     {
       icon: 'checkmark.circle',
-      label: t`Daily checklist`,
-      terms: t`routine morning pre-market process rules`,
+      label: t`Daily routine`,
+      terms: t`routine checklist morning pre-market process rules`,
       onPress: () => router.push('/daily-checklist'),
     },
     {

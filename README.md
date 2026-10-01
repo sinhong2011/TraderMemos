@@ -98,7 +98,7 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 | 🗓&nbsp; **P&L calendar** | Daily heatmap with weekly totals and day-detail drill-down |
 | 📈&nbsp; **Reports** | Expectancy, SQN, Kelly %, MAE/MFE, Monte Carlo, execution quality — by setup, hour, and session, saved as view presets |
 | 📖&nbsp; **Playbook** | Strategy library linked to the trades that used each setup, with rule-compliance scoring |
-| 📥&nbsp; **Import** | 9 broker CSV presets, MT4/MT5 statements, IBKR Flex sync — or the [tm-sync](docs/tm-sync.md) watcher that imports statements as they appear |
+| 📥&nbsp; **Import** | 9 broker CSV presets, MT4/MT5 statements, and IBKR Flex sync |
 | 🔔&nbsp; **Alerts** | Risk rules, daily loss limits, and prop-drawdown warnings — push and webhook, from your own server |
 | ⏪&nbsp; **Bar replay** | Backtest any symbol bar by bar against a persistent paper account — analyzed by the same reports |
 | 🔗&nbsp; **Sharing** | Revocable read-only performance links, share cards, and a Year Wrapped recap |
@@ -115,7 +115,6 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 | **API** | Go · Echo · sqlc · golang-migrate · SQLite / Postgres |
 | **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
 | **Mobile** | Expo (iOS & Android) · PanelUI + Uniwind (Tailwind) · iOS extras: WidgetKit / Live Activities / App Intents |
-| **Sync agent** | [tm-sync](docs/tm-sync.md) — a Go binary that watches statement folders and imports on change |
 | **Design** | shadcn/ui + coss ui tokens — see [DESIGN.md](DESIGN.md) |
 
 ## Quick start
@@ -215,7 +214,6 @@ User docs live on the docs site: **[trader-memos.vercel.app](https://trader-memo
 |-----|--------|
 | [docs/fork-deploy.md](docs/fork-deploy.md) | One-click / fork → Vercel, Cloudflare, Netlify, Railway |
 | [docs/deploy.md](docs/deploy.md) | Docker, CORS, edge rewrite |
-| [docs/tm-sync.md](docs/tm-sync.md) | The tm-sync local statement watcher |
 | [docs/release.md](docs/release.md) | Versioning, changelogs, GitHub Releases |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local dev (`make dev`) |
 | [DESIGN.md](DESIGN.md) | UI system — shadcn/ui + coss ui tokens |

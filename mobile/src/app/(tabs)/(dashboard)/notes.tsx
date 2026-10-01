@@ -10,7 +10,9 @@ import { useCSSVariable } from 'uniwind';
 
 import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
-import { useNotes } from '@/api/hooks';
+import { useNotes, useRoutineHistory } from '@/api/hooks';
+import { todayNoteDay } from '@/lib/checklist';
+import { addDays } from '@/lib/routines';
 import type { Note } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
 import { Pill } from '@/components/pill';
@@ -59,17 +61,21 @@ function noteDayLabel(occurredAt: string): string {
 function NoteRow({
   note,
   pending,
+  routine,
   onPress,
   onDelete,
 }: {
   note: Note;
   /** A queued create or edit is waiting for the server — say so on the row. */
   pending: boolean;
+  /** The log's day of routine — ticks live in routine checks, not the body. */
+  routine?: { done: number; total: number };
   onPress: () => void;
   onDelete: () => void;
 }) {
   const excerpt = noteExcerpt(note.body);
-  const progress = checklistProgress(note.body);
+  const progress =
+    checklistProgress(note.body) ?? (note.type === 'daily_log' ? (routine ?? null) : null);
   // The excerpt strips image markdown, so a chart-only note would read as an
   // empty row without this.
   const charts = noteMediaIds(note.body).length;
@@ -142,6 +148,17 @@ export default function NotesScreen() {
   const [searching, setSearching] = useState(false);
   const [type, setType] = useState<TypeFilter>('all');
   const notes = useNotes();
+  const today = todayNoteDay();
+  // The history endpoint spans at most 400 days; older logs keep their own
+  // `- [x]` lines from the checklist era, which checklistProgress still reads.
+  const routineHistory = useRoutineHistory(addDays(today, -399), today);
+  const routineByDay = useMemo(
+    () =>
+      new Map(
+        (routineHistory.data?.days ?? []).filter((d) => d.total > 0).map((d) => [d.day, d]),
+      ),
+    [routineHistory.data],
+  );
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteNote(id),
@@ -275,6 +292,7 @@ export default function NotesScreen() {
             <NoteRow
               note={item}
               pending={pendingIds.has(item.id)}
+              routine={routineByDay.get(item.occurred_at.slice(0, 10))}
               onPress={() => router.push({ pathname: '/edit-note', params: { id: item.id } })}
               onDelete={() => confirmDelete(item)}
             />

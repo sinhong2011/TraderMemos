@@ -7,10 +7,11 @@ import { Pill } from "./Pill";
 import { outlineSurfaceClass } from "./surface-styles";
 import type { Execution, TradeDetail } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtDate, fmtMoney, fmtTime } from "@/lib/format";
+
+import { fmtDate, fmtTime } from "@/lib/format";
 import { COMPACT_VIEWPORT, useMediaQuery } from "@/lib/hooks/use-mobile";
 import { intlLocale } from "@/lib/locale";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 /** Same calendar day → a row only needs a clock time, not a full date. */
 function sameDay(a: string, b: string): boolean {
@@ -48,7 +49,7 @@ function fillRows(fills: readonly Execution[], direction: string): FillRow[] {
  * can't show: three adds before the exit reads as averaging down.
  */
 export function TradeExecutionsCard({ trade }: { trade: TradeDetail }) {
-  usePrivacyMode();
+  const { fmtMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const currency = trade.pnl_currency;
   // Same split the trade log uses: phone gets Item rows, wider gets the table.
@@ -138,7 +139,7 @@ export function TradeExecutionsCard({ trade }: { trade: TradeDetail }) {
     });
 
     return defs;
-  }, [currency, locale, scaled, singleDay]);
+  }, [currency, fmtMoney, locale, scaled, singleDay]);
 
   return (
     <Card

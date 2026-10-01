@@ -92,12 +92,16 @@ export default function DashboardLayout() {
       />
       <Stack.Screen name="notes" options={{ title: t`Notes`, headerLargeTitle: false }} />
       <Stack.Screen
+        name="missed-trades"
+        options={{ title: t`Missed trades`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
         name="daily-checklist"
-        options={{ title: t`Daily checklist`, headerLargeTitle: false }}
+        options={{ title: t`Daily routine`, headerLargeTitle: false }}
       />
       <Stack.Screen
         name="checklist"
-        options={{ title: t`Edit checklist`, headerLargeTitle: false }}
+        options={{ title: t`Edit routine`, headerLargeTitle: false }}
       />
       <Stack.Screen name="playbook" options={{ title: t`Playbook`, headerLargeTitle: false }} />
       <Stack.Screen

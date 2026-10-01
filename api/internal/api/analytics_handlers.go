@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"sort"
 	"strconv"
@@ -21,6 +22,7 @@ func (s *Server) analyticsRoutes(g *echo.Group) {
 	g.GET("/analytics/behavior", s.handleBehavior)
 	g.GET("/analytics/montecarlo", s.handleMonteCarlo)
 	g.GET("/analytics/execution-score", s.handleExecScore)
+	g.GET("/analytics/edge-score", s.handleEdgeScore)
 }
 
 // grossPnlOf reads the stored gross P&L, reconstructing it from net + fees
@@ -178,15 +180,27 @@ func (s *Server) handleEquityCurve(c *echo.Context) error {
 	if err != nil {
 		return failLoad(err, "could not compute equity curve")
 	}
+	flows, err := s.cashFlows(ctx, uid, f)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load cash flows", nil)
+	}
+	// The curve starts at zero: accounts.starting_balance is metadata only, it is
+	// already seeded into the ledger as the "Opening balance" deposit
+	// (ensureOpeningDeposit), so adding it here would count that money twice.
+	return c.JSON(http.StatusOK, analytics.EquityCurve(0, flows, toClosedTrades(rows)))
+}
+
+// cashFlows loads the filtered accounts' deposits and withdrawals.
+func (s *Server) cashFlows(ctx context.Context, uid string, f Filters) ([]analytics.CashFlow, error) {
 	cashRows, err := s.deps.Store.ListCashTransactions(ctx, store.ListCashTransactionsParams{
 		UserID: uid, AccountID: f.accountNarg(),
 	})
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load cash flows", nil)
+		return nil, err
 	}
 	excluded, err := s.backtestAccountIDs(ctx, uid, f)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load cash flows", nil)
+		return nil, err
 	}
 	cashRows = filterCashAccounts(cashRows, excluded)
 	flows := make([]analytics.CashFlow, 0, len(cashRows))
@@ -196,8 +210,23 @@ func (s *Server) handleEquityCurve(c *echo.Context) error {
 		}
 		flows = append(flows, analytics.CashFlow{Amount: ct.Amount, OccurredAt: ct.OccurredAt})
 	}
-	// The curve starts at zero: accounts.starting_balance is metadata only, it is
-	// already seeded into the ledger as the "Opening balance" deposit
-	// (ensureOpeningDeposit), so adding it here would count that money twice.
-	return c.JSON(http.StatusOK, analytics.EquityCurve(0, flows, toClosedTrades(rows)))
+	return flows, nil
+}
+
+func (s *Server) handleEdgeScore(c *echo.Context) error {
+	ctx := c.Request().Context()
+	uid := auth.UserID(c)
+	f, err := parseFilters(c)
+	if err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
+	}
+	rows, err := s.loadClosedTrades(ctx, uid, f)
+	if err != nil {
+		return failLoad(err, "could not compute edge score")
+	}
+	flows, err := s.cashFlows(ctx, uid, f)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load cash flows", nil)
+	}
+	return c.JSON(http.StatusOK, analytics.ComputeEdgeScore(toClosedTrades(rows), flows, f.Loc))
 }

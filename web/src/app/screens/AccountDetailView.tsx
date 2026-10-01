@@ -17,8 +17,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { flexSyncFailed } from "@/lib/api/flexSync";
 import type { Account } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtMoney, fmtSignedMoney } from "@/lib/format";
+
 import {
   useAccounts,
   useClearAccountTrades,
@@ -37,6 +36,7 @@ import {
   POPULAR_BROKERS,
   primaryAccountId,
 } from "@/app/screens/settings/settings-sections";
+import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 function Stat({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
@@ -245,7 +245,7 @@ export function AccountDetailView({
   onBack: () => void;
   onDeleted: () => void;
 }) {
-  usePrivacyMode();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const toast = useToastManager();
   const accountsQ = useAccounts();
   const accounts = accountsQ.data ?? [];

@@ -3,7 +3,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 
-import { useChecklistTemplate } from '@/api/hooks';
 import type { NoteBody } from '@/api/types';
 import { FormSheet } from '@/components/form-sheet';
 import {
@@ -16,13 +15,12 @@ import {
 } from '@/components/note-form';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
-import { checklistProgress } from '@/lib/markdown';
 import { useQueuedNoteOps } from '@/lib/use-outbox';
 
 /**
- * New note / daily log. Creating a daily log appends the checklist template
- * as markdown task items (create only — edits never re-append), mirroring the
- * web NewNoteDrawer.
+ * New note / daily log. The routine is not written into the log any more —
+ * its ticks are routine checks of their own (see use-checklist-run.ts), and
+ * the notes list reads a log's day of routine from them.
  *
  * Optional `date` (YYYY-MM-DD) and `type` params seed the form — the day
  * review journals the day being reviewed, not today.
@@ -33,7 +31,6 @@ export default function NewNoteScreen() {
   // Queue-aware save: with the server unreachable the note lands in the
   // offline outbox instead of an error alert (lib/outbox.ts).
   const { createNote } = useQueuedNoteOps();
-  const checklist = useChecklistTemplate();
   const params = useLocalSearchParams<{
     date?: string;
     type?: string;
@@ -65,14 +62,7 @@ export default function NewNoteScreen() {
   });
 
   function handleSave() {
-    const isLog = values.type === 'daily_log';
-    let body = values.body.trim();
-    // Append the checklist template once, unless the body already has task items.
-    const items = checklist.data?.items ?? [];
-    if (isLog && items.length > 0 && checklistProgress(body) == null) {
-      const block = items.map((item) => `- [ ] ${item}`).join('\n');
-      body = body ? `${body}\n\n${t`Checklist`}:\n${block}` : `${t`Checklist`}:\n${block}`;
-    }
+    const body = values.body.trim();
     save.mutate({
       type: values.type,
       occurred_at: values.occurredAt,
