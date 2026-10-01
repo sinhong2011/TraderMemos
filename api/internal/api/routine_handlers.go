@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 	"uuid"
 
@@ -85,6 +86,12 @@ func (s *Server) routineItems(ctx context.Context, uid, today string) ([]store.R
 	return s.deps.Store.ListRoutineItems(ctx, uid)
 }
 
+// routineSeedMu serializes seeding. A page's first load asks for items, the day
+// and history at once; without it each request starts seeding, and one that
+// reads mid-seed caches a partial list. The seed itself is one transaction, so
+// a reader outside the lock sees either nothing (and waits here) or all of it.
+var routineSeedMu sync.Mutex
+
 // seedID derives a stable id for the i-th seeded item, so two first requests
 // racing each other insert the same rows and the second becomes a no-op.
 func seedID(uid string, i int, title string) string {
@@ -98,6 +105,13 @@ func seedID(uid string, i int, title string) string {
 // whose text matches an item counts as that item done on the log's day.
 // Items start on the first imported day so that history scores against them.
 func (s *Server) seedRoutines(ctx context.Context, uid, today string) (bool, error) {
+	routineSeedMu.Lock()
+	defer routineSeedMu.Unlock()
+	// Another request may have seeded while this one waited for the lock.
+	if rows, err := s.deps.Store.ListRoutineItems(ctx, uid); err != nil || len(rows) > 0 {
+		return len(rows) > 0, err
+	}
+
 	tmpl, err := s.deps.Store.GetChecklistTemplate(ctx, uid)
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, nil
@@ -141,23 +155,26 @@ func (s *Server) seedRoutines(ctx context.Context, uid, today string) (bool, err
 	}
 
 	ids := make([]string, len(titles))
-	for i, title := range titles {
-		ids[i] = seedID(uid, i, title)
-		if err := s.deps.Store.SeedRoutineItem(ctx, store.SeedRoutineItemParams{
-			ID: ids[i], UserID: uid, Title: strings.TrimSpace(title), Stage: routines.StagePre,
-			Weekdays: routines.MonToFri, Position: int64(i), StartDay: start,
-		}); err != nil {
-			return false, err
+	err = store.InTx(ctx, s.deps.Store, func(q store.Querier) error {
+		for i, title := range titles {
+			ids[i] = seedID(uid, i, title)
+			if err := q.SeedRoutineItem(ctx, store.SeedRoutineItemParams{
+				ID: ids[i], UserID: uid, Title: strings.TrimSpace(title), Stage: routines.StagePre,
+				Weekdays: routines.MonToFri, Position: int64(i), StartDay: start,
+			}); err != nil {
+				return err
+			}
 		}
-	}
-	for _, h := range hits {
-		if err := s.deps.Store.InsertRoutineCheck(ctx, store.InsertRoutineCheckParams{
-			UserID: uid, ItemID: ids[h.item], Day: h.day,
-		}); err != nil {
-			return false, err
+		for _, h := range hits {
+			if err := q.InsertRoutineCheck(ctx, store.InsertRoutineCheckParams{
+				UserID: uid, ItemID: ids[h.item], Day: h.day,
+			}); err != nil {
+				return err
+			}
 		}
-	}
-	return true, nil
+		return nil
+	})
+	return err == nil, err
 }
 
 func (s *Server) handleListRoutines(c *echo.Context) error {

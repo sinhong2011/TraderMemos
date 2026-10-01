@@ -3,6 +3,7 @@ package api_test
 import (
 	"encoding/json"
 	"net/http"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -205,4 +206,35 @@ func TestRoutinesAreScopedToTheirOwner(t *testing.T) {
 	require.Equal(t, http.StatusNotFound, do(s, http.MethodDelete, "/api/v1/routines/"+id, "", b).Code)
 	require.Equal(t, http.StatusNotFound,
 		do(s, http.MethodPut, "/api/v1/routines/day/2026-09-28/items/"+id, `{"done":true}`, b).Code)
+}
+
+// A page's first load asks for items, the day and history at once; every one
+// of them must see the whole seed, not a list caught halfway through it.
+func TestRoutineSeedIsWholeUnderConcurrentFirstReads(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "routine-race@example.com")
+	rec := do(s, http.MethodPut, "/api/v1/settings/checklist-template",
+		`{"items":["A","B","C","D","E","F"]}`, tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+	rec = do(s, http.MethodPost, "/api/v1/notes",
+		`{"type":"daily_log","occurred_at":"2026-09-29","body":"- [x] A\n- [x] F"}`, tok)
+	require.Equal(t, http.StatusCreated, rec.Code)
+
+	const n = 8
+	days := make(chan routineDayJSON, n)
+	var wg sync.WaitGroup
+	for range n {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			rec := do(s, http.MethodGet, "/api/v1/routines/day/2026-09-29", "", tok)
+			days <- decode[routineDayJSON](t, rec.Body.Bytes())
+		}()
+	}
+	wg.Wait()
+	close(days)
+	for d := range days {
+		require.Equal(t, 6, d.Total)
+		require.Equal(t, 2, d.Done)
+	}
 }

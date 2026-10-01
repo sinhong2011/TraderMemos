@@ -139,11 +139,12 @@ export function RoutineDayCard({
 // 13-week history
 // ---------------------------------------------------------------------------
 
-function cellTone(total: number, done: number, future: boolean): string {
+function cellTone(total: number, done: number, future: boolean, isToday: boolean): string {
   if (future) return "bg-transparent";
   if (total === 0) return "bg-muted/50";
   const r = done / total;
-  if (r === 0) return "bg-loss/30";
+  // Today is still in progress: an untouched list isn't a missed one yet.
+  if (r === 0) return isToday ? "bg-muted" : "bg-loss/30";
   if (r < 0.5) return "bg-profit/25";
   if (r < 1) return "bg-profit/55";
   return "bg-profit";
@@ -230,7 +231,7 @@ export function RoutineHistoryCard({
                     onClick={() => onSelect(day)}
                     className={cn(
                       "size-4 shrink-0 cursor-pointer rounded-[3px] border-none p-0 disabled:cursor-default",
-                      cellTone(s?.total ?? 0, s?.done ?? 0, future),
+                      cellTone(s?.total ?? 0, s?.done ?? 0, future, day === today),
                       day === selected && "outline-2 outline-offset-1 outline-primary",
                     )}
                   />

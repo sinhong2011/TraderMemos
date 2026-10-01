@@ -61,12 +61,16 @@ function MissedPage() {
 
   return (
     <MissedTradesView>
-      <MissedSummaryCard
-        summary={summaryQ.data}
-        loading={summaryQ.isLoading}
-        error={summaryQ.isError}
-        setupName={setupName}
-      />
+      {/* Nothing to summarize: the list's empty state below already says
+          whether the range or account scope is what is empty. */}
+      {summaryQ.data?.count === 0 ? null : (
+        <MissedSummaryCard
+          summary={summaryQ.data}
+          loading={summaryQ.isLoading}
+          error={summaryQ.isError}
+          setupName={setupName}
+        />
+      )}
       <MissedListCard
         trades={listQ.data ?? []}
         loading={listQ.isLoading}
