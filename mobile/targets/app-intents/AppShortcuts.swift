@@ -100,3 +100,18 @@ struct TraderMemosShortcuts: AppShortcutsProvider {
     )
   }
 }
+
+/// Re-reads the routine items behind "Check off <item> in TraderMemos". Siri
+/// only matches a spoken item against the entities it last fetched, so this
+/// runs whenever the routine's item set changes — called by name from
+/// modules/widget-bridge (setRoutine), which as a pod can't see this target.
+@objc(TMShortcutParameterUpdater)
+final class ShortcutParameterUpdater: NSObject {
+  private static var lastSignature = ""
+
+  @objc static func update(_ signature: String) {
+    guard signature != lastSignature else { return }
+    lastSignature = signature
+    TraderMemosShortcuts.updateAppShortcutParameters()
+  }
+}

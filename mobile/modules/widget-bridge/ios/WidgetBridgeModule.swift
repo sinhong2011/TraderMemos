@@ -69,6 +69,7 @@ public class WidgetBridgeModule: Module {
     Function("setRoutine") { (json: String) in
       UserDefaults(suiteName: Self.appGroup)?.set(Data(json.utf8), forKey: Self.routineKey)
       Self.reloadRoutineSurfaces()
+      Self.refreshShortcutParameters(json)
     }
 
     Function("setMissed") { (json: String) in
@@ -97,6 +98,22 @@ public class WidgetBridgeModule: Module {
     // App groups double as keychain access groups.
     kSecAttrAccessGroup as String: appGroup,
   ]
+
+  /// Siri's "Check off <item>" phrases match against the items it last
+  /// fetched; re-fetch when the set of items (not their ticks) changes. The
+  /// updater lives in the app target (targets/app-intents/AppShortcuts.swift),
+  /// out of this pod's reach, so it is looked up by its Objective-C name.
+  static func refreshShortcutParameters(_ json: String) {
+    struct Snapshot: Decodable {
+      struct Item: Decodable { let id: String; let title: String }
+      let items: [Item]
+    }
+    guard let snapshot = try? JSONDecoder().decode(Snapshot.self, from: Data(json.utf8)),
+          let updater = NSClassFromString("TMShortcutParameterUpdater") as? NSObject.Type
+    else { return }
+    let signature = snapshot.items.map { "\($0.id)=\($0.title)" }.joined(separator: "|")
+    _ = updater.perform(NSSelectorFromString("update:"), with: signature)
+  }
 
   static func reloadRoutineSurfaces() {
     WidgetCenter.shared.reloadTimelines(ofKind: "RoutineWidget")
