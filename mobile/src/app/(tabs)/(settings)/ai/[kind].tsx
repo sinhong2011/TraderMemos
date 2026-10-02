@@ -56,7 +56,9 @@ export default function AiProviderScreen() {
   const params = useLocalSearchParams<{ kind: string }>();
   const kind: LlmKind = params.kind === 'coach' ? 'coach' : 'ocr';
   const copy = kindCopy(kind);
-  const settings = useLlmSettings(kind);
+  // Always refetched on open: the form below copies these values into its
+  // own state once, so whatever is in hand at mount is what Save writes back.
+  const settings = useLlmSettings(kind, { staleTime: 0 });
 
   // Nothing on this screen exists without the settings, so a failure takes the
   // whole surface — and carries the retry the old dead-end row didn't.
@@ -73,7 +75,11 @@ export default function AiProviderScreen() {
     );
   }
 
-  if (!settings.data) {
+  // The persisted snapshot can predate a change made elsewhere (web, another
+  // server) — seeded from it, the form showed a stale base URL and its Save
+  // would have written it back. Wait for this visit's fetch; if that fails,
+  // the snapshot is the best there is.
+  if (!settings.data || (!settings.isFetchedAfterMount && settings.isFetching)) {
     return (
       <>
         <Stack.Screen options={{ title: copy.title }} />

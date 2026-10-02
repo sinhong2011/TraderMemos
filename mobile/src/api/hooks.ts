@@ -380,8 +380,10 @@ export function useAccounts() {
   return useApiQuery<Account[]>(queryKeys.accounts(), '/accounts');
 }
 
-export function useLlmSettings(kind: LlmKind) {
-  return useApiQuery<LlmApiSettings>(queryKeys.llmSettings(kind), `/settings/${kind}`);
+export function useLlmSettings(kind: LlmKind, options?: { staleTime?: number }) {
+  return useApiQuery<LlmApiSettings>(queryKeys.llmSettings(kind), `/settings/${kind}`, undefined, {
+    staleTime: options?.staleTime,
+  });
 }
 
 /** The signed-in account. Cheap and rarely changes — the settings hub, the
