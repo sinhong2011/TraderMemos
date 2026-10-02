@@ -158,6 +158,7 @@ type visionJSONPayload struct {
 	Symbol         string `json:"symbol"`
 	InstrumentType string `json:"instrument_type"`
 	Side           string `json:"side"`
+	Timezone       string `json:"timezone"`
 	Rows           []struct {
 		Symbol      string  `json:"symbol"`
 		Side        string  `json:"side"`
@@ -180,6 +181,7 @@ Return ONLY JSON with this shape:
   "symbol": "TICKER",
   "instrument_type": "stock|option|future|crypto|forex",
   "side": "long|short",
+  "timezone": "the zone the screen labels its times with, verbatim (e.g. 美東, ET, HKT) — empty if none is shown",
   "rows": [
     {
       "symbol": "TICKER",
@@ -209,6 +211,19 @@ Rules:
 
 // ExtractTradeFromImage calls an OpenAI-compatible chat completions vision endpoint.
 func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, contentType string) (TradeExtract, error) {
+	return ExtractTradeFromImageIn(ctx, cfg, image, contentType, nil)
+}
+
+// ExtractTradeFromImageIn is ExtractTradeFromImage with the zone to read fill
+// times in when the screen shows none — the user's market timezone; nil means
+// America/New_York, that setting's default.
+func ExtractTradeFromImageIn(
+	ctx context.Context,
+	cfg VisionConfig,
+	image []byte,
+	contentType string,
+	fallbackZone *time.Location,
+) (TradeExtract, error) {
 	if !cfg.Ready() {
 		return TradeExtract{}, fmt.Errorf("%w: vision not configured", ErrUnavailable)
 	}
@@ -279,7 +294,19 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 		out.InstrumentType = "stock"
 	}
 	now := nowFunc()
+	screen := screenZone(parsed.Timezone)
+	zone := screen
+	if zone == nil {
+		zone = fallbackZone
+		if zone == nil {
+			zone, _ = time.LoadLocation("America/New_York")
+			if zone == nil {
+				zone = time.UTC
+			}
+		}
+	}
 	unreadTimes := 0
+	zonesUsed := map[string]bool{}
 	for _, r := range parsed.Rows {
 		side := mapSideToBuySell(r.Side)
 		if side == "" {
@@ -301,8 +328,21 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 		}
 		executedAt := strings.TrimSpace(r.ExecutedAt)
 		if executedAt != "" {
-			if normalized, ok := normalizeWallClock(executedAt, now); ok {
-				executedAt = normalized
+			if wall, tail, ok := normalizeWallClock(executedAt, now); ok {
+				// A label printed beside this row's time (`(美東)`) beats the
+				// screen-wide one. A bare offset or `Z` doesn't count: models
+				// append those out of RFC3339 habit, not from the screen.
+				loc := zone
+				if label := rowZoneLabel(tail); label != nil {
+					loc = label
+				}
+				t, err := time.ParseInLocation("2006-01-02T15:04:05", wall, loc)
+				if err == nil {
+					executedAt = t.Format(time.RFC3339)
+					zonesUsed[loc.String()] = true
+				} else {
+					unreadTimes++
+				}
 			} else {
 				unreadTimes++
 			}
@@ -328,6 +368,18 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 		out.Warnings = append(out.Warnings, "vision returned no usable fills — try a clearer screenshot or CSV import")
 		out.Confidence = 0.2
 		return out, nil
+	}
+	if len(zonesUsed) == 1 {
+		for name := range zonesUsed {
+			out.Timezone = name
+		}
+		// Only the fallback is "yours"; a screen-wide or per-row label is
+		// something the screenshot printed.
+		source := "the screen"
+		if screen == nil && out.Timezone == zone.String() {
+			source = "your market timezone"
+		}
+		out.Warnings = append(out.Warnings, fmt.Sprintf("times read as %s (from %s)", out.Timezone, source))
 	}
 	if unreadTimes > 0 {
 		out.Warnings = append(out.Warnings,
@@ -395,6 +447,16 @@ func postVision(ctx context.Context, cfg VisionConfig, base string, payload []by
 		case <-time.After(delays[attempt]):
 		}
 	}
+}
+
+// rowZoneLabel is the zone named by text trailing a row's time — `(美東)`,
+// `ET`, `HKT` — and nil for nothing, a numeric offset or `Z`.
+func rowZoneLabel(tail string) *time.Location {
+	t := strings.TrimSpace(tail)
+	if t == "" || strings.EqualFold(t, "z") || strings.ContainsAny(t[:1], "+-") {
+		return nil
+	}
+	return screenZone(t)
 }
 
 // upstreamMessage is the provider's own explanation from an error body — the
