@@ -126,17 +126,3 @@ export function journalTradePreviewColumns(
 
   return columns;
 }
-
-export function csvSampleColumns(headers: string[]): ColumnDef<Record<string, string>>[] {
-  return headers.map((header) => ({
-    id: header,
-    accessorFn: (row) => row[header] ?? "",
-    header,
-    enableSorting: false,
-    cell: (info) => (
-      <span className="text-[11px] tabular-nums text-muted-foreground">
-        {String(info.getValue() || "-")}
-      </span>
-    ),
-  }));
-}
