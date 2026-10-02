@@ -107,6 +107,7 @@ export const queryKeys = {
   missedTradeList: (filters: Filters) => ['missed-trades', 'list', filters] as const,
   missedSummary: (filters: Filters) => ['missed-trades', 'summary', filters] as const,
   llmSettings: (kind: LlmKind) => ['settings', kind] as const,
+  llmModels: (kind: LlmKind, baseUrl: string) => ['settings', kind, 'models', baseUrl] as const,
   accessTokens: () => ['access-tokens'] as const,
   accessTokenUses: (id: string) => ['access-tokens', id, 'uses'] as const,
   me: () => ['me'] as const,

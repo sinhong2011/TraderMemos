@@ -125,6 +125,11 @@ msgstr "MAE/MFE未記録の損失トレード{0}件は判定できませんで�
 msgid "{0} losses in a row"
 msgstr "{0}連敗"
 
+#. placeholder {0}: all.length
+#: src/components/model-picker.tsx:89
+msgid "{0} models on this endpoint"
+msgstr "このエンドポイントのモデル {0} 件"
+
 #. placeholder {0}: formatPercent(s.target_pct ?? 0, 0)
 #. placeholder {0}: wrapped.greenDays
 #. placeholder {1}: formatCurrency(fx(s.profit_target), currency)
@@ -1022,7 +1027,7 @@ msgstr "指定なし"
 msgid "Any duration"
 msgstr "全期間タイプ"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:282
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "OpenAI互換のエンドポイントなら何でも使えます。テストは保存前でも上の値を使います。"
 
@@ -1030,8 +1035,8 @@ msgstr "OpenAI互換のエンドポイントなら何でも使えます。テス
 msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 msgstr "リンクを知っている人は現在のスコープの読み取り専用サマリーを閲覧できます — トレード、ノート、口座情報は含まれません。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:215
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:338
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:224
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:299
 msgid "API key"
 msgstr "APIキー"
 
@@ -1266,8 +1271,8 @@ msgstr "残高、{0}、{1}から"
 msgid "Base currency"
 msgstr "基準通貨"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:192
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:286
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:203
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:285
 msgid "Base URL"
 msgstr "ベースURL"
 
@@ -1664,6 +1669,10 @@ msgstr "アドレスを削除"
 msgid "Clear filters"
 msgstr "フィルタをクリア"
 
+#: src/components/model-picker.tsx:132
+msgid "Clear search"
+msgstr "検索をクリア"
+
 #: src/app/(tabs)/(settings)/web-address.tsx:40
 msgid "Clear this address?"
 msgstr "このアドレスを削除しますか？"
@@ -1833,7 +1842,7 @@ msgstr "一度接続すれば、新しい約定は自動で届きます。"
 msgid "Connect to your TraderMemos server."
 msgstr "あなたの TraderMemos サーバーに接続します。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:280
 msgid "Connection"
 msgstr "接続"
 
@@ -1844,7 +1853,7 @@ msgstr "接続"
 #~ msgstr "接続OK"
 
 #. placeholder {0}: formatLatency(elapsedMs)
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:160
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:158
 msgid "Connection OK · {0}"
 msgstr "接続OK · {0}"
 
@@ -1997,8 +2006,8 @@ msgstr "設定をインポートできませんでした"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:181
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:187
-msgid "Could not load models"
-msgstr "モデルを取得できませんでした"
+#~ msgid "Could not load models"
+#~ msgstr "モデルを取得できませんでした"
 
 #~ msgid "Could not load this day's trades."
 #~ msgstr "この日のトレードを読み込めませんでした。"
@@ -2062,7 +2071,7 @@ msgstr "ロールバックできませんでした"
 #: src/app/(tabs)/(settings)/account-form.tsx:172
 #: src/app/(tabs)/(settings)/account-form.tsx:176
 #: src/app/(tabs)/(settings)/account-form.tsx:185
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:140
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:138
 #: src/app/(tabs)/(settings)/alerts.tsx:34
 #: src/app/(tabs)/(settings)/flex-sync.tsx:61
 #: src/app/(tabs)/(settings)/flex-sync.tsx:90
@@ -2132,12 +2141,20 @@ msgstr "アップロードできませんでした"
 msgid "Couldn't add the reminder"
 msgstr "リマインダーを追加できませんでした"
 
+#: src/components/model-picker.tsx:153
+msgid "Couldn't load the models."
+msgstr "モデルを読み込めませんでした。"
+
 #~ msgid "Couldn't load this trade"
 #~ msgstr "このトレードを読み込めませんでした"
 
 #: src/app/(tabs)/(trades)/[id].tsx:423
 msgid "Couldn't reach the server. The figures above are from your last sync."
 msgstr "サーバーに接続できませんでした。上の数値は最後に同期した時点のものです。"
+
+#: src/components/model-picker.tsx:152
+msgid "Couldn't refresh the list — showing the last one."
+msgstr "リストを更新できませんでした。前回のリストを表示しています。"
 
 #~ msgid "Create"
 #~ msgstr "作成"
@@ -2371,7 +2388,7 @@ msgstr "連続日数"
 msgid "Days"
 msgstr "曜日"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:299
+#: src/components/model-picker.tsx:100
 msgid "Default"
 msgstr "既定"
 
@@ -2573,9 +2590,8 @@ msgstr "決済理由を記録しましょう — ストップ到達、シナリ�
 msgid "Dollars"
 msgstr "金額"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:196
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:219
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:235
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:207
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:228
 #: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
 #: src/components/time-picker.tsx:100
@@ -2749,7 +2765,7 @@ msgstr "感情"
 msgid "Enable alerts"
 msgstr "アラートを有効にする"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:271
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:270
 msgid "Enabled"
 msgstr "有効"
 
@@ -2854,7 +2870,7 @@ msgstr "ユーザー名を入力"
 msgid "Enter your username and password"
 msgstr "ユーザー名とパスワードを入力してください"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:248
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:247
 msgid "Entered — not saved yet"
 msgstr "入力済み — 未保存"
 
@@ -3161,8 +3177,8 @@ msgid "Fees took a large bite of gross P&L"
 msgstr "手数料がグロス損益を大きく削りました"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:327
-msgid "Fetch models"
-msgstr "モデルを取得"
+#~ msgid "Fetch models"
+#~ msgstr "モデルを取得"
 
 #: src/app/tool-fx.tsx:107
 msgid "Fetching rate…"
@@ -3482,6 +3498,10 @@ msgstr "保有は{0}のみ。計画どおりのストップなら良いリスク
 msgid "Hesitated"
 msgstr "ためらった"
 
+#: src/components/model-picker.tsx:223
+msgid "Hidden: text-only, speech and embedding models — guessed from their ids."
+msgstr "非表示：テキスト専用・音声・埋め込みモデル（ID から推定）。"
+
 #: src/app/(tabs)/(dashboard)/_layout.tsx:27
 msgid "Hide amounts"
 msgstr "金額を隠す"
@@ -3702,7 +3722,7 @@ msgstr "時間足"
 msgid "Intraday P&L"
 msgstr "日中損益"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:201
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:212
 msgid "Invalid URL"
 msgstr "URLが正しくありません"
 
@@ -3827,11 +3847,11 @@ msgstr "空欄のままにすると目標をクリアします。"
 msgid "Leave blank to drop this rule."
 msgstr "空欄でこのルールを外します。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:217
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:226
 msgid "Leave blank to keep the key already stored on the server."
 msgstr "空欄のままにすると、サーバーに保存済みのキーを維持します。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:383
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:344
 msgid "Leave blank to use the built-in prompt"
 msgstr "空欄なら組み込みのプロンプトを使用"
 
@@ -3901,7 +3921,7 @@ msgstr "ルール遵守状況を読み込み中"
 msgid "Loading drawdown"
 msgstr "ドローダウンを読み込み中"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:327
+#: src/components/model-picker.tsx:87
 msgid "Loading models…"
 msgstr "モデルを取得中…"
 
@@ -4310,9 +4330,9 @@ msgstr "ミスの種類"
 msgid "Mistake: {tag}"
 msgstr "ミス: {tag}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:293
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:295
+#: src/components/model-picker.tsx:94
+#: src/components/model-picker.tsx:96
+#: src/components/model-picker.tsx:108
 msgid "Model"
 msgstr "モデル"
 
@@ -4680,8 +4700,12 @@ msgid "No mistakes tagged."
 msgstr "ミスのタグ付けはありません。"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:185
-msgid "No models"
-msgstr "モデルなし"
+#~ msgid "No models"
+#~ msgstr "モデルなし"
+
+#: src/components/model-picker.tsx:206
+msgid "No models match."
+msgstr "一致するモデルはありません。"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:307
 msgid "No notes yet"
@@ -4863,7 +4887,7 @@ msgstr "見つかりません"
 msgid "Not rated"
 msgstr "未評価"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:251
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
 #: src/app/(tabs)/(settings)/integrations.tsx:27
 #: src/app/(tabs)/(settings)/integrations.tsx:56
 #: src/app/(tabs)/(settings)/prop-settings.tsx:112
@@ -5630,8 +5654,8 @@ msgstr "利益目標"
 #~ msgid "Profit target — {0}"
 #~ msgstr "利益目標 — {0}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:378
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:388
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:339
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:349
 msgid "Prompt"
 msgstr "プロンプト"
 
@@ -6270,7 +6294,7 @@ msgid "Sat"
 msgstr "土"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:262
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6309,7 +6333,7 @@ msgstr "セッションを保存"
 msgid "Save trade"
 msgstr "トレードを保存"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:249
 msgid "Saved"
 msgstr "保存しました"
 
@@ -6317,7 +6341,7 @@ msgstr "保存しました"
 #~ msgstr "保存済み — 空欄のままで維持"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:262
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6420,10 +6444,18 @@ msgstr "イベントを検索"
 #~ msgid "Search finds any setting directly, without opening its page."
 #~ msgstr "検索を使えば、ページを開かずに設定へ直接移動できます。"
 
+#: src/components/model-picker.tsx:120
+msgid "Search models"
+msgstr "モデルを検索"
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:219
 #: src/app/(tabs)/(dashboard)/notes.tsx:324
 msgid "Search notes"
 msgstr "ノートを検索"
+
+#: src/components/model-picker.tsx:113
+msgid "Search or type a model id"
+msgstr "検索、またはモデル ID を入力"
 
 #: src/app/(tabs)/(settings)/index.tsx:350
 #: src/app/(tabs)/(settings)/index.tsx:524
@@ -6686,6 +6718,10 @@ msgstr "ショート"
 msgid "Short {0}"
 msgstr "ショート {0}"
 
+#: src/components/model-picker.tsx:219
+msgid "Show all models ({hiddenCount} hidden)"
+msgstr "すべてのモデルを表示（{hiddenCount} 件非表示）"
+
 #: src/app/(tabs)/(dashboard)/_layout.tsx:27
 #: src/app/share-reports-link.tsx:115
 #: src/app/share-reports-link.tsx:120
@@ -6695,6 +6731,10 @@ msgstr "ショート {0}"
 #: src/app/share-wrapped.tsx:169
 msgid "Show amounts"
 msgstr "金額を表示"
+
+#: src/components/model-picker.tsx:218
+msgid "Show only models that can read images"
+msgstr "画像を読めるモデルのみ表示"
 
 #: src/components/password-input.tsx:40
 msgid "Show password"
@@ -6897,7 +6937,7 @@ msgstr "ストッププレミアムはエントリーより下に"
 msgid "Stop when today's realized loss hits this amount."
 msgstr "当日の実現損失がこの額に達したら停止します。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:218
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:227
 msgid "Stored on your server, never on this phone."
 msgstr "キーはサーバーにのみ保存され、この端末には残りません。"
 
@@ -7174,11 +7214,11 @@ msgstr "目標達成"
 msgid "Tempo"
 msgstr "テンポ"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:368
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:329
 msgid "Test connection"
 msgstr "接続をテスト"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:368
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:329
 msgid "Testing…"
 msgstr "テスト中…"
 
@@ -7208,7 +7248,7 @@ msgstr "全 {0} 件のうち直近 {MAX_TRADE_ROWS} 件。"
 msgid "The AI review failed — try again."
 msgstr "AIレビューに失敗しました — もう一度お試しください。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:201
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:212
 msgid "The base URL must start with http:// or https://."
 msgstr "ベースURLは http:// または https:// で始める必要があります。"
 
@@ -7225,13 +7265,13 @@ msgstr "期間の終了日は開始日より後にしてください。"
 #~ msgid "The endpoint answered successfully."
 #~ msgstr "エンドポイントが正常に応答しました。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:161
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:159
 msgid "The endpoint did not answer."
 msgstr "エンドポイントが応答しませんでした。"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:185
-msgid "The endpoint listed no models."
-msgstr "エンドポイントはモデルを返しませんでした。"
+#~ msgid "The endpoint listed no models."
+#~ msgstr "エンドポイントはモデルを返しませんでした。"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:105
 msgid "The evaluation card disappears from Home."
@@ -7263,8 +7303,8 @@ msgstr "取引日は市場タイムゾーンで決まります。カレンダー
 #~ msgstr "市場タイムゾーンが取引日を定義します — カレンダーの日付や時間別統計はこれに従います。表示タイムゾーンは時刻の表示のみに使われます。"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:233
-msgid "The model id as the endpoint spells it, e.g. gpt-4o-mini."
-msgstr "エンドポイントの表記どおりのモデルID（例: gpt-4o-mini）。"
+#~ msgid "The model id as the endpoint spells it, e.g. gpt-4o-mini."
+#~ msgstr "エンドポイントの表記どおりのモデルID（例: gpt-4o-mini）。"
 
 #: src/app/(tabs)/(settings)/change-password.tsx:86
 #: src/app/(tabs)/(settings)/reset-password.tsx:71
@@ -7294,7 +7334,7 @@ msgstr "その年に決済済みトレードがあると振り返りが表示さ
 msgid "The replay starts a few bars in for context, then reveals one bar at a time. Orders fill at the bar's close."
 msgstr "リプレイは数本先の足から始まり、以降は1本ずつ表示されます。注文はその足の終値で約定します。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:193
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:204
 msgid "The root of an OpenAI-compatible API, ending in /v1."
 msgstr "OpenAI互換APIのルート。末尾は /v1 です。"
 
@@ -7373,6 +7413,10 @@ msgstr "この操作は取り消せません。"
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:751
 msgid "This development build predates the Reminders module — run make rebuild-ios."
 msgstr "この開発ビルドにはリマインダーモジュールが含まれていません。make rebuild-ios を実行してください。"
+
+#: src/components/model-picker.tsx:205
+msgid "This endpoint listed no models. Type an id above."
+msgstr "このエンドポイントはモデルを返しませんでした。上に ID を入力してください。"
 
 #: src/lib/trade-insights.ts:283
 msgid "This is more than a normal stop-out. Check for oversizing, moving the stop, or averaging down against your rules."
@@ -7749,8 +7793,8 @@ msgid "Type"
 msgstr "種別"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:333
-msgid "Type a model id…"
-msgstr "モデルIDを入力…"
+#~ msgid "Type a model id…"
+#~ msgstr "モデルIDを入力…"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:263
 msgid "Type broker name"
@@ -7815,6 +7859,10 @@ msgstr "保存時にこの銘柄のトレードへアップロードされます
 
 #~ msgid "Use \"- [ ]\" for each rule — those lines appear as task items when you create a daily log on New Note."
 #~ msgstr "各ルールに「- [ ]」を使ってください — 新規ノートでデイリーログを作成するとタスク項目として表示されます。"
+
+#: src/components/model-picker.tsx:187
+msgid "Use “{trimmed}”"
+msgstr "「{trimmed}」を使用"
 
 #: src/app/(tabs)/(settings)/change-password.tsx:76
 #: src/app/(tabs)/(settings)/reset-password.tsx:67

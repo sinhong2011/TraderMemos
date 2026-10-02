@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { cn, Frame, Text, Textarea } from 'panelui-native';
@@ -14,10 +14,10 @@ import { ErrorState } from '@/components/error-state';
 import { FormField } from '@/components/form-kit';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { Icon } from '@/components/icon';
+import { ModelPicker } from '@/components/model-picker';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
 import { SettingsSection, SettingsToggle } from '@/components/settings-rows';
-import { Menu } from '@/components/sheet-menu';
 import { usePrompt } from '@/components/use-prompt';
 import { errorMessage } from '@/lib/errors';
 import { notify } from '@/lib/haptics';
@@ -101,11 +101,10 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
   // Single-value edits go through a prompt — the settings idiom here, and
   // `usePrompt` is its cross-platform form (`Alert.prompt` is iOS-only).
   const { prompt, element: promptElement } = usePrompt();
-  const [profit, destructive, mutedForeground] = useCSSVariable([
-    '--color-profit',
-    '--color-destructive',
-    '--color-muted-foreground',
-  ]) as [string, string, string];
+  const [profit, destructive] = useCSSVariable(['--color-profit', '--color-destructive']) as [
+    string,
+    string,
+  ];
 
   const [enabled, setEnabled] = useState(settings.enabled);
   const [baseUrl, setBaseUrl] = useState(settings.base_url.trim() || DEFAULT_BASE_URL);
@@ -114,7 +113,6 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
   const [apiKey, setApiKey] = useState('');
   const promptText = useRef(settings.custom_prompt ?? '');
   const [dirty, setDirty] = useState(false);
-  const [models, setModels] = useState<string[]>([]);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
 
   const connection = () => ({
@@ -167,24 +165,37 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
     },
   });
 
-  const listModels = useMutation({
-    mutationFn: () =>
-      api<LlmModelsResult>(`/settings/${kind}/models`, {
-        method: 'POST',
-        body: {
-          base_url: baseUrl.trim(),
-          ...(apiKey.trim() ? { api_key: apiKey.trim() } : {}),
-        },
-      }),
-    onSuccess: (result) => {
-      if (result.error) {
-        Alert.alert(t`Could not load models`, result.error);
-        return;
+  // A query rather than a mutation so the listing is cached (and persisted)
+  // per endpoint: the picker opens on the last list instead of an empty one.
+  // Never fetched on mount — opening the picker refreshes it.
+  //
+  // The fetch never throws. A refetch that rejects flips a v5 query to
+  // status 'error' even with data in hand, and the persister only keeps
+  // 'success' queries — one failed refresh would wipe the saved list on the
+  // next cold start. So a failure keeps the previous list and rides along as
+  // `error` instead.
+  const modelsKey = queryKeys.llmModels(kind, baseUrl.trim());
+  const modelsQuery = useQuery({
+    queryKey: modelsKey,
+    queryFn: async (): Promise<{ models: string[]; error?: string }> => {
+      const previous =
+        queryClient.getQueryData<{ models: string[] }>(modelsKey)?.models ?? [];
+      try {
+        const result = await api<LlmModelsResult>(`/settings/${kind}/models`, {
+          method: 'POST',
+          body: {
+            base_url: baseUrl.trim(),
+            ...(apiKey.trim() ? { api_key: apiKey.trim() } : {}),
+          },
+        });
+        if (result.error) return { models: previous, error: result.error };
+        return { models: result.models };
+      } catch (err) {
+        return { models: previous, error: errorMessage(err) };
       }
-      setModels(result.models);
-      if (result.models.length === 0) Alert.alert(t`No models`, t`The endpoint listed no models.`);
     },
-    onError: (err) => Alert.alert(t`Could not load models`, errorMessage(err)),
+    enabled: false,
+    retry: false,
   });
 
   function editBaseUrl() {
@@ -202,8 +213,6 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
           return;
         }
         setBaseUrl(next);
-        // Models are per-endpoint — a new host invalidates the list.
-        setModels([]);
         setTestResult(null);
         setDirty(true);
       },
@@ -224,16 +233,6 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
         setTestResult(null);
         setDirty(true);
       },
-    });
-  }
-
-  function editModel() {
-    prompt({
-      title: t`Model`,
-      message: t`The model id as the endpoint spells it, e.g. gpt-4o-mini.`,
-      defaultValue: model,
-      confirmLabel: t`Done`,
-      onSubmit: (text) => pickModel(text.trim()),
     });
   }
 
@@ -285,55 +284,17 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
               promises a push that never happens. */}
           <NavRow label={t`Base URL`} value={baseUrl} accessory="none" onPress={editBaseUrl} />
 
-          {/* The model row is a pull-down rather than a picker: besides the
-              models the endpoint listed, it carries the two actions that
-              produce that list in the first place. */}
-          <Menu>
-            <Menu.Trigger>
-              <Frame.Row accessibilityRole="button" accessibilityLabel={t`Model`}>
-                <Frame.Content>
-                  <Frame.Title>{t`Model`}</Frame.Title>
-                </Frame.Content>
-                <Frame.Actions className="min-w-0 shrink justify-end">
-                  <Text size="sm" muted numberOfLines={1} ellipsizeMode="middle">
-                    {model || t`Default`}
-                  </Text>
-                  <Icon name="chevron.up.chevron.down" size={11} tintColor={mutedForeground} />
-                </Frame.Actions>
-              </Frame.Row>
-            </Menu.Trigger>
-            <Menu.Content>
-              {models.map((name) => (
-                <Menu.Item
-                  key={name}
-                  icon={
-                    name === model ? (
-                      <Icon name="checkmark" size={13} tintColor={mutedForeground} />
-                    ) : undefined
-                  }
-                  onPress={() => pickModel(name)}
-                >
-                  {name}
-                </Menu.Item>
-              ))}
-              {models.length > 0 ? <Menu.Separator /> : null}
-              <Menu.Item
-                icon={<Icon name="arrow.down.circle" size={13} tintColor={mutedForeground} />}
-                disabled={listModels.isPending}
-                onPress={() => {
-                  if (!listModels.isPending) listModels.mutate();
-                }}
-              >
-                {listModels.isPending ? t`Loading models…` : t`Fetch models`}
-              </Menu.Item>
-              <Menu.Item
-                icon={<Icon name="keyboard" size={13} tintColor={mutedForeground} />}
-                onPress={editModel}
-              >
-                {t`Type a model id…`}
-              </Menu.Item>
-            </Menu.Content>
-          </Menu>
+          <ModelPicker
+            value={model}
+            models={modelsQuery.data?.models}
+            loading={modelsQuery.isFetching}
+            // A stale error from the persisted snapshot would flash while the
+            // refresh it describes is already being retried.
+            error={modelsQuery.isFetching ? undefined : modelsQuery.data?.error}
+            visionOnly={kind === 'ocr'}
+            onOpen={() => void modelsQuery.refetch()}
+            onChange={pickModel}
+          />
 
           <NavRow label={t`API key`} value={apiKeyValue} accessory="none" onPress={editApiKey} />
 

@@ -125,6 +125,11 @@ msgstr "{0} 筆未記錄 MAE/MFE 的虧損交易無法檢查 — 在交易頁重
 msgid "{0} losses in a row"
 msgstr "連續虧損{0}次"
 
+#. placeholder {0}: all.length
+#: src/components/model-picker.tsx:89
+msgid "{0} models on this endpoint"
+msgstr "此端點共有 {0} 個模型"
+
 #. placeholder {0}: formatPercent(s.target_pct ?? 0, 0)
 #. placeholder {0}: wrapped.greenDays
 #. placeholder {1}: formatCurrency(fx(s.profit_target), currency)
@@ -1022,7 +1027,7 @@ msgstr "不限"
 msgid "Any duration"
 msgstr "所有持倉時長"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:282
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "任何 OpenAI 相容端點都可以。測試會使用上方的值，即使尚未儲存。"
 
@@ -1030,8 +1035,8 @@ msgstr "任何 OpenAI 相容端點都可以。測試會使用上方的值，即�
 msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 msgstr "任何持有連結的人都可以查看目前範圍的唯讀摘要 — 不包含交易、筆記或帳戶資料。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:215
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:338
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:224
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:299
 msgid "API key"
 msgstr "API 金鑰"
 
@@ -1266,8 +1271,8 @@ msgstr "結餘，{0}，由 {1}"
 msgid "Base currency"
 msgstr "基礎貨幣"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:192
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:286
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:203
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:285
 msgid "Base URL"
 msgstr "基礎 URL"
 
@@ -1664,6 +1669,10 @@ msgstr "清除網址"
 msgid "Clear filters"
 msgstr "清除篩選"
 
+#: src/components/model-picker.tsx:132
+msgid "Clear search"
+msgstr "清除搜尋"
+
 #: src/app/(tabs)/(settings)/web-address.tsx:40
 msgid "Clear this address?"
 msgstr "要清除此網址嗎？"
@@ -1833,7 +1842,7 @@ msgstr "連接一次 — 新成交會自動送到。"
 msgid "Connect to your TraderMemos server."
 msgstr "連接你自己的 TraderMemos 伺服器。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:280
 msgid "Connection"
 msgstr "連線"
 
@@ -1844,7 +1853,7 @@ msgstr "連線"
 #~ msgstr "連線正常"
 
 #. placeholder {0}: formatLatency(elapsedMs)
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:160
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:158
 msgid "Connection OK · {0}"
 msgstr "連線正常 · {0}"
 
@@ -1997,8 +2006,8 @@ msgstr "無法匯入設定"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:181
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:187
-msgid "Could not load models"
-msgstr "無法載入模型"
+#~ msgid "Could not load models"
+#~ msgstr "無法載入模型"
 
 #~ msgid "Could not load this day's trades."
 #~ msgstr "無法載入這天的交易。"
@@ -2062,7 +2071,7 @@ msgstr "無法還原"
 #: src/app/(tabs)/(settings)/account-form.tsx:172
 #: src/app/(tabs)/(settings)/account-form.tsx:176
 #: src/app/(tabs)/(settings)/account-form.tsx:185
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:140
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:138
 #: src/app/(tabs)/(settings)/alerts.tsx:34
 #: src/app/(tabs)/(settings)/flex-sync.tsx:61
 #: src/app/(tabs)/(settings)/flex-sync.tsx:90
@@ -2132,12 +2141,20 @@ msgstr "無法上載"
 msgid "Couldn't add the reminder"
 msgstr "無法加入提醒事項"
 
+#: src/components/model-picker.tsx:153
+msgid "Couldn't load the models."
+msgstr "無法載入模型。"
+
 #~ msgid "Couldn't load this trade"
 #~ msgstr "無法載入此交易"
 
 #: src/app/(tabs)/(trades)/[id].tsx:423
 msgid "Couldn't reach the server. The figures above are from your last sync."
 msgstr "無法連接伺服器。上方數字來自上次同步。"
+
+#: src/components/model-picker.tsx:152
+msgid "Couldn't refresh the list — showing the last one."
+msgstr "無法更新列表，正顯示上次的列表。"
 
 #~ msgid "Create"
 #~ msgstr "建立"
@@ -2371,7 +2388,7 @@ msgstr "連續日數"
 msgid "Days"
 msgstr "日子"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:299
+#: src/components/model-picker.tsx:100
 msgid "Default"
 msgstr "預設"
 
@@ -2573,9 +2590,8 @@ msgstr "記低平倉原因 — 觸及止蝕、論點失效或情緒 — 方能�
 msgid "Dollars"
 msgstr "金額"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:196
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:219
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:235
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:207
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:228
 #: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
 #: src/components/time-picker.tsx:100
@@ -2749,7 +2765,7 @@ msgstr "情緒"
 msgid "Enable alerts"
 msgstr "啟用提示"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:271
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:270
 msgid "Enabled"
 msgstr "啟用"
 
@@ -2854,7 +2870,7 @@ msgstr "輸入用戶名稱"
 msgid "Enter your username and password"
 msgstr "請輸入使用者名稱同密碼"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:248
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:247
 msgid "Entered — not saved yet"
 msgstr "已輸入 — 尚未儲存"
 
@@ -3161,8 +3177,8 @@ msgid "Fees took a large bite of gross P&L"
 msgstr "費用蠶食了大量毛利"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:327
-msgid "Fetch models"
-msgstr "取得模型"
+#~ msgid "Fetch models"
+#~ msgstr "取得模型"
 
 #: src/app/tool-fx.tsx:107
 msgid "Fetching rate…"
@@ -3482,6 +3498,10 @@ msgstr "只持倉 {0}。若止蝕是計劃內，這是好的風控；若是策�
 msgid "Hesitated"
 msgstr "猶豫了"
 
+#: src/components/model-picker.tsx:223
+msgid "Hidden: text-only, speech and embedding models — guessed from their ids."
+msgstr "已隱藏：純文字、語音及嵌入模型（按 ID 推斷）。"
+
 #: src/app/(tabs)/(dashboard)/_layout.tsx:27
 msgid "Hide amounts"
 msgstr "隱藏金額"
@@ -3702,7 +3722,7 @@ msgstr "時間週期"
 msgid "Intraday P&L"
 msgstr "日內損益"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:201
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:212
 msgid "Invalid URL"
 msgstr "URL 無效"
 
@@ -3827,11 +3847,11 @@ msgstr "留空即可清除目標。"
 msgid "Leave blank to drop this rule."
 msgstr "留空即取消此規則。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:217
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:226
 msgid "Leave blank to keep the key already stored on the server."
 msgstr "留空即保留伺服器上已儲存的金鑰。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:383
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:344
 msgid "Leave blank to use the built-in prompt"
 msgstr "留空則使用內建提示"
 
@@ -3901,7 +3921,7 @@ msgstr "正在載入規則遵守情況"
 msgid "Loading drawdown"
 msgstr "正在載入回撤"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:327
+#: src/components/model-picker.tsx:87
 msgid "Loading models…"
 msgstr "載入模型中…"
 
@@ -4310,9 +4330,9 @@ msgstr "錯誤類型"
 msgid "Mistake: {tag}"
 msgstr "錯誤：{tag}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:293
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:295
+#: src/components/model-picker.tsx:94
+#: src/components/model-picker.tsx:96
+#: src/components/model-picker.tsx:108
 msgid "Model"
 msgstr "模型"
 
@@ -4680,8 +4700,12 @@ msgid "No mistakes tagged."
 msgstr "沒有標記錯誤。"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:185
-msgid "No models"
-msgstr "沒有模型"
+#~ msgid "No models"
+#~ msgstr "沒有模型"
+
+#: src/components/model-picker.tsx:206
+msgid "No models match."
+msgstr "沒有相符的模型。"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:307
 msgid "No notes yet"
@@ -4863,7 +4887,7 @@ msgstr "找不到項目"
 msgid "Not rated"
 msgstr "未評分"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:251
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
 #: src/app/(tabs)/(settings)/integrations.tsx:27
 #: src/app/(tabs)/(settings)/integrations.tsx:56
 #: src/app/(tabs)/(settings)/prop-settings.tsx:112
@@ -5630,8 +5654,8 @@ msgstr "利潤目標"
 #~ msgid "Profit target — {0}"
 #~ msgstr "利潤目標 — {0}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:378
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:388
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:339
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:349
 msgid "Prompt"
 msgstr "提示"
 
@@ -6270,7 +6294,7 @@ msgid "Sat"
 msgstr "六"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:262
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6309,7 +6333,7 @@ msgstr "儲存時段"
 msgid "Save trade"
 msgstr "儲存交易"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:249
 msgid "Saved"
 msgstr "已儲存"
 
@@ -6317,7 +6341,7 @@ msgstr "已儲存"
 #~ msgstr "已儲存 — 留空以保留"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:262
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6420,10 +6444,18 @@ msgstr "搜尋事件"
 #~ msgid "Search finds any setting directly, without opening its page."
 #~ msgstr "使用搜尋可直接前往任何設定，毋須先開啟其頁面。"
 
+#: src/components/model-picker.tsx:120
+msgid "Search models"
+msgstr "搜尋模型"
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:219
 #: src/app/(tabs)/(dashboard)/notes.tsx:324
 msgid "Search notes"
 msgstr "搜尋筆記"
+
+#: src/components/model-picker.tsx:113
+msgid "Search or type a model id"
+msgstr "搜尋或輸入模型 ID"
 
 #: src/app/(tabs)/(settings)/index.tsx:350
 #: src/app/(tabs)/(settings)/index.tsx:524
@@ -6686,6 +6718,10 @@ msgstr "做空"
 msgid "Short {0}"
 msgstr "做空 {0}"
 
+#: src/components/model-picker.tsx:219
+msgid "Show all models ({hiddenCount} hidden)"
+msgstr "顯示所有模型（已隱藏 {hiddenCount} 個）"
+
 #: src/app/(tabs)/(dashboard)/_layout.tsx:27
 #: src/app/share-reports-link.tsx:115
 #: src/app/share-reports-link.tsx:120
@@ -6695,6 +6731,10 @@ msgstr "做空 {0}"
 #: src/app/share-wrapped.tsx:169
 msgid "Show amounts"
 msgstr "顯示金額"
+
+#: src/components/model-picker.tsx:218
+msgid "Show only models that can read images"
+msgstr "只顯示可讀取圖片的模型"
 
 #: src/components/password-input.tsx:40
 msgid "Show password"
@@ -6897,7 +6937,7 @@ msgstr "止蝕權利金必須低於入場權利金"
 msgid "Stop when today's realized loss hits this amount."
 msgstr "當日已實現虧損達此金額時停止。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:218
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:227
 msgid "Stored on your server, never on this phone."
 msgstr "金鑰只儲存在你的伺服器，不會留在這部手機。"
 
@@ -7174,11 +7214,11 @@ msgstr "達成目標"
 msgid "Tempo"
 msgstr "節奏"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:368
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:329
 msgid "Test connection"
 msgstr "測試連線"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:368
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:329
 msgid "Testing…"
 msgstr "測試中…"
 
@@ -7208,7 +7248,7 @@ msgstr "共 {0} 筆交易，顯示最近 {MAX_TRADE_ROWS} 筆。"
 msgid "The AI review failed — try again."
 msgstr "AI 評語失敗 — 請再試。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:201
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:212
 msgid "The base URL must start with http:// or https://."
 msgstr "基礎 URL 必須以 http:// 或 https:// 開頭。"
 
@@ -7225,13 +7265,13 @@ msgstr "結束日期必須在開始日期之後。"
 #~ msgid "The endpoint answered successfully."
 #~ msgstr "端點回應正常。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:161
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:159
 msgid "The endpoint did not answer."
 msgstr "端點沒有回應。"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:185
-msgid "The endpoint listed no models."
-msgstr "端點沒有回傳任何模型。"
+#~ msgid "The endpoint listed no models."
+#~ msgstr "端點沒有回傳任何模型。"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:105
 msgid "The evaluation card disappears from Home."
@@ -7263,8 +7303,8 @@ msgstr "交易日由市場時區決定，日曆格、日期篩選與每小時統
 #~ msgstr "市場時區定義交易日 — 日曆日期與每小時統計均以此為準。顯示時區只影響時間的顯示格式。"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:233
-msgid "The model id as the endpoint spells it, e.g. gpt-4o-mini."
-msgstr "端點所用的模型 ID，例如 gpt-4o-mini。"
+#~ msgid "The model id as the endpoint spells it, e.g. gpt-4o-mini."
+#~ msgstr "端點所用的模型 ID，例如 gpt-4o-mini。"
 
 #: src/app/(tabs)/(settings)/change-password.tsx:86
 #: src/app/(tabs)/(settings)/reset-password.tsx:71
@@ -7294,7 +7334,7 @@ msgstr "該年度有已平倉交易之後就會顯示回顧。"
 msgid "The replay starts a few bars in for context, then reveals one bar at a time. Orders fill at the bar's close."
 msgstr "重播會先跳過幾根K線作為背景，之後逐根顯示。訂單以該根K線的收市價成交。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:193
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:204
 msgid "The root of an OpenAI-compatible API, ending in /v1."
 msgstr "OpenAI 相容 API 的根網址，以 /v1 結尾。"
 
@@ -7373,6 +7413,10 @@ msgstr "此操作無法還原。"
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:751
 msgid "This development build predates the Reminders module — run make rebuild-ios."
 msgstr "此開發版本未包含提醒事項模組，請執行 make rebuild-ios。"
+
+#: src/components/model-picker.tsx:205
+msgid "This endpoint listed no models. Type an id above."
+msgstr "此端點沒有列出任何模型。請在上方輸入 ID。"
 
 #: src/lib/trade-insights.ts:283
 msgid "This is more than a normal stop-out. Check for oversizing, moving the stop, or averaging down against your rules."
@@ -7749,8 +7793,8 @@ msgid "Type"
 msgstr "類型"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:333
-msgid "Type a model id…"
-msgstr "輸入模型 ID…"
+#~ msgid "Type a model id…"
+#~ msgstr "輸入模型 ID…"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:263
 msgid "Type broker name"
@@ -7815,6 +7859,10 @@ msgstr "儲存時會上載到此標的的交易。點一下縮圖即可移除。
 
 #~ msgid "Use \"- [ ]\" for each rule — those lines appear as task items when you create a daily log on New Note."
 #~ msgstr "每條規則請使用「- [ ]」 — 在「新增筆記」建立每日日誌時會顯示為任務項目。"
+
+#: src/components/model-picker.tsx:187
+msgid "Use “{trimmed}”"
+msgstr "使用「{trimmed}」"
 
 #: src/app/(tabs)/(settings)/change-password.tsx:76
 #: src/app/(tabs)/(settings)/reset-password.tsx:67
