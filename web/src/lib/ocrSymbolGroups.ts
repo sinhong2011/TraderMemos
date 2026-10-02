@@ -224,6 +224,8 @@ export function mergeTradeExtracts(parts: TradeExtract[]): TradeExtract {
     rows,
     warnings,
     symbols: [...symbolSet].sort((a, b) => a.localeCompare(b)),
+    // Scans from one server agree; without it rows keep their literal times.
+    timezone: parts.find((p) => p.timezone)?.timezone,
   };
   const majority = defaultOcrSymbol(merged);
   if (majority) merged.symbol = majority;

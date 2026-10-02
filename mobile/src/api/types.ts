@@ -593,6 +593,11 @@ export type TradeExtract = {
   warnings: string[];
   /** Present when a scan contains more than one underlying. */
   symbols?: string[];
+  /**
+   * IANA zone the server read the fill times in (the screen's label, else the
+   * `tz` sent with the scan). The times themselves carry its offset.
+   */
+  timezone?: string;
 };
 
 // ---------------------------------------------------------------------------

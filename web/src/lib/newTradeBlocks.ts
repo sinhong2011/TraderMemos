@@ -40,11 +40,18 @@ function toDatetimeLocal(iso: string): string {
 }
 
 /**
- * OCR timestamps are the broker's on-screen wall-clock time; any offset the
- * vision model appends (RFC3339 forces one, so it invents "Z") is fiction.
- * Keep the literal date/time digits instead of converting between zones.
+ * `exact` extracts come from a server that resolved the screen's zone (it sets
+ * `timezone`): their times are real instants (`2026-10-01T10:30:27-04:00`),
+ * shown here as the display timezone's wall clock — `wallClockToIso` turns
+ * that back into the same instant on save. Otherwise the timestamp is the
+ * broker's on-screen wall clock and any offset is one the vision model
+ * invented (RFC3339 forces one, so it writes "Z"): keep the literal digits.
  */
-function ocrWallClockToDatetimeLocal(raw: string): string {
+function ocrWallClockToDatetimeLocal(raw: string, exact = false): string {
+  if (exact && /(?:Z|[+-]\d{2}:?\d{2})$/.test(raw.trim())) {
+    const instant = new Date(raw.trim());
+    if (!Number.isNaN(instant.getTime())) return isoToWallClock(instant);
+  }
   const m = raw.trim().match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(:\d{2})?/);
   if (m) return `${m[1]}T${m[2]}${m[3] ?? ":00"}`;
   return toDatetimeLocal(raw);
@@ -63,12 +70,13 @@ export function rowsFromOcrExtract(
   if (!extract.rows?.length) {
     return [emptyExecutionRow(fallbackSide === "long" ? "buy" : "sell")];
   }
+  const exact = Boolean(extract.timezone);
   return [...extract.rows]
     .sort((a, b) => (a.executed_at ?? "").localeCompare(b.executed_at ?? ""))
     .map((r) => ({
       key: nextExecutionRowKey(),
       side: r.side === "sell" ? "sell" : "buy",
-      executed_at: ocrWallClockToDatetimeLocal(r.executed_at ?? ""),
+      executed_at: ocrWallClockToDatetimeLocal(r.executed_at ?? "", exact),
       quantity: r.quantity > 0 ? String(r.quantity) : "",
       price: r.price > 0 ? String(r.price) : "",
       fees: formatNumField((Number(r.fees) || 0) + (Number(r.commission) || 0)),

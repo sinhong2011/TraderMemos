@@ -115,6 +115,16 @@ describe("rowsFromOcrExtract", () => {
     expect(rows[0]?.executed_at).toBe("2026-07-31T22:06:33");
   });
 
+  it("converts an exact instant into the display timezone's wall clock", () => {
+    // A server that resolved the screen's zone (Hong Kong here) sets
+    // `timezone`; the offset is real. Display timezone defaults to New York.
+    const rows = rowsFromOcrExtract(
+      { ...extract("2026-10-01T10:30:27+08:00"), timezone: "Asia/Hong_Kong" },
+      "long",
+    );
+    expect(rows[0]?.executed_at).toBe("2026-09-30T22:30:27");
+  });
+
   it("fills missing seconds", () => {
     const rows = rowsFromOcrExtract(extract("2026-07-31 22:06"), "long");
     expect(rows[0]?.executed_at).toBe("2026-07-31T22:06:00");

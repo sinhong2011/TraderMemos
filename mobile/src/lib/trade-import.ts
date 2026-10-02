@@ -15,6 +15,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import type { LlmApiSettings, TradeExtract } from '@/api/types';
 import type { RequestOptions } from '@/api/client';
 import { parseFillFile } from './fill-file';
+import { resolveMarketTimezone } from '@/lib/prefs';
 import { mergeTradeExtracts } from './trade-prefill';
 
 /** A file queued for import: local uri plus the name and mime the pickers report. */
@@ -72,6 +73,8 @@ export async function extractFromSource(
     // fetch polyfill owns the global `fetch` and serialises a part only from a
     // string, a Blob, or something with `bytes()` (see components/note-images.tsx).
     formData.append('file', new File(source.uri) as unknown as Blob, source.name);
+    // For times the screen doesn't label; one it does label wins server-side.
+    formData.append('tz', resolveMarketTimezone());
     const response = await api('/ocr/parse', { method: 'POST', formData });
     return (await response.json()) as TradeExtract;
   }
