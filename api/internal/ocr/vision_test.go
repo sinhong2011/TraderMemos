@@ -344,3 +344,13 @@ func TestExtractTradeFromImage_noRetryOnClientError(t *testing.T) {
 		t.Fatalf("calls=%d want 1", calls)
 	}
 }
+
+func TestUpstreamMessage(t *testing.T) {
+	got := upstreamMessage([]byte(`{"error":{"message":"Permission denied: Consumer 'api_key:***' has been suspended.","type":"upstream_error","code":403}}`))
+	if got != "Permission denied: Consumer 'api_key:***' has been suspended." {
+		t.Errorf("json body: %q", got)
+	}
+	if got := upstreamMessage([]byte("<html>Bad Gateway</html>")); got != "<html>Bad Gateway</html>" {
+		t.Errorf("raw body: %q", got)
+	}
+}

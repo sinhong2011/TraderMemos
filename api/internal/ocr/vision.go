@@ -23,6 +23,9 @@ const DefaultVisionTimeout = 90 * time.Second
 // ErrTimeout means the vision upstream did not respond before the client deadline.
 var ErrTimeout = errors.New("ocr vision timeout")
 
+// nowFunc is the scan clock, for inferring the year of a yearless fill time.
+var nowFunc = time.Now
+
 // ErrBusy means the vision upstream kept shedding load (429 / 503) through every retry.
 var ErrBusy = errors.New("ocr vision busy")
 
@@ -201,6 +204,7 @@ Rules:
 - Include every distinct fill visible — when multiple underlyings appear, emit a row per fill with that row's symbol.
 - Set top-level "symbol" to the majority underlying; still keep every ticker on its rows.
 - side long/short from the earliest opening fill of the majority symbol when unclear.
+- Skip orders that did not execute: cancelled, rejected, expired or still working (e.g. 已撤單, 已撤销, 未成交, 已失效, 待成交, Cancelled, Rejected, Expired, Working). For a partial fill, use only the filled quantity.
 - If unsure, still return best-effort rows and add warnings.`
 
 // ExtractTradeFromImage calls an OpenAI-compatible chat completions vision endpoint.
@@ -265,16 +269,17 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 	out := TradeExtract{
 		Symbol:         strings.ToUpper(strings.TrimSpace(parsed.Symbol)),
 		InstrumentType: strings.ToLower(strings.TrimSpace(parsed.InstrumentType)),
-		Side:           strings.ToLower(strings.TrimSpace(parsed.Side)),
-		Rows:           make([]ExtractedFill, 0, len(parsed.Rows)),
-		Warnings:       append([]string{}, parsed.Warnings...),
+		// Long/short is derived from the fills in finalizeExtract; the model's
+		// own guess only fills in when that can't decide (see below). Trusted
+		// first, it labelled a buy-then-sell SPCX trade "short".
+		Rows:     make([]ExtractedFill, 0, len(parsed.Rows)),
+		Warnings: append([]string{}, parsed.Warnings...),
 	}
 	if out.InstrumentType == "" {
 		out.InstrumentType = "stock"
 	}
-	if out.Side != "long" && out.Side != "short" {
-		out.Side = ""
-	}
+	now := nowFunc()
+	unreadTimes := 0
 	for _, r := range parsed.Rows {
 		side := mapSideToBuySell(r.Side)
 		if side == "" {
@@ -294,6 +299,14 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 		if sym == "" {
 			sym = out.Symbol
 		}
+		executedAt := strings.TrimSpace(r.ExecutedAt)
+		if executedAt != "" {
+			if normalized, ok := normalizeWallClock(executedAt, now); ok {
+				executedAt = normalized
+			} else {
+				unreadTimes++
+			}
+		}
 		right := strings.ToLower(strings.TrimSpace(r.OptionRight))
 		if right != "call" && right != "put" {
 			right = ""
@@ -305,7 +318,7 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 			Price:       r.Price,
 			Fees:        fees,
 			Commission:  0,
-			ExecutedAt:  strings.TrimSpace(r.ExecutedAt),
+			ExecutedAt:  executedAt,
 			OptionRight: right,
 			Strike:      r.Strike,
 			Expiry:      strings.TrimSpace(r.Expiry),
@@ -316,10 +329,14 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 		out.Confidence = 0.2
 		return out, nil
 	}
+	if unreadTimes > 0 {
+		out.Warnings = append(out.Warnings,
+			fmt.Sprintf("couldn't read the time of %d fill(s) — set Executed at by hand", unreadTimes))
+	}
 	out.Warnings = append(out.Warnings, "vision extract — review fills before saving")
 	out = finalizeExtract(out)
-	if out.Side == "" && (parsed.Side == "long" || parsed.Side == "short") {
-		out.Side = parsed.Side
+	if side := strings.ToLower(strings.TrimSpace(parsed.Side)); out.Side == "" && (side == "long" || side == "short") {
+		out.Side = side
 	}
 	if out.Confidence < visionConfidenceFloor {
 		out.Confidence = visionConfidenceFloor + 0.2
@@ -362,7 +379,7 @@ func postVision(ctx context.Context, cfg VisionConfig, base string, payload []by
 			return raw, nil
 		}
 
-		statusErr := fmt.Errorf("vision api %s: %s", res.Status, truncateRunes(string(raw), 300))
+		statusErr := fmt.Errorf("vision api %s: %s", res.Status, upstreamMessage(raw))
 		if !retryableStatus(res.StatusCode) {
 			return nil, statusErr
 		}
@@ -378,6 +395,21 @@ func postVision(ctx context.Context, cfg VisionConfig, base string, payload []by
 		case <-time.After(delays[attempt]):
 		}
 	}
+}
+
+// upstreamMessage is the provider's own explanation from an error body — the
+// OpenAI-style `{"error":{"message":…}}` most gateways return — falling back to
+// the raw body. It reaches the user verbatim, so the JSON wrapper goes.
+func upstreamMessage(raw []byte) string {
+	var body struct {
+		Error *struct {
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+	if json.Unmarshal(raw, &body) == nil && body.Error != nil && strings.TrimSpace(body.Error.Message) != "" {
+		return truncateRunes(strings.TrimSpace(body.Error.Message), 300)
+	}
+	return truncateRunes(strings.TrimSpace(string(raw)), 300)
 }
 
 func stripJSONFence(s string) string {
