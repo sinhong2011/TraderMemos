@@ -125,6 +125,11 @@ msgstr "MAE/MFE가 기록되지 않은 손실 거래 {0}건은 확인할 수 없
 msgid "{0} losses in a row"
 msgstr "{0}연속 손실"
 
+#. placeholder {0}: all.length
+#: src/components/model-picker.tsx:89
+msgid "{0} models on this endpoint"
+msgstr "이 엔드포인트의 모델 {0}개"
+
 #. placeholder {0}: formatPercent(s.target_pct ?? 0, 0)
 #. placeholder {0}: wrapped.greenDays
 #. placeholder {1}: formatCurrency(fx(s.profit_target), currency)
@@ -1022,7 +1027,7 @@ msgstr "지정 없음"
 msgid "Any duration"
 msgstr "모든 보유 기간"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:282
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "OpenAI 호환 엔드포인트면 무엇이든 사용할 수 있습니다. 테스트는 저장 여부와 관계없이 위 값을 사용합니다."
 
@@ -1030,8 +1035,8 @@ msgstr "OpenAI 호환 엔드포인트면 무엇이든 사용할 수 있습니다
 msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 msgstr "링크가 있는 사람은 현재 범위의 읽기 전용 요약을 볼 수 있습니다 — 거래, 노트, 계좌 정보는 포함되지 않습니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:215
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:338
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:224
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:299
 msgid "API key"
 msgstr "API 키"
 
@@ -1266,8 +1271,8 @@ msgstr "잔고, {0}, {1}에서"
 msgid "Base currency"
 msgstr "기준 통화"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:192
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:286
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:203
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:285
 msgid "Base URL"
 msgstr "베이스 URL"
 
@@ -1664,6 +1669,10 @@ msgstr "주소 삭제"
 msgid "Clear filters"
 msgstr "필터 지우기"
 
+#: src/components/model-picker.tsx:132
+msgid "Clear search"
+msgstr "검색 지우기"
+
 #: src/app/(tabs)/(settings)/web-address.tsx:40
 msgid "Clear this address?"
 msgstr "이 주소를 삭제할까요?"
@@ -1833,7 +1842,7 @@ msgstr "한 번 연결하면 새 체결이 자동으로 들어옵니다."
 msgid "Connect to your TraderMemos server."
 msgstr "내 TraderMemos 서버에 연결합니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:280
 msgid "Connection"
 msgstr "연결"
 
@@ -1844,7 +1853,7 @@ msgstr "연결"
 #~ msgstr "연결 성공"
 
 #. placeholder {0}: formatLatency(elapsedMs)
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:160
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:158
 msgid "Connection OK · {0}"
 msgstr "연결 정상 · {0}"
 
@@ -1997,8 +2006,8 @@ msgstr "설정을 가져오지 못했습니다"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:181
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:187
-msgid "Could not load models"
-msgstr "모델을 불러오지 못했습니다"
+#~ msgid "Could not load models"
+#~ msgstr "모델을 불러오지 못했습니다"
 
 #~ msgid "Could not load this day's trades."
 #~ msgstr "이 날의 거래를 불러오지 못했습니다."
@@ -2062,7 +2071,7 @@ msgstr "롤백하지 못했습니다"
 #: src/app/(tabs)/(settings)/account-form.tsx:172
 #: src/app/(tabs)/(settings)/account-form.tsx:176
 #: src/app/(tabs)/(settings)/account-form.tsx:185
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:140
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:138
 #: src/app/(tabs)/(settings)/alerts.tsx:34
 #: src/app/(tabs)/(settings)/flex-sync.tsx:61
 #: src/app/(tabs)/(settings)/flex-sync.tsx:90
@@ -2132,12 +2141,20 @@ msgstr "업로드할 수 없습니다"
 msgid "Couldn't add the reminder"
 msgstr "미리 알림을 추가하지 못했습니다"
 
+#: src/components/model-picker.tsx:153
+msgid "Couldn't load the models."
+msgstr "모델을 불러오지 못했습니다."
+
 #~ msgid "Couldn't load this trade"
 #~ msgstr "이 거래를 불러오지 못했습니다"
 
 #: src/app/(tabs)/(trades)/[id].tsx:423
 msgid "Couldn't reach the server. The figures above are from your last sync."
 msgstr "서버에 연결하지 못했습니다. 위 수치는 마지막 동기화 기준입니다."
+
+#: src/components/model-picker.tsx:152
+msgid "Couldn't refresh the list — showing the last one."
+msgstr "목록을 새로고침하지 못했습니다 — 마지막 목록을 표시합니다."
 
 #~ msgid "Create"
 #~ msgstr "만들기"
@@ -2371,7 +2388,7 @@ msgstr "연속 일수"
 msgid "Days"
 msgstr "요일"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:299
+#: src/components/model-picker.tsx:100
 msgid "Default"
 msgstr "기본값"
 
@@ -2573,9 +2590,8 @@ msgstr "청산 이유를 기록하세요 — 스톱 도달, 가설 붕괴, 감�
 msgid "Dollars"
 msgstr "금액"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:196
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:219
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:235
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:207
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:228
 #: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
 #: src/components/time-picker.tsx:100
@@ -2749,7 +2765,7 @@ msgstr "감정"
 msgid "Enable alerts"
 msgstr "알림 켜기"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:271
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:270
 msgid "Enabled"
 msgstr "사용"
 
@@ -2854,7 +2870,7 @@ msgstr "사용자 이름 입력"
 msgid "Enter your username and password"
 msgstr "사용자 이름과 비밀번호를 입력하세요"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:248
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:247
 msgid "Entered — not saved yet"
 msgstr "입력됨 — 아직 저장 안 됨"
 
@@ -3161,8 +3177,8 @@ msgid "Fees took a large bite of gross P&L"
 msgstr "수수료가 총손익을 크게 깎았습니다"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:327
-msgid "Fetch models"
-msgstr "모델 가져오기"
+#~ msgid "Fetch models"
+#~ msgstr "모델 가져오기"
 
 #: src/app/tool-fx.tsx:107
 msgid "Fetching rate…"
@@ -3482,6 +3498,10 @@ msgstr "보유 시간은 {0}뿐. 계획된 스톱이면 좋은 리스크 관리,
 msgid "Hesitated"
 msgstr "망설임"
 
+#: src/components/model-picker.tsx:223
+msgid "Hidden: text-only, speech and embedding models — guessed from their ids."
+msgstr "숨김: 텍스트 전용, 음성, 임베딩 모델 — ID로 추정합니다."
+
 #: src/app/(tabs)/(dashboard)/_layout.tsx:27
 msgid "Hide amounts"
 msgstr "금액 숨기기"
@@ -3702,7 +3722,7 @@ msgstr "봉 간격"
 msgid "Intraday P&L"
 msgstr "장중 손익"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:201
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:212
 msgid "Invalid URL"
 msgstr "잘못된 URL"
 
@@ -3827,11 +3847,11 @@ msgstr "비워 두면 목표가 삭제됩니다."
 msgid "Leave blank to drop this rule."
 msgstr "비워 두면 이 규칙을 해제합니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:217
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:226
 msgid "Leave blank to keep the key already stored on the server."
 msgstr "비워 두면 서버에 저장된 키를 그대로 사용합니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:383
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:344
 msgid "Leave blank to use the built-in prompt"
 msgstr "비워 두면 기본 프롬프트 사용"
 
@@ -3901,7 +3921,7 @@ msgstr "규칙 준수 현황 불러오는 중"
 msgid "Loading drawdown"
 msgstr "드로다운 불러오는 중"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:327
+#: src/components/model-picker.tsx:87
 msgid "Loading models…"
 msgstr "모델 불러오는 중…"
 
@@ -4310,9 +4330,9 @@ msgstr "실수 유형"
 msgid "Mistake: {tag}"
 msgstr "실수: {tag}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:293
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:295
+#: src/components/model-picker.tsx:94
+#: src/components/model-picker.tsx:96
+#: src/components/model-picker.tsx:108
 msgid "Model"
 msgstr "모델"
 
@@ -4680,8 +4700,12 @@ msgid "No mistakes tagged."
 msgstr "태그된 실수가 없습니다."
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:185
-msgid "No models"
-msgstr "모델 없음"
+#~ msgid "No models"
+#~ msgstr "모델 없음"
+
+#: src/components/model-picker.tsx:206
+msgid "No models match."
+msgstr "일치하는 모델이 없습니다."
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:307
 msgid "No notes yet"
@@ -4863,7 +4887,7 @@ msgstr "찾을 수 없음"
 msgid "Not rated"
 msgstr "평가 없음"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:251
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
 #: src/app/(tabs)/(settings)/integrations.tsx:27
 #: src/app/(tabs)/(settings)/integrations.tsx:56
 #: src/app/(tabs)/(settings)/prop-settings.tsx:112
@@ -5630,8 +5654,8 @@ msgstr "이익 목표"
 #~ msgid "Profit target — {0}"
 #~ msgstr "이익 목표 — {0}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:378
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:388
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:339
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:349
 msgid "Prompt"
 msgstr "프롬프트"
 
@@ -6270,7 +6294,7 @@ msgid "Sat"
 msgstr "토"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:262
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6309,7 +6333,7 @@ msgstr "세션 저장"
 msgid "Save trade"
 msgstr "매매 저장"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:249
 msgid "Saved"
 msgstr "저장됨"
 
@@ -6317,7 +6341,7 @@ msgstr "저장됨"
 #~ msgstr "저장됨 — 비워 두면 유지됩니다"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:262
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6420,10 +6444,18 @@ msgstr "이벤트 검색"
 #~ msgid "Search finds any setting directly, without opening its page."
 #~ msgstr "검색하면 해당 페이지를 열지 않고도 설정으로 바로 이동합니다."
 
+#: src/components/model-picker.tsx:120
+msgid "Search models"
+msgstr "모델 검색"
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:219
 #: src/app/(tabs)/(dashboard)/notes.tsx:324
 msgid "Search notes"
 msgstr "노트 검색"
+
+#: src/components/model-picker.tsx:113
+msgid "Search or type a model id"
+msgstr "검색하거나 모델 ID 입력"
 
 #: src/app/(tabs)/(settings)/index.tsx:350
 #: src/app/(tabs)/(settings)/index.tsx:524
@@ -6686,6 +6718,10 @@ msgstr "숏"
 msgid "Short {0}"
 msgstr "숏 {0}"
 
+#: src/components/model-picker.tsx:219
+msgid "Show all models ({hiddenCount} hidden)"
+msgstr "모든 모델 표시 ({hiddenCount}개 숨김)"
+
 #: src/app/(tabs)/(dashboard)/_layout.tsx:27
 #: src/app/share-reports-link.tsx:115
 #: src/app/share-reports-link.tsx:120
@@ -6695,6 +6731,10 @@ msgstr "숏 {0}"
 #: src/app/share-wrapped.tsx:169
 msgid "Show amounts"
 msgstr "금액 표시"
+
+#: src/components/model-picker.tsx:218
+msgid "Show only models that can read images"
+msgstr "이미지를 읽을 수 있는 모델만 표시"
 
 #: src/components/password-input.tsx:40
 msgid "Show password"
@@ -6897,7 +6937,7 @@ msgstr "스톱 프리미엄은 진입 프리미엄보다 낮아야 합니다"
 msgid "Stop when today's realized loss hits this amount."
 msgstr "오늘 실현 손실이 이 금액에 도달하면 중단합니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:218
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:227
 msgid "Stored on your server, never on this phone."
 msgstr "키는 서버에만 저장되며 이 기기에는 남지 않습니다."
 
@@ -7174,11 +7214,11 @@ msgstr "목표 달성"
 msgid "Tempo"
 msgstr "템포"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:368
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:329
 msgid "Test connection"
 msgstr "연결 테스트"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:368
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:329
 msgid "Testing…"
 msgstr "테스트 중…"
 
@@ -7208,7 +7248,7 @@ msgstr "전체 {0}건 중 최근 {MAX_TRADE_ROWS}건입니다."
 msgid "The AI review failed — try again."
 msgstr "AI 리뷰에 실패했습니다 — 다시 시도하세요."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:201
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:212
 msgid "The base URL must start with http:// or https://."
 msgstr "베이스 URL은 http:// 또는 https:// 로 시작해야 합니다."
 
@@ -7225,13 +7265,13 @@ msgstr "종료일은 시작일보다 뒤여야 합니다."
 #~ msgid "The endpoint answered successfully."
 #~ msgstr "엔드포인트가 정상적으로 응답했습니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:161
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:159
 msgid "The endpoint did not answer."
 msgstr "엔드포인트가 응답하지 않았습니다."
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:185
-msgid "The endpoint listed no models."
-msgstr "엔드포인트가 모델을 반환하지 않았습니다."
+#~ msgid "The endpoint listed no models."
+#~ msgstr "엔드포인트가 모델을 반환하지 않았습니다."
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:105
 msgid "The evaluation card disappears from Home."
@@ -7263,8 +7303,8 @@ msgstr "거래일은 시장 시간대가 정합니다. 캘린더 셀, 기간 필
 #~ msgstr "시장 시간대가 거래일을 정의합니다 — 캘린더 날짜와 시간별 통계가 이를 따릅니다. 표시 시간대는 시각 표기에만 사용됩니다."
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:233
-msgid "The model id as the endpoint spells it, e.g. gpt-4o-mini."
-msgstr "엔드포인트가 사용하는 그대로의 모델 ID (예: gpt-4o-mini)."
+#~ msgid "The model id as the endpoint spells it, e.g. gpt-4o-mini."
+#~ msgstr "엔드포인트가 사용하는 그대로의 모델 ID (예: gpt-4o-mini)."
 
 #: src/app/(tabs)/(settings)/change-password.tsx:86
 #: src/app/(tabs)/(settings)/reset-password.tsx:71
@@ -7294,7 +7334,7 @@ msgstr "해당 연도에 청산된 거래가 있으면 리캡이 표시됩니다
 msgid "The replay starts a few bars in for context, then reveals one bar at a time. Orders fill at the bar's close."
 msgstr "리플레이는 맥락을 위해 몇 봉 뒤에서 시작하고, 이후 한 봉씩 공개됩니다. 주문은 해당 봉의 종가로 체결됩니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:193
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:204
 msgid "The root of an OpenAI-compatible API, ending in /v1."
 msgstr "OpenAI 호환 API의 루트 주소이며 /v1 로 끝납니다."
 
@@ -7373,6 +7413,10 @@ msgstr "이 작업은 되돌릴 수 없습니다."
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:751
 msgid "This development build predates the Reminders module — run make rebuild-ios."
 msgstr "이 개발 빌드에는 미리 알림 모듈이 없습니다. make rebuild-ios를 실행하세요."
+
+#: src/components/model-picker.tsx:205
+msgid "This endpoint listed no models. Type an id above."
+msgstr "이 엔드포인트에 모델이 없습니다. 위에 ID를 입력하세요."
 
 #: src/lib/trade-insights.ts:283
 msgid "This is more than a normal stop-out. Check for oversizing, moving the stop, or averaging down against your rules."
@@ -7749,8 +7793,8 @@ msgid "Type"
 msgstr "유형"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:333
-msgid "Type a model id…"
-msgstr "모델 ID 입력…"
+#~ msgid "Type a model id…"
+#~ msgstr "모델 ID 입력…"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:263
 msgid "Type broker name"
@@ -7815,6 +7859,10 @@ msgstr "저장 시 이 종목의 거래에 업로드됩니다. 썸네일을 탭�
 
 #~ msgid "Use \"- [ ]\" for each rule — those lines appear as task items when you create a daily log on New Note."
 #~ msgstr "각 규칙에 \"- [ ]\"를 사용하세요 — 새 노트에서 데일리 로그를 만들면 작업 항목으로 표시됩니다."
+
+#: src/components/model-picker.tsx:187
+msgid "Use “{trimmed}”"
+msgstr "“{trimmed}” 사용"
 
 #: src/app/(tabs)/(settings)/change-password.tsx:76
 #: src/app/(tabs)/(settings)/reset-password.tsx:67
