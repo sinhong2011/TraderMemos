@@ -26,9 +26,13 @@ struct TodaySnapshot: Codable {
   let maxRiskPerTrade: Double?
   /// Privacy mode masks money, never the counts.
   let privacyMode: Bool
+  /// Epoch ms when the open cooldown's timer ends; nil when none is open.
+  /// The lock outlives the timer (the return gate has to be answered), so
+  /// a past instant still means "locked".
+  let cooldownEndsAt: Double?
 
   static let appGroup = "group.com.tradermemos.app"
-  static let key = "todaySnapshot.v1"
+  static let key = "todaySnapshot.v2"
 
   static func load() -> TodaySnapshot? {
     guard
@@ -53,6 +57,19 @@ struct TodayState {
   let privacyMode: Bool
   let dailyLossLimit: Double?
   let maxRiskPerTrade: Double?
+  /// When the open cooldown's timer ends; nil when the trader is not locked.
+  var cooldownEndsAt: Date? = nil
+
+  /// "Cooling down" while the timer runs, "Cooldown over" once it has ended
+  /// with the gate unanswered, nil when no cooldown is open.
+  func cooldownLine(at date: Date) -> String? {
+    guard let endsAt = cooldownEndsAt else { return nil }
+    if date >= endsAt { return String(localized: "Cooldown over — answer the gate") }
+    let formatter = DateFormatter()
+    formatter.timeStyle = .short
+    formatter.dateStyle = .none
+    return String(localized: "Cooling down until \(formatter.string(from: endsAt))")
+  }
 
   /// Loss spent against the budget today (0 when green).
   var lossSpent: Double { pnl < 0 ? -pnl : 0 }
@@ -86,7 +103,8 @@ struct TodayState {
       currency: snapshot.currency,
       privacyMode: snapshot.privacyMode,
       dailyLossLimit: snapshot.dailyLossLimit,
-      maxRiskPerTrade: snapshot.maxRiskPerTrade
+      maxRiskPerTrade: snapshot.maxRiskPerTrade,
+      cooldownEndsAt: snapshot.cooldownEndsAt.map { Date(timeIntervalSince1970: $0 / 1000) }
     )
   }
 

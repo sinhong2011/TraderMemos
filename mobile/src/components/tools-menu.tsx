@@ -7,6 +7,7 @@ import { useCSSVariable } from 'uniwind';
 import { t } from '@lingui/core/macro';
 import { Icon } from '@/components/icon';
 import { Menu } from '@/components/sheet-menu';
+import { useCooldownEnabled } from '@/lib/cooldown';
 import { useTradingSession } from '@/lib/live-activity';
 
 /**
@@ -33,6 +34,8 @@ export function ToolsMenu() {
   // Lives here because this menu is where the day starts, same reasoning as
   // the daily checklist below.
   const tradingSession = useTradingSession();
+  // Cooldown mode is opt-in; until it is on, the menu says nothing about it.
+  const cooldownOn = useCooldownEnabled();
 
   const tools: { label: string; systemImage: SFSymbol; href: Href }[] = [
     // Promoted out of the tab bar (2026-08-09) when the search tab took the
@@ -61,6 +64,11 @@ export function ToolsMenu() {
   ];
 
   const journal: { label: string; systemImage: SFSymbol; href: Href }[] = [
+    // The circuit breaker sits first: it is the one thing here you reach for
+    // in a hurry, and the menu is one tap from any Home scroll position.
+    ...(cooldownOn
+      ? [{ label: t`Cooldown`, systemImage: 'wind' as SFSymbol, href: '/cooldown' as Href }]
+      : []),
     { label: t`Notes`, systemImage: 'note.text', href: '/(tabs)/(dashboard)/notes' },
     { label: t`Playbook`, systemImage: 'bookmark', href: '/(tabs)/(dashboard)/playbook' },
     // The routine is a start-of-day thing and this menu is where the day

@@ -68,6 +68,7 @@ type webhookPayload struct {
 	FiredAt string `json:"fired_at"`
 	Content string `json:"content"`
 	Text    string `json:"text"`
+	URL     string `json:"url,omitempty"`
 }
 
 func (s *Service) sendWebhook(ctx context.Context, url string, ev Event, at time.Time) error {
@@ -80,6 +81,7 @@ func (s *Service) sendWebhook(ctx context.Context, url string, ev Event, at time
 		FiredAt: at.UTC().Format(time.RFC3339),
 		Content: line,
 		Text:    line,
+		URL:     ev.URL,
 	})
 	if err != nil {
 		return err
@@ -102,11 +104,14 @@ func (s *Service) sendWebhook(ctx context.Context, url string, ev Event, at time
 	return nil
 }
 
+// expoMessage is one Expo push. Data rides along untouched and is what the
+// app reads when the notification is tapped (`url` = in-app deep link).
 type expoMessage struct {
-	To    string `json:"to"`
-	Title string `json:"title"`
-	Body  string `json:"body"`
-	Sound string `json:"sound"`
+	To    string            `json:"to"`
+	Title string            `json:"title"`
+	Body  string            `json:"body"`
+	Sound string            `json:"sound"`
+	Data  map[string]string `json:"data,omitempty"`
 }
 
 type expoTicket struct {
@@ -124,6 +129,9 @@ func (s *Service) sendExpo(ctx context.Context, tokens []string, ev Event) ([]er
 	msgs := make([]expoMessage, len(tokens))
 	for i, to := range tokens {
 		msgs[i] = expoMessage{To: to, Title: ev.Title, Body: ev.Body, Sound: "default"}
+		if ev.URL != "" {
+			msgs[i].Data = map[string]string{"url": ev.URL, "rule": ev.Rule}
+		}
 	}
 	b, err := json.Marshal(msgs)
 	if err != nil {

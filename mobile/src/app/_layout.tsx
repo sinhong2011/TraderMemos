@@ -18,12 +18,15 @@ import { ApiError, UnauthorizedError } from '@/api/client';
 import { useSession } from '@/api/session';
 import { SessionProvider } from '@/api/session-provider';
 import { AppErrorBoundary } from '@/components/error-boundary';
+import { CooldownBanner } from '@/components/cooldown-banner';
 import { OfflineBanner } from '@/components/error-state';
 import { i18n } from '@/i18n';
 import { t } from '@lingui/core/macro';
 import { useConnectivityStore } from '@/lib/connectivity';
 import { useResolvedScheme } from '@/lib/prefs';
+import { useCooldownLiveActivitySync } from '@/lib/cooldown-live-activity';
 import { useTradingSessionSync } from '@/lib/live-activity';
+import { useNotificationRouting } from '@/lib/notifications';
 import { usePrefsSync } from '@/lib/use-prefs-sync';
 import { useWidgetRoutineSync } from '@/lib/widget-routine';
 import { useWidgetSnapshotSync } from '@/lib/widget-snapshot';
@@ -120,6 +123,18 @@ function WidgetSnapshotGate() {
  */
 function LiveActivityGate() {
   useTradingSessionSync();
+  return null;
+}
+
+/** The open cooldown's countdown on the Lock Screen (lib/cooldown-live-activity.ts). */
+function CooldownLiveActivityGate() {
+  useCooldownLiveActivitySync();
+  return null;
+}
+
+/** Push taps carrying an in-app URL route here (lib/notifications.ts). */
+function NotificationGate() {
+  useNotificationRouting();
   return null;
 }
 
@@ -254,6 +269,8 @@ export default function RootLayout() {
           <PrefsSyncGate />
           <WidgetSnapshotGate />
           <LiveActivityGate />
+          <CooldownLiveActivityGate />
+          <NotificationGate />
           <OutboxGate />
           <ReachabilityGate />
           <AppErrorBoundary>
@@ -288,6 +305,11 @@ export default function RootLayout() {
                 above: the ScrollView drew "Review notes" straight over the
                 Cancel/Save chrome, leaving no way to save the entry. */}
             <Stack.Screen name="quick-journal" options={{ presentation: 'modal' }} />
+            {/* The cooldown is an interruption by design, so it rides as a
+                modal over whatever the trader was doing; closing it keeps the
+                lock (the banner and the trade gate carry it), so the sheet
+                itself needs no guard against dismissal. */}
+            <Stack.Screen name="cooldown" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="edit-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
@@ -377,6 +399,7 @@ export default function RootLayout() {
           </Stack>
           {/* Above the navigator, so it stays put across pushes and sheets. */}
           <OfflineBanner />
+          <CooldownBanner />
           </View>
           </AppErrorBoundary>
         </ThemeProvider>

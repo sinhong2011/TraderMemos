@@ -38,6 +38,8 @@ const SWIFT_FILES = [
   'RoutineControls.swift',
   'TradingSessionAttributes.swift',
   'TradingSessionLiveActivity.swift',
+  'CooldownAttributes.swift',
+  'CooldownLiveActivity.swift',
   'WidgetsBundle.swift',
 ];
 // The ActivityKit attributes are canonical in the live-activity module (the
@@ -47,6 +49,7 @@ const SWIFT_FILES = [
 // with the app target's Siri intents (with-app-intents copies them too).
 const SHARED_FROM_MODULES = {
   'TradingSessionAttributes.swift': ['modules', 'live-activity', 'ios'],
+  'CooldownAttributes.swift': ['modules', 'live-activity', 'ios'],
   'TMShared.swift': ['targets', 'shared'],
   'RoutineIntents.swift': ['targets', 'shared'],
 };
