@@ -186,3 +186,23 @@ func TestEvaluateCombined(t *testing.T) {
 		}
 	}
 }
+
+func TestSteppingBackAlertsSuggestCooldown(t *testing.T) {
+	cfg := Config{LossStreakEnabled: true, LossStreakN: 2, DailyLossEnabled: true, MaxDailyLoss: 10}
+	trades := []Trade{{ID: "a", NetPnl: -20, ClosedAt: at(10)}, {ID: "b", NetPnl: -5, ClosedAt: at(11)}}
+	evs := Evaluate(cfg, trades, now, nyc)
+	if len(evs) != 2 {
+		t.Fatalf("want daily loss + loss streak, got %v", rulesOf(evs))
+	}
+	for _, ev := range evs {
+		if !strings.HasPrefix(ev.URL, CooldownURL) || !strings.Contains(ev.Body, "cooldown") {
+			t.Errorf("%s should suggest a cooldown: url=%q body=%q", ev.Rule, ev.URL, ev.Body)
+		}
+	}
+	cfg.AutoCooldown = true
+	for _, ev := range Evaluate(cfg, trades, now, nyc) {
+		if ev.URL != "" || strings.Contains(ev.Body, "cooldown") {
+			t.Errorf("%s must not suggest a cooldown when auto cooldown is on: url=%q body=%q", ev.Rule, ev.URL, ev.Body)
+		}
+	}
+}

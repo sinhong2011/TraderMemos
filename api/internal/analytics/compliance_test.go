@@ -138,3 +138,50 @@ func TestComplianceTimezoneDayKey(t *testing.T) {
 		t.Fatal("running -160 should breach the 100 limit")
 	}
 }
+
+func TestComplianceReturnCommitments(t *testing.T) {
+	rel := time.Date(2026, 7, 1, 11, 0, 0, 0, time.UTC)
+	rules := ComplianceRules{
+		MaxRiskPerTrade: 100,
+		Commitments: []ReturnCommitment{
+			{At: rel, Rule: "one_trade"},
+			{At: rel.AddDate(0, 0, 1), Rule: "done_for_day"},
+		},
+	}
+	open := func(day, hour int, pnl, risk float64) ComplianceTrade {
+		c := ct(day, hour, pnl, risk)
+		c.OpenedAt = c.ClosedAt.Add(-15 * time.Minute)
+		return c
+	}
+	trades := []ComplianceTrade{
+		open(1, 10, 20, 50),  // before the release: not held to it
+		open(1, 12, 30, 50),  // the one trade allowed
+		open(1, 13, -10, 50), // second trade → breach
+		open(2, 9, 5, 50),    // day 2 before its release
+		open(2, 14, 5, 50),   // day 2 after done_for_day → breach
+		open(3, 10, 5, 50),   // no commitment on day 3
+	}
+	rep := Compliance(trades, rules, time.UTC)
+	if rep.ReturnRuleBreaches != 2 {
+		t.Fatalf("return rule breaches = %d, want 2", rep.ReturnRuleBreaches)
+	}
+	if len(rep.Days) != 3 || !rep.Days[0].ReturnRuleBreach || !rep.Days[1].ReturnRuleBreach || rep.Days[2].ReturnRuleBreach {
+		t.Fatalf("day flags wrong: %+v", rep.Days)
+	}
+	if rep.CompliantDays != 1 || rep.BreachDays != 2 {
+		t.Fatalf("compliant=%d breach=%d, want 1/2", rep.CompliantDays, rep.BreachDays)
+	}
+
+	// half_size scores against MaxRiskPerTrade/2; unknown risk passes.
+	rules = ComplianceRules{MaxRiskPerTrade: 100, Commitments: []ReturnCommitment{{At: rel, Rule: "half_size"}}}
+	trades = []ComplianceTrade{open(1, 12, 5, 40), open(1, 13, 5, 60), open(1, 14, 5, 0)}
+	rep = Compliance(trades, rules, time.UTC)
+	if rep.ReturnRuleBreaches != 1 {
+		t.Fatalf("half_size breaches = %d, want 1", rep.ReturnRuleBreaches)
+	}
+	// Commitments alone make the report configured.
+	rep = Compliance(trades, ComplianceRules{Commitments: rules.Commitments}, time.UTC)
+	if !rep.RulesConfigured || rep.ReturnRuleBreaches != 0 {
+		t.Fatalf("commitment-only report: configured=%v breaches=%d", rep.RulesConfigured, rep.ReturnRuleBreaches)
+	}
+}

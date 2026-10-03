@@ -125,6 +125,11 @@ msgstr "MAE/MFE가 기록되지 않은 손실 거래 {0}건은 확인할 수 없
 msgid "{0} losses in a row"
 msgstr "{0}연속 손실"
 
+#. placeholder {0}: value.toLocaleString('en-US', { maximumFractionDigits: 0 })
+#: src/lib/risk-rules.ts:134
+msgid "{0} min"
+msgstr "{0}분"
+
 #. placeholder {0}: formatPercent(s.target_pct ?? 0, 0)
 #. placeholder {0}: wrapped.greenDays
 #. placeholder {1}: formatCurrency(fx(s.profit_target), currency)
@@ -182,6 +187,11 @@ msgstr "+1R당 {0}"
 #: src/app/(tabs)/(dashboard)/missed-trades.tsx:152
 msgid "{0} per miss"
 msgstr "건당 {0}"
+
+#. placeholder {0}: formatCountdown(remaining)
+#: src/app/cooldown.tsx:351
+msgid "{0} remaining"
+msgstr "{0} 남음"
 
 #. placeholder {0}: sim.paths
 #. placeholder {1}: sim.trades
@@ -343,6 +353,10 @@ msgstr "{label} — {0} · 거래 {1}건"
 msgid "{label} — no trades"
 msgstr "{label} — 거래 없음"
 
+#: src/app/cooldown.tsx:210
+msgid "{m} min"
+msgstr "{m}분"
+
 #: src/components/trade-scan-overlay.tsx:328
 msgid "{parsedCount} files scanned"
 msgstr "파일 {parsedCount}개 스캔 완료"
@@ -460,6 +474,10 @@ msgstr "외 {0}개"
 #: src/app/(tabs)/(settings)/import-trades.tsx:407
 msgid "+{0} more trades in this file."
 msgstr "이 파일에 매매 {0}건이 더 있습니다."
+
+#: src/app/cooldown.tsx:362
+msgid "+{EXTEND_MINUTES} min"
+msgstr "+{EXTEND_MINUTES}분"
 
 #: src/components/trade-summary.tsx:175
 msgid "+{hidden} more fills"
@@ -632,6 +650,10 @@ msgstr "카드 모서리에 작은 워드마크를 표시합니다."
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "종목을 넣으면 이 플레이는 해당 종목에만 묶입니다. 어디서나 쓰는 패턴이면 ‘지정 없음’으로 두세요."
 
+#: src/app/(tabs)/(settings)/risk-rules.tsx:215
+msgid "A timed pause that locks trade entry until you answer a short return gate. Off by default."
+msgstr "거래 입력을 잠그는 시간제 휴식. 짧은 복귀 게이트에 답해야 풀립니다. 기본값은 꺼짐."
+
 #: src/app/(tabs)/(settings)/_layout.tsx:132
 msgid "About"
 msgstr "정보"
@@ -707,8 +729,8 @@ msgstr "계좌"
 msgid "accounts people members owner admin invite add remove password reset"
 msgstr "계정 사용자 멤버 소유자 관리자 초대 추가 삭제 비밀번호 재설정"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:209
-#: src/app/(tabs)/(settings)/risk-rules.tsx:228
+#: src/app/(tabs)/(settings)/risk-rules.tsx:229
+#: src/app/(tabs)/(settings)/risk-rules.tsx:248
 msgid "Active limits"
 msgstr "활성 한도"
 
@@ -740,9 +762,9 @@ msgstr "추가"
 msgid "Add a check"
 msgstr "체크 추가"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:199
-#: src/app/(tabs)/(settings)/risk-rules.tsx:241
-#: src/app/(tabs)/(settings)/risk-rules.tsx:263
+#: src/app/(tabs)/(settings)/risk-rules.tsx:201
+#: src/app/(tabs)/(settings)/risk-rules.tsx:261
+#: src/app/(tabs)/(settings)/risk-rules.tsx:283
 msgid "Add a limit"
 msgstr "한도 추가"
 
@@ -759,7 +781,7 @@ msgstr "먼저 계좌를 추가하세요."
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "설정 → AI에서 엔드포인트를 추가하면 모델이 작성한 리뷰를 받을 수 있습니다."
 
-#: src/app/new-trade.tsx:61
+#: src/app/new-trade.tsx:62
 msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again."
 msgstr "설정 → AI에서 OpenAI 호환 비전 엔드포인트와 API 키를 추가한 뒤 단축어를 다시 실행하세요."
 
@@ -775,7 +797,7 @@ msgstr "하나 더 추가"
 msgid "Add another account before deleting this one."
 msgstr "이 계좌를 삭제하기 전에 다른 계좌를 추가하세요."
 
-#: src/app/new-trade.tsx:118
+#: src/app/new-trade.tsx:125
 msgid "Add at least one fill with quantity and price for {label}."
 msgstr "{label}에 수량과 가격이 있는 체결을 1개 이상 추가하세요."
 
@@ -845,6 +867,7 @@ msgid "Add user"
 msgstr "사용자 추가"
 
 #: src/app/(tabs)/(settings)/user-form.tsx:89
+#: src/app/cooldown.tsx:362
 msgid "Adding…"
 msgstr "추가 중…"
 
@@ -1014,6 +1037,10 @@ msgstr "연간 목표 수익"
 msgid "Annualized"
 msgstr "연환산"
 
+#: src/components/cooldown-card.tsx:41
+msgid "Answer the return gate"
+msgstr "복귀 게이트에 답하기"
+
 #: src/app/new-setup.tsx:217
 msgid "Any"
 msgstr "지정 없음"
@@ -1025,6 +1052,10 @@ msgstr "모든 보유 기간"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:282
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "OpenAI 호환 엔드포인트면 무엇이든 사용할 수 있습니다. 테스트는 저장 여부와 관계없이 위 값을 사용합니다."
+
+#: src/app/cooldown.tsx:431
+msgid "Any setup"
+msgstr "모든 셋업"
 
 #: src/app/share-reports-link.tsx:110
 msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
@@ -1120,6 +1151,10 @@ msgstr "인증 코드"
 #: src/components/symbol-journal.tsx:315
 msgid "Auto"
 msgstr "자동"
+
+#: src/lib/risk-rules.ts:76
+msgid "Auto cooldown"
+msgstr "자동 쿨다운"
 
 #: src/app/(tabs)/(settings)/connect-broker.tsx:75
 msgid "Auto-sync"
@@ -1238,7 +1273,7 @@ msgid "Back to trades"
 msgstr "거래 목록으로"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:115
-#: src/components/tools-menu.tsx:54
+#: src/components/tools-menu.tsx:57
 msgid "Backtest"
 msgstr "백테스트"
 
@@ -1295,6 +1330,10 @@ msgstr "본전"
 #: src/lib/routines.ts:11
 msgid "Before trading"
 msgstr "거래 전"
+
+#: src/app/cooldown.tsx:436
+msgid "Before you go back"
+msgstr "돌아가기 전에"
 
 #: src/app/(tabs)/(dashboard)/reports.tsx:87
 msgid "Behavior"
@@ -1370,6 +1409,10 @@ msgstr "최대 수익"
 msgid "blended {0}"
 msgstr "합산 {0}"
 
+#: src/lib/cooldown.ts:35
+msgid "Boredom"
+msgstr "지루함"
+
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:590
 msgid "Bottom"
 msgstr "하단"
@@ -1393,6 +1436,14 @@ msgstr "본전"
 #: src/app/new-setup.tsx:189
 msgid "Breakout pullback"
 msgstr "브레이크아웃 풀백"
+
+#: src/app/cooldown.tsx:294
+msgid "Breathe in"
+msgstr "들이쉬기"
+
+#: src/app/cooldown.tsx:294
+msgid "Breathe out"
+msgstr "내쉬기"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:249
 #: src/app/(tabs)/(settings)/account-form.tsx:251
@@ -1507,11 +1558,11 @@ msgstr "취소"
 msgid "Canonical backup — trades, fills, journal, cash, and playbook setups. Re-importable."
 msgstr "정식 백업 — 매매, 체결, 일지, 현금, 플레이북 셋업 포함. 다시 가져올 수 있습니다."
 
-#: src/lib/risk-rules.ts:52
+#: src/lib/risk-rules.ts:53
 msgid "Cap how many trades close in a single day."
 msgstr "하루에 청산하는 거래 수의 상한입니다."
 
-#: src/lib/risk-rules.ts:28
+#: src/lib/risk-rules.ts:29
 msgid "Cap planned risk on a single trade."
 msgstr "단일 거래의 계획 리스크에 상한을 둡니다."
 
@@ -1607,7 +1658,7 @@ msgstr "차트"
 msgid "Check news events"
 msgstr "주요 뉴스 일정 확인"
 
-#: src/app/new-trade.tsx:70
+#: src/app/new-trade.tsx:71
 msgid "Check the fills"
 msgstr "체결 내용 확인"
 
@@ -1688,6 +1739,7 @@ msgstr "지우는 중…"
 msgid "Clock"
 msgstr "시계"
 
+#: src/app/cooldown.tsx:152
 #: src/app/new-token.tsx:80
 #: src/app/replay.tsx:1059
 #: src/app/share-reports-link.tsx:106
@@ -1813,7 +1865,7 @@ msgstr "확인 중…"
 #: src/app/(tabs)/(settings)/account-form.tsx:364
 #: src/app/(tabs)/(settings)/index.tsx:217
 #: src/app/(tabs)/(settings)/index.tsx:451
-#: src/components/tools-menu.tsx:60
+#: src/components/tools-menu.tsx:63
 msgid "Connect a broker"
 msgstr "브로커 연결"
 
@@ -1896,6 +1948,33 @@ msgstr "계약 수"
 
 #~ msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 #~ msgstr "표시용 금액을 최신 환율로 환산합니다. 입력 양식은 계좌 통화를 유지합니다."
+
+#: src/app/cooldown.tsx:78
+#: src/app/cooldown.tsx:96
+#: src/app/cooldown.tsx:103
+#: src/app/cooldown.tsx:187
+#: src/components/cooldown-card.tsx:29
+#: src/components/tools-menu.tsx:70
+msgid "Cooldown"
+msgstr "쿨다운"
+
+#: src/app/(tabs)/(settings)/risk-rules.tsx:214
+#: src/app/(tabs)/(settings)/risk-rules.tsx:219
+msgid "Cooldown mode"
+msgstr "쿨다운 모드"
+
+#: src/app/cooldown.tsx:81
+msgid "Cooldown mode is off"
+msgstr "쿨다운 모드가 꺼져 있습니다"
+
+#: src/components/cooldown-banner.tsx:44
+msgid "Cooldown over — answer the gate"
+msgstr "쿨다운 종료 — 게이트에 답하기"
+
+#: src/app/cooldown.tsx:346
+#: src/components/cooldown-banner.tsx:44
+msgid "Cooling down"
+msgstr "쿨다운 중"
 
 #: src/app/new-token.tsx:98
 msgid "Copied"
@@ -1983,11 +2062,15 @@ msgstr "활성화할 수 없습니다"
 msgid "Could not export config"
 msgstr "설정을 내보내지 못했습니다"
 
+#: src/app/cooldown.tsx:369
+msgid "Could not extend"
+msgstr "연장할 수 없음"
+
 #: src/app/tool-fx.tsx:44
 msgid "Could not fetch the rate — is market data configured?"
 msgstr "환율을 가져올 수 없습니다 — 시장 데이터가 설정되어 있나요?"
 
-#: src/app/new-trade.tsx:73
+#: src/app/new-trade.tsx:74
 msgid "Could not import"
 msgstr "가져오지 못했습니다"
 
@@ -2009,7 +2092,7 @@ msgstr "모델을 불러오지 못했습니다"
 #~ msgid "Could not load your account."
 #~ msgstr "계정 정보를 불러올 수 없습니다."
 
-#: src/app/_layout.tsx:78
+#: src/app/_layout.tsx:79
 msgid "Could not open file"
 msgstr "파일을 열지 못했습니다"
 
@@ -2070,7 +2153,7 @@ msgstr "롤백하지 못했습니다"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:74
 #: src/app/(tabs)/(settings)/prop-settings.tsx:96
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:66
-#: src/app/(tabs)/(settings)/risk-rules.tsx:168
+#: src/app/(tabs)/(settings)/risk-rules.tsx:169
 #: src/app/(tabs)/(settings)/trading-journal.tsx:47
 #: src/app/(tabs)/(settings)/trading-journal.tsx:59
 #: src/app/(tabs)/(settings)/trading-journal.tsx:84
@@ -2111,6 +2194,10 @@ msgstr "샘플을 저장할 수 없습니다"
 msgid "Could not share"
 msgstr "공유할 수 없습니다"
 
+#: src/app/cooldown.tsx:181
+msgid "Could not start"
+msgstr "시작할 수 없음"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:49
 msgid "Could not start setup"
 msgstr "설정을 시작할 수 없습니다"
@@ -2118,6 +2205,10 @@ msgstr "설정을 시작할 수 없습니다"
 #: src/app/(tabs)/(settings)/two-factor.tsx:89
 msgid "Could not turn off"
 msgstr "끌 수 없습니다"
+
+#: src/app/cooldown.tsx:425
+msgid "Could not unlock"
+msgstr "잠금 해제할 수 없음"
 
 #: src/app/(tabs)/(settings)/alerts.tsx:72
 msgid "Could not unregister"
@@ -2208,7 +2299,7 @@ msgid "Currency"
 msgstr "통화"
 
 #: src/app/tool-fx.tsx:53
-#: src/components/tools-menu.tsx:43
+#: src/components/tools-menu.tsx:46
 msgid "Currency converter"
 msgstr "환율 변환기"
 
@@ -2274,6 +2365,10 @@ msgstr "일일 로그"
 msgid "daily loss"
 msgstr "일일 손실"
 
+#: src/lib/cooldown.ts:90
+msgid "Daily loss"
+msgstr "일일 손실"
+
 #. placeholder {0}: s.daily_loss_hits
 #: src/components/prop-status-card.tsx:216
 msgid "daily loss ×{0}"
@@ -2301,7 +2396,7 @@ msgstr "일일 손실 한도"
 #: src/app/(tabs)/(settings)/_layout.tsx:84
 #: src/app/(tabs)/(settings)/index.tsx:247
 #: src/app/(tabs)/(settings)/trading-journal.tsx:123
-#: src/components/tools-menu.tsx:70
+#: src/components/tools-menu.tsx:78
 msgid "Daily routine"
 msgstr "일일 루틴"
 
@@ -2375,7 +2470,7 @@ msgstr "요일"
 msgid "Default"
 msgstr "기본값"
 
-#: src/lib/risk-rules.ts:67
+#: src/lib/risk-rules.ts:68
 msgid "Default account risk %"
 msgstr "기본 계좌 리스크 %"
 
@@ -2578,9 +2673,14 @@ msgstr "금액"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:235
 #: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
+#: src/components/cooldown-card.tsx:38
 #: src/components/time-picker.tsx:100
 msgid "Done"
 msgstr "완료"
+
+#: src/lib/cooldown.ts:58
+msgid "Done for today"
+msgstr "오늘은 그만"
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:127
 msgid "Download & share"
@@ -2675,7 +2775,7 @@ msgstr "그 이전 기간은 \"이전\"으로 합산됩니다."
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:118
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:767
-#: src/components/tools-menu.tsx:56
+#: src/components/tools-menu.tsx:59
 msgid "Economic calendar"
 msgstr "경제 캘린더"
 
@@ -2688,7 +2788,7 @@ msgid "Edge score"
 msgstr "엣지 점수"
 
 #: src/app/(tabs)/(settings)/funding.tsx:54
-#: src/app/(tabs)/(settings)/risk-rules.tsx:108
+#: src/app/(tabs)/(settings)/risk-rules.tsx:109
 #: src/app/(tabs)/(settings)/tags.tsx:31
 #: src/components/checklist-card.tsx:38
 #: src/components/swipeable-trade-row.tsx:81
@@ -2757,7 +2857,7 @@ msgstr "사용"
 msgid "End date"
 msgstr "종료일"
 
-#: src/components/tools-menu.tsx:103
+#: src/components/tools-menu.tsx:111
 msgid "End Lock Screen session"
 msgstr "잠금 화면 세션 종료"
 
@@ -2776,7 +2876,7 @@ msgstr "1에서 100 사이의 퍼센트를 입력하세요."
 #~ msgid "Enter a setup name."
 #~ msgstr "셋업 이름을 입력하세요."
 
-#: src/app/new-trade.tsx:114
+#: src/app/new-trade.tsx:121
 msgid "Enter a symbol for {label}."
 msgstr "{label}의 종목을 입력하세요."
 
@@ -2796,7 +2896,7 @@ msgstr "사용자 이름을 입력하세요"
 msgid "Enter a valid amount."
 msgstr "유효한 금액을 입력하세요."
 
-#: src/lib/risk-rules.ts:122
+#: src/lib/risk-rules.ts:145
 msgid "Enter a valid number."
 msgstr "유효한 숫자를 입력하세요."
 
@@ -2814,7 +2914,7 @@ msgstr "올바른 시작 잔액을 입력하거나 비워 두세요."
 msgid "Enter a valid starting balance."
 msgstr "유효한 시작 잔고를 입력하세요."
 
-#: src/lib/risk-rules.ts:120
+#: src/lib/risk-rules.ts:143
 msgid "Enter a value."
 msgstr "값을 입력하세요."
 
@@ -2822,7 +2922,11 @@ msgstr "값을 입력하세요."
 msgid "Enter a web address like https://tm.example.com."
 msgstr "https://tm.example.com 형식의 주소를 입력하세요."
 
-#: src/lib/risk-rules.ts:125
+#: src/lib/risk-rules.ts:151
+msgid "Enter a whole number of minutes."
+msgstr "분을 정수로 입력하세요."
+
+#: src/lib/risk-rules.ts:148
 msgid "Enter a whole number of trades."
 msgstr "거래 수는 정수로 입력하세요."
 
@@ -2917,7 +3021,7 @@ msgstr "종가 트레일링 — 일마감 기준 상향"
 msgid "Equity"
 msgstr "자산"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:154
+#: src/app/(tabs)/(dashboard)/index.tsx:155
 #: src/components/equity-card.tsx:79
 #: src/components/equity-card.tsx:96
 msgid "Equity curve"
@@ -3128,6 +3232,10 @@ msgstr "분석을 불러오지 못했습니다."
 msgid "Fair value gap"
 msgstr "페어 밸류 갭"
 
+#: src/lib/cooldown.ts:36
+msgid "Fear"
+msgstr "두려움"
+
 #: src/lib/cash.ts:13
 msgid "Fee"
 msgstr "수수료"
@@ -3253,6 +3361,10 @@ msgstr "하한 도달"
 #~ msgid "Follows the iOS appearance, including the automatic day/night schedule."
 #~ msgstr "iOS 화면 모드를 따릅니다(주간/야간 자동 전환 포함)."
 
+#: src/lib/cooldown.ts:34
+msgid "FOMO"
+msgstr "FOMO"
+
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:395
 msgid "Forecast"
 msgstr "예상"
@@ -3346,7 +3458,7 @@ msgstr "풀 켈리"
 msgid "Full marks: {0}"
 msgstr "만점: {0}"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:266
+#: src/app/(tabs)/(dashboard)/index.tsx:271
 msgid "Full reports"
 msgstr "전체 리포트"
 
@@ -3459,6 +3571,10 @@ msgstr "보장 하한"
 msgid "Half Kelly"
 msgstr "하프 켈리"
 
+#: src/lib/cooldown.ts:48
+msgid "Half size"
+msgstr "절반 사이즈"
+
 #: src/app/(tabs)/(settings)/user-form.tsx:114
 msgid "Hand the password over out of band — they can change it from their own account screen."
 msgstr "비밀번호는 다른 경로로 전달하세요. 본인이 계정 화면에서 변경할 수 있습니다."
@@ -3515,6 +3631,10 @@ msgstr "손절 도달"
 msgid "Hit target"
 msgstr "목표 도달"
 
+#: src/app/cooldown.tsx:294
+msgid "Hold"
+msgstr "멈추기"
+
 #: src/components/reports/behavior-section.tsx:278
 msgid "Hold ratio"
 msgstr "보유 시간 비율"
@@ -3556,9 +3676,17 @@ msgstr "결과"
 msgid "How little heat entries take relative to the move they find (MAE vs MFE)."
 msgstr "진입이 포착한 움직임 대비 얼마나 적은 손실 압박을 받았는지(MAE 대 MFE)."
 
+#: src/app/cooldown.tsx:208
+msgid "How long?"
+msgstr "얼마나?"
+
 #: src/app/login.tsx:197
 msgid "How to set one up"
 msgstr "서버 구축 방법"
+
+#: src/app/cooldown.tsx:380
+msgid "I need to trade now"
+msgstr "지금 거래해야 해요"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:101
 #: src/app/(tabs)/(settings)/account-form.tsx:344
@@ -3725,7 +3853,7 @@ msgstr "항목"
 #: src/app/(tabs)/(trades)/[id].tsx:746
 #: src/app/(tabs)/(trades)/[id].tsx:788
 #: src/components/swipeable-trade-row.tsx:72
-#: src/components/tools-menu.tsx:116
+#: src/components/tools-menu.tsx:124
 #: src/components/trade-form.tsx:485
 msgid "Journal"
 msgstr "저널"
@@ -3760,7 +3888,7 @@ msgid "Kelly (half)"
 msgstr "켈리 (절반)"
 
 #: src/app/tool-kelly.tsx:32
-#: src/components/tools-menu.tsx:42
+#: src/components/tools-menu.tsx:45
 msgid "Kelly criterion"
 msgstr "켈리 기준"
 
@@ -3860,7 +3988,7 @@ msgstr "한도 {0}"
 msgid "Limit hit — the edge is gone for today. Close the app."
 msgstr "한도 도달 — 오늘의 우위는 사라졌습니다. 앱을 닫으세요."
 
-#: src/lib/risk-rules.ts:44
+#: src/lib/risk-rules.ts:45
 msgid "Limit total risk across open positions."
 msgstr "오픈 포지션 전체의 총 리스크를 제한합니다."
 
@@ -3929,7 +4057,7 @@ msgstr "거래 목록 불러오는 중"
 msgid "Loading win/loss report"
 msgstr "승패 리포트 불러오는 중"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:96
+#: src/app/(tabs)/(dashboard)/index.tsx:97
 msgid "Loading your dashboard"
 msgstr "대시보드 불러오는 중"
 
@@ -3950,7 +4078,7 @@ msgstr "리캡 불러오는 중"
 #: src/app/(tabs)/(settings)/ai.tsx:71
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:84
 #: src/app/(tabs)/(settings)/profile.tsx:36
-#: src/app/(tabs)/(settings)/risk-rules.tsx:232
+#: src/app/(tabs)/(settings)/risk-rules.tsx:252
 #: src/app/(tabs)/(settings)/user-detail.tsx:92
 #: src/app/(tabs)/(settings)/users.tsx:66
 msgid "Loading…"
@@ -3973,7 +4101,7 @@ msgstr "로그"
 msgid "Log a missed trade"
 msgstr "놓친 거래 기록"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:134
+#: src/app/(tabs)/(dashboard)/index.tsx:135
 msgid "Log a trade from the Trades tab, or import from Settings → Import trades."
 msgstr "거래 탭에서 기록하거나, 설정 → 매매 가져오기에서 가져오세요."
 
@@ -4052,6 +4180,10 @@ msgstr "손실이 계획 초과 ({r}R)"
 msgid "loss streak"
 msgstr "연패 초과"
 
+#: src/lib/cooldown.ts:88
+msgid "Loss streak"
+msgstr "연속 손실"
+
 #: src/components/reports/risk-section.tsx:86
 msgid "loss-streak"
 msgstr "연속 손실"
@@ -4108,6 +4240,7 @@ msgstr "태그 관리"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:591
 #: src/app/(tabs)/(settings)/connect-broker.tsx:77
+#: src/lib/cooldown.ts:94
 msgid "Manual"
 msgstr "수동"
 
@@ -4151,11 +4284,11 @@ msgstr "각 필드를 파일의 열과 연결하세요."
 msgid "Max"
 msgstr "최대"
 
-#: src/lib/risk-rules.ts:59
+#: src/lib/risk-rules.ts:60
 msgid "Max consecutive losses"
 msgstr "최대 연속 손실"
 
-#: src/lib/risk-rules.ts:35
+#: src/lib/risk-rules.ts:36
 msgid "Max daily loss"
 msgstr "일일 최대 손실"
 
@@ -4170,11 +4303,11 @@ msgstr "최대 낙폭"
 #~ msgid "Max drawdown — {0}"
 #~ msgstr "최대 드로다운 — {0}"
 
-#: src/lib/risk-rules.ts:43
+#: src/lib/risk-rules.ts:44
 msgid "Max open risk"
 msgstr "최대 오픈 리스크"
 
-#: src/lib/risk-rules.ts:27
+#: src/lib/risk-rules.ts:28
 msgid "Max risk / trade"
 msgstr "거래당 최대 리스크"
 
@@ -4185,7 +4318,7 @@ msgstr "거래당 최대 리스크"
 msgid "Max share of profit one day may contribute, as a percent (e.g. 40). Leave blank to drop."
 msgstr "하루가 이익에 기여할 수 있는 최대 비중(%, 예: 40). 비워 두면 해제됩니다."
 
-#: src/lib/risk-rules.ts:51
+#: src/lib/risk-rules.ts:52
 msgid "Max trades / day"
 msgstr "일일 최대 거래 수"
 
@@ -4268,6 +4401,10 @@ msgstr "최소 {minPasswordLength}자."
 msgid "Minute"
 msgstr "분"
 
+#: src/lib/risk-rules.ts:152
+msgid "Minutes must be between 1 and 1440."
+msgstr "분은 1에서 1440 사이여야 합니다."
+
 #~ msgid "Mirror the checklist into the iOS Reminders app, so it reaches you on the lock screen, the Watch and Siri."
 #~ msgstr "체크리스트를 iOS 미리 알림 앱에 동기화해 잠금 화면, 애플 워치, Siri에서 확인하세요."
 
@@ -4283,7 +4420,7 @@ msgid "Missed trade"
 msgstr "놓친 거래"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:96
-#: src/components/tools-menu.tsx:75
+#: src/components/tools-menu.tsx:83
 msgid "Missed trades"
 msgstr "놓친 거래"
 
@@ -4506,10 +4643,10 @@ msgstr "새 태그"
 msgid "New token"
 msgstr "새 토큰"
 
-#: src/app/new-trade.tsx:141
-#: src/app/new-trade.tsx:161
+#: src/app/new-trade.tsx:148
+#: src/app/new-trade.tsx:168
 #: src/components/add-menu.tsx:26
-#: src/components/add-trade-button.tsx:31
+#: src/components/add-trade-button.tsx:43
 msgid "New trade"
 msgstr "새 트레이드"
 
@@ -4551,8 +4688,8 @@ msgstr "다음 해"
 msgid "No account"
 msgstr "계좌 없음"
 
-#: src/app/new-trade.tsx:111
-#: src/app/new-trade.tsx:154
+#: src/app/new-trade.tsx:118
+#: src/app/new-trade.tsx:161
 msgid "No account found — create one in Settings → Accounts."
 msgstr "계좌가 없습니다 — 설정 → 계좌에서 만드세요."
 
@@ -4683,6 +4820,10 @@ msgstr "태그된 실수가 없습니다."
 msgid "No models"
 msgstr "모델 없음"
 
+#: src/lib/cooldown.ts:59
+msgid "No more trades until tomorrow."
+msgstr "내일까지 더 이상 거래하지 않기."
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:307
 msgid "No notes yet"
 msgstr "아직 노트가 없습니다"
@@ -4694,6 +4835,10 @@ msgstr "아직 결과 없음"
 #: src/lib/trade-insights.ts:146
 msgid "No plan was recorded before the trade"
 msgstr "거래 전에 계획이 기록되지 않았습니다"
+
+#: src/app/cooldown.tsx:461
+msgid "No playbook setups yet — add some and the gate will hold you to one."
+msgstr "플레이북 셋업이 아직 없습니다 — 추가하면 게이트가 하나만 고르게 합니다."
 
 #: src/lib/missed.ts:38
 msgid "No reason given"
@@ -4718,6 +4863,10 @@ msgstr "리스크 규칙이 설정되지 않았습니다 — 거래당 최대 �
 #: src/app/(tabs)/(dashboard)/daily-checklist.tsx:57
 msgid "No routine yet"
 msgstr "아직 루틴이 없습니다"
+
+#: src/lib/cooldown.ts:45
+msgid "No rule"
+msgstr "규칙 없음"
 
 #. placeholder {0}: query.trim()
 #: src/app/(tabs)/(settings)/index.tsx:371
@@ -4773,7 +4922,7 @@ msgstr "아직 토큰이 없습니다"
 msgid "No trades"
 msgstr "거래 없음"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:253
+#: src/app/(tabs)/(dashboard)/index.tsx:258
 #: src/components/reports/detailed-section.tsx:174
 #: src/components/reports/detailed-section.tsx:207
 #: src/components/reports/detailed-section.tsx:237
@@ -4802,7 +4951,7 @@ msgstr "아직 리뷰할 트레이드가 없습니다"
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "초기 리스크를 알 수 있는 거래가 없습니다 — 스톱을 설정하면 R 분석이 활성화됩니다."
 
-#: src/app/(tabs)/(dashboard)/index.tsx:132
+#: src/app/(tabs)/(dashboard)/index.tsx:133
 msgid "No trades yet"
 msgstr "아직 트레이드가 없습니다"
 
@@ -4906,12 +5055,12 @@ msgid "Note not found"
 msgstr "노트를 찾을 수 없습니다"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:93
-#: src/app/(tabs)/(dashboard)/index.tsx:217
+#: src/app/(tabs)/(dashboard)/index.tsx:222
 #: src/app/(tabs)/(dashboard)/notes.tsx:193
 #: src/app/(tabs)/(dashboard)/notes.tsx:244
 #: src/app/(tabs)/(trades)/[id].tsx:819
 #: src/app/missed-trade-form.tsx:223
-#: src/components/tools-menu.tsx:64
+#: src/components/tools-menu.tsx:72
 msgid "Notes"
 msgstr "메모"
 
@@ -5005,12 +5154,20 @@ msgstr "순조로움"
 msgid "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 msgstr "요청이 아니라 클라이언트 단위로 한 건씩입니다. 같은 IP와 앱에서의 재사용은 10분 동안 하나로 묶입니다. 최근 50건을 보관합니다."
 
+#: src/lib/cooldown.ts:54
+msgid "One more today, then stop."
+msgstr "오늘 한 번만 더, 그리고 멈추기."
+
 #~ msgid "One rule to clear before you trade."
 #~ msgstr "거래 전에 점검할 규칙 하나."
 
 #: src/app/new-setup.tsx:246
 msgid "One thing that has to be true"
 msgstr "충족돼야 할 조건 하나"
+
+#: src/lib/cooldown.ts:53
+msgid "One trade"
+msgstr "한 번만"
 
 #: src/app/(tabs)/(settings)/about.tsx:72
 msgid "Online"
@@ -5052,6 +5209,11 @@ msgstr "진행 중"
 msgid "Open · {0} left"
 msgstr "미청산 · {0} 남음"
 
+#: src/components/cooldown-banner.tsx:38
+#: src/components/cooldown-card.tsx:33
+msgid "Open cooldown"
+msgstr "쿨다운 열기"
+
 #: src/app/(tabs)/(settings)/display.tsx:159
 msgid "Open date"
 msgstr "진입일"
@@ -5063,6 +5225,7 @@ msgstr "진입일"
 msgid "Open price"
 msgstr "진입 가격"
 
+#: src/app/cooldown.tsx:86
 #: src/components/reports/risk-section.tsx:169
 msgid "Open risk rules"
 msgstr "리스크 규칙 열기"
@@ -5330,7 +5493,7 @@ msgstr "거래당"
 msgid "Per-share risk"
 msgstr "주당 리스크"
 
-#: src/lib/risk-rules.ts:123
+#: src/lib/risk-rules.ts:146
 msgid "Percent must be between 0 and 100."
 msgstr "퍼센트는 0에서 100 사이여야 합니다."
 
@@ -5426,10 +5589,10 @@ msgid "Playback speed"
 msgstr "재생 속도"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:106
-#: src/app/(tabs)/(dashboard)/index.tsx:227
+#: src/app/(tabs)/(dashboard)/index.tsx:232
 #: src/app/(tabs)/(dashboard)/playbook.tsx:176
 #: src/app/(tabs)/(dashboard)/playbook.tsx:226
-#: src/components/tools-menu.tsx:65
+#: src/components/tools-menu.tsx:73
 msgid "Playbook"
 msgstr "플레이북"
 
@@ -5467,7 +5630,7 @@ msgid "Position"
 msgstr "포지션"
 
 #: src/app/tool-position-size.tsx:52
-#: src/components/tools-menu.tsx:41
+#: src/components/tools-menu.tsx:44
 msgid "Position size"
 msgstr "포지션 크기"
 
@@ -5508,7 +5671,7 @@ msgstr "이전"
 #~ msgstr "이전 {0}"
 
 #: src/app/(tabs)/(settings)/display.tsx:100
-#: src/app/new-trade.tsx:142
+#: src/app/new-trade.tsx:149
 #: src/components/trade-form.tsx:707
 msgid "Preview"
 msgstr "미리 보기"
@@ -5655,6 +5818,10 @@ msgstr "프랍 평가"
 msgid "Prop rules"
 msgstr "프랍 규칙"
 
+#: src/lib/cooldown.ts:37
+msgid "Proving myself"
+msgstr "나를 증명하려고"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:317
 msgid "Pulls new fills into this account automatically. Statements can also be imported by file."
 msgstr "새 체결을 이 계정으로 자동으로 가져옵니다. 명세서는 파일로도 가져올 수 있습니다."
@@ -5711,7 +5878,7 @@ msgstr "빠른 손실 — 가설이 빠르게 무너짐"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:109
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:732
-#: src/components/tools-menu.tsx:45
+#: src/components/tools-menu.tsx:48
 msgid "R calculator"
 msgstr "R 계산기"
 
@@ -5800,7 +5967,7 @@ msgstr "최근 위반일"
 msgid "Recent events"
 msgstr "최근 이벤트"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:238
+#: src/app/(tabs)/(dashboard)/index.tsx:243
 msgid "Recent trades"
 msgstr "최근 트레이드"
 
@@ -5823,6 +5990,10 @@ msgstr "손실일"
 #: src/components/share-card.tsx:339
 msgid "RED YEAR"
 msgstr "손실의 해"
+
+#: src/app/cooldown.tsx:509
+msgid "Reflection"
+msgstr "성찰"
 
 #: src/components/coach-card.tsx:163
 msgid "Regenerate"
@@ -5862,7 +6033,7 @@ msgstr "미리 알림을 사용할 수 없음"
 #: src/app/(tabs)/(settings)/funding.tsx:62
 #: src/app/(tabs)/(settings)/funding.tsx:153
 #: src/app/(tabs)/(settings)/prop-settings.tsx:107
-#: src/app/(tabs)/(settings)/risk-rules.tsx:116
+#: src/app/(tabs)/(settings)/risk-rules.tsx:117
 #: src/app/(tabs)/(trades)/[id].tsx:578
 #: src/components/attachments-card.tsx:153
 #: src/components/note-images.tsx:139
@@ -6005,7 +6176,7 @@ msgstr "문제 신고"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:132
 #: src/app/(tabs)/(dashboard)/reports.tsx:118
-#: src/components/tools-menu.tsx:40
+#: src/components/tools-menu.tsx:43
 msgid "Reports"
 msgstr "리포트"
 
@@ -6055,6 +6226,10 @@ msgstr "다시 시도하는 중…"
 #: src/app/(tabs)/(settings)/account-form.tsx:384
 msgid "Return"
 msgstr "수익률"
+
+#: src/lib/cooldown.ts:33
+msgid "Revenge"
+msgstr "복수"
 
 #. placeholder {0}: behavior.revenge.events.length
 #: src/app/(tabs)/(calendar)/day/[date].tsx:176
@@ -6127,6 +6302,10 @@ msgstr "리스크 예산이 1계약 미만 — 리스크%를 높이거나 스톱
 #: src/components/reports/overview-section.tsx:706
 msgid "Risk journaled before the trade, blended with rule compliance when rules are set."
 msgstr "거래 전에 기록한 리스크. 규칙이 있으면 규칙 준수와 혼합됩니다."
+
+#: src/lib/cooldown.ts:49
+msgid "Risk no more than half your usual."
+msgstr "평소 리스크의 절반 이하로."
 
 #: src/components/reports/risk-section.tsx:317
 msgid "Risk of ruin"
@@ -6273,7 +6452,7 @@ msgstr "토"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:262
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
-#: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:108
 #: src/app/(tabs)/(settings)/web-address.tsx:61
 #: src/components/form-sheet.tsx:182
 #: src/components/use-prompt.tsx:47
@@ -6320,7 +6499,7 @@ msgstr "저장됨"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:262
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
-#: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:108
 #: src/app/(tabs)/(settings)/trading-journal.tsx:105
 #: src/app/trade-preview.tsx:216
 #: src/components/form-sheet.tsx:175
@@ -6501,7 +6680,7 @@ msgid "Server URL"
 msgstr "서버 URL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:762
-#: src/components/tools-menu.tsx:100
+#: src/components/tools-menu.tsx:108
 #: src/components/trade-form.tsx:496
 msgid "Session"
 msgstr "세션"
@@ -6549,7 +6728,7 @@ msgstr "규칙 설정"
 msgid "Set up two-factor"
 msgstr "2단계 인증 설정"
 
-#: src/app/new-trade.tsx:60
+#: src/app/new-trade.tsx:61
 #: src/components/trade-prefill-bar.tsx:34
 msgid "Set up Vision scan first"
 msgstr "먼저 비전 스캔을 설정하세요"
@@ -6700,7 +6879,7 @@ msgstr "금액 표시"
 msgid "Show password"
 msgstr "비밀번호 표시"
 
-#: src/components/tools-menu.tsx:110
+#: src/components/tools-menu.tsx:118
 msgid "Show session on Lock Screen"
 msgstr "잠금 화면에 세션 표시"
 
@@ -6798,6 +6977,15 @@ msgstr "SQN"
 msgid "Stability"
 msgstr "안정성"
 
+#: src/app/cooldown.tsx:234
+#: src/app/cooldown.tsx:236
+msgid "Start {minutes} min"
+msgstr "{minutes}분 시작"
+
+#: src/lib/risk-rules.ts:77
+msgid "Start a cooldown this long when the daily loss, loss streak or trade cap trips."
+msgstr "일일 손실, 연속 손실, 거래 한도에 걸리면 이 길이의 쿨다운을 자동으로 시작합니다."
+
 #: src/app/(tabs)/(dashboard)/backtest.tsx:165
 msgid "Start date"
 msgstr "시작일"
@@ -6824,6 +7012,10 @@ msgstr "고정 — 하한이 움직이지 않음"
 #: src/app/(tabs)/(trades)/index.tsx:427
 msgid "Status"
 msgstr "상태"
+
+#: src/app/cooldown.tsx:197
+msgid "Step away before the next trade decides for you. The trade form stays locked until you answer the return gate."
+msgstr "다음 거래가 당신 대신 결정하기 전에 물러나세요. 복귀 게이트에 답할 때까지 거래 입력은 잠깁니다."
 
 #: src/components/replay-controls.tsx:166
 msgid "Step back"
@@ -6865,7 +7057,7 @@ msgstr "손절가"
 msgid "Stop {0}"
 msgstr "손절 {0}"
 
-#: src/lib/risk-rules.ts:60
+#: src/lib/risk-rules.ts:61
 msgid "Stop after this many losing trades in a row."
 msgstr "이 횟수만큼 연속으로 손실이 나면 매매를 멈춥니다."
 
@@ -6893,7 +7085,7 @@ msgstr "스톱 프리미엄"
 msgid "Stop premium must be below entry premium"
 msgstr "스톱 프리미엄은 진입 프리미엄보다 낮아야 합니다"
 
-#: src/lib/risk-rules.ts:36
+#: src/lib/risk-rules.ts:37
 msgid "Stop when today's realized loss hits this amount."
 msgstr "오늘 실현 손실이 이 금액에 도달하면 중단합니다."
 
@@ -6935,7 +7127,7 @@ msgstr "추천 항목"
 msgid "suggested risk"
 msgstr "권장 리스크"
 
-#: src/lib/risk-rules.ts:68
+#: src/lib/risk-rules.ts:69
 msgid "Suggested size as a percent of account equity."
 msgstr "계좌 자산 대비 권장 포지션 크기(%)입니다."
 
@@ -6993,7 +7185,7 @@ msgstr "종목"
 
 #. placeholder {0}: index + 1
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:248
-#: src/app/new-trade.tsx:106
+#: src/app/new-trade.tsx:113
 #: src/components/note-form.tsx:264
 #: src/components/trade-form.tsx:714
 msgid "Symbol {0}"
@@ -7006,7 +7198,7 @@ msgstr "종목 A–Z"
 #: src/app/(tabs)/(dashboard)/_layout.tsx:113
 #: src/app/(tabs)/(trades)/_layout.tsx:43
 #: src/components/symbol-journal.tsx:323
-#: src/components/tools-menu.tsx:50
+#: src/components/tools-menu.tsx:53
 msgid "Symbol journal"
 msgstr "심볼 저널"
 
@@ -7093,6 +7285,10 @@ msgstr "태그는 실수·습관·사용자 지정 라벨로 매매에 주석을
 
 #~ msgid "Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, swipe to delete."
 #~ msgstr "태그는 실수, 습관, 사용자 지정 라벨로 거래에 주석을 답니다. 행을 탭하면 편집, 밀면 삭제합니다."
+
+#: src/app/cooldown.tsx:194
+msgid "Take a cooldown"
+msgstr "쿨다운 하기"
 
 #: src/app/(tabs)/(settings)/tags.tsx:164
 msgid "Tap + to add one — tags annotate trades with mistakes, habits, and custom labels."
@@ -7271,6 +7467,14 @@ msgstr "엔드포인트가 사용하는 그대로의 모델 ID (예: gpt-4o-mini
 msgid "The new passwords don't match."
 msgstr "새 비밀번호가 일치하지 않습니다."
 
+#: src/app/cooldown.tsx:321
+msgid "The next trade doesn't have to fix the last one."
+msgstr "다음 거래가 지난 거래를 만회할 필요는 없습니다."
+
+#: src/app/cooldown.tsx:452
+msgid "The one setup you're allowed"
+msgstr "허용할 단 하나의 셋업"
+
 #: src/app/replay.tsx:868
 msgid "The orders you placed will not be saved."
 msgstr "입력한 주문은 저장되지 않습니다."
@@ -7328,6 +7532,10 @@ msgstr "동기화 기간은 IBKR 클라이언트 포털에서 설정한 Flex 쿼
 
 #~ msgid "The tag is removed from every trade that uses it."
 #~ msgstr "이 태그를 사용하는 모든 트레이드에서 제거됩니다."
+
+#: src/app/cooldown.tsx:441
+msgid "The timer is done. Three honest answers and you're back."
+msgstr "타이머가 끝났습니다. 솔직한 답 세 개면 돌아갈 수 있어요."
 
 #: src/lib/trade-insights.ts:247
 msgid "The trade worked but closed well off its best point. Note what would have kept you in for the next similar setup."
@@ -7523,8 +7731,8 @@ msgstr "토큰은 스크립트와 연동이 서버 API에 인증하는 수단입
 msgid "Too many requests"
 msgstr "요청이 너무 많음"
 
-#: src/components/tools-menu.tsx:91
-#: src/components/tools-menu.tsx:127
+#: src/components/tools-menu.tsx:99
+#: src/components/tools-menu.tsx:135
 msgid "Tools"
 msgstr "도구"
 
@@ -7568,6 +7776,14 @@ msgstr "거래 {0}"
 msgid "Trade actions"
 msgstr "거래 작업"
 
+#: src/lib/cooldown.ts:45
+msgid "Trade as planned."
+msgstr "계획대로 거래하기."
+
+#: src/lib/cooldown.ts:92
+msgid "Trade cap"
+msgstr "거래 한도"
+
 #~ msgid "Trade date basis"
 #~ msgstr "거래 날짜 기준"
 
@@ -7586,9 +7802,9 @@ msgstr "거래 귀속일"
 msgid "Trade not found"
 msgstr "거래를 찾을 수 없습니다"
 
-#: src/app/new-trade.tsx:110
-#: src/app/new-trade.tsx:114
 #: src/app/new-trade.tsx:117
+#: src/app/new-trade.tsx:121
+#: src/app/new-trade.tsx:124
 msgid "Trade not ready"
 msgstr "거래가 완성되지 않았습니다"
 
@@ -7706,6 +7922,10 @@ msgstr "다시 시도"
 msgid "Tue"
 msgstr "화"
 
+#: src/app/cooldown.tsx:83
+msgid "Turn it on in Settings → Risk rules to pause before your next trade."
+msgstr "설정 → 리스크 규칙에서 켜면 다음 거래 전에 잠시 멈출 수 있습니다."
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:113
 msgid "Turn off two-factor"
 msgstr "2단계 인증 끄기"
@@ -7783,6 +8003,15 @@ msgstr "알 수 없는 클라이언트"
 msgid "Unknown symbol"
 msgstr "알 수 없는 종목"
 
+#: src/app/cooldown.tsx:525
+#: src/app/cooldown.tsx:527
+msgid "Unlock"
+msgstr "잠금 해제"
+
+#: src/app/cooldown.tsx:440
+msgid "Unlocking early is allowed — but write down why first. The typing is the point."
+msgstr "일찍 해제할 수 있어요 — 단, 먼저 이유를 적으세요. 적는 것 자체가 핵심입니다."
+
 #: src/components/reports/overview-section.tsx:1003
 msgid "Unrated"
 msgstr "미평가"
@@ -7822,8 +8051,8 @@ msgstr "저장 시 이 종목의 거래에 업로드됩니다. 썸네일을 탭�
 msgid "Use at least {MIN_LENGTH} characters."
 msgstr "{MIN_LENGTH}자 이상 입력하세요."
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:210
-#: src/app/(tabs)/(settings)/risk-rules.tsx:242
+#: src/app/(tabs)/(settings)/risk-rules.tsx:230
+#: src/app/(tabs)/(settings)/risk-rules.tsx:262
 msgid "Used by Check compliance on New Trade. Add only the limits you want enforced."
 msgstr "새 거래의 규칙 준수 검사에 사용됩니다. 적용할 한도만 추가하세요."
 
@@ -7850,15 +8079,19 @@ msgstr "사용자 이름 또는 비밀번호가 올바르지 않습니다."
 msgid "Users"
 msgstr "사용자"
 
-#: src/app/(tabs)/(settings)/risk-rule-form.tsx:80
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:81
 msgid "Value (%)"
 msgstr "값 (%)"
 
-#: src/app/(tabs)/(settings)/risk-rule-form.tsx:80
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:86
 msgid "Value ($)"
 msgstr "값 ($)"
 
-#: src/app/(tabs)/(settings)/risk-rule-form.tsx:80
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:85
+msgid "Value (minutes)"
+msgstr "값 (분)"
+
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:83
 msgid "Value (trades)"
 msgstr "값 (거래 수)"
 
@@ -7870,7 +8103,7 @@ msgstr "버전"
 msgid "version build server licence"
 msgstr "버전 빌드 서버 라이선스"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:244
+#: src/app/(tabs)/(dashboard)/index.tsx:249
 msgid "View all"
 msgstr "모두 보기"
 
@@ -7984,10 +8217,22 @@ msgstr "오늘은 어땠나요?"
 msgid "What has to be happening for this play to be on? Where is it wrong?"
 msgstr "이 플레이가 성립하려면 무엇이 필요합니까? 언제 무효가 됩니까?"
 
+#: src/app/cooldown.tsx:443
+msgid "What was pulling you in?"
+msgstr "무엇이 당신을 끌어당겼나요?"
+
+#: src/app/cooldown.tsx:507
+msgid "What will be different about this trade?"
+msgstr "이번 거래는 무엇이 다른가요?"
+
 #: src/app/quick-journal.tsx:104
 #: src/components/trade-form.tsx:579
 msgid "What would you do differently?"
 msgstr "다음에는 무엇을 다르게 하시겠습니까?"
+
+#: src/app/cooldown.tsx:219
+msgid "What's pulling you in?"
+msgstr "무엇이 당신을 끌어당기나요?"
 
 #: src/app/routine-item.tsx:86
 msgid "When"
@@ -8012,6 +8257,10 @@ msgstr "왜 진입했습니까?"
 #: src/components/trade-form.tsx:573
 msgid "Why did you exit?"
 msgstr "왜 청산했습니까?"
+
+#: src/app/cooldown.tsx:503
+msgid "Why now?"
+msgstr "왜 지금인가요?"
 
 #: src/app/missed-trade-form.tsx:181
 #: src/app/missed-trade-form.tsx:183
@@ -8137,9 +8386,25 @@ msgstr "서버는 직접 준비합니다"
 msgid "You captured {pct}% of MFE. Review your exit trigger — trailing stop or partial targets may fit this setup better."
 msgstr "MFE의 {pct}%만 가져갔습니다. 청산 트리거를 점검하세요 — 트레일링 스톱이나 부분 청산이 더 맞을 수 있습니다."
 
+#: src/lib/cooldown.ts:81
+msgid "You chose to step away."
+msgstr "물러나기로 선택했습니다."
+
 #: src/lib/trade-insights.ts:379
 msgid "You flagged this yourself — add one concrete rule in review notes to prevent the same mistake."
 msgstr "스스로 표시한 실수입니다 — 같은 실수를 막을 구체적 규칙 하나를 리뷰 노트에 추가하세요."
+
+#: src/lib/cooldown.ts:77
+msgid "You hit your daily loss limit."
+msgstr "일일 손실 한도에 도달했습니다."
+
+#: src/lib/cooldown.ts:75
+msgid "You hit your loss streak limit."
+msgstr "연속 손실 한도에 도달했습니다."
+
+#: src/lib/cooldown.ts:79
+msgid "You hit your trades-per-day cap."
+msgstr "일일 거래 한도에 도달했습니다."
 
 #. placeholder {0}: insights.setupGrade
 #: src/lib/trade-insights.ts:335
@@ -8163,6 +8428,18 @@ msgstr "이 서버에 다시 접속하려면 로그인해야 합니다."
 #: src/app/(tabs)/(settings)/two-factor.tsx:65
 msgid "You'll need a code from your authenticator the next time you sign in."
 msgstr "다음 로그인부터 인증 앱의 코드가 필요합니다."
+
+#. placeholder {0}: worst.summary.total_trades
+#. placeholder {1}: worst.key
+#. placeholder {2}: formatPnl(worst.summary.expectancy * (fx.rate ?? 1), fx.currency)
+#: src/app/cooldown.tsx:320
+msgid "Your {0} “{1}” trades average {2} each."
+msgstr "당신의 “{1}” 거래 {0}건은 평균 {2}입니다."
+
+#. placeholder {0}: triggerLabel(trigger)
+#: src/app/cooldown.tsx:204
+msgid "Your {0} rule just tripped."
+msgstr "{0} 규칙이 방금 걸렸습니다."
 
 #: src/app/(tabs)/(settings)/_layout.tsx:45
 #: src/app/(tabs)/(settings)/index.tsx:185
@@ -8202,6 +8479,10 @@ msgstr "나의 성적"
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:336
 msgid "Your rhythm"
 msgstr "나의 리듬"
+
+#: src/app/cooldown.tsx:465
+msgid "Your rule for the rest of today"
+msgstr "오늘 남은 시간의 규칙"
 
 #: src/app/(tabs)/(settings)/web-address.tsx:78
 msgid "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."

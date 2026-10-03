@@ -77,7 +77,13 @@ function RuleForm({ def, rules }: { def: RiskRuleDef; rules?: RiskRules }) {
   }
 
   const unitLabel =
-    def.unit === '%' ? t`Value (%)` : def.unit === 'count' ? t`Value (trades)` : t`Value ($)`;
+    def.unit === '%'
+      ? t`Value (%)`
+      : def.unit === 'count'
+        ? t`Value (trades)`
+        : def.unit === 'min'
+          ? t`Value (minutes)`
+          : t`Value ($)`;
 
   return (
     <>
