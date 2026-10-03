@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { ocrApi, type TradeExtract } from "@/lib/api/ocr";
+import { resolveMarketTimezone, useDisplayPrefs } from "@/lib/displayPrefs";
 import { mergeTradeExtracts } from "@/lib/ocrSymbolGroups";
 
 /** Cap multi-select screenshots so a single scan stays affordable. */
@@ -16,6 +17,8 @@ export function useOcrParse() {
       for (const file of files) {
         const fd = new FormData();
         fd.append("file", file);
+        // For times the screen doesn't label; one it does label wins server-side.
+        fd.append("tz", resolveMarketTimezone(useDisplayPrefs.getState().marketTimezone));
         extracts.push(await ocrApi.parse(fd));
       }
       return mergeTradeExtracts(extracts);

@@ -90,15 +90,23 @@ export function mergeTradeExtracts(parts: TradeExtract[]): TradeExtract {
     warnings,
     confidence,
     symbols: [...symbolSet].sort((a, b) => a.localeCompare(b)),
+    // Scans from one server agree; a fill file has none and keeps literal times.
+    timezone: parts.find((p) => p.timezone)?.timezone,
   };
 }
 
 /**
- * Extract timestamps are the broker's on-screen wall-clock; any zone offset a
- * vision model appends (RFC3339 forces one) is fiction. Keep the literal
- * date/time digits as a local Date instead of converting between zones.
+ * `exact` extracts come from a server that resolved the screen's zone (it sets
+ * `timezone`): their times are real instants (`2026-10-01T10:30:27-04:00`) and
+ * keep their offset. Otherwise the timestamp is the broker's on-screen wall
+ * clock and any offset is one the vision model invented (RFC3339 forces one) —
+ * keep the literal date/time digits as a local Date instead.
  */
-export function wallClockToDate(raw: string): Date {
+export function wallClockToDate(raw: string, exact = false): Date {
+  if (exact && /(?:Z|[+-]\d{2}:?\d{2})$/.test(raw.trim())) {
+    const instant = new Date(raw.trim());
+    if (!Number.isNaN(instant.getTime())) return instant;
+  }
   const m = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/.exec(raw.trim());
   if (m) {
     return new Date(
@@ -119,11 +127,11 @@ function numField(n: number | undefined | null): string {
   return String(n);
 }
 
-function fillFromRow(row: ExtractedFill): FillDraft {
+function fillFromRow(row: ExtractedFill, exact: boolean): FillDraft {
   return {
     key: nextFillKey(),
     side: row.side === 'sell' ? 'sell' : 'buy',
-    executedAt: wallClockToDate(row.executed_at ?? ''),
+    executedAt: wallClockToDate(row.executed_at ?? '', exact),
     quantity: row.quantity > 0 ? String(row.quantity) : '',
     price: row.price > 0 ? String(row.price) : '',
     // Web folds commission into fees on OCR rows; keep them split when both exist.
@@ -140,7 +148,8 @@ function blockFromScopedExtract(scoped: TradeExtract, accountId: string): TradeF
   const market = scoped.instrument_type;
   if ((MARKETS as readonly string[]).includes(market)) block.market = market as Market;
   if (scoped.side === 'long' || scoped.side === 'short') block.direction = scoped.side;
-  block.fills = rows.length > 0 ? rows.map(fillFromRow) : [emptyFill('buy')];
+  const exact = Boolean(scoped.timezone);
+  block.fills = rows.length > 0 ? rows.map((row) => fillFromRow(row, exact)) : [emptyFill('buy')];
 
   const contract = rows.find((row) => row.option_right || row.strike || row.expiry);
   if (contract) {
