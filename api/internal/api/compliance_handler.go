@@ -39,6 +39,10 @@ func (s *Server) handleCompliance(c *echo.Context) error {
 		}
 	}
 
+	if rules.Commitments, err = s.returnCommitments(ctx, uid); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load cooldowns", nil)
+	}
+
 	rows, err := s.loadClosedTrades(ctx, uid, f)
 	if err != nil {
 		return failLoad(err, "could not load trades")
@@ -61,6 +65,7 @@ func (s *Server) handleCompliance(c *echo.Context) error {
 		}
 		trades = append(trades, analytics.ComplianceTrade{
 			NetPnl:      t.NetPnl.Float64,
+			OpenedAt:    t.OpenedAt,
 			ClosedAt:    t.ClosedAt.Time,
 			InitialRisk: riskByTrade[t.ID],
 		})

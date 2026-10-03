@@ -24,6 +24,10 @@ export interface RiskRules {
   default_account_risk_pct: number | null;
   max_trades_per_day: number | null;
   max_consecutive_losses: number | null;
+  /** Auto-start a cooldown this long when a rule trips (null = off). */
+  cooldown_minutes: number | null;
+  /** Cooldown mode's master switch — off until the trader asks for it. */
+  cooldown_enabled: boolean;
 }
 
 export interface AnnualGoal {

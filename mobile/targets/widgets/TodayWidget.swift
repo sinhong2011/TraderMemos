@@ -23,16 +23,28 @@ struct TodayProvider: TimelineProvider {
   func getTimeline(in context: Context, completion: @escaping (Timeline<TodayEntry>) -> Void) {
     let now = Date()
     var entries = [entry(at: now)]
-    // The app's reloadAllTimelines() is the real refresh signal; the one
-    // transition the widget must make on its own is the market-day rollover,
-    // when today's P&L resets to zero without anyone opening the app.
-    if let snapshot = TodaySnapshot.load(),
-       let rollover = TodayState.nextRollover(for: snapshot, after: now) {
-      entries.append(TodayEntry(date: rollover, state: TodayState.resolve(snapshot, at: rollover)))
-      completion(Timeline(entries: entries, policy: .after(rollover)))
-    } else {
-      completion(Timeline(entries: entries, policy: .never))
+    // The app's reloadAllTimelines() is the real refresh signal; the
+    // transitions the widget must make on its own are the market-day
+    // rollover (today's P&L resets to zero without anyone opening the app)
+    // and a cooldown timer ending (the line flips to "answer the gate").
+    if let snapshot = TodaySnapshot.load() {
+      var moments: [Date] = []
+      if let rollover = TodayState.nextRollover(for: snapshot, after: now) {
+        moments.append(rollover)
+      }
+      if let endsAt = snapshot.cooldownEndsAt.map({ Date(timeIntervalSince1970: $0 / 1000) }),
+         endsAt > now {
+        moments.append(endsAt)
+      }
+      for moment in moments.sorted() {
+        entries.append(TodayEntry(date: moment, state: TodayState.resolve(snapshot, at: moment)))
+      }
+      if let next = moments.min() {
+        completion(Timeline(entries: entries, policy: .after(next)))
+        return
+      }
     }
+    completion(Timeline(entries: entries, policy: .never))
   }
 
   private func entry(at date: Date) -> TodayEntry {
@@ -112,6 +124,28 @@ struct PositionsAndRLine: View {
   }
 }
 
+/// "Cooling down until 3:49 PM" — the lock, under the numbers, while a
+/// cooldown is open. Reads from the entry date so the timeline entry at the
+/// timer's end flips it without a new snapshot.
+struct CooldownLine: View {
+  let state: TodayState
+  let date: Date
+
+  var body: some View {
+    if let line = state.cooldownLine(at: date) {
+      HStack(spacing: 4) {
+        Image(systemName: "wind")
+          .font(.system(size: 10, weight: .semibold))
+        Text(line)
+          .font(.system(size: 11, weight: .medium))
+          .lineLimit(1)
+          .minimumScaleFactor(0.8)
+      }
+      .foregroundStyle(WidgetTheme.primary)
+    }
+  }
+}
+
 struct EmptyStateView: View {
   var body: some View {
     VStack(spacing: 4) {
@@ -131,6 +165,7 @@ struct EmptyStateView: View {
 struct HomeWidgetView: View {
   @Environment(\.widgetFamily) private var family
   let state: TodayState
+  var date: Date = .now
 
   var body: some View {
     VStack(alignment: .leading, spacing: 6) {
@@ -162,6 +197,7 @@ struct HomeWidgetView: View {
       }
       BudgetBar(state: state)
       PositionsAndRLine(state: state)
+      CooldownLine(state: state, date: date)
     }
   }
 }
@@ -248,7 +284,7 @@ struct TodayWidgetView: View {
         case .accessoryRectangular: RectangularView(state: state)
         case .accessoryCircular: CircularView(state: state)
         case .accessoryInline: InlineView(state: state)
-        default: HomeWidgetView(state: state)
+        default: HomeWidgetView(state: state, date: entry.date)
         }
       } else {
         switch family {

@@ -94,13 +94,14 @@ export type RiskFormValues = {
   riskPct: string;
 };
 
-export type RiskRuleKey = keyof RiskRules;
+/** The numeric limits. `cooldown_enabled` is a switch, not a limit. */
+export type RiskRuleKey = Exclude<keyof RiskRules, "cooldown_enabled">;
 
 export type RiskRuleDef = {
   key: RiskRuleKey;
   label: string;
   detail: string;
-  unit: "$" | "%" | "count";
+  unit: "$" | "%" | "count" | "min";
   placeholder: string;
 };
 
@@ -148,6 +149,13 @@ export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
     unit: "%",
     placeholder: "e.g. 1",
   },
+  {
+    key: "cooldown_minutes",
+    label: "Auto cooldown",
+    detail: "Start a cooldown this long when the daily loss, loss streak or trade cap trips.",
+    unit: "min",
+    placeholder: "e.g. 15",
+  },
 ] as const;
 
 export function riskRuleDef(key: RiskRuleKey): RiskRuleDef {
@@ -164,14 +172,25 @@ export function emptyRiskRules(): RiskRules {
     default_account_risk_pct: null,
     max_trades_per_day: null,
     max_consecutive_losses: null,
+    cooldown_minutes: null,
+    cooldown_enabled: false,
   };
+}
+
+/**
+ * Auto cooldown only exists while cooldown mode is on — offering the limit
+ * for a feature with no surface would set a threshold nothing reads.
+ */
+export function visibleRiskRules(rules?: RiskRules | null): readonly RiskRuleDef[] {
+  if (rules?.cooldown_enabled) return RISK_RULE_DEFS;
+  return RISK_RULE_DEFS.filter((def) => def.key !== "cooldown_minutes");
 }
 
 export function activeRiskRuleEntries(
   rules?: RiskRules | null,
 ): { key: RiskRuleKey; value: number; def: RiskRuleDef }[] {
   const body = rules ?? emptyRiskRules();
-  return RISK_RULE_DEFS.flatMap((def) => {
+  return visibleRiskRules(rules).flatMap((def) => {
     const value = body[def.key];
     if (value == null) return [];
     return [{ key: def.key, value, def }];
@@ -180,7 +199,9 @@ export function activeRiskRuleEntries(
 
 export function availableRiskRuleKeys(rules?: RiskRules | null): RiskRuleKey[] {
   const body = rules ?? emptyRiskRules();
-  return RISK_RULE_DEFS.filter((def) => body[def.key] == null).map((def) => def.key);
+  return visibleRiskRules(rules)
+    .filter((def) => body[def.key] == null)
+    .map((def) => def.key);
 }
 
 export function setRiskRuleValue(
@@ -196,13 +217,21 @@ export function formatRiskRuleValue(key: RiskRuleKey, value: number, locale?: st
   if (def.unit === "%") {
     return `${value.toLocaleString(locale, { maximumFractionDigits: 2 })}%`;
   }
-  if (def.unit === "count") {
+  if (def.unit === "count" || def.unit === "min") {
     return value.toLocaleString(locale, { maximumFractionDigits: 0 });
   }
   return `$${value.toLocaleString(locale, { maximumFractionDigits: 2 })}`;
 }
 
 export function validateRiskRuleValue(key: RiskRuleKey, raw: string): string | undefined {
+  if (riskRuleDef(key).unit === "min") {
+    const t = raw.trim();
+    if (!t) return "Enter a value.";
+    const n = Number(t);
+    if (!Number.isInteger(n)) return "Enter a whole number of minutes.";
+    if (n < 1 || n > 1440) return "Minutes must be between 1 and 1440.";
+    return undefined;
+  }
   if (riskRuleDef(key).unit === "count") {
     const t = raw.trim();
     if (!t) return "Enter a value.";
@@ -246,6 +275,8 @@ export function riskFormToBody(value: RiskFormValues): RiskRules {
     default_account_risk_pct: parseOptionalAmount(value.riskPct),
     max_trades_per_day: null,
     max_consecutive_losses: null,
+    cooldown_minutes: null,
+    cooldown_enabled: false,
   };
 }
 

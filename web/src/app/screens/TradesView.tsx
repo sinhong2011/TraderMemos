@@ -1,5 +1,5 @@
 import type { SortingState, VisibilityState } from "@/lib/table";
-import { List, Plus, Search, Upload } from "lucide-react";
+import { List, Plus, Search, Upload, Wind } from "lucide-react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Card } from "@/components/Card";
@@ -90,6 +90,8 @@ export interface TradesViewProps {
   onClearStatus?: () => void;
   onImport: () => void;
   onNewTrade: () => void;
+  /** Opens the cooldown panel (start / countdown / return gate). */
+  onCooldown?: () => void;
   onRetry?: () => void;
 }
 
@@ -119,6 +121,7 @@ export function TradesView({
   onClearStatus,
   onImport,
   onNewTrade,
+  onCooldown,
   onRetry,
 }: TradesViewProps) {
   useDisplayTimePrefs();
@@ -233,6 +236,22 @@ export function TradesView({
           onColumnVisibilityChange={setColumnVisibility}
           className={cn("hidden md:inline-flex", toolbarControlClass)}
         />
+        {onCooldown ? (
+          // The circuit breaker sits with the log-trade action: it is the
+          // other thing you do at the moment of an impulse.
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onCooldown}
+            aria-label="Cooldown"
+            title="Take a cooldown"
+            className={cn("gap-1.5 px-2 text-[12px]", toolbarControlClass)}
+          >
+            <Wind size={13} strokeWidth={1.75} />
+            {compact ? null : "Cooldown"}
+          </Button>
+        ) : null}
         {compact && hasRows ? (
           <span className="ms-auto text-[11px] tabular-nums text-muted-foreground">
             {sortedTrades.length} {sortedTrades.length === 1 ? "trade" : "trades"}

@@ -2,8 +2,8 @@ import { useRouter } from 'expo-router';
 import { RadarChart, Skeleton } from 'panelui-native';
 import { Text, View } from 'react-native';
 
-import { useBehavior, useSummary } from '@/api/hooks';
-import type { BehaviorEvent, BehaviorReport, OutcomeSplit } from '@/api/types';
+import { useBehavior, useCooldownStats, useSummary } from '@/api/hooks';
+import type { BehaviorEvent, BehaviorReport, CooldownStats, OutcomeSplit } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { ErrorState } from '@/components/error-state';
 import { StatBar } from '@/components/stat-bar';
@@ -124,6 +124,87 @@ function SplitStats({
   );
 }
 
+/**
+ * Cooldowns over the range, and the one comparison that says whether they
+ * work: trades taken within an hour of a release against trades taken within
+ * an hour of a loss streak on days with no cooldown. Sessions that were never
+ * released (stale gates) still count as sessions.
+ */
+function CooldownCard({ stats, ctx }: { stats: CooldownStats; ctx: ReportsMoneyContext }) {
+  const { money } = ctx;
+  const after = stats.after_release;
+  const without = stats.after_streak_no_cooldown;
+  const ruleLabel = (key: string) =>
+    key === 'half_size'
+      ? t`half size`
+      : key === 'one_trade'
+        ? t`one trade`
+        : key === 'done_for_day'
+          ? t`done for today`
+          : key;
+  const rules = Object.entries(stats.by_rule)
+    .sort((a, b) => b[1] - a[1])
+    .map(([key, n]) => `${ruleLabel(key)} ×${n}`)
+    .join(' · ');
+
+  return (
+    <DashboardCard title={t`Cooldowns`}>
+      {stats.sessions === 0 ? (
+        <Text className="py-2 text-[13px] text-muted-foreground">
+          {t`No cooldowns in this range — start one from the tools menu, or set Auto cooldown under Risk rules so a tripped limit starts it for you.`}
+        </Text>
+      ) : (
+        <>
+          <View className="flex-row flex-wrap gap-2">
+            <StatBar
+              plain
+              label={t`Cooldowns`}
+              value={String(stats.sessions)}
+              sub={
+                stats.early_releases > 0
+                  ? t`${stats.early_releases} unlocked early`
+                  : t`avg ${formatDuration(stats.avg_minutes * 60)}`
+              }
+            />
+            <StatBar
+              plain
+              label={t`After a cooldown`}
+              value={after.trades > 0 ? money.formatCompact(after.net_pnl) : t`No trades`}
+              sub={
+                after.trades > 0
+                  ? t`${after.trades} trades · ${formatPercent(after.win_rate, 0)} win`
+                  : t`within an hour of unlocking`
+              }
+              tone={after.trades === 0 ? 'muted' : after.net_pnl >= 0 ? 'pos' : 'neg'}
+            />
+            <StatBar
+              plain
+              label={t`After ${stats.streak_n} losses, no cooldown`}
+              value={without.trades > 0 ? money.formatCompact(without.net_pnl) : t`No trades`}
+              sub={
+                without.trades > 0
+                  ? t`${without.trades} trades · ${formatPercent(without.win_rate, 0)} win`
+                  : t`within an hour of the streak`
+              }
+              tone={without.trades === 0 ? 'muted' : without.net_pnl >= 0 ? 'pos' : 'neg'}
+            />
+            <StatBar
+              plain
+              label={t`Return rule broken`}
+              value={String(stats.return_rule_breaches)}
+              sub={rules || t`no rules made yet`}
+              tone={stats.return_rule_breaches > 0 ? 'neg' : 'muted'}
+            />
+          </View>
+          <Text className="text-xs text-muted-foreground">
+            {t`Compares trades opened within an hour of a release with trades opened within an hour of a loss streak on days you did not cool down.`}
+          </Text>
+        </>
+      )}
+    </DashboardCard>
+  );
+}
+
 function EventList({
   events,
   ctx,
@@ -169,6 +250,7 @@ export function BehaviorSection({
   const ctx = useReportsMoney();
   const { money } = ctx;
   const behavior = useBehavior(filters);
+  const cooldowns = useCooldownStats(filters);
 
   const openTrade = (id: string) => router.push(`/(tabs)/(trades)/${id}`);
 
@@ -201,6 +283,8 @@ export function BehaviorSection({
       ) : (
         <>
           {report ? <TraderProfileCard report={report} /> : null}
+
+          {cooldowns.data ? <CooldownCard stats={cooldowns.data} ctx={ctx} /> : null}
 
           <DashboardCard title={t`Revenge trading`}>
             {!revenge || revenge.events.length === 0 ? (

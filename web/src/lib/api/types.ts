@@ -24,6 +24,7 @@ export interface ComplianceDay {
   daily_loss_breach: boolean;
   trade_limit_breach: boolean;
   loss_streak_breach: boolean;
+  return_rule_breach: boolean;
   compliant: boolean;
 }
 
@@ -39,6 +40,8 @@ export interface ComplianceReport {
   daily_loss_breaches: number;
   trade_limit_breaches: number;
   loss_streak_breaches: number;
+  /** Trades taken against a cooldown return rule. */
+  return_rule_breaches: number;
 }
 
 /** One trade flagged by a behavioral detector, with the evidence. */

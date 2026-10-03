@@ -56,6 +56,7 @@ import { ReportsSummaryBento } from "@/components/ReportsSummaryBento";
 import { ReportsMetricEvolution } from "@/components/ReportsMetricEvolution";
 import { ReportsMonteCarlo } from "@/components/ReportsMonteCarlo";
 import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
+import { ReportsCooldowns } from "@/components/ReportsCooldowns";
 import { ReportsRuleCompliance } from "@/components/ReportsRuleCompliance";
 import { ReportsRMultiplePerformance } from "@/components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "@/components/ReportsRollingWinRate";
@@ -80,6 +81,7 @@ import type {
   Summary,
   Trade,
 } from "@/lib/api/types";
+import type { CooldownStats } from "@/lib/api/cooldown";
 import { equityPointsInRange, type ChartRange } from "@/lib/chartRange";
 import { uniqueDayTicks } from "@/lib/chartTicks";
 import { cn } from "@/lib/cn";
@@ -171,6 +173,9 @@ export interface ReportsViewProps {
   behavior?: BehaviorReport;
   behaviorLoading?: boolean;
   behaviorError?: boolean;
+  cooldowns?: CooldownStats;
+  cooldownsLoading?: boolean;
+  cooldownsError?: boolean;
   monteCarlo?: MonteCarloResult;
   monteCarloLoading?: boolean;
   monteCarloError?: boolean;
@@ -625,6 +630,9 @@ export function ReportsView({
   behavior,
   behaviorLoading = false,
   behaviorError = false,
+  cooldowns,
+  cooldownsLoading = false,
+  cooldownsError = false,
   monteCarlo,
   monteCarloLoading = false,
   monteCarloError = false,
@@ -899,6 +907,9 @@ export function ReportsView({
       ),
     },
     behavior: {
+      cooldowns: (
+        <ReportsCooldowns stats={cooldowns} loading={cooldownsLoading} error={cooldownsError} />
+      ),
       revenge: (
         <BehaviorRevengeCard
           report={behavior}

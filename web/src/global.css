@@ -565,3 +565,28 @@
   letter-spacing: 0.04em;
   color: var(--muted-foreground);
 }
+
+/* Cooldown breathing ring (components/CooldownPanel.tsx): 4 s in, 2 s hold,
+   6 s out on a 12 s cycle. Reduced motion holds it still. */
+@keyframes tm-breath {
+  0% {
+    transform: scale(1);
+  }
+  33.3% {
+    transform: scale(1.32);
+  }
+  50% {
+    transform: scale(1.32);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.tm-breath {
+  animation: tm-breath 12s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tm-breath {
+    animation: none;
+  }
+}

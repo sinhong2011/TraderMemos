@@ -12,6 +12,7 @@ import (
 	"github.com/tradermemos/api/internal/api"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/config"
+	"github.com/tradermemos/api/internal/cooldown"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/econdata"
 	"github.com/tradermemos/api/internal/flexsync"
@@ -116,8 +117,12 @@ func main() {
 	}
 	flexClient := &flexsync.Client{}
 	alertsSvc := alerts.NewService(q, logger, cfg.AlertsAllowPrivateWebhooks)
+	cooldownSvc := cooldown.NewService(q, alertsSvc, logger)
 	tradesSvc := trades.NewService(q)
-	tradesSvc.AfterRegroup = func(userID, _ string) { alertsSvc.TradeWritten(userID) }
+	tradesSvc.AfterRegroup = func(userID, _ string) {
+		alertsSvc.TradeWritten(userID)
+		cooldownSvc.TradeWritten(userID)
+	}
 	s := api.New(api.Deps{
 		JWTSecret:         cfg.JWTSecret,
 		JWT:               jwt,
@@ -125,6 +130,7 @@ func main() {
 		Store:             q,
 		Trades:            tradesSvc,
 		Alerts:            alertsSvc,
+		Cooldown:          cooldownSvc,
 		Logger:            logger,
 		Storage:           storage.NewLocalDisk(attachDir),
 		AttachMaxBytes:    cfg.AttachMaxBytes,

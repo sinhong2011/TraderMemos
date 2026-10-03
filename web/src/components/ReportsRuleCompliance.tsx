@@ -89,7 +89,8 @@ export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleCom
               report.risk_violations +
                 report.daily_loss_breaches +
                 report.trade_limit_breaches +
-                report.loss_streak_breaches,
+                report.loss_streak_breaches +
+                (report.return_rule_breaches ?? 0),
             )}
             hint={
               [
@@ -97,6 +98,8 @@ export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleCom
                 report.daily_loss_breaches > 0 && `${report.daily_loss_breaches} daily-loss`,
                 report.trade_limit_breaches > 0 && `${report.trade_limit_breaches} over-traded`,
                 report.loss_streak_breaches > 0 && `${report.loss_streak_breaches} loss-streak`,
+                (report.return_rule_breaches ?? 0) > 0 &&
+                  `${report.return_rule_breaches} return-rule`,
               ]
                 .filter(Boolean)
                 .join(" \u00b7 ") || "none"
@@ -132,6 +135,7 @@ export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleCom
                     {d.daily_loss_breach && <Pill tone="neg">daily loss</Pill>}
                     {d.trade_limit_breach && <Pill tone="neg">over-traded</Pill>}
                     {d.loss_streak_breach && <Pill tone="neg">loss streak</Pill>}
+                    {d.return_rule_breach && <Pill tone="neg">return rule</Pill>}
                   </span>
                   <span
                     className={

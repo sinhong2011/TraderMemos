@@ -8,6 +8,7 @@ struct TraderMemosWidgets: WidgetBundle {
     RoutineWidget()
     MissedTradesWidget()
     TradingSessionLiveActivity()
+    CooldownLiveActivity()
     if #available(iOS 18.0, *) {
       QuickJournalControl()
       NextRoutineItemControl()
