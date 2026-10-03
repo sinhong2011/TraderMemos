@@ -275,3 +275,82 @@ func TestExtractTradeFromImage_timeout(t *testing.T) {
 		t.Fatalf("want ErrTimeout, got %v", err)
 	}
 }
+
+func TestExtractTradeFromImage_retriesTransientStatus(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if calls < 3 {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			_, _ = w.Write([]byte(`{"error":{"message":"high demand"}}`))
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"choices": []any{map[string]any{"message": map[string]any{
+				"content": `{"symbol":"AAPL","side":"long","rows":[{"side":"buy","quantity":1,"price":10}]}`,
+			}}},
+		})
+	}))
+	defer srv.Close()
+
+	out, err := ExtractTradeFromImage(context.Background(), VisionConfig{
+		Enabled: true, BaseURL: srv.URL, APIKey: "k", HTTPClient: srv.Client(),
+		RetryDelays: []time.Duration{time.Millisecond, time.Millisecond},
+	}, []byte{0x89, 0x50}, "image/png")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if calls != 3 || out.Symbol != "AAPL" {
+		t.Fatalf("calls=%d symbol=%q", calls, out.Symbol)
+	}
+}
+
+func TestExtractTradeFromImage_busyAfterRetries(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer srv.Close()
+
+	_, err := ExtractTradeFromImage(context.Background(), VisionConfig{
+		Enabled: true, BaseURL: srv.URL, APIKey: "k", HTTPClient: srv.Client(),
+		RetryDelays: []time.Duration{time.Millisecond, time.Millisecond},
+	}, []byte{0x89, 0x50}, "image/png")
+	if !errors.Is(err, ErrBusy) {
+		t.Fatalf("got %v want ErrBusy", err)
+	}
+	if calls != 3 {
+		t.Fatalf("calls=%d want 3", calls)
+	}
+}
+
+func TestExtractTradeFromImage_noRetryOnClientError(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer srv.Close()
+
+	_, err := ExtractTradeFromImage(context.Background(), VisionConfig{
+		Enabled: true, BaseURL: srv.URL, APIKey: "k", HTTPClient: srv.Client(),
+		RetryDelays: []time.Duration{time.Millisecond},
+	}, []byte{0x89, 0x50}, "image/png")
+	if err == nil || errors.Is(err, ErrBusy) {
+		t.Fatalf("got %v want plain status error", err)
+	}
+	if calls != 1 {
+		t.Fatalf("calls=%d want 1", calls)
+	}
+}
+
+func TestUpstreamMessage(t *testing.T) {
+	got := upstreamMessage([]byte(`{"error":{"message":"Permission denied: Consumer 'api_key:***' has been suspended.","type":"upstream_error","code":403}}`))
+	if got != "Permission denied: Consumer 'api_key:***' has been suspended." {
+		t.Errorf("json body: %q", got)
+	}
+	if got := upstreamMessage([]byte("<html>Bad Gateway</html>")); got != "<html>Bad Gateway</html>" {
+		t.Errorf("raw body: %q", got)
+	}
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 )
 
 // ErrUnavailable means screenshot parse is disabled or vision is not configured.
@@ -72,6 +73,17 @@ func (s *Service) VisionEnabled() bool {
 
 // ParseImage sends the screenshot to the configured vision model and returns a trade draft.
 func (s *Service) ParseImage(ctx context.Context, image []byte, contentType string) (TradeExtract, error) {
+	return s.ParseImageIn(ctx, image, contentType, nil)
+}
+
+// ParseImageIn is ParseImage reading unlabelled fill times in fallbackZone
+// (the user's market timezone); nil means America/New_York.
+func (s *Service) ParseImageIn(
+	ctx context.Context,
+	image []byte,
+	contentType string,
+	fallbackZone *time.Location,
+) (TradeExtract, error) {
 	if s == nil {
 		return TradeExtract{}, ErrUnavailable
 	}
@@ -79,7 +91,7 @@ func (s *Service) ParseImage(ctx context.Context, image []byte, contentType stri
 	if !cfg.Ready() {
 		return TradeExtract{}, ErrUnavailable
 	}
-	return ExtractTradeFromImage(ctx, cfg, image, contentType)
+	return ExtractTradeFromImageIn(ctx, cfg, image, contentType, fallbackZone)
 }
 
 // MaskAPIKeyHint returns a short hint like "…abcd" for UI display.

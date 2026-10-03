@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/ocr"
@@ -53,7 +54,15 @@ func (s *Server) handleOCRParse(c *echo.Context) error {
 		return Fail(http.StatusRequestEntityTooLarge, "too_large", "image exceeds size limit", nil)
 	}
 
-	out, err := s.deps.OCR.ParseImage(c.Request().Context(), data, ct)
+	// The client's market timezone, for fill times the screen doesn't label.
+	// Unknown or absent: the extractor's default (America/New_York).
+	var fallbackZone *time.Location
+	if tz := strings.TrimSpace(c.FormValue("tz")); tz != "" {
+		if loc, err := time.LoadLocation(tz); err == nil {
+			fallbackZone = loc
+		}
+	}
+	out, err := s.deps.OCR.ParseImageIn(c.Request().Context(), data, ct, fallbackZone)
 	if err != nil {
 		if errors.Is(err, ocr.ErrUnavailable) {
 			return Fail(http.StatusServiceUnavailable, "unavailable", "ocr not available", nil)
@@ -64,6 +73,15 @@ func (s *Server) handleOCRParse(c *echo.Context) error {
 				http.StatusGatewayTimeout,
 				"ocr_timeout",
 				"Vision API timed out — check the endpoint is up, or try a smaller screenshot",
+				nil,
+			)
+		}
+		if errors.Is(err, ocr.ErrBusy) {
+			c.Logger().Warn("ocr parse upstream busy", "err", err)
+			return Fail(
+				http.StatusServiceUnavailable,
+				"ocr_busy",
+				"The vision model is overloaded right now — try again in a minute, or switch models in OCR settings",
 				nil,
 			)
 		}

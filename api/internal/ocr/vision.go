@@ -23,6 +23,30 @@ const DefaultVisionTimeout = 90 * time.Second
 // ErrTimeout means the vision upstream did not respond before the client deadline.
 var ErrTimeout = errors.New("ocr vision timeout")
 
+// nowFunc is the scan clock, for inferring the year of a yearless fill time.
+var nowFunc = time.Now
+
+// ErrBusy means the vision upstream kept shedding load (429 / 503) through every retry.
+var ErrBusy = errors.New("ocr vision busy")
+
+// DefaultVisionRetryDelays is the wait before each retry of a transient upstream
+// status. Providers answer demand spikes with 503 "high demand", which usually
+// clears in seconds — one failed tap shouldn't surface it.
+var DefaultVisionRetryDelays = []time.Duration{1 * time.Second, 3 * time.Second}
+
+// retryableStatus reports whether an upstream status is worth another attempt.
+func retryableStatus(code int) bool {
+	switch code {
+	case http.StatusTooManyRequests,
+		http.StatusInternalServerError,
+		http.StatusBadGateway,
+		http.StatusServiceUnavailable,
+		http.StatusGatewayTimeout:
+		return true
+	}
+	return false
+}
+
 // VisionConfig configures an OpenAI-compatible vision endpoint for screenshot parse.
 type VisionConfig struct {
 	Enabled bool
@@ -35,6 +59,9 @@ type VisionConfig struct {
 	Timeout time.Duration
 	// HTTPClient optional; defaults to a client with Timeout.
 	HTTPClient *http.Client
+	// RetryDelays between attempts on a transient upstream status; nil uses
+	// DefaultVisionRetryDelays.
+	RetryDelays []time.Duration
 }
 
 func (c VisionConfig) Ready() bool {
@@ -60,6 +87,13 @@ func (c VisionConfig) timeout() time.Duration {
 		return c.Timeout
 	}
 	return DefaultVisionTimeout
+}
+
+func (c VisionConfig) retryDelays() []time.Duration {
+	if c.RetryDelays != nil {
+		return c.RetryDelays
+	}
+	return DefaultVisionRetryDelays
 }
 
 func (c VisionConfig) client() *http.Client {
@@ -124,6 +158,7 @@ type visionJSONPayload struct {
 	Symbol         string `json:"symbol"`
 	InstrumentType string `json:"instrument_type"`
 	Side           string `json:"side"`
+	Timezone       string `json:"timezone"`
 	Rows           []struct {
 		Symbol      string  `json:"symbol"`
 		Side        string  `json:"side"`
@@ -146,6 +181,7 @@ Return ONLY JSON with this shape:
   "symbol": "TICKER",
   "instrument_type": "stock|option|future|crypto|forex",
   "side": "long|short",
+  "timezone": "the zone the screen labels its times with, verbatim (e.g. 美東, ET, HKT) — empty if none is shown",
   "rows": [
     {
       "symbol": "TICKER",
@@ -170,10 +206,24 @@ Rules:
 - Include every distinct fill visible — when multiple underlyings appear, emit a row per fill with that row's symbol.
 - Set top-level "symbol" to the majority underlying; still keep every ticker on its rows.
 - side long/short from the earliest opening fill of the majority symbol when unclear.
+- Skip orders that did not execute: cancelled, rejected, expired or still working (e.g. 已撤單, 已撤销, 未成交, 已失效, 待成交, Cancelled, Rejected, Expired, Working). For a partial fill, use only the filled quantity.
 - If unsure, still return best-effort rows and add warnings.`
 
 // ExtractTradeFromImage calls an OpenAI-compatible chat completions vision endpoint.
 func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, contentType string) (TradeExtract, error) {
+	return ExtractTradeFromImageIn(ctx, cfg, image, contentType, nil)
+}
+
+// ExtractTradeFromImageIn is ExtractTradeFromImage with the zone to read fill
+// times in when the screen shows none — the user's market timezone; nil means
+// America/New_York, that setting's default.
+func ExtractTradeFromImageIn(
+	ctx context.Context,
+	cfg VisionConfig,
+	image []byte,
+	contentType string,
+	fallbackZone *time.Location,
+) (TradeExtract, error) {
 	if !cfg.Ready() {
 		return TradeExtract{}, fmt.Errorf("%w: vision not configured", ErrUnavailable)
 	}
@@ -204,33 +254,9 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 	}
 
 	base := strings.TrimRight(strings.TrimSpace(cfg.BaseURL), "/")
-	url := base + "/chat/completions"
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
+	raw, err := postVision(ctx, cfg, base, payload)
 	if err != nil {
 		return TradeExtract{}, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+strings.TrimSpace(cfg.APIKey))
-
-	res, err := cfg.client().Do(req)
-	if err != nil {
-		if isTimeoutErr(err) {
-			return TradeExtract{}, fmt.Errorf(
-				"%w: vision API at %s did not respond within %s",
-				ErrTimeout,
-				base,
-				cfg.timeout(),
-			)
-		}
-		return TradeExtract{}, err
-	}
-	defer res.Body.Close()
-	raw, err := io.ReadAll(io.LimitReader(res.Body, 4<<20))
-	if err != nil {
-		return TradeExtract{}, err
-	}
-	if res.StatusCode >= 300 {
-		return TradeExtract{}, fmt.Errorf("vision api %s: %s", res.Status, truncateRunes(string(raw), 300))
 	}
 
 	var api visionAPIResponse
@@ -258,16 +284,29 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 	out := TradeExtract{
 		Symbol:         strings.ToUpper(strings.TrimSpace(parsed.Symbol)),
 		InstrumentType: strings.ToLower(strings.TrimSpace(parsed.InstrumentType)),
-		Side:           strings.ToLower(strings.TrimSpace(parsed.Side)),
-		Rows:           make([]ExtractedFill, 0, len(parsed.Rows)),
-		Warnings:       append([]string{}, parsed.Warnings...),
+		// Long/short is derived from the fills in finalizeExtract; the model's
+		// own guess only fills in when that can't decide (see below). Trusted
+		// first, it labelled a buy-then-sell SPCX trade "short".
+		Rows:     make([]ExtractedFill, 0, len(parsed.Rows)),
+		Warnings: append([]string{}, parsed.Warnings...),
 	}
 	if out.InstrumentType == "" {
 		out.InstrumentType = "stock"
 	}
-	if out.Side != "long" && out.Side != "short" {
-		out.Side = ""
+	now := nowFunc()
+	screen := screenZone(parsed.Timezone)
+	zone := screen
+	if zone == nil {
+		zone = fallbackZone
+		if zone == nil {
+			zone, _ = time.LoadLocation("America/New_York")
+			if zone == nil {
+				zone = time.UTC
+			}
+		}
 	}
+	unreadTimes := 0
+	zonesUsed := map[string]bool{}
 	for _, r := range parsed.Rows {
 		side := mapSideToBuySell(r.Side)
 		if side == "" {
@@ -287,6 +326,27 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 		if sym == "" {
 			sym = out.Symbol
 		}
+		executedAt := strings.TrimSpace(r.ExecutedAt)
+		if executedAt != "" {
+			if wall, tail, ok := normalizeWallClock(executedAt, now); ok {
+				// A label printed beside this row's time (`(美東)`) beats the
+				// screen-wide one. A bare offset or `Z` doesn't count: models
+				// append those out of RFC3339 habit, not from the screen.
+				loc := zone
+				if label := rowZoneLabel(tail); label != nil {
+					loc = label
+				}
+				t, err := time.ParseInLocation("2006-01-02T15:04:05", wall, loc)
+				if err == nil {
+					executedAt = t.Format(time.RFC3339)
+					zonesUsed[loc.String()] = true
+				} else {
+					unreadTimes++
+				}
+			} else {
+				unreadTimes++
+			}
+		}
 		right := strings.ToLower(strings.TrimSpace(r.OptionRight))
 		if right != "call" && right != "put" {
 			right = ""
@@ -298,7 +358,7 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 			Price:       r.Price,
 			Fees:        fees,
 			Commission:  0,
-			ExecutedAt:  strings.TrimSpace(r.ExecutedAt),
+			ExecutedAt:  executedAt,
 			OptionRight: right,
 			Strike:      r.Strike,
 			Expiry:      strings.TrimSpace(r.Expiry),
@@ -309,15 +369,109 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 		out.Confidence = 0.2
 		return out, nil
 	}
+	if len(zonesUsed) == 1 {
+		for name := range zonesUsed {
+			out.Timezone = name
+		}
+		// Only the fallback is "yours"; a screen-wide or per-row label is
+		// something the screenshot printed.
+		source := "the screen"
+		if screen == nil && out.Timezone == zone.String() {
+			source = "your market timezone"
+		}
+		out.Warnings = append(out.Warnings, fmt.Sprintf("times read as %s (from %s)", out.Timezone, source))
+	}
+	if unreadTimes > 0 {
+		out.Warnings = append(out.Warnings,
+			fmt.Sprintf("couldn't read the time of %d fill(s) — set Executed at by hand", unreadTimes))
+	}
 	out.Warnings = append(out.Warnings, "vision extract — review fills before saving")
 	out = finalizeExtract(out)
-	if out.Side == "" && (parsed.Side == "long" || parsed.Side == "short") {
-		out.Side = parsed.Side
+	if side := strings.ToLower(strings.TrimSpace(parsed.Side)); out.Side == "" && (side == "long" || side == "short") {
+		out.Side = side
 	}
 	if out.Confidence < visionConfidenceFloor {
 		out.Confidence = visionConfidenceFloor + 0.2
 	}
 	return out, nil
+}
+
+// postVision sends the chat completion and returns the 2xx body, retrying
+// transient upstream statuses with cfg.retryDelays() between attempts.
+// Timeouts are not retried: the attempt already spent the whole client deadline.
+func postVision(ctx context.Context, cfg VisionConfig, base string, payload []byte) ([]byte, error) {
+	url := base + "/chat/completions"
+	delays := cfg.retryDelays()
+	for attempt := 0; ; attempt++ {
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+strings.TrimSpace(cfg.APIKey))
+
+		res, err := cfg.client().Do(req)
+		if err != nil {
+			if isTimeoutErr(err) {
+				return nil, fmt.Errorf(
+					"%w: vision API at %s did not respond within %s",
+					ErrTimeout,
+					base,
+					cfg.timeout(),
+				)
+			}
+			return nil, err
+		}
+		raw, err := io.ReadAll(io.LimitReader(res.Body, 4<<20))
+		res.Body.Close()
+		if err != nil {
+			return nil, err
+		}
+		if res.StatusCode < 300 {
+			return raw, nil
+		}
+
+		statusErr := fmt.Errorf("vision api %s: %s", res.Status, upstreamMessage(raw))
+		if !retryableStatus(res.StatusCode) {
+			return nil, statusErr
+		}
+		if attempt >= len(delays) {
+			if res.StatusCode == http.StatusTooManyRequests || res.StatusCode == http.StatusServiceUnavailable {
+				return nil, fmt.Errorf("%w: %w", ErrBusy, statusErr)
+			}
+			return nil, statusErr
+		}
+		select {
+		case <-ctx.Done():
+			return nil, statusErr
+		case <-time.After(delays[attempt]):
+		}
+	}
+}
+
+// rowZoneLabel is the zone named by text trailing a row's time — `(美東)`,
+// `ET`, `HKT` — and nil for nothing, a numeric offset or `Z`.
+func rowZoneLabel(tail string) *time.Location {
+	t := strings.TrimSpace(tail)
+	if t == "" || strings.EqualFold(t, "z") || strings.ContainsAny(t[:1], "+-") {
+		return nil
+	}
+	return screenZone(t)
+}
+
+// upstreamMessage is the provider's own explanation from an error body — the
+// OpenAI-style `{"error":{"message":…}}` most gateways return — falling back to
+// the raw body. It reaches the user verbatim, so the JSON wrapper goes.
+func upstreamMessage(raw []byte) string {
+	var body struct {
+		Error *struct {
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+	if json.Unmarshal(raw, &body) == nil && body.Error != nil && strings.TrimSpace(body.Error.Message) != "" {
+		return truncateRunes(strings.TrimSpace(body.Error.Message), 300)
+	}
+	return truncateRunes(strings.TrimSpace(string(raw)), 300)
 }
 
 func stripJSONFence(s string) string {

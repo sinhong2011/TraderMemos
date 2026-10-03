@@ -25,4 +25,7 @@ type TradeExtract struct {
 	Warnings       []string        `json:"warnings"`
 	// Symbols lists every ticker found when a screenshot spans multiple underlyings.
 	Symbols []string `json:"symbols,omitempty"`
+	// Timezone is the IANA zone the fill times were read in — from the screen's
+	// label when it had one, else the caller's market timezone.
+	Timezone string `json:"timezone,omitempty"`
 }
