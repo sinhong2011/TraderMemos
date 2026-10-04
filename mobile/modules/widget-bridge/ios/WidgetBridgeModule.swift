@@ -77,6 +77,17 @@ public class WidgetBridgeModule: Module {
       WidgetCenter.shared.reloadTimelines(ofKind: "MissedTradesWidget")
     }
 
+    /// The zone the routine's day is keyed by (the market timezone — the app's
+    /// routineDay()). TMShared.today() reads it; a change re-keys the routine
+    /// widget and controls at once rather than at their next timeline.
+    Function("setMarketTimezone") { (timeZone: String) in
+      guard let defaults = UserDefaults(suiteName: Self.appGroup),
+            defaults.string(forKey: Self.marketTimezoneKey) != timeZone
+      else { return }
+      defaults.set(timeZone, forKey: Self.marketTimezoneKey)
+      Self.reloadRoutineSurfaces()
+    }
+
     /// Ticks made in a widget or by Siri that never reached the server, as a
     /// JSON array of {day, id, done}; handing them over removes them.
     Function("takePendingChecks") { () -> String in
@@ -90,6 +101,7 @@ public class WidgetBridgeModule: Module {
   static let routineKey = "routineSnapshot.v1"
   static let missedKey = "missedSnapshot.v1"
   static let pendingKey = "routinePendingChecks.v1"
+  static let marketTimezoneKey = "marketTimezone.v1"
 
   static let keychainQuery: [String: Any] = [
     kSecClass as String: kSecClassGenericPassword,

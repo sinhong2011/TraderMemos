@@ -24,15 +24,40 @@ enum TMShared {
   static let routineWidgetKind = "RoutineWidget"
   static let missedWidgetKind = "MissedTradesWidget"
 
-  /// Today as the routine's day key: the device's local date, the same rule
-  /// as the app's todayNoteDay().
+  /// Written by the app (modules/widget-bridge setMarketTimezone, from
+  /// src/lib/widget-routine.ts) whenever the market timezone pref changes.
+  static let marketTimezoneKey = "marketTimezone.v1"
+  /// The app's MARKET_TIMEZONE_DEFAULT, for a phone that hasn't pushed one yet.
+  static let defaultMarketTimezone = "America/New_York"
+
+  /// The zone the routine's day is keyed by: the market timezone, never the
+  /// device's.
+  static var marketTimeZone: TimeZone {
+    if let id = defaults?.string(forKey: marketTimezoneKey), let zone = TimeZone(identifier: id) {
+      return zone
+    }
+    return TimeZone(identifier: defaultMarketTimezone) ?? .current
+  }
+
+  /// Today as the routine's day key: the trading day on the market clock, the
+  /// same rule as the app's routineDay(). A Hong Kong trader's New York
+  /// session (21:30–04:00 HKT) is one day this way; on the device's date the
+  /// post-session ticks landed on the next one.
   static func today(_ date: Date = .now) -> String {
     let formatter = DateFormatter()
     formatter.calendar = Calendar(identifier: .gregorian)
     formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.timeZone = .current
+    formatter.timeZone = marketTimeZone
     formatter.dateFormat = "yyyy-MM-dd"
     return formatter.string(from: date)
+  }
+
+  /// The market midnight after `date` — when the routine becomes a new day's.
+  static func nextDayStart(after date: Date = .now) -> Date {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = marketTimeZone
+    let start = calendar.startOfDay(for: date)
+    return calendar.date(byAdding: .day, value: 1, to: start) ?? date.addingTimeInterval(86_400)
   }
 
   /// Every surface that shows the routine or the misses, refreshed together.
