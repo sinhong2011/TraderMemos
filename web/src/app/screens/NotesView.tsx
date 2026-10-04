@@ -10,10 +10,11 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { t } from "@lingui/core/macro";
 import { useDeferredValue, useMemo, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { Page } from "@/components/Page";
-import { Pill } from "@/components/Pill";
+import { Pill, type PillTone } from "@/components/Pill";
 import { SegmentedControl, type SegmentOption } from "@/components/SegmentedControl";
 import { CardGridSkeleton } from "@/components/skeletons/card-skeleton";
 import { ListSkeleton } from "@/components/skeletons/list-skeleton";
@@ -52,11 +53,26 @@ export interface NotesViewProps {
 
 type TypeFilter = "all" | JournalNoteType;
 
-const TYPE_OPTS: SegmentOption[] = [
-  { value: "all", label: "All" },
-  { value: "note", label: "Notes" },
-  { value: "daily_log", label: "Logs" },
-];
+function typeOptions(): SegmentOption[] {
+  return [
+    { value: "all", label: "All" },
+    { value: "note", label: "Notes" },
+    { value: "daily_log", label: "Logs" },
+    { value: "weekly_review", label: t`Reviews` },
+  ];
+}
+
+/** Badge text and tone for a note's type. */
+function noteTypeBadge(type: JournalNoteType | undefined): { label: string; tone: PillTone } {
+  switch (type) {
+    case "daily_log":
+      return { label: "Daily log", tone: "accent" };
+    case "weekly_review":
+      return { label: t`Weekly review`, tone: "amber" };
+    default:
+      return { label: "Note", tone: "muted" };
+  }
+}
 
 const LAYOUT_OPTS: SegmentOption[] = [
   {
@@ -268,7 +284,7 @@ function NoteTile({
 }) {
   const { note, preview, progress } = row;
   const locale = intlLocale();
-  const isDailyLog = note.type === "daily_log";
+  const badge = noteTypeBadge(note.type);
   const symbols = note.symbols ?? [];
   const isCard = layout === "cards";
 
@@ -305,8 +321,8 @@ function NoteTile({
               <CalendarDays size={12} strokeWidth={1.75} aria-hidden />
               {formatNoteDay(note.occurred_at, locale)}
             </span>
-            <Pill tone={isDailyLog ? "accent" : "muted"} className="px-1.5 py-0 text-[10px]">
-              {isDailyLog ? "Daily log" : "Note"}
+            <Pill tone={badge.tone} className="px-1.5 py-0 text-[10px]">
+              {badge.label}
             </Pill>
             {progress ? (
               <span
@@ -454,7 +470,7 @@ export function NotesView({ notes, loading, error, onDelete, routineByDay }: Not
               <SegmentedControl
                 ariaLabel="Filter notes by type"
                 size="xs"
-                options={TYPE_OPTS}
+                options={typeOptions()}
                 value={typeFilter}
                 onChange={(v) => setTypeFilter(v as TypeFilter)}
               />

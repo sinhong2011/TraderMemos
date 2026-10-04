@@ -412,7 +412,8 @@ export interface CashTransaction {
   created_at: string;
 }
 
-export type JournalNoteType = "note" | "daily_log";
+/** `weekly_review` notes are created by the server's Saturday weekly review. */
+export type JournalNoteType = "note" | "daily_log" | "weekly_review";
 
 export interface JournalNoteSymbol {
   symbol: string;

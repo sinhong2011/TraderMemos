@@ -64,6 +64,7 @@ vi.mock("../../lib/hooks/useAlerts", () => ({
       prop_warn_pct: 0.8,
       rule_unreviewed: true,
       unreviewed_days: 7,
+      rule_weekly_review: true,
     },
     isLoading: false,
     isError: false,
