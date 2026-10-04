@@ -6,6 +6,9 @@ import (
 )
 
 // DefaultSessionTZ is the US equity session clock (Premarket / RTH / Afterhours).
+// Intentionally fixed: these sessions are defined by the US exchange clock (every
+// supported importer is a US broker), so the request's market `tz` must never
+// shift them — unlike day / hour / weekday / duration bucketing, which follow it.
 const DefaultSessionTZ = "America/New_York"
 
 // US/Eastern is the session clock for US equity day traders.

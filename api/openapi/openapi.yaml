@@ -962,6 +962,10 @@ paths:
         - $ref: "#/components/parameters/AccountIdQuery"
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
       responses:
         "200":
           description: Summary
@@ -981,6 +985,9 @@ paths:
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
         - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
       responses:
         "200":
           description: Daily rows
@@ -995,6 +1002,9 @@ paths:
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
         - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
       responses:
         "200":
           description: Behavior report
@@ -1013,6 +1023,10 @@ paths:
         - $ref: "#/components/parameters/AccountIdQuery"
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
       responses:
         "200":
           description: Equity points
@@ -1031,6 +1045,10 @@ paths:
         - $ref: "#/components/parameters/AccountIdQuery"
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
       responses:
         "200":
           description: Edge Score with per-component scores, weights and raw inputs
@@ -1756,11 +1774,45 @@ components:
       name: tz
       in: query
       description: >
-        IANA timezone for day / hour-of-day / weekday bucketing
-        (e.g. `America/New_York`). Defaults to UTC. Session bucketing
-        always uses the US-equity clock (Eastern).
+        IANA timezone of the trader's market clock (e.g. `America/New_York`,
+        `Asia/Hong_Kong`). Drives day / hour-of-day / weekday bucketing
+        (defaults to UTC when omitted) and the trading-day comparison behind
+        the `duration` filter (defaults to `America/New_York` when omitted).
+        An unknown name returns 400. Session bucketing (Premarket / RTH /
+        Afterhours) always uses the US-equity clock (Eastern), regardless of
+        this parameter.
       schema:
         type: string
+    SideQuery:
+      name: side
+      in: query
+      description: Keep only long or short trades. Omit for both.
+      schema:
+        type: string
+        enum: [long, short]
+    DurationQuery:
+      name: duration
+      in: query
+      description: >
+        Keep only trades in one holding-period bucket, decided on the `tz`
+        market clock (`America/New_York` when `tz` is omitted). `swing` closed
+        on a later calendar day than it opened; `scalp` opened and closed the
+        same day and was held under 600 seconds; `day` is any other same-day
+        trade (including unknown time in trade). Open trades never match.
+        Omit for all.
+      schema:
+        type: string
+        enum: [scalp, day, swing]
+    DateBasisQuery:
+      name: date_basis
+      in: query
+      description: >
+        Which timestamp `from` / `to` (and daily bucketing) apply to: `close`
+        uses closed_at, `open` uses opened_at. Omitted behaves as `close` for
+        analytics.
+      schema:
+        type: string
+        enum: [close, open]
   responses:
     Error:
       description: Error

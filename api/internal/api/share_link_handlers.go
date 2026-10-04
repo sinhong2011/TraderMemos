@@ -227,6 +227,7 @@ func (s *Server) handlePublicShare(c *echo.Context) error {
 	if scope.Tz != "" {
 		if loc, err := time.LoadLocation(scope.Tz); err == nil {
 			f.Loc = loc
+			f.MarketLoc = loc
 		}
 	}
 	if scope.From != "" {
