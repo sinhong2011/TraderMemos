@@ -6,9 +6,9 @@ INSERT INTO alert_settings (
     user_id, enabled, timezone,
     rule_risk, rule_daily_loss, rule_loss_streak, loss_streak_n,
     rule_prop_drawdown, prop_warn_pct, rule_unreviewed, unreviewed_days,
-    updated_at
+    rule_weekly_review, updated_at
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
 ON CONFLICT(user_id) DO UPDATE SET
     enabled = excluded.enabled,
     timezone = excluded.timezone,
@@ -20,6 +20,7 @@ ON CONFLICT(user_id) DO UPDATE SET
     prop_warn_pct = excluded.prop_warn_pct,
     rule_unreviewed = excluded.rule_unreviewed,
     unreviewed_days = excluded.unreviewed_days,
+    rule_weekly_review = excluded.rule_weekly_review,
     updated_at = CURRENT_TIMESTAMP
 RETURNING *;
 

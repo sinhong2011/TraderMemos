@@ -59,6 +59,10 @@ type Event struct {
 	DedupeKey string
 	Title     string
 	Body      string
+	// Data rides along to the client untouched: the Expo push `data` and the
+	// webhook's `data` object. A `route` key is an app path the mobile app
+	// opens when the notification is tapped. Nil for most rules.
+	Data map[string]string
 }
 
 // Evaluate runs the trade-based rules (risk per trade, daily loss, loss

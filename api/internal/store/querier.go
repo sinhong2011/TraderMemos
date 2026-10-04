@@ -83,6 +83,7 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id string) (User, error)
 	GetUserPreferences(ctx context.Context, userID string) (UserPreference, error)
+	GetWeeklyReview(ctx context.Context, arg GetWeeklyReviewParams) (WeeklyReview, error)
 	IncrementShareLinkViews(ctx context.Context, id string) error
 	InsertAlertEvent(ctx context.Context, arg InsertAlertEventParams) (int64, error)
 	InsertAttachment(ctx context.Context, arg InsertAttachmentParams) (TradeAttachment, error)
@@ -138,6 +139,7 @@ type Querier interface {
 	// symbols forever.
 	ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error)
 	ListUsers(ctx context.Context) ([]User, error)
+	MarkWeeklyReviewSent(ctx context.Context, arg MarkWeeklyReviewSentParams) error
 	MoveRoutineChecks(ctx context.Context, arg MoveRoutineChecksParams) error
 	PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error
 	RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error
@@ -180,6 +182,7 @@ type Querier interface {
 	UpsertTrade(ctx context.Context, arg UpsertTradeParams) error
 	UpsertTradeJournal(ctx context.Context, arg UpsertTradeJournalParams) error
 	UpsertUserPreferences(ctx context.Context, arg UpsertUserPreferencesParams) (UserPreference, error)
+	UpsertWeeklyReviewNote(ctx context.Context, arg UpsertWeeklyReviewNoteParams) error
 }
 
 var _ Querier = (*Queries)(nil)

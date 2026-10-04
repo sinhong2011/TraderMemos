@@ -250,6 +250,8 @@ export type AlertSettings = {
   prop_warn_pct: number;
   rule_unreviewed: boolean;
   unreviewed_days: number;
+  /** Saturday 09:00 (market timezone) weekly review push + prefilled note. */
+  rule_weekly_review: boolean;
 };
 
 /** GET/PUT /settings/risk-rules (riskRulesDTO) — null clears a rule. */
@@ -1023,7 +1025,8 @@ export type ImportBatch = {
 // Notes (notes_handlers.go)
 // ---------------------------------------------------------------------------
 
-export type NoteType = 'note' | 'daily_log';
+/** `weekly_review` notes are created by the server's Saturday weekly review. */
+export type NoteType = 'note' | 'daily_log' | 'weekly_review';
 
 /** Per-symbol journal block — only present on daily logs. */
 export type NoteSymbol = {

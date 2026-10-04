@@ -115,6 +115,10 @@ msgstr "連続日数"
 msgid "Directory"
 msgstr "保存先"
 
+#: src/app/drawers/NewNoteDrawer.tsx:187
+msgid "Edit weekly review"
+msgstr "週次レビューを編集"
+
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
 msgstr "{interval}ごと"
@@ -246,6 +250,14 @@ msgstr "プロフィットファクター"
 msgid "Red days"
 msgstr "マイナスの日"
 
+#: src/app/screens/NotesView.tsx:61
+msgid "Reviews"
+msgstr "レビュー"
+
+#: src/app/screens/settings/alerts-section.tsx:323
+msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
+msgstr "マーケットタイムゾーンの土曜 09:00 に、その週の損益・勝率・R・セットアップ・ルール違反・見送ったトレードを、記入用のレビューメモにまとめて届けます。"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2108
 msgid "Save"
 msgstr "保存"
@@ -310,6 +322,20 @@ msgstr "このサーバーは Postgres で動作しています。組み込み�
 msgid "Trades per month."
 msgstr "月あたりのトレード数。"
 
+#: src/app/drawers/NewNoteDrawer.tsx:92
+#: src/app/screens/NotesView.tsx:71
+#: src/app/screens/settings/alerts-section.tsx:322
+msgid "Weekly review"
+msgstr "週次レビュー"
+
+#: src/app/screens/settings/alerts-section.tsx:329
+msgid "Weekly review alerts"
+msgstr "週次レビューのアラート"
+
+#: src/app/drawers/NewNoteDrawer.tsx:110
+msgid "Weekly review updated"
+msgstr "週次レビューを更新しました"
+
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
 msgid "Win rate"
@@ -318,3 +344,7 @@ msgstr "勝率"
 #: src/app/screens/PublicShareView.tsx:315
 msgid "Worst day"
 msgstr "最悪の日"
+
+#: src/app/drawers/NewNoteDrawer.tsx:195
+msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
+msgstr "今週の数字と、うまくいったこと・いかなかったこと・来週の重点。"

@@ -115,6 +115,10 @@ msgstr "연속 일수"
 msgid "Directory"
 msgstr "디렉터리"
 
+#: src/app/drawers/NewNoteDrawer.tsx:187
+msgid "Edit weekly review"
+msgstr "주간 리뷰 편집"
+
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
 msgstr "{interval}마다"
@@ -246,6 +250,14 @@ msgstr "프로핏 팩터"
 msgid "Red days"
 msgstr "손실일"
 
+#: src/app/screens/NotesView.tsx:61
+msgid "Reviews"
+msgstr "리뷰"
+
+#: src/app/screens/settings/alerts-section.tsx:323
+msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
+msgstr "마켓 시간대 기준 토요일 09:00에 한 주의 손익, 승률, R, 셋업, 규칙 위반, 놓친 거래를 작성용 리뷰 노트로 정리해 보냅니다."
+
 #: src/app/drawers/NewTradeDrawer.tsx:2108
 msgid "Save"
 msgstr "저장"
@@ -310,6 +322,20 @@ msgstr "이 서버는 Postgres에서 실행 중입니다. 기본 제공 백업�
 msgid "Trades per month."
 msgstr "월별 거래 수."
 
+#: src/app/drawers/NewNoteDrawer.tsx:92
+#: src/app/screens/NotesView.tsx:71
+#: src/app/screens/settings/alerts-section.tsx:322
+msgid "Weekly review"
+msgstr "주간 리뷰"
+
+#: src/app/screens/settings/alerts-section.tsx:329
+msgid "Weekly review alerts"
+msgstr "주간 리뷰 알림"
+
+#: src/app/drawers/NewNoteDrawer.tsx:110
+msgid "Weekly review updated"
+msgstr "주간 리뷰를 업데이트했습니다"
+
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
 msgid "Win rate"
@@ -318,3 +344,7 @@ msgstr "승률"
 #: src/app/screens/PublicShareView.tsx:315
 msgid "Worst day"
 msgstr "최악의 날"
+
+#: src/app/drawers/NewNoteDrawer.tsx:195
+msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
+msgstr "한 주의 숫자, 그리고 잘된 점, 안 된 점, 다음 주의 초점."

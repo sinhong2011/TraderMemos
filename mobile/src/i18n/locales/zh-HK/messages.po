@@ -18,7 +18,7 @@ msgstr ""
 msgid "“{0}” stops working immediately. This cannot be undone."
 msgstr "「{0}」將立即失效。此操作無法復原。"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:173
+#: src/app/(tabs)/(dashboard)/notes.tsx:184
 msgid "“{label}” is removed for good. This cannot be undone."
 msgstr "「{label}」將被永久刪除，此操作無法復原。"
 
@@ -281,7 +281,7 @@ msgstr "{0} 年度回顧"
 
 #. placeholder {0}: progress.done
 #. placeholder {1}: progress.total
-#: src/app/(tabs)/(dashboard)/notes.tsx:110
+#: src/app/(tabs)/(dashboard)/notes.tsx:121
 msgid "{0}/{1} checks"
 msgstr "已完成 {0}/{1}"
 
@@ -297,7 +297,7 @@ msgstr "已用去單日虧損預算的 {0}%。"
 
 #. placeholder {0}: summary.data?.wins ?? 0
 #. placeholder {1}: summary.data?.losses ?? 0
-#: src/app/(tabs)/(calendar)/day/[date].tsx:340
+#: src/app/(tabs)/(calendar)/day/[date].tsx:345
 msgid "{0}W · {1}L"
 msgstr "{0}勝 · {1}負"
 
@@ -310,7 +310,7 @@ msgstr "{0}勝 · {1}負"
 msgid "{0}W {1}L"
 msgstr "{0}勝 {1}負"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:114
+#: src/app/(tabs)/(dashboard)/notes.tsx:125
 msgid "{charts} charts"
 msgstr "{charts} 張圖表"
 
@@ -499,7 +499,7 @@ msgstr "1 {from} = {0} {to}"
 msgid "1 change queued"
 msgstr "1 項變更待同步"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:114
+#: src/app/(tabs)/(dashboard)/notes.tsx:125
 msgid "1 chart"
 msgstr "1 張圖表"
 
@@ -937,7 +937,7 @@ msgstr "提示"
 msgid "Alerts are evaluated on your server after every trade and delivered to each registered device and webhook. Free, always."
 msgstr "每筆交易後由你自己嘅伺服器評估提示，並發送到每部已登記裝置同Webhook。永久免費。"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:192
+#: src/app/(tabs)/(dashboard)/notes.tsx:203
 #: src/app/(tabs)/(trades)/index.tsx:197
 #: src/app/(tabs)/(trades)/index.tsx:291
 msgid "All"
@@ -1027,7 +1027,7 @@ msgstr "不限"
 msgid "Any duration"
 msgstr "所有持倉時長"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:287
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "任何 OpenAI 相容端點都可以。測試會使用上方的值，即使尚未儲存。"
 
@@ -1035,8 +1035,8 @@ msgstr "任何 OpenAI 相容端點都可以。測試會使用上方的值，即�
 msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 msgstr "任何持有連結的人都可以查看目前範圍的唯讀摘要 — 不包含交易、筆記或帳戶資料。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:224
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:299
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:230
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:305
 msgid "API key"
 msgstr "API 金鑰"
 
@@ -1271,8 +1271,8 @@ msgstr "結餘，{0}，由 {1}"
 msgid "Base currency"
 msgstr "基礎貨幣"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:203
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:285
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:209
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:291
 msgid "Base URL"
 msgstr "基礎 URL"
 
@@ -1481,7 +1481,7 @@ msgstr "無法連接 {serverHost}"
 msgid "Can't reach the server"
 msgstr "無法連接伺服器"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:174
+#: src/app/(tabs)/(dashboard)/notes.tsx:185
 #: src/app/(tabs)/(settings)/account-form.tsx:202
 #: src/app/(tabs)/(settings)/account-form.tsx:213
 #: src/app/(tabs)/(settings)/api-tokens.tsx:150
@@ -1536,7 +1536,7 @@ msgstr "資金買不起一股 — 選較便宜的標的或增加資金"
 #~ msgid "Caps how many images one trade keeps, so a busy day of chart grabs doesn't fill the device."
 #~ msgstr "限制單筆交易可保留的圖片數量，圖表截圖多的日子也不會塞爆裝置。"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:314
+#: src/app/(tabs)/(dashboard)/notes.tsx:326
 msgid "Capture market thoughts or a daily log from the + menu."
 msgstr "從 + 選單記錄市場想法或每日日誌。"
 
@@ -1842,7 +1842,7 @@ msgstr "連接一次 — 新成交會自動送到。"
 msgid "Connect to your TraderMemos server."
 msgstr "連接你自己的 TraderMemos 伺服器。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:280
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:286
 msgid "Connection"
 msgstr "連線"
 
@@ -1853,7 +1853,7 @@ msgstr "連線"
 #~ msgstr "連線正常"
 
 #. placeholder {0}: formatLatency(elapsedMs)
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:158
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:164
 msgid "Connection OK · {0}"
 msgstr "連線正常 · {0}"
 
@@ -1972,7 +1972,7 @@ msgstr "無法刪除"
 msgid "Could not delete account"
 msgstr "無法刪除帳戶"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:168
+#: src/app/(tabs)/(dashboard)/notes.tsx:179
 msgid "Could not delete note"
 msgstr "無法刪除筆記"
 
@@ -2018,7 +2018,7 @@ msgstr "無法匯入設定"
 #~ msgid "Could not load your account."
 #~ msgstr "無法載入帳戶資料。"
 
-#: src/app/_layout.tsx:78
+#: src/app/_layout.tsx:79
 msgid "Could not open file"
 msgstr "無法開啟檔案"
 
@@ -2071,7 +2071,7 @@ msgstr "無法還原"
 #: src/app/(tabs)/(settings)/account-form.tsx:172
 #: src/app/(tabs)/(settings)/account-form.tsx:176
 #: src/app/(tabs)/(settings)/account-form.tsx:185
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:138
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:144
 #: src/app/(tabs)/(settings)/alerts.tsx:34
 #: src/app/(tabs)/(settings)/flex-sync.tsx:61
 #: src/app/(tabs)/(settings)/flex-sync.tsx:90
@@ -2277,10 +2277,9 @@ msgstr "每日"
 #~ msgid "Daily checklist"
 #~ msgstr "每日清單"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:204
-#: src/app/(tabs)/(calendar)/day/[date].tsx:382
-#: src/app/(tabs)/(dashboard)/notes.tsx:97
-#: src/app/(tabs)/(dashboard)/notes.tsx:172
+#: src/app/(tabs)/(calendar)/day/[date].tsx:206
+#: src/app/(tabs)/(calendar)/day/[date].tsx:387
+#: src/app/(tabs)/(dashboard)/notes.tsx:36
 #: src/components/note-form.tsx:84
 #: src/components/note-form.tsx:233
 #: src/lib/outbox.ts:505
@@ -2362,7 +2361,7 @@ msgstr "日期"
 msgid "Dates read as day/month — {example} is {0}."
 msgstr "日期按日/月讀取：{example} 即 {0}。"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:271
+#: src/app/(tabs)/(calendar)/day/[date].tsx:276
 #: src/components/breakdown-card.tsx:25
 #: src/components/reports-filter-menu.tsx:53
 #: src/components/reports/winloss-section.tsx:88
@@ -2408,8 +2407,8 @@ msgid "Define the profit target, drawdown, and daily-loss rules to track this ev
 msgstr "設定利潤目標、回撤及單日虧損規則，即可追蹤此評估。"
 
 #: src/app/(tabs)/(dashboard)/missed-trades.tsx:210
-#: src/app/(tabs)/(dashboard)/notes.tsx:89
-#: src/app/(tabs)/(dashboard)/notes.tsx:175
+#: src/app/(tabs)/(dashboard)/notes.tsx:102
+#: src/app/(tabs)/(dashboard)/notes.tsx:186
 #: src/app/(tabs)/(settings)/account-form.tsx:214
 #: src/app/(tabs)/(settings)/tags.tsx:39
 #: src/app/(tabs)/(settings)/tags.tsx:98
@@ -2432,11 +2431,11 @@ msgstr "刪除帳戶"
 msgid "Delete account?"
 msgstr "刪除帳戶？"
 
-#: src/app/edit-note.tsx:107
+#: src/app/edit-note.tsx:114
 msgid "Delete note"
 msgstr "刪除筆記"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:173
+#: src/app/(tabs)/(dashboard)/notes.tsx:184
 #: src/app/edit-note.tsx:78
 msgid "Delete note?"
 msgstr "刪除筆記？"
@@ -2590,8 +2589,8 @@ msgstr "記低平倉原因 — 觸及止蝕、論點失效或情緒 — 方能�
 msgid "Dollars"
 msgstr "金額"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:207
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:228
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:213
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:234
 #: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
 #: src/components/time-picker.tsx:100
@@ -2722,9 +2721,9 @@ msgstr "編輯項目"
 msgid "Edit missed trade"
 msgstr "編輯錯過的交易"
 
-#: src/app/edit-note.tsx:86
-#: src/app/edit-note.tsx:143
-#: src/app/edit-note.tsx:160
+#: src/app/edit-note.tsx:91
+#: src/app/edit-note.tsx:150
+#: src/app/edit-note.tsx:167
 msgid "Edit note"
 msgstr "編輯筆記"
 
@@ -2765,7 +2764,7 @@ msgstr "情緒"
 msgid "Enable alerts"
 msgstr "啟用提示"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:270
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:276
 msgid "Enabled"
 msgstr "啟用"
 
@@ -2870,7 +2869,7 @@ msgstr "輸入用戶名稱"
 msgid "Enter your username and password"
 msgstr "請輸入使用者名稱同密碼"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:247
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:253
 msgid "Entered — not saved yet"
 msgstr "已輸入 — 尚未儲存"
 
@@ -3148,7 +3147,7 @@ msgstr "公允價值缺口"
 msgid "Fee"
 msgstr "費用"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:345
+#: src/app/(tabs)/(calendar)/day/[date].tsx:350
 #: src/app/(tabs)/(settings)/import-trades.tsx:50
 #: src/app/(tabs)/(trades)/[id].tsx:293
 #: src/app/trade-preview.tsx:154
@@ -3718,11 +3717,11 @@ msgstr "利息"
 msgid "Interval"
 msgstr "時間週期"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:355
+#: src/app/(tabs)/(calendar)/day/[date].tsx:360
 msgid "Intraday P&L"
 msgstr "日內損益"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:212
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:218
 msgid "Invalid URL"
 msgstr "URL 無效"
 
@@ -3847,11 +3846,11 @@ msgstr "留空即可清除目標。"
 msgid "Leave blank to drop this rule."
 msgstr "留空即取消此規則。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:226
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:232
 msgid "Leave blank to keep the key already stored on the server."
 msgstr "留空即保留伺服器上已儲存的金鑰。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:344
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:350
 msgid "Leave blank to use the built-in prompt"
 msgstr "留空則使用內建提示"
 
@@ -3929,7 +3928,7 @@ msgstr "載入模型中…"
 msgid "Loading report"
 msgstr "正在載入報告"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:317
+#: src/app/(tabs)/(calendar)/day/[date].tsx:322
 msgid "Loading session summary"
 msgstr "正在載入時段摘要"
 
@@ -3953,7 +3952,7 @@ msgstr "正在載入勝負報告"
 msgid "Loading your dashboard"
 msgstr "正在載入儀表板"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:257
+#: src/app/(tabs)/(dashboard)/notes.tsx:269
 msgid "Loading your notes"
 msgstr "正在載入筆記"
 
@@ -3968,7 +3967,7 @@ msgstr "載入緊你嘅年度回顧"
 #: src/app/(tabs)/(dashboard)/checklist.tsx:231
 #: src/app/(tabs)/(settings)/account-form.tsx:70
 #: src/app/(tabs)/(settings)/ai.tsx:71
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:84
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:90
 #: src/app/(tabs)/(settings)/profile.tsx:36
 #: src/app/(tabs)/(settings)/risk-rules.tsx:232
 #: src/app/(tabs)/(settings)/user-detail.tsx:92
@@ -3984,7 +3983,7 @@ msgstr "地區 翻譯 語言"
 msgid "Locked at tiers"
 msgstr "層級鎖定利潤"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:105
+#: src/app/(tabs)/(dashboard)/notes.tsx:36
 msgid "Log"
 msgstr "日誌"
 
@@ -4005,7 +4004,7 @@ msgstr "已記錄"
 msgid "Logging into {accountName}"
 msgstr "將記錄至 {accountName}"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:194
+#: src/app/(tabs)/(dashboard)/notes.tsx:205
 msgid "Logs"
 msgstr "日誌"
 
@@ -4436,7 +4435,7 @@ msgstr "淨損益"
 msgid "Net (after fees)"
 msgstr "淨額（已扣費用）"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:330
+#: src/app/(tabs)/(calendar)/day/[date].tsx:335
 #: src/app/(tabs)/(calendar)/index.tsx:250
 #: src/app/(tabs)/(calendar)/index.tsx:1271
 #: src/app/(tabs)/(calendar)/index.tsx:1589
@@ -4481,7 +4480,7 @@ msgstr "永不過期"
 msgid "Never triggered"
 msgstr "未觸發"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:384
+#: src/app/(tabs)/(calendar)/day/[date].tsx:389
 msgid "New"
 msgstr "新增"
 
@@ -4497,7 +4496,7 @@ msgstr "新增每日日誌"
 msgid "New item"
 msgstr "新項目"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:184
+#: src/app/(tabs)/(dashboard)/notes.tsx:195
 #: src/app/new-note.tsx:77
 #: src/components/add-menu.tsx:27
 msgid "New note"
@@ -4548,7 +4547,7 @@ msgstr "下一個"
 msgid "Next action"
 msgstr "下一步行動"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:287
+#: src/app/(tabs)/(calendar)/day/[date].tsx:292
 msgid "Next day"
 msgstr "下一天"
 
@@ -4687,7 +4686,7 @@ msgstr "尚無清單"
 msgid "No losses"
 msgstr "沒有虧損"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:307
+#: src/app/(tabs)/(dashboard)/notes.tsx:319
 msgid "No matching notes"
 msgstr "沒有符合的筆記"
 
@@ -4707,7 +4706,7 @@ msgstr "沒有標記錯誤。"
 msgid "No models match."
 msgstr "沒有相符的模型。"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:307
+#: src/app/(tabs)/(dashboard)/notes.tsx:319
 msgid "No notes yet"
 msgstr "尚無筆記"
 
@@ -4790,7 +4789,7 @@ msgstr "尚未有標籤"
 msgid "No tokens yet"
 msgstr "尚未有權杖"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:337
+#: src/app/(tabs)/(calendar)/day/[date].tsx:342
 #: src/app/(tabs)/(calendar)/index.tsx:1360
 #: src/app/(tabs)/(calendar)/index.tsx:1540
 #: src/app/(tabs)/(calendar)/index.tsx:1687
@@ -4814,7 +4813,7 @@ msgstr "沒有符合此篩選的交易。"
 msgid "No trades matching \"{search}\""
 msgstr "沒有符合「{search}」的交易"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:371
+#: src/app/(tabs)/(calendar)/day/[date].tsx:376
 msgid "No trades on this day."
 msgstr "這天沒有交易。"
 
@@ -4887,7 +4886,7 @@ msgstr "找不到項目"
 msgid "Not rated"
 msgstr "未評分"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:256
 #: src/app/(tabs)/(settings)/integrations.tsx:27
 #: src/app/(tabs)/(settings)/integrations.tsx:56
 #: src/app/(tabs)/(settings)/prop-settings.tsx:112
@@ -4912,27 +4911,27 @@ msgstr "尚未使用"
 msgid "Not valid JSON."
 msgstr "不是有效的 JSON。"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:204
-#: src/app/(tabs)/(dashboard)/notes.tsx:105
+#: src/app/(tabs)/(calendar)/day/[date].tsx:209
+#: src/app/(tabs)/(dashboard)/notes.tsx:40
 #: src/app/cash-form.tsx:201
 #: src/components/note-form.tsx:83
 #: src/components/trade-form.tsx:601
-#: src/lib/outbox.ts:505
+#: src/lib/outbox.ts:506
 msgid "Note"
 msgstr "筆記"
 
-#: src/lib/outbox.ts:508
+#: src/lib/outbox.ts:509
 msgid "Note deletion"
 msgstr "刪除筆記"
 
-#: src/app/edit-note.tsx:161
+#: src/app/edit-note.tsx:168
 msgid "Note not found"
 msgstr "找不到筆記"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:93
 #: src/app/(tabs)/(dashboard)/index.tsx:217
-#: src/app/(tabs)/(dashboard)/notes.tsx:193
-#: src/app/(tabs)/(dashboard)/notes.tsx:244
+#: src/app/(tabs)/(dashboard)/notes.tsx:204
+#: src/app/(tabs)/(dashboard)/notes.tsx:256
 #: src/app/(tabs)/(trades)/[id].tsx:819
 #: src/app/missed-trade-form.tsx:223
 #: src/components/tools-menu.tsx:64
@@ -4947,7 +4946,7 @@ msgstr "無法從這些檔案讀取任何內容。請到設定 → AI 檢查端�
 msgid "Nothing imported yet"
 msgstr "未有任何匯入"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:395
+#: src/app/(tabs)/(calendar)/day/[date].tsx:400
 msgid "Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written."
 msgstr "這天還未有任何日誌。趁記憶猶新寫兩分鐘回顧，勝過永遠寫不成的完美檢討。"
 
@@ -5545,7 +5544,7 @@ msgstr "預覽匯入"
 msgid "Previous"
 msgstr "上一個"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:278
+#: src/app/(tabs)/(calendar)/day/[date].tsx:283
 msgid "Previous day"
 msgstr "上一天"
 
@@ -5654,8 +5653,8 @@ msgstr "利潤目標"
 #~ msgid "Profit target — {0}"
 #~ msgstr "利潤目標 — {0}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:339
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:349
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:345
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:355
 msgid "Prompt"
 msgstr "提示"
 
@@ -6089,6 +6088,7 @@ msgstr "報復性交易 ×{0}"
 msgid "Revenge trading"
 msgstr "報復性交易"
 
+#: src/app/(tabs)/(dashboard)/notes.tsx:38
 #: src/app/(tabs)/(trades)/[id].tsx:748
 #: src/app/quick-journal.tsx:90
 #: src/app/quick-journal.tsx:210
@@ -6113,6 +6113,10 @@ msgstr "檢討筆記"
 #: src/app/replay.tsx:1069
 msgid "Reviewing an earlier bar — step forward to trade."
 msgstr "正在檢視較早的K線 — 前進一根才可下單。"
+
+#: src/app/(tabs)/(dashboard)/notes.tsx:206
+msgid "Reviews"
+msgstr "回顧"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:38
 msgid "Reviews your journal and trades to surface patterns on the dashboard."
@@ -6221,7 +6225,7 @@ msgstr "例行記錄，完成率 {0}"
 #~ msgid "routine morning pre-market process rules"
 #~ msgstr "例行 早晨 開市前 流程 規則"
 
-#: src/lib/outbox.ts:512
+#: src/lib/outbox.ts:513
 msgid "Routine tick"
 msgstr "例行勾選"
 
@@ -6294,7 +6298,7 @@ msgid "Sat"
 msgstr "六"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:267
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6333,7 +6337,7 @@ msgstr "儲存時段"
 msgid "Save trade"
 msgstr "儲存交易"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:249
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:255
 msgid "Saved"
 msgstr "已儲存"
 
@@ -6341,7 +6345,7 @@ msgstr "已儲存"
 #~ msgstr "已儲存 — 留空以保留"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:267
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6448,8 +6452,8 @@ msgstr "搜尋事件"
 msgid "Search models"
 msgstr "搜尋模型"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:219
-#: src/app/(tabs)/(dashboard)/notes.tsx:324
+#: src/app/(tabs)/(dashboard)/notes.tsx:231
+#: src/app/(tabs)/(dashboard)/notes.tsx:336
 msgid "Search notes"
 msgstr "搜尋筆記"
 
@@ -6545,7 +6549,7 @@ msgstr "時段操作"
 #~ msgid "Session recap"
 #~ msgstr "當日回顧"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:315
+#: src/app/(tabs)/(calendar)/day/[date].tsx:320
 msgid "Session summary"
 msgstr "當日摘要"
 
@@ -6937,7 +6941,7 @@ msgstr "止蝕權利金必須低於入場權利金"
 msgid "Stop when today's realized loss hits this amount."
 msgstr "當日已實現虧損達此金額時停止。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:227
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:233
 msgid "Stored on your server, never on this phone."
 msgstr "金鑰只儲存在你的伺服器，不會留在這部手機。"
 
@@ -7214,11 +7218,11 @@ msgstr "達成目標"
 msgid "Tempo"
 msgstr "節奏"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:329
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:335
 msgid "Test connection"
 msgstr "測試連線"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:329
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:335
 msgid "Testing…"
 msgstr "測試中…"
 
@@ -7248,7 +7252,7 @@ msgstr "共 {0} 筆交易，顯示最近 {MAX_TRADE_ROWS} 筆。"
 msgid "The AI review failed — try again."
 msgstr "AI 評語失敗 — 請再試。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:212
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:218
 msgid "The base URL must start with http:// or https://."
 msgstr "基礎 URL 必須以 http:// 或 https:// 開頭。"
 
@@ -7265,7 +7269,7 @@ msgstr "結束日期必須在開始日期之後。"
 #~ msgid "The endpoint answered successfully."
 #~ msgstr "端點回應正常。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:159
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:165
 msgid "The endpoint did not answer."
 msgstr "端點沒有回應。"
 
@@ -7334,7 +7338,7 @@ msgstr "該年度有已平倉交易之後就會顯示回顧。"
 msgid "The replay starts a few bars in for context, then reveals one bar at a time. Orders fill at the bar's close."
 msgstr "重播會先跳過幾根K線作為背景，之後逐根顯示。訂單以該根K線的收市價成交。"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:204
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:210
 msgid "The root of an OpenAI-compatible API, ending in /v1."
 msgstr "OpenAI 相容 API 的根網址，以 /v1 結尾。"
 
@@ -7464,8 +7468,8 @@ msgid "This year"
 msgstr "今年"
 
 #: src/app/(tabs)/(settings)/alerts.tsx:99
-msgid "Thresholds, timezone, and webhook channels are edited in web Settings → Rules."
-msgstr "閾值、時區同Webhook頻道請喺網頁版 設定 → 規則 編輯。"
+#~ msgid "Thresholds, timezone, and webhook channels are edited in web Settings → Rules."
+#~ msgstr "閾值、時區同Webhook頻道請喺網頁版 設定 → 規則 編輯。"
 
 #: src/components/reports/pnl-heatmap-card.tsx:28
 msgid "Thu"
@@ -7527,7 +7531,7 @@ msgstr "至今：勝率 {0} · PF {1} · 累計 {2}"
 #: src/app/(tabs)/(calendar)/index.tsx:1003
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:145
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:163
-#: src/app/(tabs)/(dashboard)/notes.tsx:47
+#: src/app/(tabs)/(dashboard)/notes.tsx:59
 #: src/app/(tabs)/(trades)/index.tsx:298
 msgid "Today"
 msgstr "今日"
@@ -7636,7 +7640,7 @@ msgstr "找不到交易"
 msgid "Trade not ready"
 msgstr "交易資料未齊"
 
-#: src/lib/outbox.ts:510
+#: src/lib/outbox.ts:511
 msgid "Trade review"
 msgstr "交易覆盤"
 
@@ -7664,8 +7668,8 @@ msgid "TraderMemos mark"
 msgstr "TraderMemos 標記"
 
 #: src/app/(tabs)/_layout.tsx:87
-#: src/app/(tabs)/(calendar)/day/[date].tsx:334
-#: src/app/(tabs)/(calendar)/day/[date].tsx:365
+#: src/app/(tabs)/(calendar)/day/[date].tsx:339
+#: src/app/(tabs)/(calendar)/day/[date].tsx:370
 #: src/app/(tabs)/(dashboard)/playbook.tsx:131
 #: src/app/(tabs)/(dashboard)/playbook.tsx:233
 #: src/app/(tabs)/(settings)/account-form.tsx:388
@@ -7732,11 +7736,11 @@ msgstr "資金交易"
 msgid "Trough"
 msgstr "最大虧損"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:313
+#: src/app/(tabs)/(dashboard)/notes.tsx:325
 msgid "Try a different filter."
 msgstr "試試其他篩選條件。"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:311
+#: src/app/(tabs)/(dashboard)/notes.tsx:323
 msgid "Try a different search."
 msgstr "試試其他搜尋字詞。"
 
@@ -7838,8 +7842,7 @@ msgstr "未評級"
 msgid "Unreviewed trades"
 msgstr "未覆盤嘅交易"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:97
-#: src/app/(tabs)/(dashboard)/notes.tsx:172
+#: src/app/(tabs)/(dashboard)/notes.tsx:40
 msgid "Untitled"
 msgstr "未命名"
 
@@ -7943,7 +7946,7 @@ msgstr "勝敗"
 msgid "Waiting"
 msgstr "等候中"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:107
+#: src/app/(tabs)/(dashboard)/notes.tsx:118
 msgid "Waiting to sync"
 msgstr "等待同步"
 
@@ -8007,6 +8010,18 @@ msgstr "週末"
 #: src/components/reports/overview-section.tsx:769
 msgid "Weekly"
 msgstr "每週"
+
+#: src/app/(tabs)/(calendar)/day/[date].tsx:208
+#: src/app/(tabs)/(dashboard)/notes.tsx:38
+#: src/app/(tabs)/(settings)/alerts.tsx:132
+#: src/app/edit-note.tsx:91
+#: src/lib/outbox.ts:506
+msgid "Weekly review"
+msgstr "每週回顧"
+
+#: src/app/(tabs)/(settings)/alerts.tsx:99
+msgid "Weekly review arrives Saturday 09:00 in your market timezone and opens a review note for the week. Thresholds, timezone, and webhook channels are edited in web Settings → Rules."
+msgstr "每週回顧會喺市場時區星期六 09:00 送到，並打開嗰個星期嘅回顧筆記。閾值、時區同Webhook頻道請喺網頁版 設定 → 規則 編輯。"
 
 #: src/components/reports/overview-section.tsx:696
 msgid "Weighted blend of the five axes below."
@@ -8078,7 +8093,7 @@ msgstr "獲利"
 msgid "win ÷ loss"
 msgstr "平均盈利 ÷ 平均虧損"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:336
+#: src/app/(tabs)/(calendar)/day/[date].tsx:341
 #: src/app/(tabs)/(calendar)/index.tsx:286
 #: src/app/(tabs)/(dashboard)/playbook.tsx:132
 #: src/app/(tabs)/(dashboard)/playbook.tsx:235
@@ -8165,7 +8180,7 @@ msgstr "年"
 msgid "Year Wrapped"
 msgstr "年度回顧"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:51
+#: src/app/(tabs)/(dashboard)/notes.tsx:63
 msgid "Yesterday"
 msgstr "昨天"
 

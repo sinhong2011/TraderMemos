@@ -76,6 +76,8 @@ description: API 讀取的全部 TM_* 環境變量，含默認值與作用說明
 | `TM_JOB_EXCURSION_LIMIT` | `10` | 每次回填處理的交易數（`0` 爲禁用） |
 | `TM_JOB_FLEX_SYNC_INTERVAL_MIN` | `360` | IBKR Flex 自動同步間隔（分鐘，`0` 爲禁用） |
 | `TM_JOB_ALERTS_INTERVAL_MIN` | `60` | 警報規則評估間隔（分鐘，`0` 爲禁用） |
+| `TM_JOB_WEEKLY_REVIEW_INTERVAL_MIN` | `60` | 每週回顧的檢查間隔（分鐘）；回顧本身每週只發一次，於市場時區週六 09:00（`0` 爲禁用） |
+| `TM_WEEKLY_REVIEW_NOW` | _（未設定）_ | 僅供測試：把每週回顧的時鐘固定爲 RFC 3339 時間（例如 `2026-10-03T09:00:00-04:00`），並於 5 秒後執行首次檢查 |
 | `TM_BACKUP_ENABLED` | `true` | SQLite 定時快照（見[備份與恢復](/zh-Hant/docs/self-hosting/backup-restore)）。`TM_JOBS_ENABLED=false` 時同樣關閉；設定 → 關於中的「立即備份」始終可用 |
 | `TM_BACKUP_DIR` | `<dbDir>/backups` | 快照目錄（Docker：`/data/backups`） |
 | `TM_BACKUP_KEEP` | `14` | 保留的快照數量；每次成功後刪除更早的快照 |

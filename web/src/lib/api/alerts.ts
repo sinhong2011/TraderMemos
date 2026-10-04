@@ -11,6 +11,8 @@ export interface AlertSettings {
   prop_warn_pct: number;
   rule_unreviewed: boolean;
   unreviewed_days: number;
+  /** Saturday 09:00 (market timezone) weekly review push + prefilled note. */
+  rule_weekly_review: boolean;
 }
 
 export interface AlertChannel {

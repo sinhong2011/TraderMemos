@@ -502,7 +502,8 @@ function opLabel(op: OutboxOp): string {
     case 'note-update': {
       const title = op.body.title?.trim();
       if (title) return title;
-      return op.body.type === 'daily_log' ? t`Daily log` : t`Note`;
+      if (op.body.type === 'daily_log') return t`Daily log`;
+      return op.body.type === 'weekly_review' ? t`Weekly review` : t`Note`;
     }
     case 'note-delete':
       return t`Note deletion`;

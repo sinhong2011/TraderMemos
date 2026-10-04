@@ -484,6 +484,14 @@ func (p *PG) GetUserPreferences(ctx context.Context, userID string) (UserPrefere
 	return UserPreference(v), nil
 }
 
+func (p *PG) GetWeeklyReview(ctx context.Context, arg GetWeeklyReviewParams) (WeeklyReview, error) {
+	v, err := p.q.GetWeeklyReview(ctx, storepg.GetWeeklyReviewParams(arg))
+	if err != nil {
+		return WeeklyReview{}, err
+	}
+	return WeeklyReview(v), nil
+}
+
 func (p *PG) IncrementShareLinkViews(ctx context.Context, id string) error {
 	return p.q.IncrementShareLinkViews(ctx, id)
 }
@@ -883,6 +891,10 @@ func (p *PG) ListUsers(ctx context.Context) ([]User, error) {
 	return func() []User { in := v; out := make([]User, len(in)); for i := range in { out[i] = User(in[i]) }; return out }(), nil
 }
 
+func (p *PG) MarkWeeklyReviewSent(ctx context.Context, arg MarkWeeklyReviewSentParams) error {
+	return p.q.MarkWeeklyReviewSent(ctx, storepg.MarkWeeklyReviewSentParams(arg))
+}
+
 func (p *PG) MoveRoutineChecks(ctx context.Context, arg MoveRoutineChecksParams) error {
 	return p.q.MoveRoutineChecks(ctx, storepg.MoveRoutineChecksParams(arg))
 }
@@ -1129,4 +1141,8 @@ func (p *PG) UpsertUserPreferences(ctx context.Context, arg UpsertUserPreference
 		return UserPreference{}, err
 	}
 	return UserPreference(v), nil
+}
+
+func (p *PG) UpsertWeeklyReviewNote(ctx context.Context, arg UpsertWeeklyReviewNoteParams) error {
+	return p.q.UpsertWeeklyReviewNote(ctx, storepg.UpsertWeeklyReviewNoteParams(arg))
 }

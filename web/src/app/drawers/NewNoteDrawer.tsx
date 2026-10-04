@@ -1,3 +1,4 @@
+import { t } from "@lingui/core/macro";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2, X } from "lucide-react";
@@ -59,6 +60,9 @@ export function NewNoteDrawer() {
   const [symbolCards, setSymbolCards] = useState<Array<JournalNoteSymbol & { key: string }>>([]);
 
   const isDailyLog = noteType === "daily_log";
+  // Weekly reviews are created by the server; the drawer only edits them, and
+  // sends the type back so the note stays a review.
+  const isWeeklyReview = noteType === "weekly_review";
 
   const form = useForm({
     formId: "new-note",
@@ -82,7 +86,11 @@ export function NewNoteDrawer() {
       if (isEditorEmpty(trimmed) && symbols.length === 0 && !value.title.trim()) return;
       setSaving(true);
       try {
-        const fallbackTitle = isDailyLog ? "Daily log" : "Untitled";
+        const fallbackTitle = isDailyLog
+          ? "Daily log"
+          : isWeeklyReview
+            ? t`Weekly review`
+            : "Untitled";
         const payload = {
           type: noteType,
           occurred_at: value.occurredAt,
@@ -98,7 +106,9 @@ export function NewNoteDrawer() {
           title: editingId
             ? isDailyLog
               ? "Daily log updated"
-              : "Note updated"
+              : isWeeklyReview
+                ? t`Weekly review updated`
+                : "Note updated"
             : isDailyLog
               ? "Daily log saved"
               : "Note saved",
@@ -170,12 +180,20 @@ export function NewNoteDrawer() {
         <DrawerHeader>
           <div className="min-w-0">
             <DrawerTitle>
-              {isEdit ? (isDailyLog ? "Edit daily log" : "Edit note") : "New note"}
+              {isEdit
+                ? isDailyLog
+                  ? "Edit daily log"
+                  : isWeeklyReview
+                    ? t`Edit weekly review`
+                    : "Edit note"
+                : "New note"}
             </DrawerTitle>
             <DrawerDescription>
               {isDailyLog
                 ? "Session notes for the day, plus optional symbol cards."
-                : "Freeform journal note — ideas, rules, or anything worth keeping."}
+                : isWeeklyReview
+                  ? t`Your week in numbers, then what worked, what didn't, and the focus for next week.`
+                  : "Freeform journal note — ideas, rules, or anything worth keeping."}
             </DrawerDescription>
           </div>
           <DrawerClose

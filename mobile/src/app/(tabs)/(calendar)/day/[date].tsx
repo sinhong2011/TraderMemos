@@ -201,7 +201,12 @@ function NoteRow({ note, onPress }: { note: Note; onPress: () => void }) {
       className="gap-1 rounded-md bg-muted p-2 active:opacity-60"
     >
       <Text className="text-sm font-semibold text-foreground" numberOfLines={1}>
-        {note.title || (note.type === 'daily_log' ? t`Daily log` : t`Note`)}
+        {note.title ||
+          (note.type === 'daily_log'
+            ? t`Daily log`
+            : note.type === 'weekly_review'
+              ? t`Weekly review`
+              : t`Note`)}
       </Text>
       {excerpt ? (
         <Text className="text-xs leading-[17px] text-muted-foreground" numberOfLines={2}>

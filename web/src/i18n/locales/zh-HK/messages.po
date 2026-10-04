@@ -115,6 +115,10 @@ msgstr "連續日數"
 msgid "Directory"
 msgstr "目錄"
 
+#: src/app/drawers/NewNoteDrawer.tsx:187
+msgid "Edit weekly review"
+msgstr "編輯每週回顧"
+
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
 msgstr "每 {interval}"
@@ -246,6 +250,14 @@ msgstr "獲利因子"
 msgid "Red days"
 msgstr "虧損日"
 
+#: src/app/screens/NotesView.tsx:61
+msgid "Reviews"
+msgstr "回顧"
+
+#: src/app/screens/settings/alerts-section.tsx:323
+msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
+msgstr "於市場時區週六 09:00，把本週的盈虧、勝率、R、策略、違規次數和錯過的交易整理成一篇待填寫的回顧筆記。"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2108
 msgid "Save"
 msgstr "儲存"
@@ -310,6 +322,20 @@ msgstr "此伺服器使用 Postgres。內建備份只支援 SQLite — 請以 pg
 msgid "Trades per month."
 msgstr "每月交易次數。"
 
+#: src/app/drawers/NewNoteDrawer.tsx:92
+#: src/app/screens/NotesView.tsx:71
+#: src/app/screens/settings/alerts-section.tsx:322
+msgid "Weekly review"
+msgstr "每週回顧"
+
+#: src/app/screens/settings/alerts-section.tsx:329
+msgid "Weekly review alerts"
+msgstr "每週回顧提醒"
+
+#: src/app/drawers/NewNoteDrawer.tsx:110
+msgid "Weekly review updated"
+msgstr "已更新每週回顧"
+
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
 msgid "Win rate"
@@ -318,3 +344,7 @@ msgstr "勝率"
 #: src/app/screens/PublicShareView.tsx:315
 msgid "Worst day"
 msgstr "最差交易日"
+
+#: src/app/drawers/NewNoteDrawer.tsx:195
+msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
+msgstr "本週的數字，然後是做得好的、做得不好的，以及下週的重點。"

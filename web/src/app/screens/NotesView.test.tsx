@@ -1,9 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import type { JournalNote } from "@/lib/api/types";
 import { useNotesPrefs } from "@/lib/notesPrefs";
 import { useUI } from "@/lib/ui";
+import { renderWithI18n } from "@/test/renderWithI18n";
 import { NotesView } from "./NotesView";
 
 const notes: JournalNote[] = [
@@ -40,7 +41,7 @@ describe("NotesView", () => {
   it("lists notes with daily-log badge and opens edit", async () => {
     const user = userEvent.setup();
     const onDelete = vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined);
-    render(<NotesView notes={notes} loading={false} error={false} onDelete={onDelete} />);
+    renderWithI18n(<NotesView notes={notes} loading={false} error={false} onDelete={onDelete} />);
 
     expect(screen.getByText("AM session")).toBeInTheDocument();
     expect(screen.getByText("Daily log")).toBeInTheDocument();
@@ -57,7 +58,7 @@ describe("NotesView", () => {
 
   it("switches between list and cards layout", async () => {
     const user = userEvent.setup();
-    render(
+    renderWithI18n(
       <NotesView
         notes={notes}
         loading={false}
@@ -79,7 +80,7 @@ describe("NotesView", () => {
 
   it("filters notes by search query across title, body and symbols", async () => {
     const user = userEvent.setup();
-    render(
+    renderWithI18n(
       <NotesView
         notes={notes}
         loading={false}
@@ -107,7 +108,7 @@ describe("NotesView", () => {
 
   it("filters notes by type", async () => {
     const user = userEvent.setup();
-    render(
+    renderWithI18n(
       <NotesView
         notes={notes}
         loading={false}
@@ -125,8 +126,44 @@ describe("NotesView", () => {
     expect(screen.queryByText("AM session")).not.toBeInTheDocument();
   });
 
+  it("labels weekly reviews, filters to them, and opens them as reviews", async () => {
+    const user = userEvent.setup();
+    const review: JournalNote = {
+      id: "n3",
+      type: "weekly_review",
+      occurred_at: "2026-07-25",
+      title: "Week of Jul 20 – Jul 26",
+      body: "## Week in numbers\n\n- Net P&L: +$325.50\n\n## What worked\n\n",
+      symbols: [],
+      created_at: "2026-07-25T13:00:00Z",
+      updated_at: "2026-07-25T13:00:00Z",
+    };
+    renderWithI18n(
+      <NotesView
+        notes={[...notes, review]}
+        loading={false}
+        error={false}
+        onDelete={vi.fn<(id: string) => Promise<void>>()}
+      />,
+    );
+
+    expect(screen.getByText("Weekly review")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Reviews" }));
+    expect(screen.getByText("Week of Jul 20 – Jul 26")).toBeInTheDocument();
+    expect(screen.queryByText("AM session")).not.toBeInTheDocument();
+    expect(screen.queryByText("Discipline check")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Open Week of Jul 20 – Jul 26" }));
+    expect(useUI.getState().noteDraft?.type).toBe("weekly_review");
+    useUI.getState().closeModal();
+
+    await user.click(screen.getByRole("button", { name: "All" }));
+    expect(screen.getByText("AM session")).toBeInTheDocument();
+  });
+
   it("shows checklist progress from the note body", () => {
-    render(
+    renderWithI18n(
       <NotesView
         notes={notes}
         loading={false}
@@ -138,7 +175,7 @@ describe("NotesView", () => {
   });
 
   it("shows empty state when there are no notes", () => {
-    render(
+    renderWithI18n(
       <NotesView
         notes={[]}
         loading={false}

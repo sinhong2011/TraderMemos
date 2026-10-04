@@ -114,6 +114,10 @@ msgstr "days in a row"
 msgid "Directory"
 msgstr "Directory"
 
+#: src/app/drawers/NewNoteDrawer.tsx:187
+msgid "Edit weekly review"
+msgstr "Edit weekly review"
+
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
 msgstr "Every {interval}"
@@ -245,6 +249,14 @@ msgstr "Profit factor"
 msgid "Red days"
 msgstr "Red days"
 
+#: src/app/screens/NotesView.tsx:61
+msgid "Reviews"
+msgstr "Reviews"
+
+#: src/app/screens/settings/alerts-section.tsx:323
+msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
+msgstr "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
+
 #: src/app/drawers/NewTradeDrawer.tsx:2108
 msgid "Save"
 msgstr "Save"
@@ -309,6 +321,20 @@ msgstr "This server runs on Postgres. Built-in backups cover SQLite only — bac
 msgid "Trades per month."
 msgstr "Trades per month."
 
+#: src/app/drawers/NewNoteDrawer.tsx:92
+#: src/app/screens/NotesView.tsx:71
+#: src/app/screens/settings/alerts-section.tsx:322
+msgid "Weekly review"
+msgstr "Weekly review"
+
+#: src/app/screens/settings/alerts-section.tsx:329
+msgid "Weekly review alerts"
+msgstr "Weekly review alerts"
+
+#: src/app/drawers/NewNoteDrawer.tsx:110
+msgid "Weekly review updated"
+msgstr "Weekly review updated"
+
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
 msgid "Win rate"
@@ -317,3 +343,7 @@ msgstr "Win rate"
 #: src/app/screens/PublicShareView.tsx:315
 msgid "Worst day"
 msgstr "Worst day"
+
+#: src/app/drawers/NewNoteDrawer.tsx:195
+msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
+msgstr "Your week in numbers, then what worked, what didn't, and the focus for next week."

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"net"
 	"net/http"
 	"syscall"
@@ -68,6 +69,9 @@ type webhookPayload struct {
 	FiredAt string `json:"fired_at"`
 	Content string `json:"content"`
 	Text    string `json:"text"`
+	// Data identifies what the alert is about (e.g. the weekly review's
+	// note_id) for receivers that want to deep-link; absent for most rules.
+	Data map[string]string `json:"data,omitempty"`
 }
 
 func (s *Service) sendWebhook(ctx context.Context, url string, ev Event, at time.Time) error {
@@ -80,6 +84,7 @@ func (s *Service) sendWebhook(ctx context.Context, url string, ev Event, at time
 		FiredAt: at.UTC().Format(time.RFC3339),
 		Content: line,
 		Text:    line,
+		Data:    ev.Data,
 	})
 	if err != nil {
 		return err
@@ -89,7 +94,10 @@ func (s *Service) sendWebhook(ctx context.Context, url string, ev Event, at time
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Title", ev.Title)
+	// Header values are not UTF-8 safe; a non-ASCII title (the weekly
+	// review's "Sep 28 – Oct 4") goes out RFC 2047-encoded, which ntfy
+	// decodes. ASCII titles pass through unchanged.
+	req.Header.Set("X-Title", mime.QEncoding.Encode("utf-8", ev.Title))
 	resp, err := s.webhookc.Do(req)
 	if err != nil {
 		return err
@@ -103,10 +111,11 @@ func (s *Service) sendWebhook(ctx context.Context, url string, ev Event, at time
 }
 
 type expoMessage struct {
-	To    string `json:"to"`
-	Title string `json:"title"`
-	Body  string `json:"body"`
-	Sound string `json:"sound"`
+	To    string            `json:"to"`
+	Title string            `json:"title"`
+	Body  string            `json:"body"`
+	Sound string            `json:"sound"`
+	Data  map[string]string `json:"data,omitempty"`
 }
 
 type expoTicket struct {
@@ -123,7 +132,7 @@ type expoTicket struct {
 func (s *Service) sendExpo(ctx context.Context, tokens []string, ev Event) ([]error, error) {
 	msgs := make([]expoMessage, len(tokens))
 	for i, to := range tokens {
-		msgs[i] = expoMessage{To: to, Title: ev.Title, Body: ev.Body, Sound: "default"}
+		msgs[i] = expoMessage{To: to, Title: ev.Title, Body: ev.Body, Sound: "default", Data: ev.Data}
 	}
 	b, err := json.Marshal(msgs)
 	if err != nil {

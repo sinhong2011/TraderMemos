@@ -78,6 +78,8 @@ win. Keys are stored server-side and never sent to the browser. See
 | `TM_JOB_EXCURSION_LIMIT` | `10` | Trades attempted per backfill pass (`0` disables) |
 | `TM_JOB_FLEX_SYNC_INTERVAL_MIN` | `360` | Minutes between IBKR Flex auto-sync runs (`0` disables) |
 | `TM_JOB_ALERTS_INTERVAL_MIN` | `60` | Minutes between alert-rule evaluations (`0` disables) |
+| `TM_JOB_WEEKLY_REVIEW_INTERVAL_MIN` | `60` | Minutes between weekly-review checks; the review itself fires once a week, Saturday 09:00 in your market timezone (`0` disables) |
+| `TM_WEEKLY_REVIEW_NOW` | _(unset)_ | Testing only: pin the weekly-review clock to an RFC 3339 instant (e.g. `2026-10-03T09:00:00-04:00`) and run the first check after 5 seconds |
 | `TM_BACKUP_ENABLED` | `true` | Scheduled SQLite snapshots (see [Backup & restore](/en/docs/self-hosting/backup-restore)). Also off when `TM_JOBS_ENABLED=false`; **Back up now** in Settings → About works either way |
 | `TM_BACKUP_DIR` | `<dbDir>/backups` | Snapshot directory (Docker: `/data/backups`) |
 | `TM_BACKUP_KEEP` | `14` | Snapshots kept; older ones are pruned after each successful run |

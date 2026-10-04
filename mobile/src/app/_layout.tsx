@@ -22,6 +22,7 @@ import { OfflineBanner } from '@/components/error-state';
 import { i18n } from '@/i18n';
 import { t } from '@lingui/core/macro';
 import { useConnectivityStore } from '@/lib/connectivity';
+import { useNotificationRouting } from '@/lib/notification-route';
 import { useResolvedScheme } from '@/lib/prefs';
 import { useTradingSessionSync } from '@/lib/live-activity';
 import { usePrefsSync } from '@/lib/use-prefs-sync';
@@ -87,6 +88,16 @@ function ImportLinkGate() {
     return () => subscription.remove();
   }, [ready, router, session]);
 
+  return null;
+}
+
+/**
+ * Tapping an alert opens what it is about — the weekly review's note, or any
+ * alert that carries a `route` in its push data. Cold start and warm taps
+ * both land here; see `lib/notification-route.ts`.
+ */
+function NotificationGate() {
+  useNotificationRouting();
   return null;
 }
 
@@ -251,6 +262,7 @@ export default function RootLayout() {
             <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
           ) : null}
           <ImportLinkGate />
+          <NotificationGate />
           <PrefsSyncGate />
           <WidgetSnapshotGate />
           <LiveActivityGate />

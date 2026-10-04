@@ -31,6 +31,10 @@ type noteSymbolDTO struct {
 const (
 	noteTypeNote     = "note"
 	noteTypeDailyLog = "daily_log"
+	// noteTypeWeeklyReview is created by the weekly-review job
+	// (alerts.NoteTypeWeeklyReview); clients edit it like a note and send the
+	// type back so it stays a review.
+	noteTypeWeeklyReview = "weekly_review"
 )
 
 type noteDTO struct {
@@ -58,6 +62,8 @@ func normalizeNoteType(raw string) (string, bool) {
 		return noteTypeNote, true
 	case noteTypeDailyLog:
 		return noteTypeDailyLog, true
+	case noteTypeWeeklyReview:
+		return noteTypeWeeklyReview, true
 	default:
 		return "", false
 	}
@@ -68,8 +74,11 @@ func defaultNoteTitle(noteType, title string) string {
 	if title != "" {
 		return title
 	}
-	if noteType == noteTypeDailyLog {
+	switch noteType {
+	case noteTypeDailyLog:
 		return "Daily log"
+	case noteTypeWeeklyReview:
+		return "Weekly review"
 	}
 	return "Untitled"
 }
@@ -150,7 +159,7 @@ func (s *Server) handleCreateNote(c *echo.Context) error {
 	}
 	noteType, ok := normalizeNoteType(in.Type)
 	if !ok {
-		return Fail(http.StatusBadRequest, "bad_request", "type must be note or daily_log", nil)
+		return Fail(http.StatusBadRequest, "bad_request", "type must be note, daily_log or weekly_review", nil)
 	}
 	symbols := normalizeNoteSymbols(in.Symbols)
 	if noteType != noteTypeDailyLog {
@@ -211,7 +220,7 @@ func (s *Server) handleUpdateNote(c *echo.Context) error {
 	}
 	noteType, ok := normalizeNoteType(in.Type)
 	if !ok {
-		return Fail(http.StatusBadRequest, "bad_request", "type must be note or daily_log", nil)
+		return Fail(http.StatusBadRequest, "bad_request", "type must be note, daily_log or weekly_review", nil)
 	}
 	symbols := normalizeNoteSymbols(in.Symbols)
 	if noteType != noteTypeDailyLog {

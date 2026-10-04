@@ -1,3 +1,4 @@
+import { t } from "@lingui/core/macro";
 import { Bell, Plus, Send, Smartphone, Webhook } from "lucide-react";
 import { useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
@@ -316,6 +317,17 @@ export function AlertsSection() {
                   aria-label="Unreviewed trades alerts"
                 />
               </span>
+            </SettingsGroupRow>
+            <SettingsGroupRow
+              label={t`Weekly review`}
+              detail={t`Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in.`}
+            >
+              <Switch
+                checked={settings.rule_weekly_review}
+                disabled={!enabled}
+                onCheckedChange={(v) => save({ rule_weekly_review: v })}
+                aria-label={t`Weekly review alerts`}
+              />
             </SettingsGroupRow>
             <SettingsGroupRow
               label="Timezone"
