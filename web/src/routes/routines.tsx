@@ -18,7 +18,8 @@ import {
   useRoutineItems,
   useUpdateRoutine,
 } from "@/lib/hooks/useRoutines";
-import { addDays, localDay } from "@/lib/routines";
+import { addDays } from "@/lib/routines";
+import { useMarketToday } from "@/lib/today";
 
 export const Route = createFileRoute("/routines")({
   component: RoutinesPage,
@@ -33,7 +34,7 @@ function historyStart(today: string): string {
 
 function RoutinesPage() {
   const toast = useToastManager();
-  const today = localDay();
+  const today = useMarketToday();
   const [selected, setSelected] = useState(today);
 
   const itemsQ = useRoutineItems(today);

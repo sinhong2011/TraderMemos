@@ -1,6 +1,9 @@
 import type { RoutineStage } from "./api/routines";
 
-/** Today on the device clock as YYYY-MM-DD: routines run on the person's calendar. */
+/**
+ * A local Date as YYYY-MM-DD — calendar arithmetic only. Routine "today" is the
+ * market trading day (`useMarketToday` in lib/today.ts), not the device date.
+ */
 export function localDay(date = new Date()): string {
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");

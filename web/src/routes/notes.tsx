@@ -3,7 +3,8 @@ import { NotesView } from "@/app/screens/NotesView";
 import { useToastManager } from "@/components/Toast";
 import { useDeleteNote, useNotes } from "@/lib/hooks/useNotes";
 import { useRoutineHistory } from "@/lib/hooks/useRoutines";
-import { addDays, localDay } from "@/lib/routines";
+import { addDays } from "@/lib/routines";
+import { useMarketToday } from "@/lib/today";
 
 export const Route = createFileRoute("/notes")({
   component: NotesPage,
@@ -14,7 +15,7 @@ function NotesPage() {
   const notesQ = useNotes();
   const deleteM = useDeleteNote();
   // Daily logs show their day's routine; the history endpoint spans at most 400 days.
-  const today = localDay();
+  const today = useMarketToday();
   const routineQ = useRoutineHistory(addDays(today, -399), today);
   const routineByDay = Object.fromEntries(
     (routineQ.data?.days ?? []).filter((d) => d.total > 0).map((d) => [d.day, d]),

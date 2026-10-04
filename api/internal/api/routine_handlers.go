@@ -13,6 +13,7 @@ import (
 	"uuid"
 
 	"github.com/labstack/echo/v5"
+	"github.com/tradermemos/api/internal/alerts"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/routines"
 	"github.com/tradermemos/api/internal/store"
@@ -59,12 +60,20 @@ func schedItem(r store.RoutineItem) routines.Item {
 	}
 }
 
+// marketToday is today's trading day on the user's market clock — the day
+// key every client sends for routine ticks, so a request that omits the day
+// lands on the same one (a Hong Kong trader's 04:30 post-session tick still
+// belongs to the New York day it closed).
+func (s *Server) marketToday(ctx context.Context, userID string) string {
+	return routines.FormatDay(time.Now().In(alerts.MarketLocation(ctx, s.deps.Store, userID)))
+}
+
 // requestDay reads a YYYY-MM-DD day from the named query param, falling back
-// to the UTC date when absent. A malformed value is an error.
-func requestDay(c *echo.Context, param string) (string, error) {
+// to today's market day when absent. A malformed value is an error.
+func (s *Server) requestDay(c *echo.Context, param string) (string, error) {
 	day := c.QueryParam(param)
 	if day == "" {
-		return routines.FormatDay(time.Now().UTC()), nil
+		return s.marketToday(c.Request().Context(), auth.UserID(c)), nil
 	}
 	if _, ok := routines.ParseDay(day); !ok {
 		return "", fmt.Errorf("%s must be YYYY-MM-DD", param)
@@ -179,7 +188,7 @@ func (s *Server) seedRoutines(ctx context.Context, uid, today string) (bool, err
 
 func (s *Server) handleListRoutines(c *echo.Context) error {
 	ctx, uid := c.Request().Context(), auth.UserID(c)
-	today, err := requestDay(c, "day")
+	today, err := s.requestDay(c, "day")
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
@@ -243,7 +252,7 @@ func (s *Server) handleCreateRoutine(c *echo.Context) error {
 	}
 	day := in.Day
 	if day == "" {
-		day = routines.FormatDay(time.Now().UTC())
+		day = s.marketToday(ctx, uid)
 	}
 	// Seed first, so adding the first item by hand can't strand the template.
 	rows, err := s.routineItems(ctx, uid, day)
@@ -282,7 +291,7 @@ func (s *Server) handleUpdateRoutine(c *echo.Context) error {
 	}
 	day := in.Day
 	if day == "" {
-		day = routines.FormatDay(time.Now().UTC())
+		day = s.marketToday(ctx, uid)
 	}
 	cur, err := s.deps.Store.GetRoutineItem(ctx, store.GetRoutineItemParams{ID: c.Param("id"), UserID: uid})
 	if errors.Is(err, sql.ErrNoRows) || (err == nil && cur.EndDay.Valid) {
@@ -340,7 +349,7 @@ func (s *Server) handleUpdateRoutine(c *echo.Context) error {
 // handleArchiveRoutine retires an item from `day` on; past days keep it.
 func (s *Server) handleArchiveRoutine(c *echo.Context) error {
 	ctx, uid := c.Request().Context(), auth.UserID(c)
-	day, err := requestDay(c, "day")
+	day, err := s.requestDay(c, "day")
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
@@ -483,7 +492,7 @@ type routineHistoryDTO struct {
 // for the streak. Defaults to the 13 weeks ending today.
 func (s *Server) handleRoutineHistory(c *echo.Context) error {
 	ctx, uid := c.Request().Context(), auth.UserID(c)
-	to, err := requestDay(c, "to")
+	to, err := s.requestDay(c, "to")
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
