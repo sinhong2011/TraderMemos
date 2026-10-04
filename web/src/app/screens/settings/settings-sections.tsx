@@ -639,7 +639,7 @@ export function AccountsTab({
                       key={acc.id}
                       to="/accounts/$accountId"
                       params={{ accountId: acc.id }}
-                      className="group flex items-center gap-3 rounded-lg border border-border px-4 py-3 no-underline transition-colors duration-150 hover:bg-accent/40 motion-reduce:transition-none"
+                      className="group flex items-center gap-3 rounded-lg bg-card px-4 py-3 no-underline transition-colors duration-150 hover:bg-accent motion-reduce:transition-none"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">

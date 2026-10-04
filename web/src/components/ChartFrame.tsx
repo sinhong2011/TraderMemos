@@ -62,7 +62,7 @@ export function ChartFrame({ children, className = "", inset = false }: ChartFra
   return (
     <div
       className={cn(
-        "flex w-full min-h-0 flex-col rounded-md border border-border",
+        "flex w-full min-h-0 flex-col rounded-md",
         inset ? "bg-muted" : "bg-card",
         className,
       )}

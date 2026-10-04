@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ExternalLink, Trash2, X, Zap } from "lucide-react";
+import { ExternalLink, MoreVertical, Trash2, X, Zap } from "lucide-react";
 import { useId, useState } from "react";
 import { TradeChartSection } from "./charts/TradeChartSection";
 import { RiskRewardPanel } from "./RiskRewardPanel";
@@ -8,7 +8,6 @@ import {
   DrawerBody,
   DrawerClose,
   DrawerContent,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "./Drawer";
@@ -22,6 +21,12 @@ import { heroPnlClass, pnlColor } from "./theme-tokens";
 import { marketLabel, tradeStatus } from "./tradeColumns";
 import { formatOptionMarketChip, optionContractFromFills } from "@/lib/optionContract";
 import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/menu";
 import { cn } from "@/lib/cn";
 import type { TradeDetail } from "@/lib/api/types";
 import { fmtDateTime } from "@/lib/format";
@@ -139,6 +144,30 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
                 Open full page
               </Button>
             )}
+            {/* Removal sits behind ⋯, as on the full trade page — a full-width
+                red slab made it the loudest control in the drawer. */}
+            {trade ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  aria-label="Trade actions"
+                  disabled={deleteTrade.isPending}
+                  className={cn(
+                    "flex cursor-pointer rounded-md border-none bg-transparent p-1",
+                    "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                    "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                    "disabled:cursor-not-allowed disabled:opacity-50",
+                  )}
+                >
+                  <MoreVertical size={16} strokeWidth={1.5} aria-hidden />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" side="bottom" sideOffset={4} className="p-1">
+                  <DropdownMenuItem variant="destructive" onClick={() => setDeleteOpen(true)}>
+                    <Trash2 size={14} strokeWidth={1.5} aria-hidden />
+                    Remove trade
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
             <DrawerClose
               aria-label="Close"
               className="flex cursor-pointer rounded-md border-none bg-transparent p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -161,20 +190,6 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
           )}
           {trade && <TradeDetailSheetBody trade={trade} onOpenFullPage={openFullPage} />}
         </DrawerBody>
-        {trade ? (
-          <DrawerFooter className="px-4 pt-3">
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={deleteTrade.isPending}
-              onClick={() => setDeleteOpen(true)}
-              className="w-full gap-2 border-transparent bg-destructive/15 hover:bg-destructive/25"
-            >
-              <Trash2 size={15} strokeWidth={1.5} aria-hidden />
-              Remove trade
-            </Button>
-          </DrawerFooter>
-        ) : null}
         {trade ? (
           <Modal
             open={deleteOpen}

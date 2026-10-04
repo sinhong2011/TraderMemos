@@ -165,12 +165,10 @@ export function SettingsPanelBody({
   children: ReactNode;
   className?: string;
 }) {
-  return (
-    <div className={cn("rounded-lg border border-border px-5 py-4", className)}>{children}</div>
-  );
+  return <div className={cn("rounded-lg bg-card px-5 py-4", className)}>{children}</div>;
 }
 
-/** Grouped preference rows in a rounded bordered block. */
+/** Grouped preference rows in one borderless card block. */
 export function SettingsGroup({
   children,
   className,
@@ -179,12 +177,7 @@ export function SettingsGroup({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-lg border border-border divide-y divide-border/40",
-        className,
-      )}
-    >
+    <div className={cn("overflow-hidden rounded-lg bg-card divide-y divide-border/40", className)}>
       {children}
     </div>
   );
@@ -192,7 +185,7 @@ export function SettingsGroup({
 
 export function SettingsInsetForm({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-border px-5 py-4">
+    <div className="rounded-lg bg-card px-5 py-4">
       <div className="flex flex-col gap-3">{children}</div>
     </div>
   );
@@ -600,7 +593,7 @@ export function AccountRow({
     .join(" · ");
 
   return (
-    <div className="rounded-lg border border-border px-4 py-4 transition-colors duration-150 hover:bg-accent/40 motion-reduce:transition-none">
+    <div className="rounded-lg bg-card px-4 py-4 transition-colors duration-150 hover:bg-accent motion-reduce:transition-none">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex flex-wrap items-center gap-x-2 gap-y-1">
           <h3 className="m-0 text-[15.4px] font-semibold tracking-tight text-foreground">{name}</h3>

@@ -198,7 +198,7 @@ export function TradeExecutionsCard({ trade }: { trade: TradeDetail }) {
           })}
         </ItemGroup>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-hidden rounded-lg">
           <DataTable
             columns={columns}
             data={rows}
