@@ -1,6 +1,6 @@
 import {
   Calculator,
-  CalendarDays,
+  Sigma,
   ChartLine,
   Globe,
   History,
@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export type ToolId = "size" | "kelly" | "fx" | "today" | "chart" | "replay" | "econ" | "wrapped";
+export type ToolId = "size" | "kelly" | "fx" | "rcalc" | "chart" | "replay" | "econ" | "wrapped";
 
 export type ToolGroupId = "calculators" | "markets" | "journal";
 
@@ -52,11 +52,11 @@ export const TOOL_ITEMS: ToolItem[] = [
     group: "calculators",
   },
   {
-    id: "today",
-    label: "Today",
-    icon: CalendarDays,
-    keywords: ["calendar", "now"],
-    group: "journal",
+    id: "rcalc",
+    label: "R-multiple & FVG",
+    icon: Sigma,
+    keywords: ["r-multiple", "r", "exit ladder", "fvg", "trade planner"],
+    group: "calculators",
   },
   {
     id: "chart",

@@ -1,10 +1,13 @@
 import { useNavigate } from "@tanstack/react-router";
 import {
+  Binoculars,
   BookOpen,
+  CalendarCheck,
   CalendarDays,
   Calculator,
   House,
   List,
+  ListChecks,
   Newspaper,
   PieChart,
   Plus,
@@ -47,6 +50,13 @@ const NAV_COMMANDS: Array<{
     to: "/home",
     icon: House,
   },
+  {
+    id: "nav-today",
+    label: "Today",
+    to: "/today",
+    icon: CalendarCheck,
+    keywords: ["day", "session", "daily log", "review"],
+  },
   { id: "nav-trades", label: "Trades", to: "/trades", icon: List },
   {
     id: "nav-calendar",
@@ -69,6 +79,20 @@ const NAV_COMMANDS: Array<{
     to: "/notes",
     icon: StickyNote,
     keywords: ["journal", "memo"],
+  },
+  {
+    id: "nav-routines",
+    label: "Routines",
+    to: "/routines",
+    icon: ListChecks,
+    keywords: ["checklist", "pre-market", "habits"],
+  },
+  {
+    id: "nav-missed",
+    label: "Missed trades",
+    to: "/missed",
+    icon: Binoculars,
+    keywords: ["missed", "fomo", "passed"],
   },
   {
     id: "nav-calculator",

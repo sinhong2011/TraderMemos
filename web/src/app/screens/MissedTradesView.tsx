@@ -1,5 +1,5 @@
 import { MoreVertical, Pencil, Plus, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { AmountInput } from "@/components/AmountInput";
 import { Card } from "@/components/Card";
 import { DateTimePicker } from "@/components/DateTimePicker";
@@ -228,6 +228,10 @@ export interface MissedListCardProps {
   onEdit: (t: MissedTrade) => void;
   onDelete: (t: MissedTrade) => void;
   onOutcome: (t: MissedTrade, outcome: MissedOutcome) => void;
+  /** Empty-state title; the page decides whether the scope is a range or a day. */
+  emptyTitle?: string;
+  /** Extra control before the add button (e.g. a link to the full log). */
+  trailing?: ReactNode;
 }
 
 const fmtPrice = (v: number | null) => (v == null ? "" : String(v));
@@ -241,13 +245,18 @@ export function MissedListCard({
   onEdit,
   onDelete,
   onOutcome,
+  emptyTitle = "Nothing logged in this range",
+  trailing,
 }: MissedListCardProps) {
   useDisplayTimePrefs();
   const action = (
-    <Button size="sm" onClick={onAdd}>
-      <Plus size={14} />
-      Log a miss
-    </Button>
+    <div className="flex items-center gap-2">
+      {trailing}
+      <Button size="sm" onClick={onAdd}>
+        <Plus size={14} />
+        Log a miss
+      </Button>
+    </div>
   );
   const body = () => {
     if (loading) return <Skeleton height="200px" />;
@@ -255,7 +264,7 @@ export function MissedListCard({
     if (trades.length === 0) {
       return (
         <EmptyState
-          title="Nothing logged in this range"
+          title={emptyTitle}
           hint="Saw a setup and didn't take it? Log it, then mark how it played out."
         />
       );
@@ -365,11 +374,15 @@ interface Draft {
   notes: string;
 }
 
-function draftFrom(t: MissedTrade | null, defaultAccount: string): Draft {
+function draftFrom(
+  t: MissedTrade | null,
+  defaultAccount: string,
+  defaultObservedAt?: string,
+): Draft {
   return {
     symbol: t?.symbol ?? "",
     direction: t?.direction ?? "long",
-    observedAt: isoToWallClock(t?.observed_at ?? new Date().toISOString()),
+    observedAt: isoToWallClock(t?.observed_at ?? defaultObservedAt ?? new Date().toISOString()),
     entry: t?.entry != null ? String(t.entry) : "",
     stop: t?.stop != null ? String(t.stop) : "",
     target: t?.target != null ? String(t.target) : "",
@@ -405,6 +418,8 @@ export interface MissedTradeDrawerProps {
   setups: Setup[];
   accounts: Account[];
   defaultAccount: string;
+  /** ISO instant a new miss starts at; defaults to now. */
+  defaultObservedAt?: string;
   onClose: () => void;
   onSave: (id: string | null, body: MissedTradeBody) => Promise<void>;
 }
@@ -422,10 +437,11 @@ function MissedTradeDrawerInner({
   setups,
   accounts,
   defaultAccount,
+  defaultObservedAt,
   onClose,
   onSave,
 }: MissedTradeDrawerProps) {
-  const [d, setD] = useState<Draft>(() => draftFrom(editing, defaultAccount));
+  const [d, setD] = useState<Draft>(() => draftFrom(editing, defaultAccount, defaultObservedAt));
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((cur) => ({ ...cur, [k]: v }));

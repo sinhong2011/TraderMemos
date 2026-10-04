@@ -30,8 +30,8 @@ export function useToolRunner() {
         case "econ":
           void navigate({ to: "/events", search: { wk: 0 } });
           return;
-        case "today":
-          void navigate({ to: "/calendar" });
+        case "rcalc":
+          void navigate({ to: "/calculator" });
           return;
         case "wrapped":
           void navigate({ to: "/wrapped", search: { year: new Date().getFullYear() } });
