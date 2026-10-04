@@ -6,6 +6,7 @@
  */
 
 import type { ExtractedFill, TradeExtract } from '@/api/types';
+import { wallClockToIso } from './prefs';
 import {
   MARKETS,
   emptyFill,
@@ -100,7 +101,8 @@ export function mergeTradeExtracts(parts: TradeExtract[]): TradeExtract {
  * `timezone`): their times are real instants (`2026-10-01T10:30:27-04:00`) and
  * keep their offset. Otherwise the timestamp is the broker's on-screen wall
  * clock and any offset is one the vision model invented (RFC3339 forces one) —
- * keep the literal date/time digits as a local Date instead.
+ * read the literal date/time digits on the display clock instead, as web's
+ * form does (never the phone's: an HK phone would shift NY fills by 12h).
  */
 export function wallClockToDate(raw: string, exact = false): Date {
   if (exact && /(?:Z|[+-]\d{2}:?\d{2})$/.test(raw.trim())) {
@@ -109,14 +111,7 @@ export function wallClockToDate(raw: string, exact = false): Date {
   }
   const m = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/.exec(raw.trim());
   if (m) {
-    return new Date(
-      Number(m[1]),
-      Number(m[2]) - 1,
-      Number(m[3]),
-      Number(m[4]),
-      Number(m[5]),
-      Number(m[6] ?? '0'),
-    );
+    return new Date(wallClockToIso(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6] ?? '00'}`));
   }
   const parsed = new Date(raw);
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
