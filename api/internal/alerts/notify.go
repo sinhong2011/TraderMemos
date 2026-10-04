@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"net"
 	"net/http"
 	"syscall"
@@ -93,7 +94,10 @@ func (s *Service) sendWebhook(ctx context.Context, url string, ev Event, at time
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Title", ev.Title)
+	// Header values are not UTF-8 safe; a non-ASCII title (the weekly
+	// review's "Sep 28 – Oct 4") goes out RFC 2047-encoded, which ntfy
+	// decodes. ASCII titles pass through unchanged.
+	req.Header.Set("X-Title", mime.QEncoding.Encode("utf-8", ev.Title))
 	resp, err := s.webhookc.Do(req)
 	if err != nil {
 		return err

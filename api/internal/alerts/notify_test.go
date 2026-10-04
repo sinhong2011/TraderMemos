@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"mime"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -53,6 +54,30 @@ func TestSendWebhookPayload(t *testing.T) {
 	}
 	if title != "Daily loss limit hit" {
 		t.Errorf("X-Title = %q", title)
+	}
+}
+
+func TestSendWebhookEncodesNonASCIITitle(t *testing.T) {
+	var raw string
+	var got webhookPayload
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw = r.Header.Get("X-Title")
+		body, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(body, &got)
+	}))
+	defer srv.Close()
+
+	ev := Event{Rule: RuleWeeklyReview, Title: "Weekly review: Sep 28 – Oct 4", Body: "b",
+		Data: map[string]string{"note_id": "n1", "route": "/edit-note?id=n1"}}
+	if err := testService().sendWebhook(context.Background(), srv.URL, ev, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	decoded, err := new(mime.WordDecoder).DecodeHeader(raw)
+	if err != nil || decoded != ev.Title {
+		t.Errorf("X-Title %q decodes to %q (%v), want %q", raw, decoded, err, ev.Title)
+	}
+	if got.Title != ev.Title || got.Data["note_id"] != "n1" || got.Data["route"] != "/edit-note?id=n1" {
+		t.Errorf("payload = %+v", got)
 	}
 }
 
