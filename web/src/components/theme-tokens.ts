@@ -61,7 +61,7 @@ const BENTO_TONE: Record<string, string> = {
   pos: "text-profit",
   neg: "text-loss",
   accent: "text-primary",
-  amber: "text-chart-3",
+  amber: "text-warning-foreground",
 };
 
 export function bentoToneClass(tone?: "pos" | "neg" | "accent" | "amber"): string {

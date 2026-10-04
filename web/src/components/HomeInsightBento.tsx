@@ -43,7 +43,7 @@ function Title({
     <p
       className={cn(
         "self-start text-left text-[12px] font-semibold tracking-wide",
-        tone === "signal" ? "text-chart-3" : "font-medium text-muted-foreground",
+        tone === "signal" ? "text-heading" : "font-medium text-muted-foreground",
         className,
       )}
     >

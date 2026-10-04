@@ -64,7 +64,7 @@ export function TradeResultPreview({
       data-testid="trade-result-preview"
     >
       <div className="flex items-baseline justify-between gap-3">
-        <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-chart-3">Result</p>
+        <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-heading">Result</p>
         {initialRisk != null && initialRisk > 0 ? (
           <p className="m-0 text-2xs tabular-nums text-muted-foreground">
             Risk {fmtMoney(initialRisk, currency, locale)}
@@ -167,7 +167,7 @@ export function AfterSaveResultPreview({
       data-testid="after-save-result-preview"
     >
       <div className="flex items-baseline justify-between gap-3">
-        <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-chart-3">
+        <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-heading">
           After save
         </p>
         {initialRisk != null && initialRisk > 0 ? (
@@ -284,7 +284,7 @@ export function BatchTradeResultPreview({
       data-testid="batch-trade-result-preview"
     >
       <div className="flex items-baseline justify-between gap-3">
-        <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-chart-3">
+        <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-heading">
           Batch result
         </p>
         {batch.riskTotal != null && batch.riskTotal > 0 ? (

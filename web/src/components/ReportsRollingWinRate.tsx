@@ -10,7 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { ChartCard } from "./ChartCard";
-import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, useChartAnimation } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { SegmentedControl } from "./SegmentedControl";
@@ -44,6 +44,7 @@ export interface ReportsRollingWinRateProps {
  * a recent run reads as above or below the trader's own norm.
  */
 export function ReportsRollingWinRate({ trades, loading, error }: ReportsRollingWinRateProps) {
+  const animate = useChartAnimation();
   // The money formatters read privacy mode at call time, which React Compiler
   // cannot see: it would keep serving the pre-flip string. Branching on the
   // subscribed flag makes it an input the compiler tracks.
@@ -165,6 +166,7 @@ export function ReportsRollingWinRate({ trades, loading, error }: ReportsRolling
                 />
               ) : null}
               <Line
+                isAnimationActive={animate}
                 type="monotone"
                 dataKey={metric}
                 stroke={chartTheme.accentStroke}

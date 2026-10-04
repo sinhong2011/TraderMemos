@@ -66,7 +66,7 @@ export function ReportsDayStrip({ trades, loading, onDayClick }: ReportsDayStrip
 
   return (
     <section className="min-w-0">
-      <p className="mb-2 text-2xs font-semibold tracking-wide text-chart-3">Trading days</p>
+      <p className="mb-2 text-2xs font-semibold tracking-wide text-heading">Trading days</p>
       <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">
         {days.map((d) => {
           const dow = new Date(`${d.date}T12:00:00Z`).getUTCDay();

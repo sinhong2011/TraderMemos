@@ -32,7 +32,7 @@ function toDraft(from?: string, to?: string): DateRange | undefined {
 
 function RangeFooter({ draft }: { draft: DateRange | undefined }) {
   if (draft?.from && !draft.to) {
-    return <p className="m-0 text-2xs uppercase tracking-widest text-chart-3">Select end date</p>;
+    return <p className="m-0 text-2xs uppercase tracking-widest text-heading">Select end date</p>;
   }
   if (draft?.from && draft.to) {
     return (

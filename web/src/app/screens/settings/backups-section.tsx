@@ -39,7 +39,7 @@ function StatusLine({ state, label }: { state: BackupState; label: string }) {
       className={cn(
         "inline-flex items-center gap-1.5 text-[12px] font-medium",
         tone === "ok" && "text-profit",
-        tone === "warn" && "text-chart-3",
+        tone === "warn" && "text-warning-foreground",
         tone === "error" && "text-destructive",
         tone === "muted" && "text-muted-foreground",
       )}
@@ -49,7 +49,7 @@ function StatusLine({ state, label }: { state: BackupState; label: string }) {
         className={cn(
           "size-1.5 rounded-full",
           tone === "ok" && "bg-profit",
-          tone === "warn" && "bg-chart-3",
+          tone === "warn" && "bg-warning",
           tone === "error" && "bg-destructive",
           tone === "muted" && "bg-muted-foreground",
         )}

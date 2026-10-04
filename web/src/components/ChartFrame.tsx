@@ -1,3 +1,4 @@
+import { useReducedMotion } from "motion/react";
 import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { pnlColor } from "./theme-tokens";
@@ -53,6 +54,14 @@ export const chartTooltipStyle: {
  */
 export function pnlTooltipValue(value: number, text: string) {
   return <span className={cn("tabular-nums", pnlColor(value))}>{text}</span>;
+}
+
+/**
+ * Recharts `isAnimationActive` for the current viewer: false under
+ * prefers-reduced-motion, so series draw in place instead of sweeping in.
+ */
+export function useChartAnimation(): boolean {
+  return !(useReducedMotion() ?? false);
 }
 
 interface ChartFrameProps {

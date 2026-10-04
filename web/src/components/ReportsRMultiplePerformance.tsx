@@ -11,7 +11,7 @@ import {
 import type { RSummary } from "@/lib/api/types";
 
 import { Card } from "./Card";
-import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, useChartAnimation } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { Skeleton } from "./Skeleton";
 import { StatCard } from "./StatCard";
@@ -34,6 +34,7 @@ export function ReportsRMultiplePerformance({
   loading,
   error,
 }: ReportsRMultiplePerformanceProps) {
+  const animate = useChartAnimation();
   // `total_trades` here is already the R-eligible (included) count — `excluded`
   // is a disjoint count of trades skipped for missing risk, not a subset of it.
   const included = rSummary?.total_trades ?? 0;
@@ -110,7 +111,7 @@ export function ReportsRMultiplePerformance({
                       }}
                       cursor={{ fill: chartTheme.cursorFill }}
                     />
-                    <Bar dataKey="count" radius={[2, 2, 0, 0]}>
+                    <Bar isAnimationActive={animate} dataKey="count" radius={[2, 2, 0, 0]}>
                       {distribution.map((b) => (
                         <Cell key={b.label} fill={b.from < 0 ? NEG : POS} fillOpacity={0.85} />
                       ))}

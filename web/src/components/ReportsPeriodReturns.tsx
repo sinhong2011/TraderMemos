@@ -57,7 +57,7 @@ export function ReportsPeriodReturns({
   return (
     <section className="min-w-0">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <p className="text-2xs font-semibold tracking-wide text-chart-3">Period returns</p>
+        <p className="text-2xs font-semibold tracking-wide text-heading">Period returns</p>
         {pctEnabled ? (
           <SegmentedControl
             ariaLabel="Period return unit"

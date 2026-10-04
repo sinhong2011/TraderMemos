@@ -192,7 +192,7 @@ export function DayReviewView({
   desk,
   missed,
 }: DayReviewViewProps) {
-  const { fmtSignedMoney } = useMoneyFormatters();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const day = compliance?.days.find((d) => d.date === date);
   const netPnl = (summary?.net_pnl ?? 0) * fxRate;
@@ -266,7 +266,7 @@ export function DayReviewView({
               />
               <StatCard
                 label="Fees"
-                value={fmtSignedMoney(-(summary?.total_fees ?? 0) * fxRate, currency, locale)}
+                value={fmtMoney((summary?.total_fees ?? 0) * fxRate, currency, locale)}
               />
             </div>
             {compliance?.rules_configured && (

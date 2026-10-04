@@ -29,10 +29,14 @@ const TOGGLE_SIZE = {
   md: "default",
 } as const;
 
-/** Outer track height — `md` matches coss Input / NativeSelect (`h-8.5` / `sm:h-7.5`). */
+/**
+ * Outer track height — `md` matches coss Input / NativeSelect (`h-8.5` / `sm:h-7.5`).
+ * Track = item + 2px border + 2× padding; every size leaves items at least 24px
+ * tall on desktop (WCAG 2.5.8) and 26px+ on touch.
+ */
 const TRACK_SIZE = {
-  xs: "h-6 p-px",
-  sm: "h-7.5 p-0.5 sm:h-7",
+  xs: "h-8 p-0.5 sm:h-7 sm:p-px",
+  sm: "h-8 p-0.5 sm:h-7.5",
   md: "h-8.5 p-0.5 sm:h-7.5",
 } as const;
 

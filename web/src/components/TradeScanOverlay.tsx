@@ -595,8 +595,12 @@ export function TradeScanOverlay({
           >
             {warnings.map((warning) => (
               <span key={warning} className="flex items-start gap-2">
-                <TriangleAlert size={13} className="mt-0.5 shrink-0 text-chart-3" aria-hidden />
-                <span className="text-[12px] leading-snug text-chart-3">{warning}</span>
+                <TriangleAlert
+                  size={13}
+                  className="mt-0.5 shrink-0 text-warning-foreground"
+                  aria-hidden
+                />
+                <span className="text-[12px] leading-snug text-warning-foreground">{warning}</span>
               </span>
             ))}
           </motion.div>
