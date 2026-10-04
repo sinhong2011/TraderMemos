@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import type { TradeDetail } from "@/lib/api/types";
@@ -138,7 +139,16 @@ describe("TradeDetailSheet", () => {
     expect(screen.getByText("Exit")).toBeInTheDocument();
     expect(screen.queryByText("Target")).not.toBeInTheDocument();
     expect(screen.getByText(/Executions \(2\)/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Remove trade" })).toBeInTheDocument();
+    // Removal is tucked behind the ⋯ menu, not a footer button.
+    expect(screen.queryByRole("button", { name: "Remove trade" })).not.toBeInTheDocument();
+  });
+
+  it("opens the remove confirmation from the trade actions menu", async () => {
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<(...args: any[]) => any>()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Trade actions" }));
+    await userEvent.click(await screen.findByRole("menuitem", { name: "Remove trade" }));
+    expect(await screen.findByRole("dialog", { name: /Remove CL8698/i })).toBeVisible();
   });
 
   it("shows OPEN status with 'still open' and dash exit for open trades", () => {
