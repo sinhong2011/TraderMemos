@@ -175,6 +175,23 @@ func main() {
 				logger,
 			))
 		}
+		if cfg.JobWeeklyReviewIntervalMin > 0 {
+			clock, delay := time.Now, time.Duration(0)
+			if cfg.WeeklyReviewNow != "" {
+				pinned, perr := time.Parse(time.RFC3339, cfg.WeeklyReviewNow)
+				if perr != nil {
+					logger.Error("TM_WEEKLY_REVIEW_NOW must be RFC 3339", "value", cfg.WeeklyReviewNow, "err", perr)
+					os.Exit(1)
+				}
+				clock, delay = func() time.Time { return pinned }, 5*time.Second
+				logger.Warn("weekly review clock pinned for testing", "now", pinned)
+			}
+			runner.Register(jobs.NewWeeklyReview(
+				q, alertsSvc,
+				time.Duration(cfg.JobWeeklyReviewIntervalMin)*time.Minute,
+				delay, clock, logger,
+			))
+		}
 		if names := runner.Names(); len(names) > 0 {
 			runner.Start(context.Background())
 			logger.Info("background jobs started", "jobs", names)

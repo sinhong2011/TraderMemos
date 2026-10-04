@@ -76,6 +76,8 @@ description: API 读取的全部 TM_* 环境变量，含默认值与作用说明
 | `TM_JOB_EXCURSION_LIMIT` | `10` | 每次回填处理的交易数（`0` 为禁用） |
 | `TM_JOB_FLEX_SYNC_INTERVAL_MIN` | `360` | IBKR Flex 自动同步间隔（分钟，`0` 为禁用） |
 | `TM_JOB_ALERTS_INTERVAL_MIN` | `60` | 警报规则评估间隔（分钟，`0` 为禁用） |
+| `TM_JOB_WEEKLY_REVIEW_INTERVAL_MIN` | `60` | 每周回顾的检查间隔（分钟）；回顾本身每周只发一次，于市场时区周六 09:00（`0` 为禁用） |
+| `TM_WEEKLY_REVIEW_NOW` | _（未设置）_ | 仅供测试：把每周回顾的时钟固定为 RFC 3339 时间（例如 `2026-10-03T09:00:00-04:00`），并于 5 秒后执行首次检查 |
 | `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS` | `false` | 允许警报 Webhook 指向内网 / 回环地址（SSRF 防护 —— 仅当接收端在你的局域网内时开启） |
 
 ## Web 构建期变量

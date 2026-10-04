@@ -39,12 +39,16 @@ type alertSettingsDTO struct {
 	PropWarnPct      float64 `json:"prop_warn_pct"`
 	RuleUnreviewed   bool    `json:"rule_unreviewed"`
 	UnreviewedDays   int     `json:"unreviewed_days"`
+	// RuleWeeklyReview is the Saturday weekly-review push (and the review
+	// note it opens). Fired in the market timezone, not Timezone above.
+	RuleWeeklyReview bool `json:"rule_weekly_review"`
 }
 
 func defaultAlertSettingsDTO() alertSettingsDTO {
 	return alertSettingsDTO{
 		RuleRisk: true, RuleDailyLoss: true, RuleLossStreak: true, LossStreakN: 3,
 		RulePropDrawdown: true, PropWarnPct: 0.8, RuleUnreviewed: true, UnreviewedDays: 7,
+		RuleWeeklyReview: true,
 	}
 }
 
@@ -60,6 +64,7 @@ func toAlertSettingsDTO(r store.AlertSetting) alertSettingsDTO {
 		PropWarnPct:      r.PropWarnPct,
 		RuleUnreviewed:   r.RuleUnreviewed != 0,
 		UnreviewedDays:   int(r.UnreviewedDays),
+		RuleWeeklyReview: r.RuleWeeklyReview != 0,
 	}
 }
 
@@ -78,6 +83,11 @@ func (s *Server) handleGetAlertSettings(c *echo.Context) error {
 func (s *Server) handlePutAlertSettings(c *echo.Context) error {
 	uid := auth.UserID(c)
 	in := defaultAlertSettingsDTO()
+	// A client that predates the weekly review omits the field; keep what is
+	// stored rather than letting the default switch it back on.
+	if cur, err := s.deps.Store.GetAlertSettings(c.Request().Context(), uid); err == nil {
+		in.RuleWeeklyReview = cur.RuleWeeklyReview != 0
+	}
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
 	}
@@ -107,6 +117,7 @@ func (s *Server) handlePutAlertSettings(c *echo.Context) error {
 		PropWarnPct:      in.PropWarnPct,
 		RuleUnreviewed:   b2i(in.RuleUnreviewed),
 		UnreviewedDays:   int64(in.UnreviewedDays),
+		RuleWeeklyReview: b2i(in.RuleWeeklyReview),
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not save alert settings", nil)

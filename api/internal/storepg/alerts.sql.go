@@ -83,7 +83,7 @@ func (q *Queries) GetAlertChannel(ctx context.Context, arg GetAlertChannelParams
 }
 
 const getAlertSettings = `-- name: GetAlertSettings :one
-SELECT user_id, enabled, timezone, rule_risk, rule_daily_loss, rule_loss_streak, loss_streak_n, rule_prop_drawdown, prop_warn_pct, rule_unreviewed, unreviewed_days, updated_at FROM alert_settings WHERE user_id = $1
+SELECT user_id, enabled, timezone, rule_risk, rule_daily_loss, rule_loss_streak, loss_streak_n, rule_prop_drawdown, prop_warn_pct, rule_unreviewed, unreviewed_days, updated_at, rule_weekly_review FROM alert_settings WHERE user_id = $1
 `
 
 func (q *Queries) GetAlertSettings(ctx context.Context, userID string) (AlertSetting, error) {
@@ -102,6 +102,7 @@ func (q *Queries) GetAlertSettings(ctx context.Context, userID string) (AlertSet
 		&i.RuleUnreviewed,
 		&i.UnreviewedDays,
 		&i.UpdatedAt,
+		&i.RuleWeeklyReview,
 	)
 	return i, err
 }
@@ -255,7 +256,7 @@ func (q *Queries) ListEnabledAlertChannels(ctx context.Context, userID string) (
 }
 
 const listEnabledAlertSettings = `-- name: ListEnabledAlertSettings :many
-SELECT user_id, enabled, timezone, rule_risk, rule_daily_loss, rule_loss_streak, loss_streak_n, rule_prop_drawdown, prop_warn_pct, rule_unreviewed, unreviewed_days, updated_at FROM alert_settings WHERE enabled = 1 ORDER BY user_id
+SELECT user_id, enabled, timezone, rule_risk, rule_daily_loss, rule_loss_streak, loss_streak_n, rule_prop_drawdown, prop_warn_pct, rule_unreviewed, unreviewed_days, updated_at, rule_weekly_review FROM alert_settings WHERE enabled = 1 ORDER BY user_id
 `
 
 func (q *Queries) ListEnabledAlertSettings(ctx context.Context) ([]AlertSetting, error) {
@@ -280,6 +281,7 @@ func (q *Queries) ListEnabledAlertSettings(ctx context.Context) ([]AlertSetting,
 			&i.RuleUnreviewed,
 			&i.UnreviewedDays,
 			&i.UpdatedAt,
+			&i.RuleWeeklyReview,
 		); err != nil {
 			return nil, err
 		}
@@ -395,9 +397,9 @@ INSERT INTO alert_settings (
     user_id, enabled, timezone,
     rule_risk, rule_daily_loss, rule_loss_streak, loss_streak_n,
     rule_prop_drawdown, prop_warn_pct, rule_unreviewed, unreviewed_days,
-    updated_at
+    rule_weekly_review, updated_at
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CURRENT_TIMESTAMP)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, CURRENT_TIMESTAMP)
 ON CONFLICT(user_id) DO UPDATE SET
     enabled = excluded.enabled,
     timezone = excluded.timezone,
@@ -409,8 +411,9 @@ ON CONFLICT(user_id) DO UPDATE SET
     prop_warn_pct = excluded.prop_warn_pct,
     rule_unreviewed = excluded.rule_unreviewed,
     unreviewed_days = excluded.unreviewed_days,
+    rule_weekly_review = excluded.rule_weekly_review,
     updated_at = CURRENT_TIMESTAMP
-RETURNING user_id, enabled, timezone, rule_risk, rule_daily_loss, rule_loss_streak, loss_streak_n, rule_prop_drawdown, prop_warn_pct, rule_unreviewed, unreviewed_days, updated_at
+RETURNING user_id, enabled, timezone, rule_risk, rule_daily_loss, rule_loss_streak, loss_streak_n, rule_prop_drawdown, prop_warn_pct, rule_unreviewed, unreviewed_days, updated_at, rule_weekly_review
 `
 
 type UpsertAlertSettingsParams struct {
@@ -425,6 +428,7 @@ type UpsertAlertSettingsParams struct {
 	PropWarnPct      float64 `json:"prop_warn_pct"`
 	RuleUnreviewed   int64   `json:"rule_unreviewed"`
 	UnreviewedDays   int64   `json:"unreviewed_days"`
+	RuleWeeklyReview int64   `json:"rule_weekly_review"`
 }
 
 func (q *Queries) UpsertAlertSettings(ctx context.Context, arg UpsertAlertSettingsParams) (AlertSetting, error) {
@@ -440,6 +444,7 @@ func (q *Queries) UpsertAlertSettings(ctx context.Context, arg UpsertAlertSettin
 		arg.PropWarnPct,
 		arg.RuleUnreviewed,
 		arg.UnreviewedDays,
+		arg.RuleWeeklyReview,
 	)
 	var i AlertSetting
 	err := row.Scan(
@@ -455,6 +460,7 @@ func (q *Queries) UpsertAlertSettings(ctx context.Context, arg UpsertAlertSettin
 		&i.RuleUnreviewed,
 		&i.UnreviewedDays,
 		&i.UpdatedAt,
+		&i.RuleWeeklyReview,
 	)
 	return i, err
 }

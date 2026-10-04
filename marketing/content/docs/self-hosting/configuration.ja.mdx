@@ -79,6 +79,8 @@ description: API が読み取るすべての TM_* 環境変数と、その既定
 | `TM_JOB_EXCURSION_LIMIT` | `10` | 1 回のバックフィルで処理するトレード数（`0` で無効） |
 | `TM_JOB_FLEX_SYNC_INTERVAL_MIN` | `360` | IBKR Flex 自動同期の間隔（分、`0` で無効） |
 | `TM_JOB_ALERTS_INTERVAL_MIN` | `60` | アラートルール評価の間隔（分、`0` で無効） |
+| `TM_JOB_WEEKLY_REVIEW_INTERVAL_MIN` | `60` | 週次レビューの確認間隔（分）。レビュー自体はマーケットタイムゾーンの土曜 09:00 に週 1 回だけ送信（`0` で無効） |
+| `TM_WEEKLY_REVIEW_NOW` | _(未設定)_ | テスト専用：週次レビューの時計を RFC 3339 の時刻（例 `2026-10-03T09:00:00-04:00`）に固定し、5 秒後に初回確認を実行 |
 | `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS` | `false` | アラート Webhook がプライベート／ループバックアドレスへ届くのを許可（SSRF ガード — 受信先が LAN 内にある場合のみオンに） |
 
 ## Web のビルド時変数

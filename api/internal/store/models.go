@@ -77,6 +77,7 @@ type AlertSetting struct {
 	RuleUnreviewed   int64     `json:"rule_unreviewed"`
 	UnreviewedDays   int64     `json:"unreviewed_days"`
 	UpdatedAt        time.Time `json:"updated_at"`
+	RuleWeeklyReview int64     `json:"rule_weekly_review"`
 }
 
 type AnnualGoal struct {
@@ -414,4 +415,12 @@ type UserPreference struct {
 	UserID    string    `json:"user_id"`
 	Prefs     string    `json:"prefs"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type WeeklyReview struct {
+	UserID    string       `json:"user_id"`
+	WeekStart string       `json:"week_start"`
+	NoteID    string       `json:"note_id"`
+	SentAt    sql.NullTime `json:"sent_at"`
+	CreatedAt time.Time    `json:"created_at"`
 }

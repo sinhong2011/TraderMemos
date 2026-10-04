@@ -86,6 +86,14 @@ type Config struct {
 	// JobAlertsIntervalMin is minutes between journal-alert scan passes;
 	// 0 disables the scheduled scan (write-path evaluation stays active).
 	JobAlertsIntervalMin int
+	// JobWeeklyReviewIntervalMin is minutes between weekly-review passes
+	// (each pass only fires for users whose Saturday 09:00 has come);
+	// 0 disables the weekly review.
+	JobWeeklyReviewIntervalMin int
+	// WeeklyReviewNow pins the weekly-review job's clock to an RFC 3339
+	// instant and runs its first pass after 5 seconds (TM_WEEKLY_REVIEW_NOW).
+	// Testing only: it lets QA fire a Saturday review on any day.
+	WeeklyReviewNow string
 	// AlertsAllowPrivateWebhooks lets alert webhooks target loopback/private
 	// addresses (e.g. a self-hosted ntfy on the same LAN). Off by default:
 	// user-supplied webhook URLs must not become an SSRF probe on shared servers.
@@ -95,41 +103,43 @@ type Config struct {
 func Load() (Config, error) {
 	k := koanf.New(".")
 	_ = k.Load(confmap.Provider(map[string]any{
-		"http_port":                     "8080",
-		"database_url":                  "",
-		"db_path":                       "data/tradermemos.db",
-		"jwt_secret":                    DefaultInsecureJWTSecret,
-		"allow_insecure_jwt":            false,
-		"allow_registration":            false,
-		"default_currency":              "USD",
-		"log_level":                     "info",
-		"attach_max_bytes":              int64(10 << 20),
-		"attach_dir":                    "",
-		"import_max_bytes":              int64(10 << 20),
-		"market_data_provider":          "yahoo",
-		"market_data_enabled":           true,
-		"econ_calendar_enabled":         true,
-		"econ_calendar_feed_url":        "",
-		"econ_calendar_refresh_min":     60,
-		"ocr_enabled":                   false,
-		"ocr_max_bytes":                 int64(10 << 20),
-		"ocr_vision_base_url":           "https://api.openai.com/v1",
-		"ocr_vision_api_key":            "",
-		"ocr_vision_model":              "gpt-4o-mini",
-		"ocr_vision_timeout_sec":        90,
-		"coach_enabled":                 false,
-		"coach_base_url":                "https://api.openai.com/v1",
-		"coach_api_key":                 "",
-		"coach_model":                   "gpt-4o-mini",
-		"share_links_enabled":           false,
-		"public_web_url":                "",
-		"cors_origins":                  "",
-		"jobs_enabled":                  true,
-		"job_excursion_interval_min":    360,
-		"job_excursion_limit":           10,
-		"job_flex_sync_interval_min":    360,
-		"job_alerts_interval_min":       60,
-		"alerts_allow_private_webhooks": false,
+		"http_port":                      "8080",
+		"database_url":                   "",
+		"db_path":                        "data/tradermemos.db",
+		"jwt_secret":                     DefaultInsecureJWTSecret,
+		"allow_insecure_jwt":             false,
+		"allow_registration":             false,
+		"default_currency":               "USD",
+		"log_level":                      "info",
+		"attach_max_bytes":               int64(10 << 20),
+		"attach_dir":                     "",
+		"import_max_bytes":               int64(10 << 20),
+		"market_data_provider":           "yahoo",
+		"market_data_enabled":            true,
+		"econ_calendar_enabled":          true,
+		"econ_calendar_feed_url":         "",
+		"econ_calendar_refresh_min":      60,
+		"ocr_enabled":                    false,
+		"ocr_max_bytes":                  int64(10 << 20),
+		"ocr_vision_base_url":            "https://api.openai.com/v1",
+		"ocr_vision_api_key":             "",
+		"ocr_vision_model":               "gpt-4o-mini",
+		"ocr_vision_timeout_sec":         90,
+		"coach_enabled":                  false,
+		"coach_base_url":                 "https://api.openai.com/v1",
+		"coach_api_key":                  "",
+		"coach_model":                    "gpt-4o-mini",
+		"share_links_enabled":            false,
+		"public_web_url":                 "",
+		"cors_origins":                   "",
+		"jobs_enabled":                   true,
+		"job_excursion_interval_min":     360,
+		"job_excursion_limit":            10,
+		"job_flex_sync_interval_min":     360,
+		"job_alerts_interval_min":        60,
+		"job_weekly_review_interval_min": 60,
+		"weekly_review_now":              "",
+		"alerts_allow_private_webhooks":  false,
 	}, "."), nil)
 
 	// TM_HTTP_PORT -> http_port
@@ -179,6 +189,8 @@ func Load() (Config, error) {
 		JobExcursionLimit:          k.Int("job_excursion_limit"),
 		JobFlexSyncIntervalMin:     k.Int("job_flex_sync_interval_min"),
 		JobAlertsIntervalMin:       k.Int("job_alerts_interval_min"),
+		JobWeeklyReviewIntervalMin: k.Int("job_weekly_review_interval_min"),
+		WeeklyReviewNow:            strings.TrimSpace(k.String("weekly_review_now")),
 		AlertsAllowPrivateWebhooks: k.Bool("alerts_allow_private_webhooks"),
 	}
 	if err := cfg.resolveDatabase(k.String("database_url"), k.String("db_path")); err != nil {
