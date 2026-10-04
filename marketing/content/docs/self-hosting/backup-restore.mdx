@@ -13,6 +13,27 @@ Your journal is two things on disk, and they must be backed up **together**:
 Attachment metadata lives in the database — restoring one without the other leaves broken
 screenshots or orphaned files.
 
+## Built in — scheduled snapshots (SQLite)
+
+The API snapshots the SQLite database on its own: daily by default, into `/data/backups`
+(Docker) or a `backups/` folder beside the database file, as
+`tradermemos-YYYYMMDD-HHMMSSZ.db`, keeping the newest 14. Each snapshot is a consistent
+`VACUUM INTO` copy that is fsynced and renamed into place, so a half-written file never
+appears under a snapshot name, and only files with exactly that name are ever pruned. Tune it
+with `TM_BACKUP_DIR`, `TM_BACKUP_KEEP`, `TM_BACKUP_INTERVAL_MIN` and `TM_BACKUP_ENABLED`
+(see [Configuration](/en/docs/self-hosting/configuration)).
+
+**Settings → About → Backups** (owner only) shows the last backup, the directory and the last
+error, and has a **Back up now** button. The Settings icon gets a red dot when a backup failed
+or the newest one is older than twice the interval.
+
+Snapshots are the database only and they sit on the same disk — sync the directory off the
+server yourself (rclone, restic, Syncthing…) and copy `/data/attachments` with it. In Docker,
+bind-mount a host path and point `TM_BACKUP_DIR` at it so your sync tool can reach the files.
+
+To restore: stop the API, copy a snapshot over `tradermemos.db`, delete any
+`tradermemos.db-wal` / `tradermemos.db-shm` next to it, and start the API again.
+
 ## Option 1 — App-level export (works everywhere)
 
 **Import → Export** in the app (or `GET /api/v1/exports`) produces:

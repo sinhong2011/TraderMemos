@@ -76,6 +76,10 @@ description: API 讀取的全部 TM_* 環境變量，含默認值與作用說明
 | `TM_JOB_EXCURSION_LIMIT` | `10` | 每次回填處理的交易數（`0` 爲禁用） |
 | `TM_JOB_FLEX_SYNC_INTERVAL_MIN` | `360` | IBKR Flex 自動同步間隔（分鐘，`0` 爲禁用） |
 | `TM_JOB_ALERTS_INTERVAL_MIN` | `60` | 警報規則評估間隔（分鐘，`0` 爲禁用） |
+| `TM_BACKUP_ENABLED` | `true` | SQLite 定時快照（見[備份與恢復](/zh-Hant/docs/self-hosting/backup-restore)）。`TM_JOBS_ENABLED=false` 時同樣關閉；設定 → 關於中的「立即備份」始終可用 |
+| `TM_BACKUP_DIR` | `<dbDir>/backups` | 快照目錄（Docker：`/data/backups`） |
+| `TM_BACKUP_KEEP` | `14` | 保留的快照數量；每次成功後刪除更早的快照 |
+| `TM_BACKUP_INTERVAL_MIN` | `1440` | 快照間隔（分鐘，`0` 爲停用定時任務） |
 | `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS` | `false` | 允許警報 Webhook 指向內網 / 回環地址（SSRF 防護 —— 僅當接收端在你的區域網內時開啓） |
 
 ## Web 構建期變量
