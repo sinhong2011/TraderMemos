@@ -23,6 +23,7 @@ import {
   useBehavior,
   useBreakdown,
   useCompliance,
+  useMistakeTax,
   useEdgeScore,
   useEquityCurve,
   useExecutionScore,
@@ -153,6 +154,7 @@ function ReportsPage() {
   const sessionBreakdownQ = useBreakdown("session", analyticsFilters);
   const qualityBreakdownQ = useBreakdown("trade_quality", analyticsFilters);
   const complianceQ = useCompliance(analyticsFilters);
+  const mistakeTaxQ = useMistakeTax(analyticsFilters);
   const behaviorQ = useBehavior(analyticsFilters);
   const monteCarloQ = useMonteCarlo(analyticsFilters, tab === "risk");
   const [execScoreBucket, setExecScoreBucket] = useState<ExecScoreBucket>("week");
@@ -207,6 +209,9 @@ function ReportsPage() {
         qualityBreakdown={qualityBreakdownQ.data ?? []}
         qualityBreakdownLoading={qualityBreakdownQ.isLoading}
         qualityBreakdownError={qualityBreakdownQ.isError}
+        mistakeTax={mistakeTaxQ.data}
+        mistakeTaxLoading={mistakeTaxQ.isLoading}
+        mistakeTaxError={mistakeTaxQ.isError}
         compliance={complianceQ.data}
         complianceLoading={complianceQ.isLoading}
         complianceError={complianceQ.isError}

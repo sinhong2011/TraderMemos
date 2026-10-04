@@ -12,6 +12,7 @@ export interface ReportCardDef {
  */
 export const REPORT_CARDS: Record<ReportsTab, ReportCardDef[]> = {
   overview: [
+    { id: "mistake-tax", label: "Mistake tax" },
     { id: "summary", label: "Summary metrics" },
     { id: "period-returns", label: "Period returns" },
     { id: "edge-score", label: "Edge Score" },

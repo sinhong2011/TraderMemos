@@ -29,6 +29,7 @@ import type {
   BehaviorReport,
   ComplianceReport,
   JournalNote,
+  MistakeTaxReport,
   Summary,
   Trade,
 } from "@/lib/api/types";
@@ -48,6 +49,8 @@ export interface DayReviewViewProps {
   summaryLoading: boolean;
   compliance?: ComplianceReport;
   behavior?: BehaviorReport;
+  /** The day's mistake tax — losses on trades that broke the process. */
+  mistakeTax?: MistakeTaxReport;
   notes: JournalNote[];
   notesLoading: boolean;
   currency: string;
@@ -176,6 +179,7 @@ export function DayReviewView({
   summaryLoading,
   compliance,
   behavior,
+  mistakeTax,
   notes,
   notesLoading,
   currency,
@@ -325,6 +329,20 @@ export function DayReviewView({
                   </Link>
                 </div>
               )}
+            {mistakeTax != null && (summary?.total_trades ?? 0) > 0 ? (
+              <p className="m-0 text-[12px] text-muted-foreground tabular-nums">
+                Mistake tax:{" "}
+                <span className="font-semibold text-foreground">
+                  {fmtMoney(mistakeTax.total_cost * fxRate, currency, locale)}
+                </span>
+                {mistakeTax.sources[0]
+                  ? ` · ${mistakeTax.sources
+                      .map((s) => s.label)
+                      .slice(0, 2)
+                      .join(", ")}`
+                  : " · clean session"}
+              </p>
+            ) : null}
           </div>
         )}
       </Card>
