@@ -133,10 +133,10 @@ export function AppNav() {
   return (
     <nav
       aria-label="Main navigation"
-      className="relative z-[2] hidden h-full w-[52px] shrink-0 flex-col bg-background md:flex"
+      className="relative z-[2] hidden h-full w-[52px] shrink-0 flex-col bg-canvas md:flex"
     >
       {/* Logo band — same 52px + border as HeaderBar */}
-      <div className="flex h-[52px] w-full shrink-0 items-center justify-center bg-background">
+      <div className="flex h-[52px] w-full shrink-0 items-center justify-center bg-canvas">
         <AppLogo
           size={24}
           className="transition-transform duration-150 ease-out hover:scale-105 motion-reduce:transition-none"

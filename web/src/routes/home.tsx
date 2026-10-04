@@ -4,7 +4,7 @@ import { HomeView } from "@/app/screens/HomeView";
 import type { HomeBreakdownDim } from "@/components/HomeBreakdownChart";
 import { TradeDetailSheet } from "@/components/TradeDetailSheet";
 import { ytdFiltersForYear } from "@/lib/annualGoal";
-import { buildDayRecords, dayKeyInTz } from "@/lib/calendar";
+import { buildDayRecords } from "@/lib/calendar";
 import { normalizeFilterDate, useFilterParams, useFilters } from "@/lib/filters";
 import { computeHeaderStats } from "@/lib/headerStats";
 import { useAccounts } from "@/lib/hooks/useAccounts";
@@ -12,6 +12,7 @@ import { useBreakdown, useDailyPnl, useEquityCurve, useSummary } from "@/lib/hoo
 import { useAnnualGoal, useClearAnnualGoal, useSaveAnnualGoal } from "@/lib/hooks/useAnnualGoal";
 import { useCash } from "@/lib/hooks/useCash";
 import { useTrades } from "@/lib/hooks/useTrades";
+import { useMarketToday } from "@/lib/today";
 import { filterTradesByStatus } from "@/lib/tradeFilters";
 import { useUI } from "@/lib/ui";
 
@@ -39,9 +40,11 @@ function HomePage() {
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
   const [breakdownDim, setBreakdownDim] = useState<HomeBreakdownDim>("day_of_week");
 
-  const now = new Date();
-  const calendarYear = now.getFullYear();
-  const calendarMonth = now.getMonth() + 1;
+  // The mini calendar shows the market's current month, the same day key the
+  // Calendar page and day review use.
+  const today = useMarketToday();
+  const calendarYear = Number(today.slice(0, 4));
+  const calendarMonth = Number(today.slice(5, 7));
   const range = monthRange(calendarYear, calendarMonth, filters.tz);
   const monthFilters = { ...filters, from: range.from, to: range.to };
   const ytdFilters = useMemo(
@@ -123,7 +126,7 @@ function HomePage() {
         calendarYear={calendarYear}
         calendarMonth={calendarMonth}
         dailyPnl={dailyQ.data ?? {}}
-        todayNetPnl={dailyQ.data?.[dayKeyInTz(now.toISOString(), filters.tz)] ?? 0}
+        todayNetPnl={dailyQ.data?.[today] ?? 0}
         dayRecords={calendarDayRecords}
         dailyLoading={dailyQ.isLoading}
         dailyError={dailyQ.isError}

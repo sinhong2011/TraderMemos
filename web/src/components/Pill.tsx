@@ -5,7 +5,7 @@ export type PillTone = "pos" | "neg" | "accent" | "amber" | "muted";
 
 const TONES: Record<PillTone, string> = {
   pos: "text-profit bg-profit/10",
-  neg: "text-destructive bg-destructive/10",
+  neg: "text-loss bg-destructive/10",
   accent: "text-primary bg-primary/10",
   amber: "text-chart-3 bg-chart-3/10",
   muted: "text-muted-foreground bg-sidebar",

@@ -66,7 +66,7 @@ describe("SegmentedControl", () => {
       />,
     );
     const short = screen.getByRole("button", { name: "SHORT" });
-    expect(short.className).toMatch(/text-destructive/);
+    expect(short.className).toMatch(/text-loss/);
     expect(short.querySelector("[class*=bg-destructive]")).toBeTruthy();
   });
 

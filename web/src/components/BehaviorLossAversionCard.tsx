@@ -116,7 +116,7 @@ export function BehaviorLossAversionCard({
                       <span className="font-medium text-foreground">{gb.symbol}</span>
                       <Pill tone="amber">peak {money.format(gb.mfe)}</Pill>
                     </span>
-                    <span className="tabular-nums font-medium text-destructive">
+                    <span className="tabular-nums font-medium text-loss">
                       {money.format(gb.net_pnl)}
                     </span>
                   </button>

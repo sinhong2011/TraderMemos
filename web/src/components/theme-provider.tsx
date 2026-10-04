@@ -71,14 +71,14 @@ function applyThemeClass(resolved: ResolvedTheme) {
   root.classList.add(resolved);
   root.style.colorScheme = resolved;
 
-  // Read --background back off the body (the class swap above already applied)
+  // Read --canvas back off the body (the class swap above already applied)
   // so the browser-chrome tint can't drift from the token. The stored theme
   // outranks the system scheme, so every media-scoped copy in index.html gets
   // the same value — whichever one matches is then correct.
   const metas = document.querySelectorAll('meta[name="theme-color"]');
   if (metas.length === 0) return;
   const bg = document.body ? getComputedStyle(document.body).backgroundColor : null;
-  const chrome = (bg && toHexColor(bg)) ?? (resolved === "dark" ? "#161616" : "#ffffff");
+  const chrome = (bg && toHexColor(bg)) ?? (resolved === "dark" ? "#161616" : "#f5f5f5");
   for (const meta of metas) {
     meta.setAttribute("content", chrome);
   }

@@ -37,7 +37,7 @@ interface DataTableProps<T extends RowData> {
   lined?: boolean;
   /**
    * Opaque surface for sticky header + pinned columns (must match the table chrome).
-   * Defaults to `bg-card`; pass `bg-background` on void surfaces (e.g. Trades).
+   * Defaults to `bg-card`; pass `bg-canvas` when the table sits straight on the page.
    */
   headerClassName?: string;
   /** Controlled sorting (tablecn Sort button / header menu stay in sync) */

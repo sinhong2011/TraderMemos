@@ -224,7 +224,7 @@ function FvgAxis({
             aria-hidden
             className={cn(
               "absolute left-1/2 z-10 flex size-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background text-[9px] font-bold ring-2",
-              long ? "text-profit ring-profit" : "text-destructive ring-destructive",
+              long ? "text-profit ring-profit" : "text-loss ring-destructive",
             )}
             style={{ top: `${entryTop}%` }}
           >
@@ -284,7 +284,7 @@ function FvgPriceLabel({
           "m-0 tabular-nums",
           emphasize ? "text-sm font-semibold" : "text-[13px] font-medium",
           tone === "profit" && "text-profit",
-          tone === "loss" && "text-destructive",
+          tone === "loss" && "text-loss",
           tone === "text" && "text-foreground",
         )}
       >
@@ -294,7 +294,7 @@ function FvgPriceLabel({
         <p
           className={cn(
             "m-0 text-[11px] tabular-nums",
-            tone === "profit" ? "text-profit/80" : "text-destructive/80",
+            tone === "profit" ? "text-profit/80" : "text-loss/80",
           )}
         >
           {pl}
@@ -323,7 +323,7 @@ function AxisLabel({
         "absolute -translate-y-1/2 whitespace-nowrap text-[10px] tabular-nums",
         align === "right" ? "right-0 text-right" : "left-0 text-left",
         tone === "profit" && "text-profit",
-        tone === "loss" && "text-destructive",
+        tone === "loss" && "text-loss",
         tone === "muted" && "text-muted-foreground",
         emphasize && "font-semibold",
       )}

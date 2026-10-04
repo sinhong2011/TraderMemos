@@ -34,7 +34,7 @@ export function TradeTicket({
               className={cn(
                 "m-0 text-[13px] font-medium tabular-nums",
                 row.tone === "profit" && "text-profit",
-                row.tone === "loss" && "text-destructive",
+                row.tone === "loss" && "text-loss",
                 !row.tone && "text-foreground",
               )}
             >

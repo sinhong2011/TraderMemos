@@ -159,7 +159,7 @@ export function AuthShell({
   formClassName?: string;
 }) {
   return (
-    <div className="min-h-svh w-full bg-background lg:grid lg:grid-cols-[1.1fr_minmax(0,1fr)]">
+    <div className="min-h-svh w-full bg-canvas lg:grid lg:grid-cols-[1.1fr_minmax(0,1fr)]">
       <div className="relative hidden flex-col justify-between gap-10 overflow-hidden bg-sidebar p-10 lg:flex xl:p-14">
         {/* layered washes so the panel reads as lit space, not flat fill */}
         <div

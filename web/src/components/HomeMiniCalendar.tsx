@@ -3,9 +3,10 @@ import { type DayRecord, monthGrid } from "@/lib/calendar";
 import { cn } from "@/lib/cn";
 
 import { intlLocale } from "@/lib/locale";
+import { useMarketToday } from "@/lib/today";
 import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 import { CalendarDayHoverCard } from "./CalendarDayHoverCard";
-import { pnlBgTint, pnlColor } from "./theme-tokens";
+import { heatInk, pnlBgTint, pnlColor } from "./theme-tokens";
 import { Button } from "./ui/button";
 
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
@@ -44,8 +45,9 @@ export function HomeMiniCalendar({
   const { fmtSignedMoneyCompact } = useMoneyFormatters();
   const locale = intlLocale();
   const grid = monthGrid(year, month, dailyPnl);
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  // Market clock, like the Calendar page — the browser's local date runs a day
+  // ahead of New York every morning in Asia.
+  const today = useMarketToday();
 
   return (
     <section className="flex h-full flex-col rounded-lg bg-card">
@@ -97,7 +99,6 @@ export function HomeMiniCalendar({
                 const dayNum = Number(cell.date.slice(8, 10));
                 const cellClass = cn(
                   "flex min-h-9 w-full flex-col items-center justify-center rounded-md px-0.5 py-1",
-                  isToday && !hasPnl && "bg-chart-3/10",
                   hasPnl && "cursor-default",
                 );
                 const cellStyle =
@@ -107,17 +108,17 @@ export function HomeMiniCalendar({
                     <span
                       className={cn(
                         "text-[10px] tabular-nums",
-                        isToday ? "font-semibold text-chart-3" : "text-muted-foreground",
+                        isToday
+                          ? "inline-flex size-4 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground"
+                          : "text-muted-foreground",
                       )}
                     >
                       {dayNum}
                     </span>
                     {displayPnl != null ? (
                       <span
-                        className={cn(
-                          "text-[9px] font-medium leading-tight tabular-nums",
-                          pnlColor(displayPnl),
-                        )}
+                        className="text-[9px] font-medium leading-tight tabular-nums"
+                        style={{ color: heatInk(displayPnl) }}
                       >
                         {fmtSignedMoneyCompact(displayPnl, currency, locale)}
                       </span>

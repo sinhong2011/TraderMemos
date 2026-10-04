@@ -47,8 +47,17 @@ Added with the same pattern as [shadcn “Adding New Tokens”](https://ui.shadc
 | Token | Use |
 |-------|-----|
 | `profit` | Positive P&L text/fills (`text-profit`, `bg-profit/10`) |
-| `loss` | Prefer `destructive` for errors; `loss` aliases P&L red where distinct |
+| `loss` | Negative P&L, short side, "bad" tone (`text-loss`). `destructive` is for errors and delete actions only — red-500 is 3.8:1 on white and fails AA as small text |
 | `flat` | Zero / flat P&L |
+| `heat-profit` / `heat-loss` | P&L ink on a calendar heatmap wash (`heatInk()`, `WinLossRecord onWash`). Deeper than `profit`/`loss` in light mode so it clears 4.5:1 on the tint |
+
+### Surfaces
+
+| Token | Use |
+|-------|-----|
+| `canvas` | The page void behind cards: shell, `Page`, header bar, nav rail, sticky headers that sit on the page. Light `neutral-100`, dark = `background` |
+| `background` | Control fills (inputs, switch thumbs, active segment) — stays white in light mode |
+| `card` | Card blocks. Light mode reads cards as white blocks on the tinted canvas, no borders |
 
 ### Semantic extensions (coss / alerts)
 
@@ -124,3 +133,4 @@ vocabulary, codified from the sign-in screen:
 | 2026-07-24 | Adopt coss ui color tokens | Opaque alpha borders / muted surfaces per https://coss.com/ui/docs/styling; brand primary retained |
 | 2026-07-24 | Replace ReUI with coss | `@coss/alert|autocomplete|number-field|card`; Filters kept as owned `components/filters.tsx` (no coss equivalent) |
 | 2026-08-06 | Deepen brand primary to `oklch(0.5013 0.1428 252.49)` (`#1264B2`) | The old `oklch(0.617 0.1305 235.19)` only reached 3.6:1 against white, so filled primary buttons failed AA; the deeper blue clears 6.0:1 and needs no light/dark split |
+| 2026-10-04 | Add `canvas`; light `profit`/`loss` to L 0.50; P&L text uses `loss`, not `destructive` | Light mode had `card` = `background` = white, so borderless cards vanished; red P&L text measured 3.8:1. Mobile already pairs a grouped background with white cards |

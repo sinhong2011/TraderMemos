@@ -86,7 +86,7 @@ function ContextItem({
         className={cn(
           "mt-1 truncate text-[17px] font-semibold leading-none tracking-[-0.02em] tabular-nums",
           tone === "pos" && "text-profit",
-          tone === "neg" && "text-destructive",
+          tone === "neg" && "text-loss",
           tone === "muted" && "text-muted-foreground",
           !tone && "text-foreground",
         )}
@@ -134,7 +134,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
   const pfFraction = pf <= 0 ? 0 : Math.min(1, pf / 3);
   const winLossTotal = avgWin + avgLoss;
   const winBarPct = winLossTotal > 0 ? (avgWin / winLossTotal) * 100 : 0;
-  const pfTone = pf >= 1 ? "text-profit" : pf > 0 ? "text-destructive" : "text-muted-foreground";
+  const pfTone = pf >= 1 ? "text-profit" : pf > 0 ? "text-loss" : "text-muted-foreground";
 
   return (
     <div className="flex flex-col gap-3">
@@ -164,7 +164,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
             <MetaRow
               label="Fees"
               value={`${money.format(summary.total_fees)} (${feePct.toFixed(1)}%)`}
-              className="text-destructive"
+              className="text-loss"
             />
             <MetaRow label="Trades" value={String(summary.total_trades)} />
             <MetaRow
@@ -224,11 +224,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
               <p
                 className={cn(
                   "mt-2 text-[28px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[30px]",
-                  payoff >= 1
-                    ? "text-profit"
-                    : payoff > 0
-                      ? "text-destructive"
-                      : "text-muted-foreground",
+                  payoff >= 1 ? "text-profit" : payoff > 0 ? "text-loss" : "text-muted-foreground",
                 )}
               >
                 {payoff === Infinity ? "∞" : payoff > 0 ? `${payoff.toFixed(2)}×` : "—"}
@@ -248,7 +244,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
                 </div>
                 <div className="min-w-0 text-right">
                   <p className="text-[10px] text-muted-foreground">{statLabel} loss</p>
-                  <p className="mt-0.5 truncate text-[14px] font-semibold tabular-nums text-destructive">
+                  <p className="mt-0.5 truncate text-[14px] font-semibold tabular-nums text-loss">
                     {money.format(avgLoss)}
                   </p>
                 </div>
@@ -270,7 +266,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] text-muted-foreground">Largest loss</p>
-                  <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-destructive">
+                  <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-loss">
                     {money.format(summary.largest_loss)}
                   </p>
                 </div>
@@ -300,7 +296,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
             className={cn(
               "mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[26px]",
               kellyDefined && kelly > 0 && "text-profit",
-              kellyDefined && kelly < 0 && "text-destructive",
+              kellyDefined && kelly < 0 && "text-loss",
               (!kellyDefined || kelly === 0) && "text-muted-foreground",
             )}
           >
@@ -335,7 +331,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
 
         <BentoCell>
           <Eyebrow tone="muted">Max drawdown</Eyebrow>
-          <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-destructive sm:text-[26px]">
+          <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-loss sm:text-[26px]">
             {maxDrawdown != null && maxDrawdown > 0 ? money.format(-maxDrawdown) : "—"}
           </p>
           <p className="mt-2 text-center text-[10px] text-muted-foreground">peak pullback</p>
@@ -343,7 +339,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
 
         <BentoCell>
           <Eyebrow tone="muted">Total fees</Eyebrow>
-          <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-destructive sm:text-[26px]">
+          <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-loss sm:text-[26px]">
             {money.format(summary.total_fees)}
           </p>
           <p className="mt-2 text-center text-[10px] text-muted-foreground">

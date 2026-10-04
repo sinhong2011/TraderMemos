@@ -330,7 +330,7 @@ export function AccountDetailView({
             label="Realized P&L"
             value={`${fmtSignedMoney(netPnl, account.base_currency, locale)}${pnlPct ? ` (${pnlPct})` : ""}`}
             className={
-              netPnl > 0 ? "text-profit" : netPnl < 0 ? "text-destructive" : "text-muted-foreground"
+              netPnl > 0 ? "text-profit" : netPnl < 0 ? "text-loss" : "text-muted-foreground"
             }
           />
         </div>

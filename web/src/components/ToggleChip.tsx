@@ -6,7 +6,7 @@ export type ToggleChipTone = "accent" | "neg";
 
 const SELECTED: Record<ToggleChipTone, string> = {
   accent: "border-primary/45 bg-primary/12 text-primary hover:bg-primary/16",
-  neg: "border-destructive/45 bg-destructive/12 text-destructive hover:bg-destructive/16",
+  neg: "border-destructive/45 bg-destructive/12 text-loss hover:bg-destructive/16",
 };
 
 /**

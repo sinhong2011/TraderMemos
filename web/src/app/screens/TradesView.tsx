@@ -342,7 +342,6 @@ export function TradesView({
         maxHeight="100%"
         comfortable
         lined
-        headerClassName="bg-background"
         sorting={sorting}
         onSortingChange={setSorting}
         enableMultiSort
@@ -358,7 +357,7 @@ export function TradesView({
   if (compact) {
     return (
       <Page className="gap-0 p-0 pb-2">
-        <div className="sticky top-0 z-[1] bg-background px-4 pt-4 pb-2">{headerActions}</div>
+        <div className="sticky top-0 z-[1] bg-canvas px-4 pt-4 pb-2">{headerActions}</div>
         <div className="px-4">{body}</div>
       </Page>
     );
@@ -367,7 +366,7 @@ export function TradesView({
   return (
     <Page fill className="h-full min-h-0 overflow-hidden bg-transparent">
       {headerActions}
-      <Card fill flush className="min-h-0 overflow-hidden border border-border bg-transparent">
+      <Card fill flush className="min-h-0 overflow-hidden">
         <div className="flex min-h-0 flex-1 flex-col">{body}</div>
       </Card>
       {hasRows ? (

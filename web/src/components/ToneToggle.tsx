@@ -20,7 +20,7 @@ const variantClass: Record<ToneToggleVariant, string> = {
 
 const tonePressedClass: Record<ToneToggleTone, string> = {
   accent: "aria-pressed:border-primary/40 aria-pressed:bg-primary/10 aria-pressed:text-primary",
-  neg: "aria-pressed:border-destructive/40 aria-pressed:bg-destructive/10 aria-pressed:text-destructive",
+  neg: "aria-pressed:border-destructive/40 aria-pressed:bg-destructive/10 aria-pressed:text-loss",
 };
 
 /** `#RRGGBB` + alpha byte — tag colors arrive as plain hex from the server. */

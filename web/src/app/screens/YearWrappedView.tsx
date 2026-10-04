@@ -59,7 +59,7 @@ function StatCell({
         className={cn(
           "mt-1 truncate text-[20px] font-semibold leading-none tracking-[-0.02em] tabular-nums",
           tone === "pos" && "text-profit",
-          tone === "neg" && "text-destructive",
+          tone === "neg" && "text-loss",
           tone === "muted" && "text-muted-foreground",
           !tone && "text-foreground",
         )}

@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 /** Shared by the Dir column and the list row so both color a side the same way. */
 export const DIR_TONE_CLASS: Record<TradeDirectionView["tone"], string> = {
   profit: "text-profit",
-  loss: "text-destructive",
+  loss: "text-loss",
   signal: "text-chart-3",
   muted: "text-muted-foreground",
 };

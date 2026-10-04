@@ -460,7 +460,7 @@ function JournalSummaryStrip({
   const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const netPnl = fmtSignedMoney(summary.net_pnl, currency, locale);
-  const pnlTone = summary.net_pnl >= 0 ? "text-profit" : "text-destructive";
+  const pnlTone = summary.net_pnl >= 0 ? "text-profit" : "text-loss";
 
   const cells: { label: string; value: string; sub?: string; valueClass?: string }[] = [
     {
@@ -980,7 +980,7 @@ function Row({
         className={cn(
           "tabular-nums font-semibold",
           highlight === "pos" && "text-profit",
-          highlight === "neg" && "text-destructive",
+          highlight === "neg" && "text-loss",
           !highlight && "text-foreground",
         )}
       >

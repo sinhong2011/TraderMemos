@@ -40,21 +40,26 @@ export function pnlBgTint(
 export const TINTED_LABEL = "text-foreground/90 dark:text-foreground/85";
 export const TINTED_LABEL_SUBTLE = "text-foreground/80 dark:text-foreground/75";
 
+/** P&L ink for text sitting on a `pnlBgTint` wash (calendar cells). */
+export function heatInk(pnl: number): string {
+  return pnl >= 0 ? "var(--heat-profit)" : "var(--heat-loss)";
+}
+
 // Semantic P&L color by sign (green/red on dark, flat for zero).
 export function pnlColor(v: number | null | undefined): string {
   if (v == null || v === 0) return "text-flat";
-  return v > 0 ? "text-profit" : "text-destructive";
+  return v > 0 ? "text-profit" : "text-loss";
 }
 
 export function heroPnlClass(v: number | null | undefined): string {
   const base = "text-[32px] font-semibold leading-none tracking-[-0.03em]";
   if (v == null || v === 0) return `${base} text-flat`;
-  return v > 0 ? `${base} text-profit` : `${base} text-destructive`;
+  return v > 0 ? `${base} text-profit` : `${base} text-loss`;
 }
 
 const BENTO_TONE: Record<string, string> = {
   pos: "text-profit",
-  neg: "text-destructive",
+  neg: "text-loss",
   accent: "text-primary",
   amber: "text-chart-3",
 };

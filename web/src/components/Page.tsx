@@ -14,7 +14,7 @@ export function Page({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 bg-background p-4 sm:p-6",
+        "flex flex-col gap-4 bg-canvas p-4 sm:p-6",
         fill && "min-h-full flex-1",
         className,
       )}

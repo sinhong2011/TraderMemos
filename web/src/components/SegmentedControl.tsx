@@ -19,7 +19,7 @@ const INDICATOR_TONE: Record<SegmentTone, string> = {
 
 const ACTIVE_TEXT: Record<SegmentTone, string> = {
   pos: "text-profit",
-  neg: "text-destructive",
+  neg: "text-loss",
 };
 
 /** Map product sizes onto coss ToggleGroup sizes. */

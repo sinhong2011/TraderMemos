@@ -532,7 +532,7 @@ export function NotesView({ notes, loading, error, onDelete, routineByDay }: Not
         <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto">
           {groups.map((group) => (
             <section key={group.label} className="flex flex-col gap-2">
-              <h3 className="sticky top-0 z-10 bg-background py-1 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
+              <h3 className="sticky top-0 z-10 bg-canvas py-1 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
                 {group.label}
               </h3>
               <div className="grid grid-cols-1 content-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -557,7 +557,7 @@ export function NotesView({ notes, loading, error, onDelete, routineByDay }: Not
             <div key={group.label} className="contents">
               <div
                 role="presentation"
-                className={cn("sticky top-0 z-10 bg-background py-1", groupIndex > 0 && "mt-3")}
+                className={cn("sticky top-0 z-10 bg-canvas py-1", groupIndex > 0 && "mt-3")}
               >
                 <h3 className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
                   {group.label}

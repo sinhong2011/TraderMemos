@@ -46,8 +46,8 @@ export type SettingsSectionId =
 export function SettingsShell({ nav, children }: { nav: ReactNode; children: ReactNode }) {
   return (
     <div className="flex min-h-[calc(100vh-52px)] flex-col lg:flex-row">
-      <aside className="shrink-0 bg-background px-3 py-3 lg:w-[220px] lg:py-5">{nav}</aside>
-      <div className="min-w-0 flex-1 bg-background">{children}</div>
+      <aside className="shrink-0 bg-canvas px-3 py-3 lg:w-[220px] lg:py-5">{nav}</aside>
+      <div className="min-w-0 flex-1 bg-canvas">{children}</div>
     </div>
   );
 }
@@ -590,8 +590,7 @@ export function AccountRow({
     currency || null,
   ].filter(Boolean) as string[];
 
-  const pnlTone =
-    netPnl > 0 ? "text-profit" : netPnl < 0 ? "text-destructive" : "text-muted-foreground";
+  const pnlTone = netPnl > 0 ? "text-profit" : netPnl < 0 ? "text-loss" : "text-muted-foreground";
 
   const footerMeta = [
     ...metaParts,

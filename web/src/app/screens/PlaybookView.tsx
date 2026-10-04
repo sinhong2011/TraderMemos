@@ -204,7 +204,7 @@ function PlayIcon({
         tone === "pos"
           ? "bg-profit/10 text-profit"
           : tone === "neg"
-            ? "bg-destructive/10 text-destructive"
+            ? "bg-loss/10 text-loss"
             : "bg-accent text-muted-foreground",
       )}
     >
