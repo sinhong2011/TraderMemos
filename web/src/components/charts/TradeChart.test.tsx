@@ -5,6 +5,7 @@ vi.mock("lightweight-charts", () => {
   const series = {
     setData: vi.fn<(...args: any[]) => any>(),
     createPriceLine: vi.fn<(...args: any[]) => any>(),
+    applyOptions: vi.fn<(...args: any[]) => any>(),
   };
   const chart = {
     addSeries: vi.fn<(...args: any[]) => any>(() => series),

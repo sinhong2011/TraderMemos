@@ -110,7 +110,7 @@ export function PositionSizeModal({
         </div>
       </div>
       {result ? (
-        <div className="rounded-panel border border-border bg-muted px-3.5 py-3">
+        <div className="rounded-lg bg-muted px-3.5 py-3">
           <p className="m-0 text-2xs font-medium uppercase tracking-widest text-muted-foreground">
             Suggested size
           </p>

@@ -16,19 +16,20 @@ import { cn } from "@/lib/cn";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { Skeleton } from "@/components/Skeleton";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/components/theme-provider";
 import { barsToCandlestickData } from "./barsToCandlestickData";
 import { utcSecToChartTime } from "./chartTime";
-import { BAR_INTERVALS, tradeChartTheme } from "./tradeChartTheme";
+import { BAR_INTERVALS, readTradeChartTheme, type TradeChartTheme } from "./tradeChartTheme";
 
 /** The fill fields the chart draws — synthetic backtest fills qualify too. */
 export type ChartFill = Pick<Execution, "side" | "quantity" | "price" | "executed_at">;
 
-function fillMarkers(fills: ChartFill[]): SeriesMarker<Time>[] {
+function fillMarkers(fills: ChartFill[], theme: TradeChartTheme): SeriesMarker<Time>[] {
   return fills.map((f) => ({
     time: utcSecToChartTime(Math.floor(new Date(f.executed_at).getTime() / 1000)),
     position: f.side === "buy" ? "belowBar" : "aboveBar",
     shape: f.side === "buy" ? "arrowUp" : "arrowDown",
-    color: f.side === "buy" ? tradeChartTheme.buyMarker : tradeChartTheme.sellMarker,
+    color: f.side === "buy" ? theme.buyMarker : theme.sellMarker,
     text: `${f.quantity} @ ${f.price}`,
   }));
 }
@@ -99,6 +100,9 @@ export function TradeChart({
   // Price range of the bars revealed so far; null when not replaying.
   const replayRangeRef = useRef<{ lo: number; hi: number } | null>(null);
   const [ready, setReady] = useState(false);
+  // Re-read the palette when the theme flips; the provider applies the class
+  // before publishing resolvedTheme, so the tokens are already current here.
+  const { resolvedTheme } = useTheme();
 
   const showInterval = Boolean(onIntervalChange) && !(hideIntervalWhenEmpty && empty);
   const overlayMessage = loading
@@ -115,29 +119,30 @@ export function TradeChart({
     const el = containerRef.current;
     if (!el) return;
 
+    const theme = readTradeChartTheme();
     const chart = createChart(el, {
       width: el.clientWidth,
       height,
       layout: {
-        background: { type: ColorType.Solid, color: tradeChartTheme.background },
-        textColor: tradeChartTheme.text,
+        background: { type: ColorType.Solid, color: theme.background },
+        textColor: theme.text,
         fontSize: 11,
       },
       grid: {
-        vertLines: { color: tradeChartTheme.grid },
-        horzLines: { color: tradeChartTheme.grid },
+        vertLines: { color: theme.grid },
+        horzLines: { color: theme.grid },
       },
-      rightPriceScale: { borderColor: tradeChartTheme.border },
-      timeScale: { borderColor: tradeChartTheme.border, timeVisible: true, secondsVisible: false },
+      rightPriceScale: { borderColor: theme.border },
+      timeScale: { borderColor: theme.border, timeVisible: true, secondsVisible: false },
       crosshair: { vertLine: { labelVisible: true }, horzLine: { labelVisible: true } },
     });
     const series = chart.addSeries(CandlestickSeries, {
-      upColor: tradeChartTheme.up,
-      downColor: tradeChartTheme.down,
-      borderUpColor: tradeChartTheme.up,
-      borderDownColor: tradeChartTheme.down,
-      wickUpColor: tradeChartTheme.up,
-      wickDownColor: tradeChartTheme.down,
+      upColor: theme.up,
+      downColor: theme.down,
+      borderUpColor: theme.up,
+      borderDownColor: theme.down,
+      wickUpColor: theme.up,
+      wickDownColor: theme.down,
       // During replay, scale to the revealed bars only — the full-series
       // default would leak the not-yet-shown price range.
       autoscaleInfoProvider: (
@@ -170,9 +175,34 @@ export function TradeChart({
   }, [height]);
 
   useEffect(() => {
+    const chart = chartRef.current;
+    const series = seriesRef.current;
+    if (!ready || !chart || !series) return;
+    const theme = readTradeChartTheme();
+    chart.applyOptions({
+      layout: {
+        background: { type: ColorType.Solid, color: theme.background },
+        textColor: theme.text,
+      },
+      grid: { vertLines: { color: theme.grid }, horzLines: { color: theme.grid } },
+      rightPriceScale: { borderColor: theme.border },
+      timeScale: { borderColor: theme.border },
+    });
+    series.applyOptions({
+      upColor: theme.up,
+      downColor: theme.down,
+      borderUpColor: theme.up,
+      borderDownColor: theme.down,
+      wickUpColor: theme.up,
+      wickDownColor: theme.down,
+    });
+  }, [ready, resolvedTheme]);
+
+  useEffect(() => {
     const series = seriesRef.current;
     const chart = chartRef.current;
     if (!ready || !series || !chart) return;
+    const theme = readTradeChartTheme();
 
     if (!bars || bars.length === 0) {
       series.setData([]);
@@ -221,7 +251,7 @@ export function TradeChart({
     if (entryPrice != null) {
       series.createPriceLine({
         price: entryPrice,
-        color: tradeChartTheme.entryLine,
+        color: theme.entryLine,
         lineWidth: 1,
         lineStyle: 2,
         axisLabelVisible: true,
@@ -231,7 +261,7 @@ export function TradeChart({
     if (targetPrice != null) {
       series.createPriceLine({
         price: targetPrice,
-        color: tradeChartTheme.targetLine,
+        color: theme.targetLine,
         lineWidth: 1,
         lineStyle: 2,
         axisLabelVisible: true,
@@ -241,7 +271,7 @@ export function TradeChart({
     if (stopPrice != null) {
       series.createPriceLine({
         price: stopPrice,
-        color: tradeChartTheme.stopLine,
+        color: theme.stopLine,
         lineWidth: 1,
         lineStyle: 2,
         axisLabelVisible: true,
@@ -250,7 +280,7 @@ export function TradeChart({
     }
 
     if (visibleFills.length > 0) {
-      const markers = fillMarkers(visibleFills);
+      const markers = fillMarkers(visibleFills, theme);
       if (markersRef.current) {
         markersRef.current.setMarkers(markers);
       } else {
@@ -268,7 +298,7 @@ export function TradeChart({
       fitKeyRef.current = fitKey;
       chart.timeScale().fitContent();
     }
-  }, [ready, bars, fills, interval, targetPrice, stopPrice, entryPrice, replayUpTo]);
+  }, [ready, bars, fills, interval, targetPrice, stopPrice, entryPrice, replayUpTo, resolvedTheme]);
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>

@@ -2,11 +2,15 @@ import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { pnlColor } from "./theme-tokens";
 
+/**
+ * Recharts colors as theme tokens, so axes, gridlines and the series accent
+ * follow light/dark. SVG presentation attributes resolve `var()` like CSS.
+ */
 export const chartTheme = {
-  axisColor: "#94949f",
-  gridColor: "rgba(255,255,255,0.06)",
-  cursorFill: "rgba(167, 139, 250, 0.08)",
-  accentStroke: "#a78bfa",
+  axisColor: "var(--muted-foreground)",
+  gridColor: "var(--border)",
+  cursorFill: "var(--accent)",
+  accentStroke: "var(--chart-accent)",
 } as const;
 
 /**

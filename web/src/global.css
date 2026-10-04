@@ -148,6 +148,9 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+  /* Series accent (equity curve, radar). Brand blue in light; in dark the
+     brand blue is under 3:1 on the card, so the line steps up to blue-500. */
+  --chart-accent: var(--primary);
 
   --invert: var(--color-zinc-900);
   --invert-foreground: var(--color-zinc-50);
@@ -208,6 +211,7 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+  --chart-accent: var(--color-blue-500);
 
   --invert: var(--color-zinc-700);
   --invert-foreground: var(--color-zinc-50);

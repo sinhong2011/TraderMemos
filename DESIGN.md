@@ -61,6 +61,12 @@ Added with the same pattern as [shadcn “Adding New Tokens”](https://ui.shadc
 | `background` | Control fills (inputs, switch thumbs, active segment) — stays white in light mode |
 | `card` | Card blocks. Light mode reads cards as white blocks on the tinted canvas, no borders |
 
+### Charts
+
+- Recharts takes tokens straight from `chartTheme` (`ChartFrame.tsx`): axis `muted-foreground`, grid `border`, cursor `accent`, series `chart-accent`. No hex or rgba literals in chart props.
+- `chart-accent` is brand blue in light and `blue-500` in dark, where the brand blue falls under 3:1 against the card.
+- The candlestick chart (Lightweight Charts, canvas) can't read `var()`. `readTradeChartTheme()` resolves the same tokens to rgba and runs again when `resolvedTheme` changes.
+
 ### Semantic extensions (coss / alerts)
 
 coss alerts use: `info`, `success`, `warning`, `error` (see https://coss.com/ui/docs/components/alert). Keep domain `profit` / `loss` / `flat` for P&L.
@@ -137,3 +143,4 @@ vocabulary, codified from the sign-in screen:
 | 2026-08-06 | Deepen brand primary to `oklch(0.5013 0.1428 252.49)` (`#1264B2`) | The old `oklch(0.617 0.1305 235.19)` only reached 3.6:1 against white, so filled primary buttons failed AA; the deeper blue clears 6.0:1 and needs no light/dark split |
 | 2026-10-04 | Add `canvas`; light `profit`/`loss` to L 0.50; P&L text uses `loss`, not `destructive` | Light mode had `card` = `background` = white, so borderless cards vanished; red P&L text measured 3.8:1. Mobile already pairs a grouped background with white cards |
 | 2026-10-04 | 11px text floor (`text-2xs`) | 150+ arbitrary 9–10px sizes made filter pills, eyebrows and chart axes hard to read, often in muted grey |
+| 2026-10-04 | Charts read theme tokens; violet equity curve → `chart-accent` | Grid lines and axis labels were hardcoded for dark mode (invisible or 2.9:1 in light); violet was off-brand |
