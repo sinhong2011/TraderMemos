@@ -338,6 +338,45 @@ export interface RBucket {
   to: number;
 }
 
+export type SetupVerdict = "edge" | "execution" | "promising" | "watch" | "unproven" | "bleeding";
+
+/** One row of GET /analytics/setup-scorecard (Go: analytics.SetupScore). */
+export interface SetupScore {
+  /** "" for the no-setup bucket. */
+  setup_id: string;
+  name: string;
+  trades: number;
+  wins: number;
+  losses: number;
+  win_rate: number;
+  net_pnl: number;
+  /** Currency per trade. */
+  expectancy: number;
+  profit_factor: number;
+  r_trades: number;
+  r_coverage: number;
+  expectancy_r: number | null;
+  avg_win_r: number | null;
+  avg_loss_r: number | null;
+  distribution: RBucket[];
+  /** Unit of mean / ci_* / clean_mean: R when enough trades carry a risk. */
+  basis: "r" | "currency";
+  mean: number;
+  ci_low: number | null;
+  ci_high: number | null;
+  clean_trades: number;
+  clean_mean: number | null;
+  verdict: SetupVerdict;
+  stale: boolean;
+  last_trade_at: string;
+}
+
+/** Payload of GET /analytics/setup-scorecard. */
+export interface SetupScorecard {
+  setups: SetupScore[];
+  none: SetupScore | null;
+}
+
 /** R-mode summary — dollar fields are in R units when from /analytics/r-summary. */
 export interface RSummary extends Summary {
   excluded: number;

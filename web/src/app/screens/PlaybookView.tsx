@@ -20,11 +20,12 @@ import { EmptyState } from "@/components/EmptyState";
 import { Item, ItemActions, ItemGroup, ItemTitle } from "@/components/Item";
 import { Page } from "@/components/Page";
 import { Pill } from "@/components/Pill";
+import { ExpectancyInterval, intervalScales, VerdictPill } from "@/components/SetupVerdict";
 import { ListSkeleton } from "@/components/skeletons/list-skeleton";
 import { pnlColor } from "@/components/theme-tokens";
 import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import type { BreakGroup, Setup } from "@/lib/api/types";
+import type { Setup, SetupScore, SetupScorecard } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 
 import { fmtPct } from "@/lib/format";
@@ -41,13 +42,13 @@ export interface PlaybookViewProps {
   setups: Setup[];
   setupsLoading: boolean;
   setupsError: boolean;
-  breakdown: BreakGroup[];
-  breakdownLoading: boolean;
+  scorecard: SetupScorecard | undefined;
+  scorecardLoading: boolean;
   currency: string;
   onDelete: (id: string) => Promise<void>;
 }
 
-type SortKey = "name" | "trades" | "winRate" | "pf" | "exp" | "pnl";
+type SortKey = "verdict" | "name" | "trades" | "winRate" | "exp" | "pnl";
 type SortDir = "asc" | "desc";
 
 interface SetupRowModel {
@@ -57,9 +58,11 @@ interface SetupRowModel {
   losses: number;
   winRate: number;
   netPnl: number;
-  pf: number;
   exp: number;
   hasData: boolean;
+  score: SetupScore | null;
+  /** Position in the scorecard's verdict order. */
+  rank: number;
 }
 
 /**
@@ -69,28 +72,28 @@ interface SetupRowModel {
  */
 const PLAY_GRID = cn(
   "xl:grid xl:items-center xl:gap-x-4",
-  "xl:grid-cols-[minmax(9rem,1fr)_5rem_5.5rem_6.75rem_6.5rem_7rem_7.5rem]",
+  "xl:grid-cols-[minmax(9rem,1fr)_9rem_4.5rem_5.5rem_6.75rem_7rem_7.5rem]",
 );
 
 const METRIC_COLUMNS: { key: SortKey; label: string }[] = [
   { key: "trades", label: "Trades" },
   { key: "winRate", label: "Win rate" },
-  { key: "pf", label: "Profit factor" },
   { key: "exp", label: "Expectancy" },
   { key: "pnl", label: "Net P&L" },
 ];
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  { key: "verdict", label: "Verdict" },
   { key: "name", label: "Name" },
   ...METRIC_COLUMNS,
 ];
 
 /** Metric sorts read best high-to-low; names read A→Z. */
 const DEFAULT_DIR: Record<SortKey, SortDir> = {
+  verdict: "asc",
   name: "asc",
   trades: "desc",
   winRate: "desc",
-  pf: "desc",
   exp: "desc",
   pnl: "desc",
 };
@@ -112,31 +115,39 @@ function toSetupDraft(setup: Setup): SetupDraft {
   };
 }
 
-function buildRows(setups: Setup[], breakdown: BreakGroup[]): SetupRowModel[] {
-  const summaries = new Map(breakdown.map((g) => [g.key, g.summary]));
+function buildRows(setups: Setup[], scorecard: SetupScorecard | undefined): SetupRowModel[] {
+  const scored = scorecard?.setups ?? [];
+  const byId = new Map(scored.map((score, rank) => [score.setup_id, { score, rank }]));
   return setups.map((setup) => {
-    const sum = summaries.get(setup.name);
-    const trades = sum?.total_trades ?? 0;
+    const hit = byId.get(setup.id);
+    const score = hit?.score ?? null;
+    const trades = score?.trades ?? 0;
     return {
       setup,
       trades,
-      wins: sum?.wins ?? 0,
-      losses: sum?.losses ?? 0,
-      winRate: sum?.win_rate ?? 0,
-      netPnl: sum?.net_pnl ?? 0,
-      pf: sum?.profit_factor ?? 0,
-      exp: sum?.expectancy ?? 0,
+      wins: score?.wins ?? 0,
+      losses: score?.losses ?? 0,
+      winRate: score?.win_rate ?? 0,
+      netPnl: score?.net_pnl ?? 0,
+      exp: score?.expectancy ?? 0,
       hasData: trades > 0,
+      score,
+      rank: hit?.rank ?? scored.length,
     };
   });
 }
 
+/** The scorecard's mean in its own unit — R when the setup is scored in R. */
+function fmtR(v: number): string {
+  return `${v > 0 ? "+" : v < 0 ? "-" : ""}${Math.abs(v).toFixed(2)}R`;
+}
+
 const SORT_VALUE: Record<SortKey, (row: SetupRowModel) => number | string> = {
+  verdict: (r) => r.rank,
   name: (r) => r.setup.name.toLowerCase(),
   trades: (r) => r.trades,
   winRate: (r) => r.winRate,
-  pf: (r) => r.pf,
-  exp: (r) => r.exp,
+  exp: (r) => (r.score?.basis === "r" ? (r.score.mean ?? 0) : r.exp),
   pnl: (r) => r.netPnl,
 };
 
@@ -348,14 +359,25 @@ interface PlayRowProps extends RowActions {
   row: SetupRowModel;
   currency: string;
   fxRate: number;
+  scales: Record<SetupScore["basis"], number>;
 }
 
-function TradedPlayRow({ row, currency, fxRate, ...actions }: PlayRowProps) {
+function TradedPlayRow({ row, currency, fxRate, scales, ...actions }: PlayRowProps) {
   const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
-  const { setup, trades, wins, losses, winRate, netPnl, pf, exp } = row;
+  const { setup, trades, wins, losses, winRate, netPnl, exp, score } = row;
   const subline = setupSubline(setup);
   const money = (v: number) => fmtSignedMoney(v * fxRate, currency, locale);
+  const inR = score?.basis === "r";
+  const expValue = inR ? fmtR(score.mean) : money(exp);
+  const expTone = pnlColor(inR ? score.mean : exp);
+  // Worth calling out only when following the rules changes the picture.
+  const clean =
+    score?.clean_mean != null && score.clean_trades < score.trades && inR
+      ? Math.abs(score.clean_mean - score.mean) >= 0.15
+        ? score.clean_mean
+        : null
+      : null;
 
   return (
     <div
@@ -374,17 +396,19 @@ function TradedPlayRow({ row, currency, fxRate, ...actions }: PlayRowProps) {
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <PlayIcon setup={setup} tone={netPnl < 0 ? "neg" : "pos"} />
         <div className="min-w-0">
-          <div className="flex min-w-0 items-center gap-2">
+          {/* Wraps so the verdict drops under a long name instead of truncating it. */}
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
             <button
               type="button"
               onClick={() => actions.onEdit(setup)}
               className={cn(
-                "cursor-pointer truncate rounded-sm text-left text-[14px] font-semibold tracking-tight text-foreground",
+                "max-w-full cursor-pointer truncate rounded-sm text-left text-[14px] font-semibold tracking-tight text-foreground",
                 "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
               )}
             >
               {setup.name}
             </button>
+            {score ? <VerdictPill score={score} /> : null}
             {setup.symbol ? (
               <Pill tone="accent" className="px-1.5 py-0 text-2xs">
                 {setup.symbol}
@@ -392,9 +416,15 @@ function TradedPlayRow({ row, currency, fxRate, ...actions }: PlayRowProps) {
               </Pill>
             ) : null}
           </div>
-          {subline ? (
+          {subline || clean != null || score?.stale ? (
             <p className="mt-0.5 truncate text-[12px] leading-relaxed text-muted-foreground">
-              {subline}
+              {[
+                clean != null ? `Without mistakes: ${fmtR(clean)}` : null,
+                score?.stale ? "Not traded in 60+ days" : null,
+                subline || null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
             </p>
           ) : null}
           <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-[11px] tabular-nums whitespace-nowrap text-muted-foreground xl:hidden">
@@ -404,20 +434,30 @@ function TradedPlayRow({ row, currency, fxRate, ...actions }: PlayRowProps) {
             <span aria-hidden>·</span>
             <span>{fmtPct(winRate, locale)} WR</span>
             <span aria-hidden>·</span>
+            <span className={cn("font-semibold", expTone)}>{expValue}</span>
+            <span aria-hidden>·</span>
             <span className={cn("font-semibold", pnlColor(netPnl))}>{money(netPnl)}</span>
           </p>
         </div>
       </div>
 
       <div className="hidden xl:contents">
+        {score ? <ExpectancyInterval score={score} maxAbs={scales[score.basis]} /> : <span />}
         <MetricCell value={String(trades)} />
         <MetricCell
           value={fmtPct(winRate, locale)}
           ratio={winRate}
           title={`${wins} win${wins === 1 ? "" : "s"} · ${losses} loss${losses === 1 ? "" : "es"}`}
         />
-        <MetricCell value={pf > 0 ? pf.toFixed(2) : "—"} />
-        <MetricCell value={money(exp)} valueClass={pnlColor(exp)} />
+        <MetricCell
+          value={expValue}
+          valueClass={expTone}
+          title={
+            score?.ci_low != null && score.ci_high != null
+              ? `95% range ${inR ? `${fmtR(score.ci_low)} to ${fmtR(score.ci_high)}` : `${money(score.ci_low)} to ${money(score.ci_high)}`}`
+              : undefined
+          }
+        />
         <MetricCell value={money(netPnl)} valueClass={cn("text-[14px]", pnlColor(netPnl))} />
       </div>
 
@@ -461,6 +501,39 @@ function UnusedPlayChip({ row, ...actions }: { row: SetupRowModel } & RowActions
         <SetupActions setup={setup} {...actions} />
       </ItemActions>
     </Item>
+  );
+}
+
+/** Trades logged without a setup — the share of trading the playbook doesn't cover. */
+function NoSetupLine({
+  score,
+  currency,
+  fxRate,
+}: {
+  score: SetupScore;
+  currency: string;
+  fxRate: number;
+}) {
+  const { fmtSignedMoney } = useMoneyFormatters();
+  const locale = intlLocale();
+  const inR = score.basis === "r";
+  return (
+    <p className="mx-4 mt-2 flex flex-wrap items-center gap-x-1.5 pt-2 text-[12px] tabular-nums text-muted-foreground">
+      <span className="font-medium text-foreground">No setup</span>
+      <span aria-hidden>·</span>
+      <span>
+        {score.trades} trade{score.trades === 1 ? "" : "s"}
+      </span>
+      <span aria-hidden>·</span>
+      <span className={pnlColor(inR ? score.mean : score.expectancy)}>
+        {inR ? fmtR(score.mean) : fmtSignedMoney(score.expectancy * fxRate, currency, locale)} per
+        trade
+      </span>
+      <span aria-hidden>·</span>
+      <span className={pnlColor(score.net_pnl)}>
+        {fmtSignedMoney(score.net_pnl * fxRate, currency, locale)}
+      </span>
+    </p>
   );
 }
 
@@ -553,7 +626,7 @@ export function PlaybookView({
   setups,
   setupsLoading,
   setupsError,
-  breakdown,
+  scorecard,
   currency,
   onDelete,
 }: PlaybookViewProps) {
@@ -564,11 +637,12 @@ export function PlaybookView({
   const openModal = useUI((s) => s.openModal);
   const openSetupEdit = useUI((s) => s.openSetupEdit);
   const openTradeFromSetup = useUI((s) => s.openTradeFromSetup);
-  const [sort, setSort] = useState<SortKey>("name");
+  const [sort, setSort] = useState<SortKey>("verdict");
   const [dir, setDir] = useState<SortDir>("asc");
   const [hideUnused, setHideUnused] = useState(false);
 
-  const rows = useMemo(() => buildRows(setups, breakdown), [setups, breakdown]);
+  const rows = useMemo(() => buildRows(setups, scorecard), [setups, scorecard]);
+  const scales = useMemo(() => intervalScales(scorecard?.setups ?? []), [scorecard]);
   const traded = useMemo(
     () =>
       sortRows(
@@ -596,7 +670,17 @@ export function PlaybookView({
       (top, r) => (top == null || r.netPnl > top.netPnl ? r : top),
       null,
     );
-    return { trades, wins, netPnl, winRate: trades > 0 ? wins / trades : 0, best };
+    const count = (v: string) => traded.filter((r) => r.score?.verdict === v).length;
+    return {
+      trades,
+      wins,
+      netPnl,
+      winRate: trades > 0 ? wins / trades : 0,
+      best,
+      edge: count("edge"),
+      bleeding: count("bleeding"),
+      early: count("unproven"),
+    };
   }, [traded]);
 
   function sortBy(key: SortKey) {
@@ -699,7 +783,20 @@ export function PlaybookView({
 
   const summaryCard = (
     <Card>
-      <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-6">
+        <SummaryStat
+          label="Proven edge"
+          value={`${totals.edge} of ${traded.length}`}
+          valueClass={totals.edge > 0 ? "text-profit" : undefined}
+          sub={
+            [
+              totals.bleeding > 0 ? `${totals.bleeding} bleeding` : null,
+              totals.early > 0 ? `${totals.early} too early` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || "Scored on this range"
+          }
+        />
         <SummaryStat
           label="Plays traded"
           value={`${traded.length}/${setups.length}`}
@@ -749,6 +846,16 @@ export function PlaybookView({
             align="start"
           />
         </span>
+        <span title="Expectancy per trade with its 95% range. Right of the line is positive.">
+          <ColumnSortButton
+            label="Edge"
+            sortKey="verdict"
+            active={sort === "verdict"}
+            dir={dir}
+            onSort={sortBy}
+            align="start"
+          />
+        </span>
         {METRIC_COLUMNS.map((col) => (
           <ColumnSortButton
             key={col.key}
@@ -769,10 +876,14 @@ export function PlaybookView({
             row={row}
             currency={displayCurrency}
             fxRate={fxRate}
+            scales={scales}
             {...rowActions}
           />
         ))}
       </ItemGroup>
+      {scorecard?.none ? (
+        <NoSetupLine score={scorecard.none} currency={displayCurrency} fxRate={fxRate} />
+      ) : null}
     </Card>
   );
 
