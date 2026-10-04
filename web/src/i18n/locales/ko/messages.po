@@ -14,31 +14,67 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: data.trading_days
-#: src/app/screens/PublicShareView.tsx:196
+#: src/app/screens/PublicShareView.tsx:198
 msgid "{0} days in the market"
 msgstr "시장에 있던 날 {0}일"
 
 #. placeholder {0}: s.total_trades
 #. placeholder {0}: sym.trades
-#: src/app/screens/PublicShareView.tsx:194
-#: src/app/screens/PublicShareView.tsx:366
+#: src/app/screens/PublicShareView.tsx:196
+#: src/app/screens/PublicShareView.tsx:368
 msgid "{0} trades"
 msgstr "{0}건의 거래"
 
 #. placeholder {0}: fmtPct(s.win_rate, locale)
-#: src/app/screens/PublicShareView.tsx:195
+#: src/app/screens/PublicShareView.tsx:197
 msgid "{0} win rate"
 msgstr "승률 {0}"
 
-#: src/app/screens/PublicShareView.tsx:221
+#: src/app/screens/PublicShareView.tsx:223
 msgid "1.0 = break-even"
 msgstr "1.0 = 손익분기"
 
-#: src/app/drawers/NewTradeDrawer.tsx:2178
+#: src/app/screens/settings/backups-section.tsx:94
+msgid "A backup is already running"
+msgstr "이미 백업이 실행 중입니다"
+
+#: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "적용"
 
-#: src/app/screens/PublicShareView.tsx:306
+#: src/app/screens/settings/backups-section.tsx:149
+msgid "Back up now"
+msgstr "지금 백업"
+
+#: src/app/screens/settings/backups-section.tsx:149
+msgid "Backing up…"
+msgstr "백업 중…"
+
+#: src/app/screens/settings/backups-section.tsx:94
+msgid "Backup failed"
+msgstr "백업 실패"
+
+#: src/app/screens/settings/backups-section.tsx:106
+msgid "Backup status is unavailable from this server."
+msgstr "이 서버에서 백업 상태를 가져올 수 없습니다."
+
+#: src/app/screens/settings/backups-section.tsx:86
+msgid "Backup written"
+msgstr "백업을 저장했습니다"
+
+#: src/app/screens/settings/backups-section.tsx:78
+msgid "Backups"
+msgstr "백업"
+
+#: src/app/screens/settings/backups-section.tsx:127
+msgid "Backups are current"
+msgstr "백업이 최신 상태입니다"
+
+#: src/app/screens/settings/backups-section.tsx:130
+msgid "Backups are overdue"
+msgstr "백업이 지연되었습니다"
+
+#: src/app/screens/PublicShareView.tsx:308
 msgid "Best day"
 msgstr "최고의 날"
 
@@ -46,19 +82,23 @@ msgstr "최고의 날"
 #~ msgid "Calendar"
 #~ msgstr "캘린더"
 
-#: src/app/screens/PublicShareView.tsx:278
+#: src/app/screens/settings/backups-section.tsx:158
+msgid "Checking…"
+msgstr "확인 중…"
+
+#: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
 msgstr "일관성"
 
-#: src/app/screens/PublicShareView.tsx:270
+#: src/app/screens/PublicShareView.tsx:272
 msgid "Cumulative net P&L over the shared period."
 msgstr "공유 기간의 누적 순손익."
 
-#: src/app/screens/PublicShareView.tsx:92
+#: src/app/screens/PublicShareView.tsx:93
 msgid "Cumulative P&L curve"
 msgstr "누적 손익 곡선"
 
-#: src/app/screens/PublicShareView.tsx:271
+#: src/app/screens/PublicShareView.tsx:273
 msgid "Cumulative P&L shape — amounts are not shared."
 msgstr "누적 손익 형태 — 금액은 공유되지 않습니다."
 
@@ -66,16 +106,33 @@ msgstr "누적 손익 형태 — 금액은 공유되지 않습니다."
 #~ msgid "Dashboard"
 #~ msgstr "대시보드"
 
-#: src/app/screens/PublicShareView.tsx:295
-#: src/app/screens/PublicShareView.tsx:301
+#: src/app/screens/PublicShareView.tsx:297
+#: src/app/screens/PublicShareView.tsx:303
 msgid "days in a row"
 msgstr "연속 일수"
 
-#: src/app/screens/PublicShareView.tsx:248
+#: src/app/screens/settings/backups-section.tsx:207
+msgid "Directory"
+msgstr "디렉터리"
+
+#: src/app/screens/settings/backups-section.tsx:162
+msgid "Every {interval}"
+msgstr "{interval}마다"
+
+#: src/app/screens/PublicShareView.tsx:250
 msgid "Expectancy"
 msgstr "기대값"
 
-#: src/app/screens/PublicShareView.tsx:281
+#: src/app/screens/settings/backups-section.tsx:220
+msgid "Failed"
+msgstr "실패"
+
+#. placeholder {0}: fmtRelativeAge(data.last_attempt_at, now, intlLocale)
+#: src/app/screens/settings/backups-section.tsx:219
+msgid "Failed {0}"
+msgstr "실패 ({0})"
+
+#: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
 msgstr "수익일"
 
@@ -91,15 +148,15 @@ msgstr "수익일"
 #~ msgid "Interface language for TraderMemos."
 #~ msgstr "TraderMemos 인터페이스 언어입니다."
 
-#: src/app/screens/PublicShareView.tsx:153
+#: src/app/screens/PublicShareView.tsx:155
 msgid "It may have expired or been revoked by its owner."
 msgstr "만료되었거나 소유자가 철회했을 수 있습니다."
 
-#: src/app/screens/PublicShareView.tsx:385
+#: src/app/screens/PublicShareView.tsx:387
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "<0>TraderMemos</0>로 기록 — 셀프호스팅 트레이딩 저널"
 
-#: src/app/screens/PublicShareView.tsx:255
+#: src/app/screens/PublicShareView.tsx:257
 msgid "Kelly"
 msgstr "Kelly"
 
@@ -111,21 +168,41 @@ msgstr "Kelly"
 #~ msgid "Language selector"
 #~ msgstr "언어 선택"
 
-#: src/app/screens/PublicShareView.tsx:293
+#: src/app/screens/settings/backups-section.tsx:169
+msgid "Last backup"
+msgstr "마지막 백업"
+
+#: src/app/screens/settings/backups-section.tsx:129
+msgid "Last backup failed"
+msgstr "마지막 백업이 실패했습니다"
+
+#: src/app/screens/settings/backups-section.tsx:192
+msgid "Latest file"
+msgstr "최신 파일"
+
+#: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
 msgstr "최장 수익 연속"
 
-#: src/app/screens/PublicShareView.tsx:299
+#: src/app/screens/PublicShareView.tsx:301
 msgid "Longest red streak"
 msgstr "최장 손실 연속"
 
-#: src/app/screens/PublicShareView.tsx:354
+#: src/app/screens/settings/backups-section.tsx:162
+msgid "Manual only"
+msgstr "수동 전용"
+
+#: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
 msgstr "최다 거래"
 
-#: src/app/screens/PublicShareView.tsx:180
+#: src/app/screens/PublicShareView.tsx:182
 msgid "Net P&L"
 msgstr "순손익"
+
+#: src/app/screens/settings/backups-section.tsx:176
+msgid "Never"
+msgstr "없음"
 
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
@@ -139,13 +216,21 @@ msgstr "순손익"
 #~ msgid "New Trade"
 #~ msgstr "새 거래"
 
+#: src/app/screens/settings/backups-section.tsx:128
+msgid "No backup yet"
+msgstr "아직 백업이 없습니다"
+
+#: src/app/screens/settings/backups-section.tsx:198
+msgid "None"
+msgstr "없음"
+
 #. placeholder {0}: data.trading_days
-#: src/app/screens/PublicShareView.tsx:283
-#: src/app/screens/PublicShareView.tsx:289
+#: src/app/screens/PublicShareView.tsx:285
+#: src/app/screens/PublicShareView.tsx:291
 msgid "of {0} trading days"
 msgstr "거래일 {0}일 중"
 
-#: src/app/screens/PublicShareView.tsx:250
+#: src/app/screens/PublicShareView.tsx:252
 msgid "per trade"
 msgstr "거래당"
 
@@ -153,31 +238,43 @@ msgstr "거래당"
 #~ msgid "Playbook"
 #~ msgstr "플레이북"
 
-#: src/app/screens/PublicShareView.tsx:206
+#: src/app/screens/PublicShareView.tsx:208
 msgid "Profit factor"
 msgstr "프로핏 팩터"
 
-#: src/app/screens/PublicShareView.tsx:287
+#: src/app/screens/PublicShareView.tsx:289
 msgid "Red days"
 msgstr "손실일"
 
-#: src/app/drawers/NewTradeDrawer.tsx:2182
+#: src/app/drawers/NewTradeDrawer.tsx:2108
 msgid "Save"
 msgstr "저장"
 
-#: src/app/drawers/NewTradeDrawer.tsx:2180
+#: src/app/drawers/NewTradeDrawer.tsx:2106
 msgid "Save changes"
 msgstr "변경 사항 저장"
+
+#: src/app/screens/settings/backups-section.tsx:131
+msgid "Scheduled backups are off"
+msgstr "예약 백업이 꺼져 있습니다"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "설정"
 
-#: src/app/screens/PublicShareView.tsx:127
+#: src/app/screens/PublicShareView.tsx:129
 msgid "Shared performance record"
 msgstr "공유된 성과 기록"
 
-#: src/app/screens/PublicShareView.tsx:259
+#: src/app/screens/settings/backups-section.tsx:186
+msgid "Snapshots kept"
+msgstr "보관된 스냅샷"
+
+#: src/app/screens/settings/backups-section.tsx:79
+msgid "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
+msgstr "데이터베이스 스냅샷을 서버의 폴더에 저장합니다. 이 폴더를 외부 저장소로 동기화하세요 — 같은 디스크에 있는 사본은 디스크 장애를 견디지 못합니다."
+
+#: src/app/screens/PublicShareView.tsx:261
 msgid "SQN"
 msgstr "SQN"
 
@@ -185,35 +282,39 @@ msgstr "SQN"
 #~ msgid "Stats"
 #~ msgstr "통계"
 
-#: src/app/screens/PublicShareView.tsx:266
+#: src/app/screens/PublicShareView.tsx:268
 msgid "The curve"
 msgstr "곡선"
 
-#: src/app/screens/PublicShareView.tsx:203
+#: src/app/screens/PublicShareView.tsx:205
 msgid "The edge"
 msgstr "엣지"
 
-#: src/app/screens/PublicShareView.tsx:324
+#: src/app/screens/PublicShareView.tsx:326
 msgid "The rhythm"
 msgstr "리듬"
 
-#: src/app/screens/PublicShareView.tsx:151
+#: src/app/screens/PublicShareView.tsx:153
 msgid "This link isn't available"
 msgstr "이 링크를 사용할 수 없습니다"
+
+#: src/app/screens/settings/backups-section.tsx:118
+msgid "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
+msgstr "이 서버는 Postgres에서 실행 중입니다. 기본 제공 백업은 SQLite만 지원합니다 — Postgres는 pg_dump 또는 제공업체의 스냅샷으로 백업하세요."
 
 #: src/components/AppNav.tsx:32
 #~ msgid "Trades"
 #~ msgstr "거래"
 
-#: src/app/screens/PublicShareView.tsx:347
+#: src/app/screens/PublicShareView.tsx:349
 msgid "Trades per month."
 msgstr "월별 거래 수."
 
-#: src/app/screens/PublicShareView.tsx:180
-#: src/app/screens/PublicShareView.tsx:224
+#: src/app/screens/PublicShareView.tsx:182
+#: src/app/screens/PublicShareView.tsx:226
 msgid "Win rate"
 msgstr "승률"
 
-#: src/app/screens/PublicShareView.tsx:313
+#: src/app/screens/PublicShareView.tsx:315
 msgid "Worst day"
 msgstr "최악의 날"

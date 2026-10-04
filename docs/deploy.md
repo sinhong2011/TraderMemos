@@ -188,6 +188,66 @@ Leave `TM_CORS_ORIGINS` empty when using rewrites — the browser never talks cr
 
 ---
 
+## Backups & restore
+
+With SQLite the whole journal is one file, so the API snapshots it on a schedule. Every
+interval (daily by default) it writes a consistent copy with `VACUUM INTO`, fsyncs it and
+atomically renames it into place as `tradermemos-YYYYMMDD-HHMMSSZ.db` (UTC), then deletes
+the oldest snapshots beyond the keep count. Only files with exactly that name pattern are
+ever pruned — anything else in the directory is left alone. A run that fails leaves no
+partial file behind. The job also runs ~30 s after boot whenever the newest snapshot is
+already an interval old, so restarts never skip a day.
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `TM_BACKUP_ENABLED` | `true` | Scheduled snapshots on/off. **Back up now** in the UI works either way. Also off when `TM_JOBS_ENABLED=false` |
+| `TM_BACKUP_DIR` | `<dbDir>/backups` | Where snapshots land (Docker: `/data/backups`) |
+| `TM_BACKUP_KEEP` | `14` | Snapshots kept; older ones are pruned after each successful run |
+| `TM_BACKUP_INTERVAL_MIN` | `1440` | Minutes between snapshots (`0` disables the schedule) |
+
+**Settings → About → Backups** (owner only) shows the last backup, how many are kept, the
+directory and the last error, with a **Back up now** button. The Settings icon in the nav
+gets a red dot when the last attempt failed or the newest snapshot is older than twice the
+interval. The same status is `GET /api/v1/admin/backup`; `POST` takes a snapshot now.
+
+**Take it off the box.** A snapshot on the same disk does not survive that disk. Sync the
+directory somewhere else yourself (rclone, restic, Syncthing, a NAS share…). In Docker the
+default `/data/backups` lives inside the `tm_data` volume — bind-mount a host path instead so
+your sync tool can see it:
+
+```yaml
+# docker-compose.override.yml
+services:
+  api:
+    environment:
+      TM_BACKUP_DIR: /backups
+    volumes:
+      - /srv/tradermemos-backups:/backups
+```
+
+Snapshots cover the **database only**. Trade screenshots and note images stay in
+`TM_ATTACH_DIR` (`/data/attachments`) as plain files — copy that directory alongside the
+snapshots. Postgres is not snapshotted (the About block says so); use `pg_dump` or your
+provider's backups.
+
+**Restore** (SQLite):
+
+1. Stop the API (`docker compose stop api`, or stop the binary/service).
+2. Replace the database file with a snapshot, and delete any `-wal` / `-shm` sidecars left
+   next to it — a stale write-ahead log must not be replayed onto the restored file:
+
+   ```bash
+   cp /srv/tradermemos-backups/tradermemos-20261004-031500Z.db /data/tradermemos.db
+   rm -f /data/tradermemos.db-wal /data/tradermemos.db-shm
+   ```
+
+   (In Docker, run these through a throwaway container with `--volumes-from`, as in the
+   volume-snapshot recipe on the docs site.)
+3. Start the API. Migrations run on boot, so a snapshot from an older version upgrades
+   itself; there is no automatic downgrade.
+
+---
+
 ## Choosing a mode
 
 | Goal | Mode |
@@ -205,6 +265,7 @@ Do **not** run the Go + SQLite API on Vercel serverless or Cloudflare Workers fo
 
 - [ ] Changed `TM_JWT_SECRET` from the default
 - [ ] SQLite/attachments on a persistent volume
+- [ ] SQLite: `TM_BACKUP_DIR` (and attachments) synced off the server
 - [ ] Docker: open the **web** port; Server field blank
 - [ ] Split host: `TM_CORS_ORIGINS` matches the SPA origin(s)
 - [ ] Uploads: nginx/proxy `client_max_body_size` ≥ API `TM_*_MAX_BYTES` (compose web image uses 20m)

@@ -3,6 +3,7 @@ import { Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { useAppUpdate } from "@/lib/appUpdate";
+import { useBackupAttention } from "@/lib/hooks/useBackup";
 import { useFlexSyncAttention } from "@/lib/hooks/useFlexSync";
 import { cn } from "@/lib/cn";
 import { useDisplayPrefs } from "@/lib/displayPrefs";
@@ -102,6 +103,10 @@ export function AppNav() {
   // A failing broker sync is otherwise invisible until someone opens the right
   // modal — a silently dead sync looks identical to a quiet trading week.
   const syncAttention = useFlexSyncAttention();
+  // Same for database backups: a schedule that quietly stopped is invisible
+  // until the day the snapshot is needed.
+  const backupAttention = useBackupAttention();
+  const brokenAttention = syncAttention || backupAttention;
 
   useLayoutEffect(() => {
     const list = listRef.current;
@@ -205,8 +210,8 @@ export function AppNav() {
             label={label("settings")}
             icon={Settings}
             active={settingsActive}
-            dot={syncAttention || (updateNotices && updateAttention)}
-            dotTone={syncAttention ? "destructive" : "primary"}
+            dot={brokenAttention || (updateNotices && updateAttention)}
+            dotTone={brokenAttention ? "destructive" : "primary"}
           />
         </div>
       </div>

@@ -12,6 +12,24 @@ description: 一切都在一個數據卷裏 —— SQLite 數據庫與附件目�
 
 附件的元數據保存在數據庫中 —— 只恢復其中之一會造成截圖失效或文件成爲孤兒。
 
+## 內置 —— 定時快照（SQLite）
+
+API 會自動爲 SQLite 數據庫做快照：默認每天一次，寫入 `/data/backups`（Docker）或數據庫文件旁的
+`backups/` 文件夾，文件名爲 `tradermemos-YYYYMMDD-HHMMSSZ.db`，保留最新 14 份。每份快照都是
+`VACUUM INTO` 生成的一致性拷貝，fsync 後再重命名到位，因此不會出現寫了一半卻帶着快照名的文件；
+清理時也只會刪除完全符合該命名的文件。可通過 `TM_BACKUP_DIR`、`TM_BACKUP_KEEP`、
+`TM_BACKUP_INTERVAL_MIN` 和 `TM_BACKUP_ENABLED` 調整（見[配置](/zh-Hant/docs/self-hosting/configuration)）。
+
+**設定 → 關於 → 備份**（僅所有者）顯示上次備份、目錄和最近的錯誤，並提供「立即備份」按鈕。
+備份失敗或最新快照早於兩倍間隔時，設定圖標會出現紅點。
+
+快照只包含數據庫，而且和數據庫在同一塊磁盤上 —— 請自行把目錄同步到伺服器之外（rclone、restic、
+Syncthing 等），並一併複製 `/data/attachments`。在 Docker 中，可綁定掛載一個宿主機路徑並讓
+`TM_BACKUP_DIR` 指向它，方便同步工具讀取。
+
+恢復時：停止 API，用快照覆蓋 `tradermemos.db`，刪除旁邊的 `tradermemos.db-wal` /
+`tradermemos.db-shm`，然後重新啓動 API。
+
 ## 方式 1 —— 應用層導出（任何部署都適用）
 
 應用內的**導入 → 導出**（或 `GET /api/v1/exports`）可生成：
