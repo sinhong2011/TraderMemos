@@ -20,7 +20,7 @@ function StatCell({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
       <span className={cn("text-sm tabular-nums text-foreground", valueClassName)}>{value}</span>

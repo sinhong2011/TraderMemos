@@ -31,10 +31,10 @@ export function GradeControl({
 
   return (
     <div>
-      <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+      <p className="mb-1.5 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
         {label}
       </p>
-      {hint ? <p className="mb-2 text-[10px] leading-snug text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="mb-2 text-2xs leading-snug text-muted-foreground">{hint}</p> : null}
       <div className="flex items-center gap-2.5">
         <div
           role="radiogroup"

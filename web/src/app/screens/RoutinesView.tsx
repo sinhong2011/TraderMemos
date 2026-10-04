@@ -215,7 +215,7 @@ export function RoutineHistoryCard({
             {PICKER_DAYS.map((d) => (
               <span
                 key={d}
-                className="flex h-4 items-center text-[10px] leading-none text-muted-foreground"
+                className="flex h-4 items-center text-2xs leading-none text-muted-foreground"
               >
                 {d % 2 === 1 ? WEEKDAY_SHORT[d] : ""}
               </span>

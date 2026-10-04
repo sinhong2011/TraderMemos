@@ -115,13 +115,13 @@ export function ReportsRiskDrawdown({
                   dataKey="at"
                   ticks={uniqueDayTicks(series)}
                   tickFormatter={(v: string) => fmtDayShort(v, locale)}
-                  tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                  tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                   axisLine={false}
                   tickLine={false}
                   minTickGap={60}
                 />
                 <YAxis
-                  tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                  tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                   tickFormatter={(v: number) => `${(v * 100).toFixed(0)}%`}
                   axisLine={false}
                   tickLine={false}

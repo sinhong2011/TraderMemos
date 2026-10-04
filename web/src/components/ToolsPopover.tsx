@@ -80,7 +80,7 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
           "[&_[data-slot=popover-viewport]]:p-1.5",
         )}
       >
-        <p className="m-0 flex items-center gap-1.5 px-2.5 pt-1 pb-1.5 text-[10px] font-semibold tracking-widest text-chart-3 uppercase">
+        <p className="m-0 flex items-center gap-1.5 px-2.5 pt-1 pb-1.5 text-2xs font-semibold tracking-widest text-chart-3 uppercase">
           <Wrench size={11} strokeWidth={2} aria-hidden />
           Tools
         </p>

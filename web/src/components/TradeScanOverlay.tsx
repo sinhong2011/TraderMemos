@@ -328,7 +328,7 @@ function ScanBlockSummary({
       {preview.avgEntry != null || preview.avgExit != null ? (
         <div className="mx-4 grid grid-cols-3 gap-3 border-t border-border/60 pt-2.5">
           <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <span className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
               Avg entry
             </span>
             <span className="text-[13px] font-semibold tabular-nums text-foreground">
@@ -336,7 +336,7 @@ function ScanBlockSummary({
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <span className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
               Avg exit
             </span>
             <span className="text-[13px] font-semibold tabular-nums text-foreground">
@@ -344,7 +344,7 @@ function ScanBlockSummary({
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <span className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
               Est. P&L
             </span>
             {preview.net != null ? (

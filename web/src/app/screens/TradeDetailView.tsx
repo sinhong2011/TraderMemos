@@ -211,7 +211,7 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
             {hasGenerated ? (
               <span
                 className={cn(
-                  "shrink-0 rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
+                  "shrink-0 rounded-md px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider",
                   usingLlm ? "bg-primary/10 text-primary" : "bg-sidebar text-muted-foreground",
                 )}
               >
@@ -219,7 +219,7 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
               </span>
             ) : null}
             {!open && collapsedSummary ? (
-              <span className="truncate text-[10px] text-muted-foreground">{collapsedSummary}</span>
+              <span className="truncate text-2xs text-muted-foreground">{collapsedSummary}</span>
             ) : null}
           </div>
           <CollapsibleChevron />
@@ -751,7 +751,7 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
 
       <div>
         <p className={fieldLabelClass}>Setups (select multiple)</p>
-        <p className="mb-2 text-[10px] text-muted-foreground">
+        <p className="mb-2 text-2xs text-muted-foreground">
           First selected setup becomes the main setup.
         </p>
         {setups.length === 0 ? (

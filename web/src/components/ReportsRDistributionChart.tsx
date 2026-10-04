@@ -62,12 +62,12 @@ export function ReportsRDistributionChart({
                 <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
                 <XAxis
                   dataKey="label"
-                  tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                  tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                  tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                   axisLine={false}
                   tickLine={false}
                   width={32}

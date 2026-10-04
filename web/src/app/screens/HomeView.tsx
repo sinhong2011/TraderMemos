@@ -159,14 +159,14 @@ function EquityCurveChart({
             <XAxis
               dataKey="at"
               ticks={dayTicks}
-              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              tick={{ fontSize: 11, fill: chartTheme.axisColor }}
               tickFormatter={(v: string) => fmtDayShort(v, intlLocale())}
               axisLine={false}
               tickLine={false}
               minTickGap={60}
             />
             <YAxis
-              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              tick={{ fontSize: 11, fill: chartTheme.axisColor }}
               tickFormatter={(v: number) => fmtMoneyCompact(v, currency, intlLocale())}
               axisLine={false}
               tickLine={false}

@@ -139,12 +139,12 @@ export function ReportsRollingWinRate({ trades, loading, error }: ReportsRolling
               <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
               <XAxis
                 dataKey="index"
-                tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                 tickFormatter={fmtValue}
                 axisLine={false}
                 tickLine={false}

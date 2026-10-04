@@ -28,6 +28,8 @@
 | **All UI** | System UI stack → `font-sans` | `ui-sans-serif, system-ui, -apple-system, …`. No custom font. |
 | **Numbers** | System UI + `tabular-nums` | Applied globally in `@layer base`. |
 
+- **Minimum size 11px.** The smallest step is `text-2xs` (11px, inherits line height) for captions, eyebrows, chips and dense cells; `text-label` uses it too. Never `text-[9px]`/`text-[10px]`, and recharts ticks use `fontSize: 11`.
+
 ## Color
 
 Tokens live in `web/src/global.css` (`:root` / `.dark`) and are exposed with `@theme inline` per shadcn Tailwind v4.
@@ -134,3 +136,4 @@ vocabulary, codified from the sign-in screen:
 | 2026-07-24 | Replace ReUI with coss | `@coss/alert|autocomplete|number-field|card`; Filters kept as owned `components/filters.tsx` (no coss equivalent) |
 | 2026-08-06 | Deepen brand primary to `oklch(0.5013 0.1428 252.49)` (`#1264B2`) | The old `oklch(0.617 0.1305 235.19)` only reached 3.6:1 against white, so filled primary buttons failed AA; the deeper blue clears 6.0:1 and needs no light/dark split |
 | 2026-10-04 | Add `canvas`; light `profit`/`loss` to L 0.50; P&L text uses `loss`, not `destructive` | Light mode had `card` = `background` = white, so borderless cards vanished; red P&L text measured 3.8:1. Mobile already pairs a grouped background with white cards |
+| 2026-10-04 | 11px text floor (`text-2xs`) | 150+ arbitrary 9–10px sizes made filter pills, eyebrows and chart axes hard to read, often in muted grey |

@@ -548,7 +548,7 @@ export function CalendarView({
                                     className={cn(
                                       // Steps up with the cell: five-column mobile cells leave
                                       // ~43px of content box, barely wider than `-$213.4` at 10px.
-                                      "max-w-full truncate text-[10px] font-semibold tracking-[-0.04em] tabular-nums",
+                                      "max-w-full truncate text-2xs font-semibold tracking-[-0.04em] tabular-nums",
                                       "@min-[3rem]/day:text-[11px] @min-[3rem]/day:tracking-[-0.02em]",
                                       "@min-[5rem]/day:text-[13px]",
                                       "@min-[6.5rem]/day:text-base @min-[8.5rem]/day:text-lg",
@@ -566,7 +566,7 @@ export function CalendarView({
                                   {winRate && (
                                     <span
                                       className={cn(
-                                        "max-w-full truncate text-[10px] tabular-nums",
+                                        "max-w-full truncate text-2xs tabular-nums",
                                         TINTED_LABEL_SUBTLE,
                                       )}
                                     >
@@ -671,7 +671,7 @@ export function CalendarView({
                               {ws.weekNumber != null && (
                                 <span
                                   className={cn(
-                                    "max-w-full truncate self-end text-[10px] font-medium @min-[6rem]/week:text-[11px]",
+                                    "max-w-full truncate self-end text-2xs font-medium @min-[6rem]/week:text-[11px]",
                                     TINTED_LABEL_SUBTLE,
                                   )}
                                 >
@@ -698,7 +698,7 @@ export function CalendarView({
                                   </span>
                                   {weekPcts[wi] != null ? (
                                     <span
-                                      className="max-w-full truncate text-[10px] font-semibold tabular-nums opacity-80"
+                                      className="max-w-full truncate text-2xs font-semibold tabular-nums opacity-80"
                                       style={{ color: heatInk(ws.pnl) }}
                                     >
                                       {fmtSignedPct(weekPcts[wi]!, intlLocale())}
@@ -706,13 +706,13 @@ export function CalendarView({
                                   ) : null}
                                   {/* W/L only — no day-count line, matching the mobile board. */}
                                   {ws.wins + ws.losses > 0 ? (
-                                    <span className="max-w-full truncate text-[10px] tabular-nums">
+                                    <span className="max-w-full truncate text-2xs tabular-nums">
                                       <WinLossRecord wins={ws.wins} losses={ws.losses} onWash />
                                     </span>
                                   ) : null}
                                 </span>
                               ) : (
-                                <span className="flex h-full items-center justify-center text-[10px] text-muted-foreground">
+                                <span className="flex h-full items-center justify-center text-2xs text-muted-foreground">
                                   No trades
                                 </span>
                               )}
@@ -889,7 +889,7 @@ function MonthStatChip({
     >
       <span
         className={cn(
-          "text-[9px] font-medium uppercase tracking-[0.1em]",
+          "text-2xs font-medium uppercase tracking-[0.1em]",
           tone ? "opacity-70" : "text-muted-foreground",
         )}
       >
@@ -981,7 +981,7 @@ function PeriodSummaryBody({
 function PeriodSummaryStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5 rounded-md bg-canvas px-3 py-3">
-      <p className="m-0 truncate text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+      <p className="m-0 truncate text-2xs font-medium uppercase tracking-[0.1em] text-muted-foreground">
         {label}
       </p>
       <p className="m-0 text-[18px] font-semibold tracking-[-0.02em] tabular-nums text-foreground">

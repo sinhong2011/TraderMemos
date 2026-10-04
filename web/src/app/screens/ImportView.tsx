@@ -491,7 +491,7 @@ function JournalSummaryStrip({
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {cells.map((cell) => (
           <div key={cell.label} className="flex min-h-19 flex-col rounded-md bg-muted px-3 py-3">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <span className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
               {cell.label}
             </span>
             <div className="mt-auto flex flex-wrap items-baseline gap-1.5 pt-2">

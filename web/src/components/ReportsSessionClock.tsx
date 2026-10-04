@@ -86,8 +86,8 @@ export function ReportsSessionClock() {
   return (
     <section className="flex min-w-0 flex-col rounded-lg bg-card p-4 sm:p-5">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-[10px] font-semibold tracking-wide text-chart-3">Market sessions</p>
-        <p className="text-[10px] text-muted-foreground">{tzCity} clock</p>
+        <p className="text-2xs font-semibold tracking-wide text-chart-3">Market sessions</p>
+        <p className="text-2xs text-muted-foreground">{tzCity} clock</p>
       </div>
       <div className="mt-3 flex gap-3">
         <div className="flex w-16 shrink-0 flex-col gap-1.5">
@@ -95,7 +95,7 @@ export function ReportsSessionClock() {
             <p
               key={l.label}
               className={cn(
-                "flex h-5 items-center text-[10px] leading-none",
+                "flex h-5 items-center text-2xs leading-none",
                 l.active ? "font-semibold text-foreground" : "text-muted-foreground",
               )}
             >
@@ -133,7 +133,7 @@ export function ReportsSessionClock() {
             <span
               key={h}
               className={cn(
-                "absolute text-[9px] tabular-nums text-muted-foreground",
+                "absolute text-2xs tabular-nums text-muted-foreground",
                 h > 0 && "-translate-x-1/2",
               )}
               style={{ left: `${(h / 24) * 100}%` }}

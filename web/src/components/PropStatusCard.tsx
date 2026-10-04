@@ -32,7 +32,7 @@ function RuleBar({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
+        <span className="text-2xs font-semibold tracking-widest text-muted-foreground uppercase">
           {label}
         </span>
         <span className="text-[11px] tabular-nums text-muted-foreground">{note}</span>

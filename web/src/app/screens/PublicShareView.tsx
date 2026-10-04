@@ -220,7 +220,7 @@ export function PublicShareView({ token }: PublicShareViewProps) {
                   {pf > 0 ? pf.toFixed(2) : "0.00"}
                 </span>
               </GaugeArc>
-              <p className="mt-1 text-[10px] text-muted-foreground">{t`1.0 = break-even`}</p>
+              <p className="mt-1 text-2xs text-muted-foreground">{t`1.0 = break-even`}</p>
             </div>
             <div className="flex flex-col items-center justify-center">
               <p className="mb-2 self-start text-[11px] text-muted-foreground">{t`Win rate`}</p>
@@ -342,7 +342,7 @@ export function PublicShareView({ token }: PublicShareViewProps) {
                       height: `${m.trades === 0 ? 4 : Math.max(8, (m.trades / maxMonthTrades) * 72)}px`,
                     }}
                   />
-                  <span className="text-[9px] text-muted-foreground">{m.month.slice(5)}</span>
+                  <span className="text-2xs text-muted-foreground">{m.month.slice(5)}</span>
                 </div>
               ))}
             </div>

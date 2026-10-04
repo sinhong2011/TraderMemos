@@ -71,7 +71,7 @@ export function CommandPalette() {
                 {(canFilterSymbol || (symbols?.length ?? 0) > 0) && (
                   <Command.Group
                     heading="Filters"
-                    className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-muted-foreground"
+                    className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:[&_[cmdk-group-heading]]:text-2xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-muted-foreground"
                   >
                     {canFilterSymbol && (
                       <Command.Item
@@ -127,7 +127,7 @@ export function CommandPalette() {
                   <Command.Group
                     key={group}
                     heading={group}
-                    className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-muted-foreground"
+                    className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:[&_[cmdk-group-heading]]:text-2xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-muted-foreground"
                   >
                     {items.map((item) => {
                       const Icon = item.icon;
@@ -156,7 +156,7 @@ export function CommandPalette() {
                   </Command.Group>
                 ))}
               </Command.List>
-              <div className="flex items-center justify-between gap-3 px-3 py-2 text-[10px] text-muted-foreground">
+              <div className="flex items-center justify-between gap-3 px-3 py-2 text-2xs text-muted-foreground">
                 <span>Navigate with ↑↓ · Enter to run · shortcuts when empty</span>
                 <ShortcutKeys>{paletteLabel}</ShortcutKeys>
               </div>

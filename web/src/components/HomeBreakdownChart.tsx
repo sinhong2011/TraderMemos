@@ -61,7 +61,7 @@ export function HomeBreakdownChart({
   return (
     <section className="flex h-full flex-col rounded-lg bg-card">
       <header className="flex flex-wrap items-start justify-between gap-3 px-4 py-3">
-        <h2 className="text-[10px] font-semibold tracking-wide text-chart-3">Breakdown</h2>
+        <h2 className="text-2xs font-semibold tracking-wide text-chart-3">Breakdown</h2>
         <SegmentedControl
           ariaLabel="Breakdown dimension"
           options={DIM_OPTIONS}
@@ -87,12 +87,12 @@ export function HomeBreakdownChart({
                   <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
                   <XAxis
                     dataKey="key"
-                    tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                    tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                    tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                     tickFormatter={(v: number) => fmtMoneyCompact(v, currency, locale)}
                     axisLine={false}
                     tickLine={false}

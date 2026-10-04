@@ -6,7 +6,7 @@ import { useSummary } from "@/lib/hooks/useAnalytics";
 import { kellyFraction } from "@/lib/kelly";
 
 const labelClass =
-  "mb-1 block text-[10px] font-medium uppercase tracking-widest text-muted-foreground";
+  "mb-1 block text-2xs font-medium uppercase tracking-widest text-muted-foreground";
 const inputClass = fieldInputClass;
 
 export function KellyModal({
@@ -84,7 +84,7 @@ export function KellyModal({
       </div>
       {kelly != null ? (
         <div className="rounded-panel border border-border bg-muted px-3.5 py-3">
-          <p className="m-0 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+          <p className="m-0 text-2xs font-medium uppercase tracking-widest text-muted-foreground">
             Full Kelly
           </p>
           <p className="mt-1 mb-0 text-2xl tabular-nums text-foreground">

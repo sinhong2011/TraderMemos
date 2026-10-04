@@ -203,7 +203,7 @@ export function BackupsSection() {
 
         {data?.dir ? (
           <div className="mt-4">
-            <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+            <p className="m-0 text-2xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
               {t`Directory`}
             </p>
             <code className="mt-1.5 block min-w-0 break-all text-[12px] text-foreground/85">

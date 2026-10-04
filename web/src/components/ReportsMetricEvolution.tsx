@@ -126,14 +126,14 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
             <XAxis
               dataKey="bucket"
               tickFormatter={(v: string) => fmtDayShort(v, locale)}
-              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              tick={{ fontSize: 11, fill: chartTheme.axisColor }}
               axisLine={false}
               tickLine={false}
               minTickGap={40}
             />
             <YAxis
               yAxisId="left"
-              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              tick={{ fontSize: 11, fill: chartTheme.axisColor }}
               tickFormatter={(v: number) => fmtPct(v, locale)}
               axisLine={false}
               tickLine={false}
@@ -143,7 +143,7 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
             <YAxis
               yAxisId="right"
               orientation="right"
-              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              tick={{ fontSize: 11, fill: chartTheme.axisColor }}
               tickFormatter={fmtRight}
               axisLine={false}
               tickLine={false}

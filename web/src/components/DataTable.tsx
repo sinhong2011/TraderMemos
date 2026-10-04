@@ -57,7 +57,7 @@ function tableMetrics(dense: boolean, comfortable: boolean) {
     return {
       fontSize: 11,
       rowHeight: 36,
-      headerText: "text-[10px] font-semibold tracking-widest",
+      headerText: "text-2xs font-semibold tracking-widest",
       headerPy: "py-2",
       cellPy: "py-2",
     };
@@ -73,7 +73,7 @@ function tableMetrics(dense: boolean, comfortable: boolean) {
   return {
     fontSize: 13,
     rowHeight: 44,
-    headerText: "text-[10px] font-semibold tracking-widest",
+    headerText: "text-2xs font-semibold tracking-widest",
     headerPy: "py-2.5",
     cellPy: "py-2.5",
   };

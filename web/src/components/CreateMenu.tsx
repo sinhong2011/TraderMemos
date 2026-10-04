@@ -100,7 +100,7 @@ export function CreateMenu({ variant = "header" }: { variant?: "header" | "fab" 
           "[&_[data-slot=popover-viewport]]:p-1.5",
         )}
       >
-        <p className="m-0 px-2.5 pt-1 pb-1.5 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
+        <p className="m-0 px-2.5 pt-1 pb-1.5 text-2xs font-semibold tracking-widest text-muted-foreground uppercase">
           {label("create")}
         </p>
         <div className="flex flex-col gap-0.5">

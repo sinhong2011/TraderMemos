@@ -113,7 +113,7 @@ export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleCom
 
         {recentBreaches.length > 0 && (
           <div className="flex flex-col gap-1.5">
-            <p className="m-0 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
+            <p className="m-0 text-2xs font-semibold tracking-widest text-muted-foreground uppercase">
               Recent breach days
             </p>
             <ul className="m-0 flex list-none flex-col gap-1 p-0">

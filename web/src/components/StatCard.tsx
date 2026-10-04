@@ -80,7 +80,7 @@ export function StatCard({
     >
       <span
         className={cn(
-          "text-[10px] font-medium tracking-wide uppercase sm:text-xs",
+          "text-2xs font-medium tracking-wide uppercase sm:text-xs",
           centered ? "self-center" : undefined,
         )}
         style={{ color: "var(--muted-foreground)" }}
@@ -103,7 +103,7 @@ export function StatCard({
       </span>
       {hint ? (
         <span
-          className={cn("text-xs", centered && "line-clamp-2 max-w-full text-[10px] leading-snug")}
+          className={cn("text-xs", centered && "line-clamp-2 max-w-full text-2xs leading-snug")}
           style={{ color: "var(--muted-foreground)" }}
         >
           {hint}

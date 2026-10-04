@@ -7,7 +7,7 @@ export function BrokerSteps({ broker }: { broker: BrokerDef }) {
       <ol className="flex flex-col gap-2">
         {broker.steps.map((step, index) => (
           <li key={step} className="flex gap-2.5 text-[12px] leading-relaxed text-muted-foreground">
-            <span className="mt-px inline-flex size-4.5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-foreground">
+            <span className="mt-px inline-flex size-4.5 shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-foreground">
               {index + 1}
             </span>
             <span>{step}</span>

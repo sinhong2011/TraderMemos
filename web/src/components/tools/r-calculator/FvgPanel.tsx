@@ -223,7 +223,7 @@ function FvgAxis({
           <div
             aria-hidden
             className={cn(
-              "absolute left-1/2 z-10 flex size-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background text-[9px] font-bold ring-2",
+              "absolute left-1/2 z-10 flex size-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background text-2xs font-bold ring-2",
               long ? "text-profit ring-profit" : "text-loss ring-destructive",
             )}
             style={{ top: `${entryTop}%` }}
@@ -320,7 +320,7 @@ function AxisLabel({
   return (
     <span
       className={cn(
-        "absolute -translate-y-1/2 whitespace-nowrap text-[10px] tabular-nums",
+        "absolute -translate-y-1/2 whitespace-nowrap text-2xs tabular-nums",
         align === "right" ? "right-0 text-right" : "left-0 text-left",
         tone === "profit" && "text-profit",
         tone === "loss" && "text-loss",

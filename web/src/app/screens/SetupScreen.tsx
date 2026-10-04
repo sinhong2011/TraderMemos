@@ -56,7 +56,7 @@ function SetupStepIndicator({ step }: { step: 1 | 2 }) {
               </span>
               <span
                 className={cn(
-                  "text-[10px] font-medium tracking-[0.08em] uppercase",
+                  "text-2xs font-medium tracking-[0.08em] uppercase",
                   step >= n ? "text-foreground" : "text-muted-foreground",
                 )}
               >
@@ -313,7 +313,7 @@ export function SetupScreen() {
                 {[".csv", ".json"].map((ext) => (
                   <span
                     key={ext}
-                    className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+                    className="rounded-md bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground"
                   >
                     {ext}
                   </span>

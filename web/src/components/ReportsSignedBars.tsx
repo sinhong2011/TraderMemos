@@ -91,13 +91,13 @@ export function ReportsSignedBars({
             <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
             <XAxis
               dataKey="key"
-              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              tick={{ fontSize: 11, fill: chartTheme.axisColor }}
               axisLine={false}
               tickLine={false}
               interval="preserveStartEnd"
             />
             <YAxis
-              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              tick={{ fontSize: 11, fill: chartTheme.axisColor }}
               tickFormatter={(v: number) => money.formatAxis(v)}
               axisLine={false}
               tickLine={false}

@@ -116,14 +116,14 @@ export function CalendarDayHoverDetails({
                   key={trade.id}
                   className="flex items-center gap-2 py-1 text-[12px] tabular-nums first:pt-0 last:pb-0"
                 >
-                  <span className="w-8 shrink-0 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <span className="w-8 shrink-0 text-2xs uppercase tracking-wider text-muted-foreground">
                     {marketLabel(trade.instrument_type)}
                   </span>
                   <span className="min-w-0 flex-1 truncate font-medium tracking-wide text-foreground">
                     {trade.symbol}
                   </span>
                   {/* Direction and call/put read as one word: Long Call, Short Put… */}
-                  <span className="shrink-0 uppercase text-[10px] tracking-wider text-muted-foreground">
+                  <span className="shrink-0 uppercase text-2xs tracking-wider text-muted-foreground">
                     {
                       resolveTradeDirection({
                         direction: trade.direction,

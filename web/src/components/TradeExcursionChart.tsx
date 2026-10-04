@@ -44,7 +44,7 @@ function refPill(text: string, color: string) {
           y={y}
           dy={3.5}
           textAnchor="middle"
-          fontSize={10}
+          fontSize={11}
           fontWeight={600}
           fill={color}
           style={{ fontVariantNumeric: "tabular-nums" }}
@@ -148,7 +148,7 @@ export function TradeExcursionChart({ trade }: TradeExcursionChartProps) {
         <XAxis
           dataKey="time"
           tickFormatter={(v: number) => formatReplayBarTime(v, interval, locale)}
-          tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+          tick={{ fontSize: 11, fill: chartTheme.axisColor }}
           axisLine={false}
           tickLine={false}
           minTickGap={56}
@@ -157,7 +157,7 @@ export function TradeExcursionChart({ trade }: TradeExcursionChartProps) {
           domain={[min, max]}
           ticks={ticks}
           tickFormatter={(v: number) => fmtMoneyCompact(v, currency, locale)}
-          tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+          tick={{ fontSize: 11, fill: chartTheme.axisColor }}
           axisLine={false}
           tickLine={false}
           width={52}

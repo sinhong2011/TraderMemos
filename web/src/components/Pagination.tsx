@@ -115,7 +115,7 @@ export function Pagination({
       <div className="contents sm:flex sm:flex-wrap sm:items-center sm:gap-2">
         {onPageSizeChange ? (
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+            <span className="text-2xs font-medium uppercase tracking-widest text-muted-foreground">
               Rows
             </span>
             <NativeSelect

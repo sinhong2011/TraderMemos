@@ -88,7 +88,7 @@ export function HeatCell({
           <text x={x + 6} y={y + 16} fontSize={11} fontWeight={600} fill="var(--foreground)">
             {label}
           </text>
-          <text x={x + 6} y={y + 30} fontSize={10} fill="var(--muted-foreground)">
+          <text x={x + 6} y={y + 30} fontSize={11} fill="var(--muted-foreground)">
             {money.formatCompact(net)}
           </text>
         </>

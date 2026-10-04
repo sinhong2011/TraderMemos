@@ -146,7 +146,7 @@ export function SettingsBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium tracking-wide",
+        "inline-flex items-center rounded-md px-2 py-0.5 text-2xs font-medium tracking-wide",
         tone === "required"
           ? "bg-destructive/15 text-destructive"
           : "bg-sidebar text-muted-foreground",
@@ -604,7 +604,7 @@ export function AccountRow({
 
       <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
         <div className="min-w-0">
-          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+          <p className="m-0 text-2xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
             Deposited
           </p>
           <p className="m-0 mt-1 text-[13px] font-semibold tabular-nums tracking-tight text-foreground">
@@ -612,7 +612,7 @@ export function AccountRow({
           </p>
         </div>
         <div className="min-w-0 sm:col-start-2">
-          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+          <p className="m-0 text-2xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
             Equity
           </p>
           <p className="m-0 mt-1 text-[18px] font-semibold tabular-nums tracking-tight text-foreground">
@@ -620,7 +620,7 @@ export function AccountRow({
           </p>
         </div>
         <div className="min-w-0 col-span-2 sm:col-span-1 sm:col-start-3">
-          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+          <p className="m-0 text-2xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
             Realized P&L
           </p>
           <p
@@ -738,9 +738,7 @@ export function DeleteButton({
     return (
       <span className="flex max-w-[220px] flex-col items-end gap-1.5">
         {detail ? (
-          <span className="text-right text-[10px] leading-snug text-muted-foreground">
-            {detail}
-          </span>
+          <span className="text-right text-2xs leading-snug text-muted-foreground">{detail}</span>
         ) : null}
         <span className="flex items-center gap-1.5">
           <Button

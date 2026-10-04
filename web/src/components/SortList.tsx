@@ -67,7 +67,7 @@ export function SortList({
         <ArrowDownUp size={14} strokeWidth={1.75} />
         {iconOnly ? null : "Sort"}
         {sorting.length > 0 ? (
-          <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+          <span className="rounded-md bg-accent px-1.5 py-0.5 text-2xs font-medium tabular-nums text-muted-foreground">
             {sorting.length}
           </span>
         ) : null}

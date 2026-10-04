@@ -10,7 +10,7 @@ import { intlLocale } from "@/lib/locale";
 import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 
 const labelClass =
-  "mb-1 block text-[10px] font-medium uppercase tracking-widest text-muted-foreground";
+  "mb-1 block text-2xs font-medium uppercase tracking-widest text-muted-foreground";
 
 function CurrencySelect({
   id,

@@ -192,7 +192,7 @@ export function EconomicEventsView({
           role="row"
           className={cn(
             rowGrid,
-            "pt-3 pb-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground",
+            "pt-3 pb-1 text-2xs font-medium uppercase tracking-wide text-muted-foreground",
           )}
         >
           <span role="columnheader">Time</span>

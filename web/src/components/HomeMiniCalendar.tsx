@@ -53,7 +53,7 @@ export function HomeMiniCalendar({
     <section className="flex h-full flex-col rounded-lg bg-card">
       <header className="flex items-start justify-between gap-3 px-4 py-3">
         <div>
-          <h2 className="text-[10px] font-semibold tracking-wide text-chart-3">Month</h2>
+          <h2 className="text-2xs font-semibold tracking-wide text-chart-3">Month</h2>
           <p className="mt-1 text-[13px] font-medium text-foreground">
             {monthLabel(year, month, locale)}
           </p>
@@ -82,7 +82,7 @@ export function HomeMiniCalendar({
               {DOW.map((d, i) => (
                 <div
                   key={`${d}-${i}`}
-                  className="py-0.5 text-center text-[9px] font-medium uppercase tracking-wider text-muted-foreground"
+                  className="py-0.5 text-center text-2xs font-medium uppercase tracking-wider text-muted-foreground"
                 >
                   {d}
                 </div>
@@ -107,7 +107,7 @@ export function HomeMiniCalendar({
                   <>
                     <span
                       className={cn(
-                        "text-[10px] tabular-nums",
+                        "text-2xs tabular-nums",
                         isToday
                           ? "inline-flex size-4 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground"
                           : "text-muted-foreground",
@@ -117,7 +117,7 @@ export function HomeMiniCalendar({
                     </span>
                     {displayPnl != null ? (
                       <span
-                        className="text-[9px] font-medium leading-tight tabular-nums"
+                        className="text-2xs font-medium leading-tight tabular-nums"
                         style={{ color: heatInk(displayPnl) }}
                       >
                         {fmtSignedMoneyCompact(displayPnl, currency, locale)}

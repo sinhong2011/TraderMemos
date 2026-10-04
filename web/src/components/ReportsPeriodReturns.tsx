@@ -57,7 +57,7 @@ export function ReportsPeriodReturns({
   return (
     <section className="min-w-0">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <p className="text-[10px] font-semibold tracking-wide text-chart-3">Period returns</p>
+        <p className="text-2xs font-semibold tracking-wide text-chart-3">Period returns</p>
         {pctEnabled ? (
           <SegmentedControl
             ariaLabel="Period return unit"
@@ -83,7 +83,7 @@ export function ReportsPeriodReturns({
             >
               {format(c.value)}
             </p>
-            <p className="text-[10px] text-muted-foreground">{c.hint}</p>
+            <p className="text-2xs text-muted-foreground">{c.hint}</p>
           </div>
         ))}
       </div>

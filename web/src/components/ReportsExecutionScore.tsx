@@ -155,7 +155,7 @@ export function ReportsExecutionScore({
                 <PolarGrid stroke={chartTheme.gridColor} />
                 <PolarAngleAxis
                   dataKey="label"
-                  tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                  tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                 />
                 <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
                 <Radar
@@ -215,14 +215,14 @@ export function ReportsExecutionScore({
                 <XAxis
                   dataKey="date"
                   tickFormatter={(v: string) => fmtDayShort(v, locale)}
-                  tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                  tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                   axisLine={false}
                   tickLine={false}
                   minTickGap={40}
                 />
                 <YAxis
                   domain={[0, 100]}
-                  tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                  tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                   axisLine={false}
                   tickLine={false}
                   width={32}

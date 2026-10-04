@@ -30,7 +30,7 @@ export const chartTooltipStyle: {
   },
   labelStyle: {
     color: "var(--muted-foreground)",
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 500,
     marginBottom: 2,
   },

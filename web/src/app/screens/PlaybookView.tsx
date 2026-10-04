@@ -386,7 +386,7 @@ function TradedPlayRow({ row, currency, fxRate, ...actions }: PlayRowProps) {
               {setup.name}
             </button>
             {setup.symbol ? (
-              <Pill tone="accent" className="px-1.5 py-0 text-[10px]">
+              <Pill tone="accent" className="px-1.5 py-0 text-2xs">
                 {setup.symbol}
                 {setup.direction ? ` · ${setup.direction.toUpperCase()}` : ""}
               </Pill>
@@ -491,7 +491,7 @@ function ColumnSortButton({
       className={cn(
         "group/col flex cursor-pointer items-center gap-1 rounded-sm outline-none",
         align === "start" ? "justify-self-start" : "justify-end",
-        "text-[10px] font-medium tracking-[0.08em] uppercase",
+        "text-2xs font-medium tracking-[0.08em] uppercase",
         "transition-colors duration-150 hover:text-foreground motion-reduce:transition-none",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         active ? "text-foreground" : "text-muted-foreground",
@@ -529,7 +529,7 @@ function SummaryStat({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-1">
-      <span className="text-[10px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
+      <span className="text-2xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
         {label}
       </span>
       <span
