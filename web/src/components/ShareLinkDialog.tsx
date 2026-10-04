@@ -115,7 +115,7 @@ export function ShareLinkDialog({ open, onOpenChange, defaults }: ShareLinkDialo
                 <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
                   {settingsLabel(locale, "sharingLinkUrl")}
                 </span>
-                <div className="rounded-md border border-border bg-muted px-3.5 py-3">
+                <div className="rounded-md bg-muted px-3.5 py-3">
                   <code className="block break-all font-sans text-[12px] leading-relaxed tabular-nums text-foreground">
                     {shareUrl(created.token)}
                   </code>

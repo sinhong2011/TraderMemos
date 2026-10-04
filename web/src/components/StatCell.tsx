@@ -2,11 +2,11 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
- * One label/value stat, as a bordered tile with a confident number — the same
+ * One label/value stat, as an inset tile with a confident number — the same
  * treatment the home page gives its metrics, so a stat reads the same wherever
- * it appears. The `border-border` hairline (rather than a second `bg-card`
- * fill) is what separates it from the card underneath, which already carries
- * the elevation.
+ * it appears. A `bg-canvas` fill (not a border — surfaces stay borderless)
+ * separates it from the card underneath: a grey well in light mode, a recessed
+ * one in dark.
  */
 export function StatCell({
   label,
@@ -25,7 +25,7 @@ export function StatCell({
   return (
     <div
       className={cn(
-        "flex min-w-0 flex-col justify-between gap-2 rounded-lg border border-border px-3 py-2.5",
+        "flex min-w-0 flex-col justify-between gap-2 rounded-lg bg-canvas px-3 py-2.5",
         className,
       )}
     >

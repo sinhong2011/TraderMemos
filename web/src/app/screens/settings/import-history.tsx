@@ -378,7 +378,7 @@ export function ImportHistorySection({
     );
   } else {
     body = (
-      <div className="overflow-hidden rounded-lg border border-border">
+      <div className="overflow-hidden rounded-lg bg-card">
         <DataTable
           columns={columns}
           data={pageRows}
