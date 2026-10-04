@@ -114,12 +114,23 @@ func (s *Service) WeeklyReview(ctx context.Context, userID string, now time.Time
 	return true, nil
 }
 
-// marketLocation resolves the account's market timezone from the synced
-// preferences blob (`marketTimezone`, written by the web and mobile apps),
-// falling back to the clients' default when it was never synced.
+// marketLocation resolves the account's market timezone; see MarketLocation.
 func (s *Service) marketLocation(ctx context.Context, userID string) *time.Location {
+	return MarketLocation(ctx, s.q, userID)
+}
+
+// PreferencesReader is the one query MarketLocation needs.
+type PreferencesReader interface {
+	GetUserPreferences(ctx context.Context, userID string) (store.UserPreference, error)
+}
+
+// MarketLocation resolves a user's market timezone from the synced
+// preferences blob (`marketTimezone`, written by the web and mobile apps),
+// falling back to the clients' default when it was never synced. It is the
+// server's trading-day clock: the weekly review and routine days follow it.
+func MarketLocation(ctx context.Context, q PreferencesReader, userID string) *time.Location {
 	name := DefaultMarketTimezone
-	if row, err := s.q.GetUserPreferences(ctx, userID); err == nil {
+	if row, err := q.GetUserPreferences(ctx, userID); err == nil {
 		var prefs struct {
 			MarketTimezone string `json:"marketTimezone"`
 		}

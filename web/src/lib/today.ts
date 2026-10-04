@@ -9,3 +9,14 @@ export function marketTodayKey(now: Date = new Date()): string {
   const tz = resolveMarketTimezone(useDisplayPrefs.getState().marketTimezone);
   return dayKeyInTz(now.toISOString(), tz);
 }
+
+/**
+ * Today's trading day for a component. Subscribes to the market-timezone pref
+ * so React Compiler re-keys the day when it changes — calling
+ * `marketTodayKey()` in render would be cached on its (empty) arguments.
+ * Routine ticks are keyed by this day on every client and on the server.
+ */
+export function useMarketToday(): string {
+  const pref = useDisplayPrefs((s) => s.marketTimezone);
+  return dayKeyInTz(new Date().toISOString(), resolveMarketTimezone(pref));
+}

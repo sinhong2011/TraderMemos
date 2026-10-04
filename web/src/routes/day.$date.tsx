@@ -9,7 +9,6 @@ import { useToastManager } from "@/components/Toast";
 import { TradeDetailSheet } from "@/components/TradeDetailSheet";
 import type { MissedTrade } from "@/lib/api/missedTrades";
 import { accountBaseCurrency, wallClockToIso } from "@/lib/displayPrefs";
-import { intlLocale } from "@/lib/locale";
 import { normalizeFilterDate, useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useBehavior, useCompliance, useSummary } from "@/lib/hooks/useAnalytics";
@@ -23,8 +22,7 @@ import { useNotes } from "@/lib/hooks/useNotes";
 import { useCheckRoutine, useRoutineDay, useRoutineItems } from "@/lib/hooks/useRoutines";
 import { useSetups } from "@/lib/hooks/useSetups";
 import { useTrades } from "@/lib/hooks/useTrades";
-import { localDay } from "@/lib/routines";
-import { marketTodayKey } from "@/lib/today";
+import { useMarketToday } from "@/lib/today";
 import { useUI } from "@/lib/ui";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -42,15 +40,6 @@ function shiftDay(date: string, days: number): string {
   const d = new Date(`${date}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
-}
-
-function routineDayLabel(day: string): string {
-  return new Date(`${day}T12:00:00Z`).toLocaleDateString(intlLocale(), {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
 }
 
 const sectionLink = "text-xs font-medium text-muted-foreground no-underline hover:text-foreground";
@@ -73,7 +62,7 @@ function DayReviewPage() {
     editing: MissedTrade | null;
   }>({ open: false, editing: null });
 
-  const today = marketTodayKey();
+  const today = useMarketToday();
   const isToday = date === today;
 
   const dayFilters = useMemo(
@@ -99,13 +88,10 @@ function DayReviewPage() {
   // the global filters apply, the date range does not.
   const openQ = useTrades({ ...filters, from: undefined, to: undefined, status: "open" });
 
-  // Routines run on the person's own calendar (device clock), trades on the
-  // market's. For a trader east of New York the two disagree for part of every
-  // day, so today's card follows the routines page rather than the market day.
-  const routineToday = localDay();
-  const routineDay = isToday ? routineToday : date;
-  const routineItemsQ = useRoutineItems(routineDay);
-  const routineDayQ = useRoutineDay(routineDay);
+  // Routine ticks are keyed by the market trading day, like everything else on
+  // this page, so a post-session tick after local midnight still lands here.
+  const routineItemsQ = useRoutineItems(date);
+  const routineDayQ = useRoutineDay(date);
   const checkRoutine = useCheckRoutine();
 
   const missedFilters = {
@@ -128,18 +114,15 @@ function DayReviewPage() {
   const routineItems = routineItemsQ.data?.items ?? [];
   const routine = (
     <RoutineDayCard
-      title={routineDay === date ? "Routine" : `Routine · ${routineDayLabel(routineDay)}`}
-      day={routineDay}
-      today={routineToday}
+      title="Routine"
+      day={date}
+      today={today}
       data={routineDayQ.data}
       loading={routineDayQ.isLoading || routineItemsQ.isLoading}
       error={routineDayQ.isError}
       hasItems={routineItems.length > 0 || (routineDayQ.data?.total ?? 0) > 0}
       onCheck={(id, done) =>
-        checkRoutine.mutate(
-          { day: routineDay, id, done },
-          { onError: failed("Could not save the tick") },
-        )
+        checkRoutine.mutate({ day: date, id, done }, { onError: failed("Could not save the tick") })
       }
       trailing={
         <Link to="/routines" className={sectionLink}>

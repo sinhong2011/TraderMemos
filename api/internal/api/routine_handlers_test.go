@@ -3,8 +3,10 @@ package api_test
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -236,5 +238,30 @@ func TestRoutineSeedIsWholeUnderConcurrentFirstReads(t *testing.T) {
 	for d := range days {
 		require.Equal(t, 6, d.Total)
 		require.Equal(t, 2, d.Done)
+	}
+}
+
+// A request that names no day lands on today's trading day on the user's
+// synced market clock, not the server's UTC date: Kiritimati (UTC+14) and
+// Pago Pago (UTC-11) are 25 hours apart, so their dates never agree.
+func TestRoutineDefaultDayFollowsMarketTimezone(t *testing.T) {
+	s := testServer(t)
+	for _, tz := range []string{"Pacific/Kiritimati", "Pacific/Pago_Pago"} {
+		t.Run(tz, func(t *testing.T) {
+			tok := registerAndLogin(t, s, "routine-tz-"+strings.ToLower(strings.ReplaceAll(tz, "/", "-"))+"@example.com")
+			rec := do(s, http.MethodPatch, "/api/v1/me/preferences", `{"marketTimezone":"`+tz+`"}`, tok)
+			require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+
+			loc, err := time.LoadLocation(tz)
+			require.NoError(t, err)
+			before := time.Now().In(loc).Format("2006-01-02")
+			rec = do(s, http.MethodGet, "/api/v1/routines/history", "", tok)
+			after := time.Now().In(loc).Format("2006-01-02")
+			require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+			hist := decode[routineHistoryJSON](t, rec.Body.Bytes())
+			require.NotEmpty(t, hist.Days)
+			// `to` defaults to today; tolerate the request straddling midnight.
+			require.Contains(t, []string{before, after}, hist.Days[len(hist.Days)-1].Day)
+		})
 	}
 }
