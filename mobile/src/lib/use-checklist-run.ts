@@ -5,7 +5,7 @@ import { Alert } from 'react-native';
 import { queryKeys, useRoutineDay, useRoutineItems } from '@/api/hooks';
 import type { RoutineStage } from '@/api/types';
 import { t } from '@lingui/core/macro';
-import { todayNoteDay } from '@/lib/checklist';
+import { useRoutineToday } from '@/lib/checklist';
 import { useChecklistReminderSync } from '@/lib/checklist-reminders';
 import { errorMessage } from '@/lib/errors';
 import { applyPendingChecks, usePendingOps } from '@/lib/outbox';
@@ -30,7 +30,9 @@ export type RoutineRow = { id: string; text: string; stage: RoutineStage; done: 
  */
 export function useChecklistRun({ sync = false }: { sync?: boolean } = {}) {
   const queryClient = useQueryClient();
-  const today = todayNoteDay();
+  // The run is the market day's; the Reminders mirror below stays on the
+  // wall clock (see there).
+  const { day: today, localDay } = useRoutineToday();
   const items = useRoutineItems(today);
   const day = useRoutineDay(today);
   const pendingOps = usePendingOps();
@@ -75,9 +77,18 @@ export function useChecklistRun({ sync = false }: { sync?: boolean } = {}) {
   // its off-days would be deleted and recreated every week, and an alarm on a
   // day the app never opened is the whole point. Only today's items carry a
   // tick to mirror.
+  //
+  // The mirror's own day is the wall-clock one: Reminders keeps its
+  // occurrences, alarms and completion dates on the device clock, so "struck
+  // off today over there" is a local-day window. What it carries — which items
+  // are on today's list and ticked — is still the market-day run, and anything
+  // pulled back ticks that run. (A post-session tick at 04:30 HKT lands in the
+  // local window of the wall-clock day *and* on the New York day it belongs
+  // to; keyed on the market day, the window would be the previous calendar
+  // date and miss it.)
   const doneToday = new Map(rows.map((row) => [row.id, row.done]));
   useChecklistReminderSync({
-    day: today,
+    day: localDay,
     tasks: sync
       ? active.map((item) => ({
           text: item.title,
@@ -96,6 +107,8 @@ export function useChecklistRun({ sync = false }: { sync?: boolean } = {}) {
   });
 
   return {
+    /** The routine day this run is (market clock, `YYYY-MM-DD`). */
+    today,
     /** The day's scheduled items, in stage order. */
     rows,
     done,

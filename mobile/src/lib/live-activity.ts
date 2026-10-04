@@ -21,7 +21,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { useSession } from '@/api/session';
-import { dayKeyInTz } from '@/lib/events';
+import { nextDayStartMs } from '@/lib/events';
 import { useProUnlocked } from '@/lib/pro';
 import { useTodayState, type TodayState } from '@/lib/today-state';
 import { mmkvStorage } from '@/storage/zustand-mmkv';
@@ -60,26 +60,12 @@ const useSessionStore = create<SessionStore>()(
   }),
 );
 
-/** First instant after now whose market-tz day key moves past `todayKey`. */
-function nextMarketMidnightMs(todayKey: string, marketTz: string): number {
-  let lo = Date.now();
-  let hi = lo + 48 * 3_600_000;
-  // Binary search to the minute — DST-proof because dayKeyInTz is the same
-  // bucketing every other surface uses.
-  while (hi - lo > 60_000) {
-    const mid = (lo + hi) / 2;
-    if (dayKeyInTz(new Date(mid).toISOString(), marketTz) === todayKey) lo = mid;
-    else hi = mid;
-  }
-  return Math.round(hi);
-}
-
 function sessionPayload(state: TodayState): string {
   return JSON.stringify({
     schema: 1,
     dayKey: state.todayKey,
     marketTimezone: state.marketTz,
-    staleAt: nextMarketMidnightMs(state.todayKey, state.marketTz),
+    staleAt: nextDayStartMs(state.todayKey, state.marketTz),
     state: {
       pnl: state.todayNetPnl,
       tradesTaken: state.tradesToday ?? 0,

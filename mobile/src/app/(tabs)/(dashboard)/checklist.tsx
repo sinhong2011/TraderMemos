@@ -13,7 +13,7 @@ import { SettingsForm } from '@/components/settings-form';
 import { Menu } from '@/components/sheet-menu';
 import { Swipe } from '@/components/swipe';
 import { DateField } from '@/components/date-field';
-import { preMarketRoutine, todayNoteDay } from '@/lib/checklist';
+import { preMarketRoutine, useRoutineToday } from '@/lib/checklist';
 import {
   setRemindersSync,
   setRemindersTime,
@@ -46,7 +46,9 @@ export default function ChecklistScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const today = todayNoteDay();
+  // The routine's day (market clock): adds start and removals end on the day
+  // the run is showing, not on a wall-clock date ahead of it.
+  const { day: today } = useRoutineToday();
   const routine = useRoutineItems(today);
   const items = routine.data?.items ?? [];
   const remindersOn = useRemindersEnabled();

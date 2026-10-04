@@ -10,7 +10,6 @@ import { HeaderIconButton } from '@/components/header-icon-button';
 import { Icon } from '@/components/icon';
 import { t } from '@lingui/core/macro';
 import { addDays, historyStart, stageLabel, STAGES } from '@/lib/routines';
-import { todayNoteDay } from '@/lib/checklist';
 import { useChecklistRun } from '@/lib/use-checklist-run';
 
 /**
@@ -27,8 +26,7 @@ export default function DailyChecklistScreen() {
     '--color-muted-foreground',
   ]) as [string, string];
   const router = useRouter();
-  const { rows, done, hasTemplate, offDay, loading, toggle } = useChecklistRun();
-  const today = todayNoteDay();
+  const { today, rows, done, hasTemplate, offDay, loading, toggle } = useChecklistRun();
   const history = useRoutineHistory(historyStart(today), today);
 
   return (

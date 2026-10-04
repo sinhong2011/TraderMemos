@@ -9,7 +9,7 @@ import type { RoutineBody, RoutineItem, RoutineStage } from '@/api/types';
 import { FormField, FormFootnote, FormInput, FormSheet } from '@/components/form-sheet';
 import { Segmented } from '@/components/segmented';
 import { t } from '@lingui/core/macro';
-import { todayNoteDay } from '@/lib/checklist';
+import { useRoutineToday } from '@/lib/checklist';
 import { errorMessage } from '@/lib/errors';
 import { MON_TO_FRI, PICKER_DAYS, STAGES, stageLabel, weekdayShort, weekdaysLabel } from '@/lib/routines';
 
@@ -23,7 +23,8 @@ export default function RoutineItemScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const today = todayNoteDay();
+  // Market clock, like the run: "from today on" means the run's today.
+  const { day: today } = useRoutineToday();
   const { id, stage: stageParam } = useLocalSearchParams<{ id?: string; stage?: RoutineStage }>();
   const items = useRoutineItems(today);
   const editing = id ? items.data?.items.find((item) => item.id === id) : undefined;

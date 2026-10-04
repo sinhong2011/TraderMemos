@@ -30,8 +30,8 @@ struct RoutineProvider: TimelineProvider {
       let routine = await RoutineStore.fetchToday()
       let now = Date()
       // Re-ask the server every half hour (ticks made elsewhere), and always
-      // at local midnight, when the routine becomes a new day's.
-      let midnight = Calendar.current.startOfDay(for: now).addingTimeInterval(86_400)
+      // at market midnight, when the routine becomes a new day's.
+      let midnight = TMShared.nextDayStart(after: now)
       let next = min(now.addingTimeInterval(30 * 60), midnight)
       completion(Timeline(entries: [RoutineEntry(date: now, routine: routine)], policy: .after(next)))
     }

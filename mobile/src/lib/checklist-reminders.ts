@@ -62,7 +62,7 @@ storage.remove('checklist:reminders:map');
 type ReminderSettings = {
   /** Off until asked for: writing into someone's Reminders is not a default. */
   enabled: boolean;
-  /** `HH:MM` on the device clock — the clock the run day is keyed by. */
+  /** `HH:MM` on the device clock — the clock Reminders keeps occurrences on. */
   time: string;
 };
 
