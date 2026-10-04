@@ -130,6 +130,11 @@ msgstr "{0} losers without recorded MAE/MFE could not be checked — recompute e
 msgid "{0} losses in a row"
 msgstr "{0} losses in a row"
 
+#. placeholder {0}: all.length
+#: src/components/model-picker.tsx:89
+msgid "{0} models on this endpoint"
+msgstr "{0} models on this endpoint"
+
 #. placeholder {0}: formatPercent(s.target_pct ?? 0, 0)
 #. placeholder {0}: wrapped.greenDays
 #. placeholder {1}: formatCurrency(fx(s.profit_target), currency)
@@ -1062,7 +1067,7 @@ msgstr "Any"
 msgid "Any duration"
 msgstr "Any duration"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:282
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 
@@ -1070,8 +1075,8 @@ msgstr "Any OpenAI-compatible endpoint works. Test uses the values above, saved 
 msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 msgstr "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:215
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:338
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:224
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:299
 msgid "API key"
 msgstr "API key"
 
@@ -1315,8 +1320,8 @@ msgstr "Balance, {0}, from {1}"
 msgid "Base currency"
 msgstr "Base currency"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:192
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:286
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:203
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:285
 msgid "Base URL"
 msgstr "Base URL"
 
@@ -1722,6 +1727,10 @@ msgstr "Clear address"
 msgid "Clear filters"
 msgstr "Clear filters"
 
+#: src/components/model-picker.tsx:132
+msgid "Clear search"
+msgstr "Clear search"
+
 #: src/app/(tabs)/(settings)/web-address.tsx:40
 msgid "Clear this address?"
 msgstr "Clear this address?"
@@ -1896,7 +1905,7 @@ msgstr "Connect once — new fills arrive on their own."
 msgid "Connect to your TraderMemos server."
 msgstr "Connect to your TraderMemos server."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:280
 msgid "Connection"
 msgstr "Connection"
 
@@ -1910,7 +1919,7 @@ msgstr "Connection"
 #~ msgstr "Connection OK"
 
 #. placeholder {0}: formatLatency(elapsedMs)
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:160
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:158
 msgid "Connection OK · {0}"
 msgstr "Connection OK · {0}"
 
@@ -2066,8 +2075,8 @@ msgstr "Could not import config"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:181
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:187
-msgid "Could not load models"
-msgstr "Could not load models"
+#~ msgid "Could not load models"
+#~ msgstr "Could not load models"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:342
 #~ msgid "Could not load this day's trades."
@@ -2136,7 +2145,7 @@ msgstr "Could not roll back"
 #: src/app/(tabs)/(settings)/account-form.tsx:172
 #: src/app/(tabs)/(settings)/account-form.tsx:176
 #: src/app/(tabs)/(settings)/account-form.tsx:185
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:140
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:138
 #: src/app/(tabs)/(settings)/alerts.tsx:34
 #: src/app/(tabs)/(settings)/flex-sync.tsx:61
 #: src/app/(tabs)/(settings)/flex-sync.tsx:90
@@ -2208,6 +2217,10 @@ msgstr "Could not upload"
 msgid "Couldn't add the reminder"
 msgstr "Couldn't add the reminder"
 
+#: src/components/model-picker.tsx:153
+msgid "Couldn't load the models."
+msgstr "Couldn't load the models."
+
 #: src/app/(tabs)/(trades)/[id].tsx:377
 #~ msgid "Couldn't load this trade"
 #~ msgstr "Couldn't load this trade"
@@ -2215,6 +2228,10 @@ msgstr "Couldn't add the reminder"
 #: src/app/(tabs)/(trades)/[id].tsx:423
 msgid "Couldn't reach the server. The figures above are from your last sync."
 msgstr "Couldn't reach the server. The figures above are from your last sync."
+
+#: src/components/model-picker.tsx:152
+msgid "Couldn't refresh the list — showing the last one."
+msgstr "Couldn't refresh the list — showing the last one."
 
 #: src/app/(tabs)/(settings)/account-form.tsx:240
 #~ msgid "Create"
@@ -2466,7 +2483,7 @@ msgstr "Day streak"
 msgid "Days"
 msgstr "Days"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:299
+#: src/components/model-picker.tsx:100
 msgid "Default"
 msgstr "Default"
 
@@ -2680,9 +2697,8 @@ msgstr "Document why you closed — stop hit, thesis broken, or emotion — so y
 msgid "Dollars"
 msgstr "Dollars"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:196
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:219
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:235
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:207
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:228
 #: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
 #: src/components/time-picker.tsx:100
@@ -2862,7 +2878,7 @@ msgstr "Emotion"
 msgid "Enable alerts"
 msgstr "Enable alerts"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:271
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:270
 msgid "Enabled"
 msgstr "Enabled"
 
@@ -2973,7 +2989,7 @@ msgstr "Enter your username"
 msgid "Enter your username and password"
 msgstr "Enter your username and password"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:248
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:247
 msgid "Entered — not saved yet"
 msgstr "Entered — not saved yet"
 
@@ -3292,8 +3308,8 @@ msgid "Fees took a large bite of gross P&L"
 msgstr "Fees took a large bite of gross P&L"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:327
-msgid "Fetch models"
-msgstr "Fetch models"
+#~ msgid "Fetch models"
+#~ msgstr "Fetch models"
 
 #: src/app/tool-fx.tsx:107
 msgid "Fetching rate…"
@@ -3629,6 +3645,10 @@ msgstr "Held only {0}. That can be good risk control if the stop was planned; ba
 msgid "Hesitated"
 msgstr "Hesitated"
 
+#: src/components/model-picker.tsx:223
+msgid "Hidden: text-only, speech and embedding models — guessed from their ids."
+msgstr "Hidden: text-only, speech and embedding models — guessed from their ids."
+
 #: src/app/(tabs)/(dashboard)/_layout.tsx:27
 msgid "Hide amounts"
 msgstr "Hide amounts"
@@ -3857,7 +3877,7 @@ msgstr "Interval"
 msgid "Intraday P&L"
 msgstr "Intraday P&L"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:201
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:212
 msgid "Invalid URL"
 msgstr "Invalid URL"
 
@@ -3984,11 +4004,11 @@ msgstr "Leave blank to clear the goal."
 msgid "Leave blank to drop this rule."
 msgstr "Leave blank to drop this rule."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:217
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:226
 msgid "Leave blank to keep the key already stored on the server."
 msgstr "Leave blank to keep the key already stored on the server."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:383
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:344
 msgid "Leave blank to use the built-in prompt"
 msgstr "Leave blank to use the built-in prompt"
 
@@ -4062,7 +4082,7 @@ msgstr "Loading compliance"
 msgid "Loading drawdown"
 msgstr "Loading drawdown"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:327
+#: src/components/model-picker.tsx:87
 msgid "Loading models…"
 msgstr "Loading models…"
 
@@ -4476,9 +4496,9 @@ msgstr "Mistake type"
 msgid "Mistake: {tag}"
 msgstr "Mistake: {tag}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:293
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:295
+#: src/components/model-picker.tsx:94
+#: src/components/model-picker.tsx:96
+#: src/components/model-picker.tsx:108
 msgid "Model"
 msgstr "Model"
 
@@ -4855,8 +4875,12 @@ msgid "No mistakes tagged."
 msgstr "No mistakes tagged."
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:185
-msgid "No models"
-msgstr "No models"
+#~ msgid "No models"
+#~ msgstr "No models"
+
+#: src/components/model-picker.tsx:206
+msgid "No models match."
+msgstr "No models match."
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:307
 msgid "No notes yet"
@@ -5042,7 +5066,7 @@ msgstr "Not found"
 msgid "Not rated"
 msgstr "Not rated"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:251
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
 #: src/app/(tabs)/(settings)/integrations.tsx:27
 #: src/app/(tabs)/(settings)/integrations.tsx:56
 #: src/app/(tabs)/(settings)/prop-settings.tsx:112
@@ -5841,8 +5865,8 @@ msgstr "Profit target"
 #~ msgid "Profit target — {0}"
 #~ msgstr "Profit target — {0}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:378
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:388
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:339
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:349
 msgid "Prompt"
 msgstr "Prompt"
 
@@ -6501,7 +6525,7 @@ msgid "Sat"
 msgstr "Sat"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:262
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6544,7 +6568,7 @@ msgstr "Save session"
 msgid "Save trade"
 msgstr "Save trade"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:249
 msgid "Saved"
 msgstr "Saved"
 
@@ -6553,7 +6577,7 @@ msgstr "Saved"
 #~ msgstr "Saved — leave blank to keep"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:232
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:262
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
 #: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
@@ -6663,10 +6687,18 @@ msgstr "Search events"
 #~ msgid "Search finds any setting directly, without opening its page."
 #~ msgstr "Search finds any setting directly, without opening its page."
 
+#: src/components/model-picker.tsx:120
+msgid "Search models"
+msgstr "Search models"
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:219
 #: src/app/(tabs)/(dashboard)/notes.tsx:324
 msgid "Search notes"
 msgstr "Search notes"
+
+#: src/components/model-picker.tsx:113
+msgid "Search or type a model id"
+msgstr "Search or type a model id"
 
 #: src/app/(tabs)/(settings)/index.tsx:350
 #: src/app/(tabs)/(settings)/index.tsx:524
@@ -6932,6 +6964,10 @@ msgstr "SHORT"
 msgid "Short {0}"
 msgstr "Short {0}"
 
+#: src/components/model-picker.tsx:219
+msgid "Show all models ({hiddenCount} hidden)"
+msgstr "Show all models ({hiddenCount} hidden)"
+
 #: src/app/(tabs)/(dashboard)/_layout.tsx:27
 #: src/app/share-reports-link.tsx:115
 #: src/app/share-reports-link.tsx:120
@@ -6941,6 +6977,10 @@ msgstr "Short {0}"
 #: src/app/share-wrapped.tsx:169
 msgid "Show amounts"
 msgstr "Show amounts"
+
+#: src/components/model-picker.tsx:218
+msgid "Show only models that can read images"
+msgstr "Show only models that can read images"
 
 #: src/components/password-input.tsx:40
 msgid "Show password"
@@ -7146,7 +7186,7 @@ msgstr "Stop premium must be below entry premium"
 msgid "Stop when today's realized loss hits this amount."
 msgstr "Stop when today's realized loss hits this amount."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:218
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:227
 msgid "Stored on your server, never on this phone."
 msgstr "Stored on your server, never on this phone."
 
@@ -7436,11 +7476,11 @@ msgstr "target reached"
 msgid "Tempo"
 msgstr "Tempo"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:368
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:329
 msgid "Test connection"
 msgstr "Test connection"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:368
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:329
 msgid "Testing…"
 msgstr "Testing…"
 
@@ -7471,7 +7511,7 @@ msgstr "The {MAX_TRADE_ROWS} most recent of {0} trades."
 msgid "The AI review failed — try again."
 msgstr "The AI review failed — try again."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:201
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:212
 msgid "The base URL must start with http:// or https://."
 msgstr "The base URL must start with http:// or https://."
 
@@ -7489,13 +7529,13 @@ msgstr "The end of the window has to fall after its start."
 #~ msgid "The endpoint answered successfully."
 #~ msgstr "The endpoint answered successfully."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:161
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:159
 msgid "The endpoint did not answer."
 msgstr "The endpoint did not answer."
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:185
-msgid "The endpoint listed no models."
-msgstr "The endpoint listed no models."
+#~ msgid "The endpoint listed no models."
+#~ msgstr "The endpoint listed no models."
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:105
 msgid "The evaluation card disappears from Home."
@@ -7531,8 +7571,8 @@ msgstr "The market timezone defines the day — calendar cells, date filters, an
 #~ msgstr "The market timezone defines the trading day — calendar days and hourly stats follow it. The display timezone only formats clock times."
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:233
-msgid "The model id as the endpoint spells it, e.g. gpt-4o-mini."
-msgstr "The model id as the endpoint spells it, e.g. gpt-4o-mini."
+#~ msgid "The model id as the endpoint spells it, e.g. gpt-4o-mini."
+#~ msgstr "The model id as the endpoint spells it, e.g. gpt-4o-mini."
 
 #: src/app/(tabs)/(settings)/change-password.tsx:86
 #: src/app/(tabs)/(settings)/reset-password.tsx:71
@@ -7563,7 +7603,7 @@ msgstr "The recap appears once a year has closed trades."
 msgid "The replay starts a few bars in for context, then reveals one bar at a time. Orders fill at the bar's close."
 msgstr "The replay starts a few bars in for context, then reveals one bar at a time. Orders fill at the bar's close."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:193
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:204
 msgid "The root of an OpenAI-compatible API, ending in /v1."
 msgstr "The root of an OpenAI-compatible API, ending in /v1."
 
@@ -7647,6 +7687,10 @@ msgstr "This cannot be undone."
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:751
 msgid "This development build predates the Reminders module — run make rebuild-ios."
 msgstr "This development build predates the Reminders module — run make rebuild-ios."
+
+#: src/components/model-picker.tsx:205
+msgid "This endpoint listed no models. Type an id above."
+msgstr "This endpoint listed no models. Type an id above."
 
 #: src/lib/trade-insights.ts:283
 msgid "This is more than a normal stop-out. Check for oversizing, moving the stop, or averaging down against your rules."
@@ -8034,8 +8078,8 @@ msgid "Type"
 msgstr "Type"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:333
-msgid "Type a model id…"
-msgstr "Type a model id…"
+#~ msgid "Type a model id…"
+#~ msgstr "Type a model id…"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:263
 msgid "Type broker name"
@@ -8104,6 +8148,10 @@ msgstr "Uploaded to this symbol's trade when it saves. Tap a thumbnail to remove
 #: src/app/(tabs)/(settings)/checklist.tsx:60
 #~ msgid "Use \"- [ ]\" for each rule — those lines appear as task items when you create a daily log on New Note."
 #~ msgstr "Use \"- [ ]\" for each rule — those lines appear as task items when you create a daily log on New Note."
+
+#: src/components/model-picker.tsx:187
+msgid "Use “{trimmed}”"
+msgstr "Use “{trimmed}”"
 
 #: src/app/(tabs)/(settings)/change-password.tsx:76
 #: src/app/(tabs)/(settings)/reset-password.tsx:67

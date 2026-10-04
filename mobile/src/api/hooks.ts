@@ -107,6 +107,7 @@ export const queryKeys = {
   missedTradeList: (filters: Filters) => ['missed-trades', 'list', filters] as const,
   missedSummary: (filters: Filters) => ['missed-trades', 'summary', filters] as const,
   llmSettings: (kind: LlmKind) => ['settings', kind] as const,
+  llmModels: (kind: LlmKind, baseUrl: string) => ['settings', kind, 'models', baseUrl] as const,
   accessTokens: () => ['access-tokens'] as const,
   accessTokenUses: (id: string) => ['access-tokens', id, 'uses'] as const,
   me: () => ['me'] as const,
@@ -379,8 +380,10 @@ export function useAccounts() {
   return useApiQuery<Account[]>(queryKeys.accounts(), '/accounts');
 }
 
-export function useLlmSettings(kind: LlmKind) {
-  return useApiQuery<LlmApiSettings>(queryKeys.llmSettings(kind), `/settings/${kind}`);
+export function useLlmSettings(kind: LlmKind, options?: { staleTime?: number }) {
+  return useApiQuery<LlmApiSettings>(queryKeys.llmSettings(kind), `/settings/${kind}`, undefined, {
+    staleTime: options?.staleTime,
+  });
 }
 
 /** The signed-in account. Cheap and rarely changes — the settings hub, the
