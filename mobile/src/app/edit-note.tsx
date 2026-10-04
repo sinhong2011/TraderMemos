@@ -81,11 +81,18 @@ function EditNoteForm({ note }: { note: Note }) {
     ]);
   }
 
+  // A weekly review is the server's note for one week: it edits like a note
+  // but keeps its type, so it gets a plain title instead of the type switch
+  // (whose Note / Daily log choices would turn it into something else).
+  const isWeeklyReview = values.type === 'weekly_review';
+
   return (
     <FormSheet
-      title={t`Edit note`}
+      title={isWeeklyReview ? t`Weekly review` : t`Edit note`}
       titleControl={
-        <NoteTypeSwitch value={values.type} onChange={(type) => onChange({ type })} />
+        isWeeklyReview ? undefined : (
+          <NoteTypeSwitch value={values.type} onChange={(type) => onChange({ type })} />
+        )
       }
       saving={save.isPending}
       // Emptying a note is a delete, not a save — the toolbar button says so.

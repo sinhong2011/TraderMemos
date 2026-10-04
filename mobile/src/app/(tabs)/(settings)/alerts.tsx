@@ -96,7 +96,7 @@ export default function AlertsScreen() {
       {s ? (
         <SettingsSection
           title={t`Rules`}
-          footer={t`Thresholds, timezone, and webhook channels are edited in web Settings → Rules.`}
+          footer={t`Weekly review arrives Saturday 09:00 in your market timezone and opens a review note for the week. Thresholds, timezone, and webhook channels are edited in web Settings → Rules.`}
         >
           <SettingsToggle
             label={t`Enable alerts`}
@@ -127,6 +127,11 @@ export default function AlertsScreen() {
             label={t`Unreviewed trades`}
             value={s.rule_unreviewed}
             onValueChange={(value) => patch({ rule_unreviewed: value })}
+          />
+          <SettingsToggle
+            label={t`Weekly review`}
+            value={s.rule_weekly_review}
+            onValueChange={(value) => patch({ rule_weekly_review: value })}
           />
         </SettingsSection>
       ) : null}

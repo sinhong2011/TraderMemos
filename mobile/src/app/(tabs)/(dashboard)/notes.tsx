@@ -13,9 +13,9 @@ import { Icon } from '@/components/icon';
 import { useNotes, useRoutineHistory } from '@/api/hooks';
 import { todayNoteDay } from '@/lib/checklist';
 import { addDays } from '@/lib/routines';
-import type { Note } from '@/api/types';
+import type { Note, NoteType } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
-import { Pill } from '@/components/pill';
+import { Pill, type PillTone } from '@/components/pill';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Swipe } from '@/components/swipe';
 import { TradeFilterMenu } from '@/components/trade-filter-menu';
@@ -27,7 +27,19 @@ import { noteMediaIds } from '@/lib/note-media';
 import { applyPendingNotes, pendingNoteIds, usePendingOps } from '@/lib/outbox';
 import { useQueuedNoteOps } from '@/lib/use-outbox';
 
-type TypeFilter = 'all' | 'note' | 'daily_log';
+type TypeFilter = 'all' | NoteType;
+
+/** Fallback title, badge text and badge tone for a note's type. */
+function noteTypeLabels(type: NoteType): { fallback: string; badge: string; tone: PillTone } {
+  switch (type) {
+    case 'daily_log':
+      return { fallback: t`Daily log`, badge: t`Log`, tone: 'accent' };
+    case 'weekly_review':
+      return { fallback: t`Weekly review`, badge: t`Review`, tone: 'amber' };
+    default:
+      return { fallback: t`Untitled`, badge: t`Note`, tone: 'muted' };
+  }
+}
 
 /** Case-insensitive match over title, body and symbol tickers (web matchesQuery). */
 function matchesQuery(note: Note, q: string): boolean {
@@ -74,6 +86,7 @@ function NoteRow({
   onDelete: () => void;
 }) {
   const excerpt = noteExcerpt(note.body);
+  const labels = noteTypeLabels(note.type);
   const progress =
     checklistProgress(note.body) ?? (note.type === 'daily_log' ? (routine ?? null) : null);
   // The excerpt strips image markdown, so a chart-only note would read as an
@@ -94,16 +107,14 @@ function NoteRow({
         <Card className="gap-1.5 rounded-lg border-0 p-4">
           <View className="flex-row items-baseline gap-2">
             <Text className="flex-1 text-[15px] font-semibold text-foreground" numberOfLines={1}>
-              {note.title || (note.type === 'daily_log' ? t`Daily log` : t`Untitled`)}
+              {note.title || labels.fallback}
             </Text>
             <Text className="text-xs text-muted-foreground tabular-nums">
               {noteDayLabel(note.occurred_at)}
             </Text>
           </View>
           <View className="flex-row flex-wrap gap-1.5">
-            <Pill tone={note.type === 'daily_log' ? 'accent' : 'muted'}>
-              {note.type === 'daily_log' ? t`Log` : t`Note`}
-            </Pill>
+            <Pill tone={labels.tone}>{labels.badge}</Pill>
             {pending ? <Pill tone="amber">{t`Waiting to sync`}</Pill> : null}
             {progress ? (
               <Pill tone={progress.done === progress.total ? 'pos' : 'amber'}>
@@ -169,7 +180,7 @@ export default function NotesScreen() {
   });
 
   function confirmDelete(note: Note) {
-    const label = note.title || (note.type === 'daily_log' ? t`Daily log` : t`Untitled`);
+    const label = note.title || noteTypeLabels(note.type).fallback;
     Alert.alert(t`Delete note?`, t`“${label}” is removed for good. This cannot be undone.`, [
       { text: t`Cancel`, style: 'cancel' },
       { text: t`Delete`, style: 'destructive', onPress: () => remove.mutate(note.id) },
@@ -192,6 +203,7 @@ export default function NotesScreen() {
     { value: 'all', label: t`All` },
     { value: 'note', label: t`Notes` },
     { value: 'daily_log', label: t`Logs` },
+    { value: 'weekly_review', label: t`Reviews` },
   ];
 
   /*
