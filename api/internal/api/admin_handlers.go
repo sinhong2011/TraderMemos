@@ -22,6 +22,7 @@ func (s *Server) adminRoutes(g *echo.Group) {
 	admin.PATCH("/users/:id", s.handleSetUserAdmin)
 	admin.POST("/users/:id/password", s.handleAdminResetPassword)
 	admin.DELETE("/users/:id", s.handleDeleteUser)
+	s.backupRoutes(admin)
 }
 
 // requireAdmin re-reads the user rather than trusting a claim in the token:

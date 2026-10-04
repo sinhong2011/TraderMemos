@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo/v5/middleware"
 	"github.com/tradermemos/api/internal/alerts"
 	"github.com/tradermemos/api/internal/auth"
+	"github.com/tradermemos/api/internal/backup"
 	"github.com/tradermemos/api/internal/econdata"
 	"github.com/tradermemos/api/internal/flexsync"
 	"github.com/tradermemos/api/internal/marketdata"
@@ -59,6 +60,9 @@ type Deps struct {
 	Driver string
 	// Features reports which optional subsystems this deployment has enabled.
 	Features map[string]bool
+	// Backup takes and reports database snapshots; nil disables the
+	// owner-only /admin/backup endpoints.
+	Backup *backup.Service
 }
 
 type Server struct {

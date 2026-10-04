@@ -90,6 +90,16 @@ type Config struct {
 	// addresses (e.g. a self-hosted ntfy on the same LAN). Off by default:
 	// user-supplied webhook URLs must not become an SSRF probe on shared servers.
 	AlertsAllowPrivateWebhooks bool
+	// BackupEnabled turns the scheduled SQLite snapshot job on or off
+	// (TM_BACKUP_ENABLED). Manual "back up now" stays available either way.
+	BackupEnabled bool
+	// BackupDir receives the snapshots (TM_BACKUP_DIR). Empty = a backups/
+	// directory beside the SQLite file.
+	BackupDir string
+	// BackupKeep is how many snapshots survive pruning (TM_BACKUP_KEEP).
+	BackupKeep int
+	// BackupIntervalMin is minutes between snapshots (TM_BACKUP_INTERVAL_MIN).
+	BackupIntervalMin int
 }
 
 func Load() (Config, error) {
@@ -130,6 +140,10 @@ func Load() (Config, error) {
 		"job_flex_sync_interval_min":    360,
 		"job_alerts_interval_min":       60,
 		"alerts_allow_private_webhooks": false,
+		"backup_enabled":                true,
+		"backup_dir":                    "",
+		"backup_keep":                   14,
+		"backup_interval_min":           1440,
 	}, "."), nil)
 
 	// TM_HTTP_PORT -> http_port
@@ -180,6 +194,10 @@ func Load() (Config, error) {
 		JobFlexSyncIntervalMin:     k.Int("job_flex_sync_interval_min"),
 		JobAlertsIntervalMin:       k.Int("job_alerts_interval_min"),
 		AlertsAllowPrivateWebhooks: k.Bool("alerts_allow_private_webhooks"),
+		BackupEnabled:              k.Bool("backup_enabled"),
+		BackupDir:                  k.String("backup_dir"),
+		BackupKeep:                 k.Int("backup_keep"),
+		BackupIntervalMin:          k.Int("backup_interval_min"),
 	}
 	if err := cfg.resolveDatabase(k.String("database_url"), k.String("db_path")); err != nil {
 		return Config{}, err
