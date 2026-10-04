@@ -14,6 +14,8 @@ import { cn } from "@/lib/cn";
 import { accountBaseCurrency, useDisplayPrefs } from "@/lib/displayPrefs";
 import { useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useBackupAttention } from "@/lib/hooks/useBackup";
+import { useFlexSyncAttention } from "@/lib/hooks/useFlexSync";
 import { useLocale } from "@/i18n";
 import { navLabel } from "@/lib/locale";
 import { CREATE_ACTIONS, isRouteActive, PRIMARY_NAV, SECONDARY_NAV } from "@/lib/navItems";
@@ -25,6 +27,7 @@ function NavRow({
   icon: Icon,
   active,
   dot,
+  dotTone = "primary",
   onNavigate,
 }: {
   to: string;
@@ -33,6 +36,8 @@ function NavRow({
   active: boolean;
   /** Quiet attention dot (e.g. an update is available — detail lives on the page). */
   dot?: boolean;
+  /** destructive marks something broken (a failing sync or backup), primary something new. */
+  dotTone?: "primary" | "destructive";
   onNavigate: () => void;
 }) {
   return (
@@ -48,7 +53,15 @@ function NavRow({
     >
       <Icon size={18} strokeWidth={1.75} aria-hidden />
       {label}
-      {dot ? <span aria-hidden className="ml-auto size-1.5 rounded-full bg-primary" /> : null}
+      {dot ? (
+        <span
+          aria-hidden
+          className={cn(
+            "ml-auto size-1.5 rounded-full",
+            dotTone === "destructive" ? "bg-destructive" : "bg-primary",
+          )}
+        />
+      ) : null}
     </Link>
   );
 }
@@ -202,6 +215,10 @@ export function MobileNavDrawer() {
     (s) => s.swReady || s.webBehind || s.apiBehind || s.versionMismatch,
   );
   const updateNotices = useDisplayPrefs((s) => s.updateNotices);
+  // A failing broker sync or database backup — mirrors AppNav's destructive dot.
+  const syncAttention = useFlexSyncAttention();
+  const backupAttention = useBackupAttention();
+  const brokenAttention = syncAttention || backupAttention;
 
   function runAction(fn: () => void) {
     closeMobileNav();
@@ -254,7 +271,8 @@ export function MobileNavDrawer() {
             label={label("settings")}
             icon={Settings}
             active={isRouteActive(pathname, "/settings")}
-            dot={updateNotices && updateAttention}
+            dot={brokenAttention || (updateNotices && updateAttention)}
+            dotTone={brokenAttention ? "destructive" : "primary"}
             onNavigate={closeMobileNav}
           />
 
