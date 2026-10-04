@@ -194,7 +194,7 @@ func main() {
 		if backupScheduled && backupSvc.Supported() {
 			runner.Register(jobs.NewBackup(backupSvc, logger))
 			logger.Info("database backups scheduled", "dir", backupDir,
-				"keep", backupSvc.Config().Keep, "interval", backupSvc.Config().Interval)
+				"keep", backupSvc.Config().Keep, "interval", backupSvc.Config().Interval.String())
 		} else if cfg.BackupEnabled && !backupSvc.Supported() {
 			logger.Info("built-in database backups cover SQLite only; back up Postgres with pg_dump")
 		}

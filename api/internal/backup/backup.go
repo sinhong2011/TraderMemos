@@ -237,6 +237,11 @@ func (s *Service) snapshot(ctx context.Context, at time.Time) (f File, err error
 			return File{}, err
 		}
 	}
+	// The snapshot holds every user's password hash and journal: owner-only,
+	// whatever the process umask would have given it.
+	if err := os.Chmod(tmp, 0o600); err != nil {
+		return File{}, fmt.Errorf("restrict snapshot permissions: %w", err)
+	}
 	if err := syncFile(tmp); err != nil {
 		return File{}, fmt.Errorf("fsync snapshot: %w", err)
 	}

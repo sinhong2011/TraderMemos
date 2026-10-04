@@ -77,6 +77,11 @@ func TestSnapshotIsAValidDatabaseWithTheData(t *testing.T) {
 	require.Equal(t, "tradermemos-20261004-093015Z.db", f.Name)
 	require.Positive(t, f.SizeBytes)
 	require.Equal(t, []string{f.Name}, dirNames(t, dir), "only the published snapshot remains")
+	if runtime.GOOS != "windows" {
+		info, err := os.Stat(filepath.Join(dir, f.Name))
+		require.NoError(t, err)
+		require.Equal(t, os.FileMode(0o600), info.Mode().Perm(), "snapshots are owner-only")
+	}
 
 	snap, err := sql.Open("sqlite", "file:"+filepath.Join(dir, f.Name)+"?mode=ro")
 	require.NoError(t, err)
