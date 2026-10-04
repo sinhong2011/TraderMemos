@@ -155,6 +155,7 @@ export function useIsCustomBinding(id: AppHotkeyId): boolean {
 const HOTKEY_COMMAND_NAMES: Record<AppHotkeyId, string> = {
   palette: "Command palette",
   "nav-home": "Home",
+  "nav-today": "Today",
   "nav-trades": "Trades",
   "nav-calendar": "Calendar",
   "nav-stats": "Reports",
@@ -184,6 +185,7 @@ export const HOTKEY_GROUPS: HotkeyGroup[] = [
     title: "Navigation",
     ids: [
       "nav-home",
+      "nav-today",
       "nav-trades",
       "nav-calendar",
       "nav-stats",

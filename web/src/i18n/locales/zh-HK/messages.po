@@ -34,9 +34,45 @@ msgstr "勝率 {0}"
 msgid "1.0 = break-even"
 msgstr "1.0 = 打和"
 
+#: src/app/screens/settings/backups-section.tsx:94
+msgid "A backup is already running"
+msgstr "備份已在進行中"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "套用"
+
+#: src/app/screens/settings/backups-section.tsx:149
+msgid "Back up now"
+msgstr "立即備份"
+
+#: src/app/screens/settings/backups-section.tsx:149
+msgid "Backing up…"
+msgstr "備份中…"
+
+#: src/app/screens/settings/backups-section.tsx:94
+msgid "Backup failed"
+msgstr "備份失敗"
+
+#: src/app/screens/settings/backups-section.tsx:106
+msgid "Backup status is unavailable from this server."
+msgstr "無法從此伺服器取得備份狀態。"
+
+#: src/app/screens/settings/backups-section.tsx:86
+msgid "Backup written"
+msgstr "已寫入備份"
+
+#: src/app/screens/settings/backups-section.tsx:78
+msgid "Backups"
+msgstr "備份"
+
+#: src/app/screens/settings/backups-section.tsx:127
+msgid "Backups are current"
+msgstr "備份為最新"
+
+#: src/app/screens/settings/backups-section.tsx:130
+msgid "Backups are overdue"
+msgstr "備份已逾期"
 
 #: src/app/screens/PublicShareView.tsx:308
 msgid "Best day"
@@ -45,6 +81,10 @@ msgstr "最佳交易日"
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "日曆"
+
+#: src/app/screens/settings/backups-section.tsx:158
+msgid "Checking…"
+msgstr "檢查中…"
 
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
@@ -71,13 +111,30 @@ msgstr "累計損益形態 — 金額未有分享。"
 msgid "days in a row"
 msgstr "連續日數"
 
+#: src/app/screens/settings/backups-section.tsx:207
+msgid "Directory"
+msgstr "目錄"
+
 #: src/app/drawers/NewNoteDrawer.tsx:187
 msgid "Edit weekly review"
 msgstr "編輯每週回顧"
 
+#: src/app/screens/settings/backups-section.tsx:162
+msgid "Every {interval}"
+msgstr "每 {interval}"
+
 #: src/app/screens/PublicShareView.tsx:250
 msgid "Expectancy"
 msgstr "期望值"
+
+#: src/app/screens/settings/backups-section.tsx:220
+msgid "Failed"
+msgstr "失敗"
+
+#. placeholder {0}: fmtRelativeAge(data.last_attempt_at, now, intlLocale)
+#: src/app/screens/settings/backups-section.tsx:219
+msgid "Failed {0}"
+msgstr "失敗（{0}）"
 
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
@@ -115,6 +172,18 @@ msgstr "Kelly"
 #~ msgid "Language selector"
 #~ msgstr "語言選擇器"
 
+#: src/app/screens/settings/backups-section.tsx:169
+msgid "Last backup"
+msgstr "上次備份"
+
+#: src/app/screens/settings/backups-section.tsx:129
+msgid "Last backup failed"
+msgstr "上次備份失敗"
+
+#: src/app/screens/settings/backups-section.tsx:192
+msgid "Latest file"
+msgstr "最新檔案"
+
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
 msgstr "最長獲利連續"
@@ -123,6 +192,10 @@ msgstr "最長獲利連續"
 msgid "Longest red streak"
 msgstr "最長虧損連續"
 
+#: src/app/screens/settings/backups-section.tsx:162
+msgid "Manual only"
+msgstr "僅限手動"
+
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
 msgstr "最常交易"
@@ -130,6 +203,10 @@ msgstr "最常交易"
 #: src/app/screens/PublicShareView.tsx:182
 msgid "Net P&L"
 msgstr "淨損益"
+
+#: src/app/screens/settings/backups-section.tsx:176
+msgid "Never"
+msgstr "從未"
 
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
@@ -142,6 +219,14 @@ msgstr "淨損益"
 #: src/components/AppNav.tsx:245
 #~ msgid "New Trade"
 #~ msgstr "新增交易"
+
+#: src/app/screens/settings/backups-section.tsx:128
+msgid "No backup yet"
+msgstr "尚未備份"
+
+#: src/app/screens/settings/backups-section.tsx:198
+msgid "None"
+msgstr "無"
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:285
@@ -181,6 +266,10 @@ msgstr "儲存"
 msgid "Save changes"
 msgstr "儲存變更"
 
+#: src/app/screens/settings/backups-section.tsx:131
+msgid "Scheduled backups are off"
+msgstr "排程備份已關閉"
+
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "設定"
@@ -188,6 +277,14 @@ msgstr "儲存變更"
 #: src/app/screens/PublicShareView.tsx:129
 msgid "Shared performance record"
 msgstr "分享的績效紀錄"
+
+#: src/app/screens/settings/backups-section.tsx:186
+msgid "Snapshots kept"
+msgstr "保留的快照"
+
+#: src/app/screens/settings/backups-section.tsx:79
+msgid "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
+msgstr "資料庫快照會寫入伺服器上的資料夾。請將該資料夾同步到異地 — 同一磁碟上的副本無法在磁碟故障後倖存。"
 
 #: src/app/screens/PublicShareView.tsx:261
 msgid "SQN"
@@ -212,6 +309,10 @@ msgstr "節奏"
 #: src/app/screens/PublicShareView.tsx:153
 msgid "This link isn't available"
 msgstr "此連結無法使用"
+
+#: src/app/screens/settings/backups-section.tsx:118
+msgid "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
+msgstr "此伺服器使用 Postgres。內建備份只支援 SQLite — 請以 pg_dump 或服務供應商的快照備份 Postgres。"
 
 #: src/components/AppNav.tsx:32
 #~ msgid "Trades"

@@ -33,9 +33,45 @@ msgstr "{0} win rate"
 msgid "1.0 = break-even"
 msgstr "1.0 = break-even"
 
+#: src/app/screens/settings/backups-section.tsx:94
+msgid "A backup is already running"
+msgstr "A backup is already running"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "Apply"
+
+#: src/app/screens/settings/backups-section.tsx:149
+msgid "Back up now"
+msgstr "Back up now"
+
+#: src/app/screens/settings/backups-section.tsx:149
+msgid "Backing up…"
+msgstr "Backing up…"
+
+#: src/app/screens/settings/backups-section.tsx:94
+msgid "Backup failed"
+msgstr "Backup failed"
+
+#: src/app/screens/settings/backups-section.tsx:106
+msgid "Backup status is unavailable from this server."
+msgstr "Backup status is unavailable from this server."
+
+#: src/app/screens/settings/backups-section.tsx:86
+msgid "Backup written"
+msgstr "Backup written"
+
+#: src/app/screens/settings/backups-section.tsx:78
+msgid "Backups"
+msgstr "Backups"
+
+#: src/app/screens/settings/backups-section.tsx:127
+msgid "Backups are current"
+msgstr "Backups are current"
+
+#: src/app/screens/settings/backups-section.tsx:130
+msgid "Backups are overdue"
+msgstr "Backups are overdue"
 
 #: src/app/screens/PublicShareView.tsx:308
 msgid "Best day"
@@ -44,6 +80,10 @@ msgstr "Best day"
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "Calendar"
+
+#: src/app/screens/settings/backups-section.tsx:158
+msgid "Checking…"
+msgstr "Checking…"
 
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
@@ -70,13 +110,30 @@ msgstr "Cumulative P&L shape — amounts are not shared."
 msgid "days in a row"
 msgstr "days in a row"
 
+#: src/app/screens/settings/backups-section.tsx:207
+msgid "Directory"
+msgstr "Directory"
+
 #: src/app/drawers/NewNoteDrawer.tsx:187
 msgid "Edit weekly review"
 msgstr "Edit weekly review"
 
+#: src/app/screens/settings/backups-section.tsx:162
+msgid "Every {interval}"
+msgstr "Every {interval}"
+
 #: src/app/screens/PublicShareView.tsx:250
 msgid "Expectancy"
 msgstr "Expectancy"
+
+#: src/app/screens/settings/backups-section.tsx:220
+msgid "Failed"
+msgstr "Failed"
+
+#. placeholder {0}: fmtRelativeAge(data.last_attempt_at, now, intlLocale)
+#: src/app/screens/settings/backups-section.tsx:219
+msgid "Failed {0}"
+msgstr "Failed {0}"
 
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
@@ -114,6 +171,18 @@ msgstr "Kelly"
 #~ msgid "Language selector"
 #~ msgstr "Language selector"
 
+#: src/app/screens/settings/backups-section.tsx:169
+msgid "Last backup"
+msgstr "Last backup"
+
+#: src/app/screens/settings/backups-section.tsx:129
+msgid "Last backup failed"
+msgstr "Last backup failed"
+
+#: src/app/screens/settings/backups-section.tsx:192
+msgid "Latest file"
+msgstr "Latest file"
+
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
 msgstr "Longest green streak"
@@ -122,6 +191,10 @@ msgstr "Longest green streak"
 msgid "Longest red streak"
 msgstr "Longest red streak"
 
+#: src/app/screens/settings/backups-section.tsx:162
+msgid "Manual only"
+msgstr "Manual only"
+
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
 msgstr "Most traded"
@@ -129,6 +202,10 @@ msgstr "Most traded"
 #: src/app/screens/PublicShareView.tsx:182
 msgid "Net P&L"
 msgstr "Net P&L"
+
+#: src/app/screens/settings/backups-section.tsx:176
+msgid "Never"
+msgstr "Never"
 
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
@@ -141,6 +218,14 @@ msgstr "Net P&L"
 #: src/components/AppNav.tsx:245
 #~ msgid "New Trade"
 #~ msgstr "New Trade"
+
+#: src/app/screens/settings/backups-section.tsx:128
+msgid "No backup yet"
+msgstr "No backup yet"
+
+#: src/app/screens/settings/backups-section.tsx:198
+msgid "None"
+msgstr "None"
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:285
@@ -180,6 +265,10 @@ msgstr "Save"
 msgid "Save changes"
 msgstr "Save changes"
 
+#: src/app/screens/settings/backups-section.tsx:131
+msgid "Scheduled backups are off"
+msgstr "Scheduled backups are off"
+
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "Settings"
@@ -187,6 +276,14 @@ msgstr "Save changes"
 #: src/app/screens/PublicShareView.tsx:129
 msgid "Shared performance record"
 msgstr "Shared performance record"
+
+#: src/app/screens/settings/backups-section.tsx:186
+msgid "Snapshots kept"
+msgstr "Snapshots kept"
+
+#: src/app/screens/settings/backups-section.tsx:79
+msgid "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
+msgstr "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
 
 #: src/app/screens/PublicShareView.tsx:261
 msgid "SQN"
@@ -211,6 +308,10 @@ msgstr "The rhythm"
 #: src/app/screens/PublicShareView.tsx:153
 msgid "This link isn't available"
 msgstr "This link isn't available"
+
+#: src/app/screens/settings/backups-section.tsx:118
+msgid "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
+msgstr "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
 
 #: src/components/AppNav.tsx:32
 #~ msgid "Trades"

@@ -81,6 +81,10 @@ description: API が読み取るすべての TM_* 環境変数と、その既定
 | `TM_JOB_ALERTS_INTERVAL_MIN` | `60` | アラートルール評価の間隔（分、`0` で無効） |
 | `TM_JOB_WEEKLY_REVIEW_INTERVAL_MIN` | `60` | 週次レビューの確認間隔（分）。レビュー自体はマーケットタイムゾーンの土曜 09:00 に週 1 回だけ送信（`0` で無効） |
 | `TM_WEEKLY_REVIEW_NOW` | _(未設定)_ | テスト専用：週次レビューの時計を RFC 3339 の時刻（例 `2026-10-03T09:00:00-04:00`）に固定し、5 秒後に初回確認を実行 |
+| `TM_BACKUP_ENABLED` | `true` | SQLite の定期スナップショット（[バックアップと復元](/ja/docs/self-hosting/backup-restore) を参照）。`TM_JOBS_ENABLED=false` でもオフ。設定 → についての「今すぐバックアップ」はどちらでも使えます |
+| `TM_BACKUP_DIR` | `<dbDir>/backups` | スナップショットの保存先（Docker: `/data/backups`） |
+| `TM_BACKUP_KEEP` | `14` | 保持するスナップショット数。成功するたびに古いものを削除 |
+| `TM_BACKUP_INTERVAL_MIN` | `1440` | スナップショットの間隔（分、`0` で定期実行を無効） |
 | `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS` | `false` | アラート Webhook がプライベート／ループバックアドレスへ届くのを許可（SSRF ガード — 受信先が LAN 内にある場合のみオンに） |
 
 ## Web のビルド時変数

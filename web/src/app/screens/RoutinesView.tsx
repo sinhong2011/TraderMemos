@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, MoreVertical, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/EmptyState";
 import { Page } from "@/components/Page";
@@ -45,7 +45,12 @@ export interface RoutineDayCardProps {
   error: boolean;
   hasItems: boolean;
   onCheck: (id: string, done: boolean) => void;
-  onToday: () => void;
+  /** Omit where the host page owns day navigation (the day review). */
+  onToday?: () => void;
+  /** Overrides the day-name title — the day review already heads the page with the date. */
+  title?: string;
+  /** Extra control beside the progress count. */
+  trailing?: ReactNode;
 }
 
 export function RoutineDayCard({
@@ -57,6 +62,8 @@ export function RoutineDayCard({
   hasItems,
   onCheck,
   onToday,
+  title,
+  trailing,
 }: RoutineDayCardProps) {
   const action = (
     <div className="flex items-center gap-2">
@@ -68,11 +75,12 @@ export function RoutineDayCard({
           {data.done}/{data.total}
         </span>
       )}
-      {day !== today && (
+      {onToday && day !== today && (
         <Button size="sm" variant="ghost" onClick={onToday}>
           Back to today
         </Button>
       )}
+      {trailing}
     </div>
   );
 
@@ -129,7 +137,7 @@ export function RoutineDayCard({
   };
 
   return (
-    <Card title={dayTitle(day, today)} action={action}>
+    <Card title={title ?? dayTitle(day, today)} action={action}>
       {body()}
     </Card>
   );

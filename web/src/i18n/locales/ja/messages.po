@@ -34,9 +34,45 @@ msgstr "勝率 {0}"
 msgid "1.0 = break-even"
 msgstr "1.0 = 損益分岐"
 
+#: src/app/screens/settings/backups-section.tsx:94
+msgid "A backup is already running"
+msgstr "バックアップはすでに実行中です"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "適用"
+
+#: src/app/screens/settings/backups-section.tsx:149
+msgid "Back up now"
+msgstr "今すぐバックアップ"
+
+#: src/app/screens/settings/backups-section.tsx:149
+msgid "Backing up…"
+msgstr "バックアップ中…"
+
+#: src/app/screens/settings/backups-section.tsx:94
+msgid "Backup failed"
+msgstr "バックアップに失敗しました"
+
+#: src/app/screens/settings/backups-section.tsx:106
+msgid "Backup status is unavailable from this server."
+msgstr "このサーバーからバックアップの状態を取得できません。"
+
+#: src/app/screens/settings/backups-section.tsx:86
+msgid "Backup written"
+msgstr "バックアップを作成しました"
+
+#: src/app/screens/settings/backups-section.tsx:78
+msgid "Backups"
+msgstr "バックアップ"
+
+#: src/app/screens/settings/backups-section.tsx:127
+msgid "Backups are current"
+msgstr "バックアップは最新です"
+
+#: src/app/screens/settings/backups-section.tsx:130
+msgid "Backups are overdue"
+msgstr "バックアップが遅れています"
 
 #: src/app/screens/PublicShareView.tsx:308
 msgid "Best day"
@@ -45,6 +81,10 @@ msgstr "最高の日"
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "カレンダー"
+
+#: src/app/screens/settings/backups-section.tsx:158
+msgid "Checking…"
+msgstr "確認中…"
 
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
@@ -71,13 +111,30 @@ msgstr "累積損益の形状 — 金額は共有されていません。"
 msgid "days in a row"
 msgstr "連続日数"
 
+#: src/app/screens/settings/backups-section.tsx:207
+msgid "Directory"
+msgstr "保存先"
+
 #: src/app/drawers/NewNoteDrawer.tsx:187
 msgid "Edit weekly review"
 msgstr "週次レビューを編集"
 
+#: src/app/screens/settings/backups-section.tsx:162
+msgid "Every {interval}"
+msgstr "{interval}ごと"
+
 #: src/app/screens/PublicShareView.tsx:250
 msgid "Expectancy"
 msgstr "期待値"
+
+#: src/app/screens/settings/backups-section.tsx:220
+msgid "Failed"
+msgstr "失敗"
+
+#. placeholder {0}: fmtRelativeAge(data.last_attempt_at, now, intlLocale)
+#: src/app/screens/settings/backups-section.tsx:219
+msgid "Failed {0}"
+msgstr "失敗（{0}）"
 
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
@@ -115,6 +172,18 @@ msgstr "Kelly"
 #~ msgid "Language selector"
 #~ msgstr "言語セレクター"
 
+#: src/app/screens/settings/backups-section.tsx:169
+msgid "Last backup"
+msgstr "最終バックアップ"
+
+#: src/app/screens/settings/backups-section.tsx:129
+msgid "Last backup failed"
+msgstr "前回のバックアップに失敗しました"
+
+#: src/app/screens/settings/backups-section.tsx:192
+msgid "Latest file"
+msgstr "最新ファイル"
+
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
 msgstr "最長プラス連続"
@@ -123,6 +192,10 @@ msgstr "最長プラス連続"
 msgid "Longest red streak"
 msgstr "最長マイナス連続"
 
+#: src/app/screens/settings/backups-section.tsx:162
+msgid "Manual only"
+msgstr "手動のみ"
+
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
 msgstr "最多取引"
@@ -130,6 +203,10 @@ msgstr "最多取引"
 #: src/app/screens/PublicShareView.tsx:182
 msgid "Net P&L"
 msgstr "純損益"
+
+#: src/app/screens/settings/backups-section.tsx:176
+msgid "Never"
+msgstr "なし"
 
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
@@ -142,6 +219,14 @@ msgstr "純損益"
 #: src/components/AppNav.tsx:245
 #~ msgid "New Trade"
 #~ msgstr "新規トレード"
+
+#: src/app/screens/settings/backups-section.tsx:128
+msgid "No backup yet"
+msgstr "まだバックアップはありません"
+
+#: src/app/screens/settings/backups-section.tsx:198
+msgid "None"
+msgstr "なし"
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:285
@@ -181,6 +266,10 @@ msgstr "保存"
 msgid "Save changes"
 msgstr "変更を保存"
 
+#: src/app/screens/settings/backups-section.tsx:131
+msgid "Scheduled backups are off"
+msgstr "定期バックアップはオフです"
+
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "設定"
@@ -188,6 +277,14 @@ msgstr "変更を保存"
 #: src/app/screens/PublicShareView.tsx:129
 msgid "Shared performance record"
 msgstr "共有された成績記録"
+
+#: src/app/screens/settings/backups-section.tsx:186
+msgid "Snapshots kept"
+msgstr "保持中のスナップショット"
+
+#: src/app/screens/settings/backups-section.tsx:79
+msgid "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
+msgstr "データベースのスナップショットをサーバー上のフォルダに書き出します。このフォルダはオフサイトに同期してください — 同じディスク上のコピーはディスク障害を乗り越えられません。"
 
 #: src/app/screens/PublicShareView.tsx:261
 msgid "SQN"
@@ -212,6 +309,10 @@ msgstr "リズム"
 #: src/app/screens/PublicShareView.tsx:153
 msgid "This link isn't available"
 msgstr "このリンクは利用できません"
+
+#: src/app/screens/settings/backups-section.tsx:118
+msgid "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
+msgstr "このサーバーは Postgres で動作しています。組み込みバックアップは SQLite のみ対応です — Postgres は pg_dump またはプロバイダーのスナップショットでバックアップしてください。"
 
 #: src/components/AppNav.tsx:32
 #~ msgid "Trades"

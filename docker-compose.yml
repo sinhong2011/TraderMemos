@@ -22,6 +22,12 @@ services:
       TM_ALLOW_REGISTRATION: ${TM_ALLOW_REGISTRATION:-false}
       TM_DATABASE_URL: ${TM_DATABASE_URL:-sqlite:///data/tradermemos.db}
       TM_ATTACH_DIR: ${TM_ATTACH_DIR:-/data/attachments}
+      # Scheduled SQLite snapshots. /data/backups sits inside the tm_data volume;
+      # bind-mount a host path and point this at it to sync snapshots off-site.
+      TM_BACKUP_ENABLED: ${TM_BACKUP_ENABLED:-true}
+      TM_BACKUP_DIR: ${TM_BACKUP_DIR:-/data/backups}
+      TM_BACKUP_KEEP: ${TM_BACKUP_KEEP:-14}
+      TM_BACKUP_INTERVAL_MIN: ${TM_BACKUP_INTERVAL_MIN:-1440}
       TM_MARKET_DATA_ENABLED: ${TM_MARKET_DATA_ENABLED:-true}
       TM_MARKET_DATA_PROVIDER: ${TM_MARKET_DATA_PROVIDER:-yahoo}
       TM_MARKET_DATA_API_KEY: ${TM_MARKET_DATA_API_KEY:-}

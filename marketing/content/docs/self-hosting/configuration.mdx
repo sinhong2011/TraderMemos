@@ -80,6 +80,10 @@ win. Keys are stored server-side and never sent to the browser. See
 | `TM_JOB_ALERTS_INTERVAL_MIN` | `60` | Minutes between alert-rule evaluations (`0` disables) |
 | `TM_JOB_WEEKLY_REVIEW_INTERVAL_MIN` | `60` | Minutes between weekly-review checks; the review itself fires once a week, Saturday 09:00 in your market timezone (`0` disables) |
 | `TM_WEEKLY_REVIEW_NOW` | _(unset)_ | Testing only: pin the weekly-review clock to an RFC 3339 instant (e.g. `2026-10-03T09:00:00-04:00`) and run the first check after 5 seconds |
+| `TM_BACKUP_ENABLED` | `true` | Scheduled SQLite snapshots (see [Backup & restore](/en/docs/self-hosting/backup-restore)). Also off when `TM_JOBS_ENABLED=false`; **Back up now** in Settings → About works either way |
+| `TM_BACKUP_DIR` | `<dbDir>/backups` | Snapshot directory (Docker: `/data/backups`) |
+| `TM_BACKUP_KEEP` | `14` | Snapshots kept; older ones are pruned after each successful run |
+| `TM_BACKUP_INTERVAL_MIN` | `1440` | Minutes between snapshots (`0` disables the schedule) |
 | `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS` | `false` | Allow alert webhooks to target private/internal addresses (SSRF guard — leave off unless your webhook receiver is on your LAN) |
 
 ## Web build-time variables

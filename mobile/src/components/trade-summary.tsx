@@ -7,6 +7,7 @@ import { Icon } from '@/components/icon';
 import type { Setup, Tag } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { useFormatters, type MoneyFormatter } from '@/lib/format';
+import { resolveDisplayTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { parseAmount, type FillDraft, type TradeFormValues } from '@/lib/trade-form';
 import { blockFillPnls, blockPnlPreview } from '@/lib/trade-pnl-preview';
 import { pnlClass } from '@/styles/pnl';
@@ -66,11 +67,14 @@ function FillLine({
   currency: string;
 }) {
   const { formatPnl } = useFormatters();
+  const timeZone = resolveDisplayTimezone(useDisplayPrefs().timezone);
+  // Same clock as the fill picker and every list: the display timezone.
   const when = fill.executedAt.toLocaleString(undefined, {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone,
   });
   const buy = fill.side === 'buy';
   // Three zones so the timestamp lands on the row's centre line and the P&L on

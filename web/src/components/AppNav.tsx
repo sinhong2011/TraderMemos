@@ -3,11 +3,18 @@ import { Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { useAppUpdate } from "@/lib/appUpdate";
+import { useBackupAttention } from "@/lib/hooks/useBackup";
 import { useFlexSyncAttention } from "@/lib/hooks/useFlexSync";
 import { cn } from "@/lib/cn";
 import { useDisplayPrefs } from "@/lib/displayPrefs";
 import { navLabel } from "@/lib/locale";
-import { isRouteActive, MAIN_ROUTES, PRIMARY_NAV, SECONDARY_NAV } from "@/lib/navItems";
+import {
+  isNavItemActive,
+  isRouteActive,
+  MAIN_ROUTES,
+  PRIMARY_NAV,
+  SECONDARY_NAV,
+} from "@/lib/navItems";
 import { useLocale } from "@/i18n";
 import { AppLogo } from "./AppLogo";
 import { CreateMenu } from "./CreateMenu";
@@ -84,7 +91,7 @@ export function AppNav() {
   const itemRefs = useRef(new Map<string, HTMLAnchorElement>());
   const [pip, setPip] = useState({ top: 0, ready: false });
 
-  const activeMain = MAIN_ROUTES.find((r) => isRouteActive(pathname, r.to));
+  const activeMain = MAIN_ROUTES.find((r) => isNavItemActive(pathname, r));
   const settingsActive = isRouteActive(pathname, "/settings");
   // Non-actionable update states (web/API behind a release, deployment
   // mismatch) don't toast — they show as a quiet dot here; Settings → About
@@ -96,6 +103,10 @@ export function AppNav() {
   // A failing broker sync is otherwise invisible until someone opens the right
   // modal — a silently dead sync looks identical to a quiet trading week.
   const syncAttention = useFlexSyncAttention();
+  // Same for database backups: a schedule that quietly stopped is invisible
+  // until the day the snapshot is needed.
+  const backupAttention = useBackupAttention();
+  const brokenAttention = syncAttention || backupAttention;
 
   useLayoutEffect(() => {
     const list = listRef.current;
@@ -151,7 +162,7 @@ export function AppNav() {
             to={item.to}
             icon={item.icon}
             label={label(item.labelKey)}
-            active={isRouteActive(pathname, item.to)}
+            active={isNavItemActive(pathname, item)}
             itemRef={(el) => {
               if (el) itemRefs.current.set(item.to, el);
               else itemRefs.current.delete(item.to);
@@ -170,7 +181,7 @@ export function AppNav() {
             to={item.to}
             icon={item.icon}
             label={label(item.labelKey)}
-            active={isRouteActive(pathname, item.to)}
+            active={isNavItemActive(pathname, item)}
             itemRef={(el) => {
               if (el) itemRefs.current.set(item.to, el);
               else itemRefs.current.delete(item.to);
@@ -199,8 +210,8 @@ export function AppNav() {
             label={label("settings")}
             icon={Settings}
             active={settingsActive}
-            dot={syncAttention || (updateNotices && updateAttention)}
-            dotTone={syncAttention ? "destructive" : "primary"}
+            dot={brokenAttention || (updateNotices && updateAttention)}
+            dotTone={brokenAttention ? "destructive" : "primary"}
           />
         </div>
       </div>

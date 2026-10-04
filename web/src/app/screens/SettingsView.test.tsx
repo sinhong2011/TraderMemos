@@ -162,6 +162,13 @@ vi.mock("../../lib/hooks/useMe", async (importOriginal) => ({
   }),
 }));
 
+// About renders the owner-only Backups block for the admin `me` above.
+vi.mock("../../lib/hooks/useBackup", () => ({
+  useBackupStatus: () => ({ data: undefined, isPending: false, isError: false }),
+  useRunBackup: () => ({ mutate: () => {}, isPending: false }),
+  useBackupAttention: () => false,
+}));
+
 vi.mock("../../lib/hooks/useAccessTokens", () => ({
   useAccessTokens: () => ({
     data: [],

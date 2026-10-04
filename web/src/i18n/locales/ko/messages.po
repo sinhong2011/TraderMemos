@@ -34,9 +34,45 @@ msgstr "승률 {0}"
 msgid "1.0 = break-even"
 msgstr "1.0 = 손익분기"
 
+#: src/app/screens/settings/backups-section.tsx:94
+msgid "A backup is already running"
+msgstr "이미 백업이 실행 중입니다"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "적용"
+
+#: src/app/screens/settings/backups-section.tsx:149
+msgid "Back up now"
+msgstr "지금 백업"
+
+#: src/app/screens/settings/backups-section.tsx:149
+msgid "Backing up…"
+msgstr "백업 중…"
+
+#: src/app/screens/settings/backups-section.tsx:94
+msgid "Backup failed"
+msgstr "백업 실패"
+
+#: src/app/screens/settings/backups-section.tsx:106
+msgid "Backup status is unavailable from this server."
+msgstr "이 서버에서 백업 상태를 가져올 수 없습니다."
+
+#: src/app/screens/settings/backups-section.tsx:86
+msgid "Backup written"
+msgstr "백업을 저장했습니다"
+
+#: src/app/screens/settings/backups-section.tsx:78
+msgid "Backups"
+msgstr "백업"
+
+#: src/app/screens/settings/backups-section.tsx:127
+msgid "Backups are current"
+msgstr "백업이 최신 상태입니다"
+
+#: src/app/screens/settings/backups-section.tsx:130
+msgid "Backups are overdue"
+msgstr "백업이 지연되었습니다"
 
 #: src/app/screens/PublicShareView.tsx:308
 msgid "Best day"
@@ -45,6 +81,10 @@ msgstr "최고의 날"
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "캘린더"
+
+#: src/app/screens/settings/backups-section.tsx:158
+msgid "Checking…"
+msgstr "확인 중…"
 
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
@@ -71,13 +111,30 @@ msgstr "누적 손익 형태 — 금액은 공유되지 않습니다."
 msgid "days in a row"
 msgstr "연속 일수"
 
+#: src/app/screens/settings/backups-section.tsx:207
+msgid "Directory"
+msgstr "디렉터리"
+
 #: src/app/drawers/NewNoteDrawer.tsx:187
 msgid "Edit weekly review"
 msgstr "주간 리뷰 편집"
 
+#: src/app/screens/settings/backups-section.tsx:162
+msgid "Every {interval}"
+msgstr "{interval}마다"
+
 #: src/app/screens/PublicShareView.tsx:250
 msgid "Expectancy"
 msgstr "기대값"
+
+#: src/app/screens/settings/backups-section.tsx:220
+msgid "Failed"
+msgstr "실패"
+
+#. placeholder {0}: fmtRelativeAge(data.last_attempt_at, now, intlLocale)
+#: src/app/screens/settings/backups-section.tsx:219
+msgid "Failed {0}"
+msgstr "실패 ({0})"
 
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
@@ -115,6 +172,18 @@ msgstr "Kelly"
 #~ msgid "Language selector"
 #~ msgstr "언어 선택"
 
+#: src/app/screens/settings/backups-section.tsx:169
+msgid "Last backup"
+msgstr "마지막 백업"
+
+#: src/app/screens/settings/backups-section.tsx:129
+msgid "Last backup failed"
+msgstr "마지막 백업이 실패했습니다"
+
+#: src/app/screens/settings/backups-section.tsx:192
+msgid "Latest file"
+msgstr "최신 파일"
+
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
 msgstr "최장 수익 연속"
@@ -123,6 +192,10 @@ msgstr "최장 수익 연속"
 msgid "Longest red streak"
 msgstr "최장 손실 연속"
 
+#: src/app/screens/settings/backups-section.tsx:162
+msgid "Manual only"
+msgstr "수동 전용"
+
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
 msgstr "최다 거래"
@@ -130,6 +203,10 @@ msgstr "최다 거래"
 #: src/app/screens/PublicShareView.tsx:182
 msgid "Net P&L"
 msgstr "순손익"
+
+#: src/app/screens/settings/backups-section.tsx:176
+msgid "Never"
+msgstr "없음"
 
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
@@ -142,6 +219,14 @@ msgstr "순손익"
 #: src/components/AppNav.tsx:245
 #~ msgid "New Trade"
 #~ msgstr "새 거래"
+
+#: src/app/screens/settings/backups-section.tsx:128
+msgid "No backup yet"
+msgstr "아직 백업이 없습니다"
+
+#: src/app/screens/settings/backups-section.tsx:198
+msgid "None"
+msgstr "없음"
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:285
@@ -181,6 +266,10 @@ msgstr "저장"
 msgid "Save changes"
 msgstr "변경 사항 저장"
 
+#: src/app/screens/settings/backups-section.tsx:131
+msgid "Scheduled backups are off"
+msgstr "예약 백업이 꺼져 있습니다"
+
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "설정"
@@ -188,6 +277,14 @@ msgstr "변경 사항 저장"
 #: src/app/screens/PublicShareView.tsx:129
 msgid "Shared performance record"
 msgstr "공유된 성과 기록"
+
+#: src/app/screens/settings/backups-section.tsx:186
+msgid "Snapshots kept"
+msgstr "보관된 스냅샷"
+
+#: src/app/screens/settings/backups-section.tsx:79
+msgid "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
+msgstr "데이터베이스 스냅샷을 서버의 폴더에 저장합니다. 이 폴더를 외부 저장소로 동기화하세요 — 같은 디스크에 있는 사본은 디스크 장애를 견디지 못합니다."
 
 #: src/app/screens/PublicShareView.tsx:261
 msgid "SQN"
@@ -212,6 +309,10 @@ msgstr "리듬"
 #: src/app/screens/PublicShareView.tsx:153
 msgid "This link isn't available"
 msgstr "이 링크를 사용할 수 없습니다"
+
+#: src/app/screens/settings/backups-section.tsx:118
+msgid "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
+msgstr "이 서버는 Postgres에서 실행 중입니다. 기본 제공 백업은 SQLite만 지원합니다 — Postgres는 pg_dump 또는 제공업체의 스냅샷으로 백업하세요."
 
 #: src/components/AppNav.tsx:32
 #~ msgid "Trades"

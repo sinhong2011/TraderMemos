@@ -462,6 +462,24 @@ export function wallClockToIso(v: string, timeZone?: string): string {
   return Number.isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
 }
 
+/**
+ * Pickers edit a device-local `Date`, while the app reads every time in the
+ * display timezone. A picker is therefore handed the display-zone wall clock
+ * as if it were local (`instantToWallDate`) and its answer is read back in
+ * that zone (`wallDateToInstant`) — so a Hong Kong phone editing a New York
+ * fill sees and types New York time, the same contract as web's form.
+ */
+export function instantToWallDate(at: Date, timeZone?: string): Date {
+  // An offsetless ISO string parses as device-local time.
+  return new Date(isoToWallClock(at, timeZone));
+}
+
+export function wallDateToInstant(wall: Date, timeZone?: string): Date {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const clock = `${wall.getFullYear()}-${pad(wall.getMonth() + 1)}-${pad(wall.getDate())}T${pad(wall.getHours())}:${pad(wall.getMinutes())}:${pad(wall.getSeconds())}`;
+  return new Date(wallClockToIso(clock, timeZone));
+}
+
 /** Format an instant as an offsetless wall-clock string in the display timezone. */
 export function isoToWallClock(at: string | Date, timeZone?: string): string {
   const tz = timeZone ?? resolveDisplayTimezone();

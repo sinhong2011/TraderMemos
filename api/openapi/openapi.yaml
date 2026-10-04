@@ -962,6 +962,10 @@ paths:
         - $ref: "#/components/parameters/AccountIdQuery"
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
       responses:
         "200":
           description: Summary
@@ -981,6 +985,9 @@ paths:
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
         - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
       responses:
         "200":
           description: Daily rows
@@ -995,6 +1002,9 @@ paths:
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
         - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
       responses:
         "200":
           description: Behavior report
@@ -1013,6 +1023,10 @@ paths:
         - $ref: "#/components/parameters/AccountIdQuery"
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
       responses:
         "200":
           description: Equity points
@@ -1031,6 +1045,10 @@ paths:
         - $ref: "#/components/parameters/AccountIdQuery"
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
       responses:
         "200":
           description: Edge Score with per-component scores, weights and raw inputs
@@ -1714,6 +1732,53 @@ paths:
         "204":
           description: Reset
 
+  /api/v1/admin/backup:
+    get:
+      tags: [Admin]
+      summary: Database backup status
+      description: |
+        Owner-only. The server snapshots its SQLite database on a schedule
+        (`TM_BACKUP_INTERVAL_MIN`, default daily) into `TM_BACKUP_DIR`
+        (default: `backups/` beside the database file) as
+        `tradermemos-YYYYMMDD-HHMMSSZ.db`, keeping the newest `TM_BACKUP_KEEP`
+        (default 14). Status is derived from that directory plus the last
+        error held in memory, so `last_attempt_at` and `last_error` reset on
+        restart. Postgres deployments report `status: unsupported` with a hint
+        to use `pg_dump`.
+      operationId: getBackupStatus
+      responses:
+        "200":
+          description: Backup status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BackupStatus" }
+        "403":
+          description: Owner access required
+        "503":
+          description: Backups are not configured on this server
+    post:
+      tags: [Admin]
+      summary: Back up the database now
+      description: |
+        Owner-only. Takes one snapshot immediately (and prunes beyond the keep
+        count), regardless of whether the schedule is enabled. Returns the
+        updated status. Only one snapshot runs at a time.
+      operationId: runBackup
+      responses:
+        "200":
+          description: Snapshot written; updated status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BackupStatus" }
+        "400":
+          description: Not a SQLite deployment (`unsupported`) — use pg_dump
+        "403":
+          description: Owner access required
+        "409":
+          description: A backup is already running
+        "500":
+          description: The snapshot failed (`backup_failed`); the message carries the cause
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1756,11 +1821,45 @@ components:
       name: tz
       in: query
       description: >
-        IANA timezone for day / hour-of-day / weekday bucketing
-        (e.g. `America/New_York`). Defaults to UTC. Session bucketing
-        always uses the US-equity clock (Eastern).
+        IANA timezone of the trader's market clock (e.g. `America/New_York`,
+        `Asia/Hong_Kong`). Drives day / hour-of-day / weekday bucketing
+        (defaults to UTC when omitted) and the trading-day comparison behind
+        the `duration` filter (defaults to `America/New_York` when omitted).
+        An unknown name returns 400. Session bucketing (Premarket / RTH /
+        Afterhours) always uses the US-equity clock (Eastern), regardless of
+        this parameter.
       schema:
         type: string
+    SideQuery:
+      name: side
+      in: query
+      description: Keep only long or short trades. Omit for both.
+      schema:
+        type: string
+        enum: [long, short]
+    DurationQuery:
+      name: duration
+      in: query
+      description: >
+        Keep only trades in one holding-period bucket, decided on the `tz`
+        market clock (`America/New_York` when `tz` is omitted). `swing` closed
+        on a later calendar day than it opened; `scalp` opened and closed the
+        same day and was held under 600 seconds; `day` is any other same-day
+        trade (including unknown time in trade). Open trades never match.
+        Omit for all.
+      schema:
+        type: string
+        enum: [scalp, day, swing]
+    DateBasisQuery:
+      name: date_basis
+      in: query
+      description: >
+        Which timestamp `from` / `to` (and daily bucketing) apply to: `close`
+        uses closed_at, `open` uses opened_at. Omitted behaves as `close` for
+        analytics.
+      schema:
+        type: string
+        enum: [close, open]
   responses:
     Error:
       description: Error
@@ -1769,6 +1868,53 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    BackupStatus:
+      type: object
+      required: [enabled, driver, status, keep, interval_min, running, file_count]
+      properties:
+        enabled:
+          type: boolean
+          description: Scheduled backups are on (`TM_BACKUP_ENABLED` and `TM_JOBS_ENABLED`, SQLite only)
+        driver:
+          type: string
+          enum: [sqlite, postgres]
+        status:
+          type: string
+          enum: [ok, none, failed, stale, disabled, unsupported]
+          description: |
+            `failed` — the last attempt errored; `stale` — the newest snapshot
+            is older than twice the interval; `none` — no snapshot yet.
+        hint:
+          type: string
+          description: Set for `unsupported` (Postgres)
+        dir:
+          type: string
+          description: Absolute or server-relative snapshot directory (SQLite only)
+        keep: { type: integer }
+        interval_min: { type: integer }
+        running: { type: boolean }
+        last_success_at:
+          type: [string, "null"]
+          format: date-time
+        last_attempt_at:
+          type: [string, "null"]
+          format: date-time
+        last_error:
+          type: string
+        latest:
+          oneOf:
+            - $ref: "#/components/schemas/BackupFile"
+            - type: "null"
+        file_count: { type: integer }
+    BackupFile:
+      type: object
+      required: [name, size_bytes, created_at]
+      properties:
+        name:
+          type: string
+          example: tradermemos-20261004-031500Z.db
+        size_bytes: { type: integer, format: int64 }
+        created_at: { type: string, format: date-time }
     MissedTradeInput:
       type: object
       required: [symbol, direction, observed_at]

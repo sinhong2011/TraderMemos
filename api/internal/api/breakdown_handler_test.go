@@ -154,6 +154,61 @@ func TestBreakdownBySideDuration(t *testing.T) {
 		do(s, http.MethodGet, "/api/v1/analytics/breakdown?by=symbol&duration=bogus", "", tok).Code)
 }
 
+// The duration filter decides "same trading day" on the request's market tz,
+// defaulting to New York when no tz is sent.
+func TestDurationFilterFollowsMarketTZ(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "durtz@x.com")
+	acc := accountID(t, s, tok)
+
+	mk := func(sym, side string, ts string) {
+		body := fmt.Sprintf(`{"account_id":%q,"symbol":%q,"instrument_type":"stock","side":%q,"quantity":10,"price":10,"executed_at":%q}`,
+			acc, sym, side, ts)
+		require.Equal(t, http.StatusCreated, do(s, http.MethodPost, "/api/v1/executions", body, tok).Code)
+	}
+	// NYDAY: 10:30 → 11:30 ET Jan 2 = 23:30 Jan 2 → 00:30 Jan 3 HKT.
+	mk("NYDAY", "buy", "2026-01-02T15:30:00Z")
+	mk("NYDAY", "sell", "2026-01-02T16:30:00Z")
+	// HKDAY: 12:30 → 13:30 HKT Jan 3 = 23:30 Jan 2 → 00:30 Jan 3 ET.
+	mk("HKDAY", "buy", "2026-01-03T04:30:00Z")
+	mk("HKDAY", "sell", "2026-01-03T05:30:00Z")
+
+	cases := []struct {
+		name     string
+		tz       string
+		duration string
+		want     string
+	}{
+		{"default tz day", "", "day", "NYDAY"},
+		{"default tz swing", "", "swing", "HKDAY"},
+		{"explicit NY day", "America/New_York", "day", "NYDAY"},
+		{"explicit NY swing", "America/New_York", "swing", "HKDAY"},
+		{"HK day", "Asia/Hong_Kong", "day", "HKDAY"},
+		{"HK swing", "Asia/Hong_Kong", "swing", "NYDAY"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			q := "/api/v1/analytics/breakdown?by=symbol&account_id=" + acc + "&duration=" + tc.duration
+			if tc.tz != "" {
+				q += "&tz=" + tc.tz
+			}
+			rec := do(s, http.MethodGet, q, "", tok)
+			require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+			var out []struct {
+				Key string `json:"key"`
+			}
+			require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &out))
+			require.Len(t, out, 1)
+			require.Equal(t, tc.want, out[0].Key)
+		})
+	}
+
+	// An unknown tz is rejected up front (shared parseFilters contract) rather
+	// than silently bucketed on some other clock.
+	require.Equal(t, http.StatusBadRequest,
+		do(s, http.MethodGet, "/api/v1/analytics/breakdown?by=symbol&duration=day&tz=Not/AZone", "", tok).Code)
+}
+
 func TestNotesCRUD(t *testing.T) {
 	s := testServer(t)
 	tok := registerAndLogin(t, s, "note@x.com")
