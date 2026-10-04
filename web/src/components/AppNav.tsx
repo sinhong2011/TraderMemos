@@ -7,7 +7,13 @@ import { useFlexSyncAttention } from "@/lib/hooks/useFlexSync";
 import { cn } from "@/lib/cn";
 import { useDisplayPrefs } from "@/lib/displayPrefs";
 import { navLabel } from "@/lib/locale";
-import { isRouteActive, MAIN_ROUTES, PRIMARY_NAV, SECONDARY_NAV } from "@/lib/navItems";
+import {
+  isNavItemActive,
+  isRouteActive,
+  MAIN_ROUTES,
+  PRIMARY_NAV,
+  SECONDARY_NAV,
+} from "@/lib/navItems";
 import { useLocale } from "@/i18n";
 import { AppLogo } from "./AppLogo";
 import { CreateMenu } from "./CreateMenu";
@@ -84,7 +90,7 @@ export function AppNav() {
   const itemRefs = useRef(new Map<string, HTMLAnchorElement>());
   const [pip, setPip] = useState({ top: 0, ready: false });
 
-  const activeMain = MAIN_ROUTES.find((r) => isRouteActive(pathname, r.to));
+  const activeMain = MAIN_ROUTES.find((r) => isNavItemActive(pathname, r));
   const settingsActive = isRouteActive(pathname, "/settings");
   // Non-actionable update states (web/API behind a release, deployment
   // mismatch) don't toast — they show as a quiet dot here; Settings → About
@@ -151,7 +157,7 @@ export function AppNav() {
             to={item.to}
             icon={item.icon}
             label={label(item.labelKey)}
-            active={isRouteActive(pathname, item.to)}
+            active={isNavItemActive(pathname, item)}
             itemRef={(el) => {
               if (el) itemRefs.current.set(item.to, el);
               else itemRefs.current.delete(item.to);
@@ -170,7 +176,7 @@ export function AppNav() {
             to={item.to}
             icon={item.icon}
             label={label(item.labelKey)}
-            active={isRouteActive(pathname, item.to)}
+            active={isNavItemActive(pathname, item)}
             itemRef={(el) => {
               if (el) itemRefs.current.set(item.to, el);
               else itemRefs.current.delete(item.to);

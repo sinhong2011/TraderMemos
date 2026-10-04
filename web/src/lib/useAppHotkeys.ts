@@ -115,6 +115,7 @@ export function useAppHotkeys() {
 
   // Navigation — skip while typing / overlays
   useHotkeys(keys["nav-home"].keys, go("/home"), pageChord, [navigate, keys["nav-home"].keys]);
+  useHotkeys(keys["nav-today"].keys, go("/today"), pageChord, [navigate, keys["nav-today"].keys]);
   useHotkeys(keys["nav-trades"].keys, go("/trades"), pageChord, [
     navigate,
     keys["nav-trades"].keys,

@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { useLocale } from "@/i18n";
 import { navLabel } from "@/lib/locale";
-import { isRouteActive, PRIMARY_NAV, type NavItem } from "@/lib/navItems";
+import { DRAWER_PRIMARY, isNavItemActive, PRIMARY_NAV, type NavItem } from "@/lib/navItems";
 import { useUI } from "@/lib/ui";
 import { CreateMenu } from "./CreateMenu";
 import { Button } from "./ui/button";
@@ -101,16 +101,16 @@ function MoreButton({ label }: { label: string }) {
   );
 }
 
-const TAB_ITEMS = PRIMARY_NAV.filter((item) => item.to !== "/reports");
+const TAB_ITEMS = PRIMARY_NAV.filter((item) => !DRAWER_PRIMARY.has(item.to));
 
 /**
  * Floating bottom navigation for phone widths (<768px) — the AppNav rail is
  * `hidden` there (see AppNav.tsx). Content scrolls *under* the opaque capsule
  * rather than stopping at a docked bar; `shell.tsx` reserves the height as
- * bottom padding on <main>. Three primary routes ride in the capsule, split around
- * the centre create button; Reports and everything else (Playbook, Calculator,
- * Import, Settings, account) lives one tap away in MobileNavDrawer via the
- * "More" tab.
+ * bottom padding on <main>. Home and Today sit left of the centre create button,
+ * Trades and the "More" tab right of it; Calendar, Reports and everything else
+ * (Notes, Playbook, Import, Settings, account) live one tap away in
+ * MobileNavDrawer.
  */
 export function MobileTabBar() {
   const { locale } = useLocale();
@@ -122,7 +122,7 @@ export function MobileTabBar() {
   const itemRefs = useRef(new Map<string, HTMLAnchorElement>());
   const [pill, setPill] = useState({ left: 0, top: 0, width: 0, height: 0, ready: false });
 
-  const activeItem = TAB_ITEMS.find((item) => isRouteActive(pathname, item.to));
+  const activeItem = TAB_ITEMS.find((item) => isNavItemActive(pathname, item));
 
   // Measured rather than per-tab backgrounds so one element travels between
   // tabs. Runs before paint, so the first placement never animates in from 0.

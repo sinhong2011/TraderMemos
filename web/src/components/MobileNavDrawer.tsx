@@ -16,7 +16,14 @@ import { useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useLocale } from "@/i18n";
 import { navLabel } from "@/lib/locale";
-import { CREATE_ACTIONS, isRouteActive, PRIMARY_NAV, SECONDARY_NAV } from "@/lib/navItems";
+import {
+  CREATE_ACTIONS,
+  DRAWER_PRIMARY,
+  isNavItemActive,
+  isRouteActive,
+  PRIMARY_NAV,
+  SECONDARY_NAV,
+} from "@/lib/navItems";
 import { useUI } from "@/lib/ui";
 
 function NavRow({
@@ -229,13 +236,13 @@ export function MobileNavDrawer() {
           <div className="my-2 h-px bg-border" aria-hidden />
 
           <SectionLabel>More</SectionLabel>
-          {PRIMARY_NAV.filter((item) => item.to === "/reports").map((item) => (
+          {PRIMARY_NAV.filter((item) => DRAWER_PRIMARY.has(item.to)).map((item) => (
             <NavRow
               key={item.to}
               to={item.to}
               label={label(item.labelKey)}
               icon={item.icon}
-              active={isRouteActive(pathname, item.to)}
+              active={isNavItemActive(pathname, item)}
               onNavigate={closeMobileNav}
             />
           ))}
@@ -245,7 +252,7 @@ export function MobileNavDrawer() {
               to={item.to}
               label={label(item.labelKey)}
               icon={item.icon}
-              active={isRouteActive(pathname, item.to)}
+              active={isNavItemActive(pathname, item)}
               onNavigate={closeMobileNav}
             />
           ))}

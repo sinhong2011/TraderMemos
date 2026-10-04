@@ -90,6 +90,7 @@ export function formatHotkeyLabel(keys: string, apple = isApplePlatform()): stri
 export const APP_HOTKEYS = {
   palette: { keys: "mod+k", label: formatHotkeyLabel("mod+k") },
   "nav-home": { keys: "g>h", label: formatHotkeyLabel("g>h") },
+  "nav-today": { keys: "g>d", label: formatHotkeyLabel("g>d") },
   "nav-trades": { keys: "g>t", label: formatHotkeyLabel("g>t") },
   "nav-calendar": { keys: "g>c", label: formatHotkeyLabel("g>c") },
   "nav-stats": { keys: "g>s", label: formatHotkeyLabel("g>s") },

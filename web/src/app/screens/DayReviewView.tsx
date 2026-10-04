@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Area,
@@ -57,6 +58,16 @@ export interface DayReviewViewProps {
   onOpenCalendar: () => void;
   onOpenNotes: () => void;
   onNewNote: () => void;
+  /** True when `date` is today on the market clock. */
+  isToday?: boolean;
+  /** Jump back to today; shown only on other days. */
+  onToday?: () => void;
+  /** The day's routine checklist — the session opens with it. */
+  routine?: ReactNode;
+  /** Live session guardrails (daily loss, open positions); today only. */
+  desk?: ReactNode;
+  /** Setups seen but not taken that day. */
+  missed?: ReactNode;
 }
 
 function formatDayTitle(date: string, locale: string): string {
@@ -175,6 +186,11 @@ export function DayReviewView({
   onOpenCalendar,
   onOpenNotes,
   onNewNote,
+  isToday = false,
+  onToday,
+  routine,
+  desk,
+  missed,
 }: DayReviewViewProps) {
   const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
@@ -200,8 +216,14 @@ export function DayReviewView({
           <h1 className="m-0 text-lg font-semibold tracking-tight">
             {formatDayTitle(date, locale)}
           </h1>
+          {isToday && <Pill tone="accent">Today</Pill>}
         </div>
         <div className="flex items-center gap-1">
+          {!isToday && onToday && (
+            <Button type="button" variant="ghost" size="sm" onClick={onToday}>
+              Today
+            </Button>
+          )}
           <Button
             type="button"
             variant="ghost"
@@ -223,6 +245,9 @@ export function DayReviewView({
         </div>
       </div>
 
+      {routine}
+      {desk}
+
       <Card title="Session summary">
         {summaryLoading ? (
           <Skeleton height="88px" />
@@ -237,7 +262,7 @@ export function DayReviewView({
               <StatCard label="Trades" value={String(summary?.total_trades ?? 0)} />
               <StatCard
                 label="Win rate"
-                value={winRate != null ? `${(winRate * 100).toFixed(0)}%` : "—"}
+                value={winRate != null ? `${(winRate * 100).toFixed(0)}%` : "No trades"}
               />
               <StatCard
                 label="Fees"
@@ -333,6 +358,8 @@ export function DayReviewView({
           </ItemGroup>
         )}
       </Card>
+
+      {missed}
 
       <Card
         title="Daily log"
