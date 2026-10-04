@@ -18,7 +18,8 @@ import { Card } from "@/components/Card";
 import { CsvDropZone } from "@/components/CsvDropZone";
 import { DataTable } from "@/components/DataTable";
 import { ImportStepIndicator } from "@/components/ImportStepIndicator";
-import { csvSampleColumns, journalTradePreviewColumns } from "@/components/importPreviewColumns";
+import { ImportSampleTable } from "@/components/ImportSampleTable";
+import { journalTradePreviewColumns } from "@/components/importPreviewColumns";
 import { Page } from "@/components/Page";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { Field } from "@/components/Field";
@@ -41,7 +42,11 @@ import type {
 } from "@/lib/api/types";
 import { findBroker } from "@/lib/brokers";
 import { cn } from "@/lib/cn";
-import { marketTimezoneSelectOptions } from "@/lib/displayPrefs";
+import {
+  marketTimezoneSelectOptions,
+  resolveMarketTimezone,
+  useDisplayPrefs,
+} from "@/lib/displayPrefs";
 
 import {
   effectiveOptionRight,
@@ -557,18 +562,6 @@ function JournalTradePreviewTable({
   return <DataTable columns={columns} data={displayTrades} dense maxHeight="min(60vh, 520px)" />;
 }
 
-function CsvSamplePreviewTable({
-  headers,
-  rows,
-}: {
-  headers: string[];
-  rows: Record<string, string>[];
-}) {
-  const columns = useMemo(() => csvSampleColumns(headers), [headers]);
-
-  return <DataTable columns={columns} data={rows} dense maxHeight="min(60vh, 520px)" />;
-}
-
 /** "05/01/2026 09:30:00" → "05/01/2026": the date is what the order changes. */
 function datePart(cell: string | undefined): string {
   return (cell ?? "").trim().split(/\s+/)[0] ?? "";
@@ -655,8 +648,13 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
   });
   const [optionOverrides, setOptionOverrides] = useState<Record<number, OptionRightOverride>>({});
   // Zone the file's offset-less timestamps were written in. Broker presets
-  // suggest their export zone; "UTC" is the legacy interpretation.
-  const [sourceTz, setSourceTz] = useState(() => preview.suggested_source_tz || "UTC");
+  // suggest their export zone; otherwise the market timezone (Eastern by
+  // default) — the hint below says most exports are Eastern, and defaulting
+  // to UTC silently put every generic CSV's fills 4–5 hours off.
+  const marketTimezone = useDisplayPrefs((s) => s.marketTimezone);
+  const [sourceTz, setSourceTz] = useState(
+    () => preview.suggested_source_tz || resolveMarketTimezone(marketTimezone),
+  );
   // A file whose slash dates fit both orders has no safe default: a wrong
   // guess moves every early-month trade to another month without an error.
   const dateOrderInfo = preview.date_order;
@@ -845,7 +843,14 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
         </Card>
       ) : (
         <Card flush title="Sample rows">
-          <CsvSamplePreviewTable headers={preview.headers} rows={preview.sample_rows} />
+          <ImportSampleTable
+            headers={preview.headers}
+            rows={preview.sample_rows}
+            mapping={skipMapping ? {} : mapping}
+            fields={CANONICAL_FIELDS}
+            sourceTz={sourceTz}
+            totalRows={preview.row_count}
+          />
         </Card>
       )}
 
