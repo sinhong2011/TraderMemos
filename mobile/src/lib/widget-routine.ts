@@ -12,6 +12,9 @@
  *   refreshing on its own never signs the app out;
  * - today's routine and the missed-trade summary, as the snapshot a widget
  *   shows when it can't reach the server;
+ * - the market timezone: the routine's day is the market day (checklist.ts
+ *   routineDay), and the Swift side has to key "today" the same way when Siri
+ *   or a control ticks without the app;
  * - and it takes back the ticks that couldn't be sent, replaying them through
  *   the outbox, then refetches — a tick made from the Home Screen changed the
  *   server under the app's cache.
@@ -24,8 +27,9 @@ import { AppState, Platform } from 'react-native';
 
 import { queryKeys, useApiRequest, useMissedSummary, useRoutineDay } from '@/api/hooks';
 import { useSession } from '@/api/session';
-import { todayNoteDay } from '@/lib/checklist';
+import { useRoutineToday } from '@/lib/checklist';
 import { applyPendingChecks, drainOutbox, enqueueRoutineCheck, usePendingOps } from '@/lib/outbox';
+import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { useProUnlocked } from '@/lib/pro';
 
 type RoutineBridge = {
@@ -34,6 +38,8 @@ type RoutineBridge = {
   setRoutine(json: string): void;
   setMissed(json: string): void;
   takePendingChecks(): string;
+  /** Absent from dev builds made before the routine moved to the market day. */
+  setMarketTimezone?(timeZone: string): void;
 };
 
 let cached: RoutineBridge | null | undefined;
@@ -55,13 +61,24 @@ export function useWidgetRoutineSync(): void {
   const unlocked = useProUnlocked('widgets');
   const api = useApiRequest();
   const queryClient = useQueryClient();
-  const today = todayNoteDay();
+  const { day: today } = useRoutineToday();
+  const { marketTimezone } = useDisplayPrefs();
+  const marketTz = resolveMarketTimezone(marketTimezone);
   const day = useRoutineDay(today);
   const missed = useMissedSummary();
   const pendingOps = usePendingOps();
   const active = session != null && unlocked;
 
-  const pushed = useRef<{ creds?: string; routine?: string; missed?: string }>({});
+  const pushed = useRef<{ creds?: string; routine?: string; missed?: string; tz?: string }>({});
+
+  // The zone the Swift side keys "today" by. Pushed signed in or not: it is a
+  // setting, not account data. A change re-keys every surface at once.
+  useEffect(() => {
+    const native = bridge();
+    if (!native?.setMarketTimezone || pushed.current.tz === marketTz) return;
+    pushed.current.tz = marketTz;
+    native.setMarketTimezone(marketTz);
+  }, [marketTz]);
 
   // Session in, or everything out on sign-out.
   useEffect(() => {

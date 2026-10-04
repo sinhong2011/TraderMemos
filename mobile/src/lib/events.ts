@@ -20,6 +20,23 @@ export function dayKeyInTz(iso: string, timeZone?: string): string {
   }
 }
 
+/**
+ * First instant after `from` whose day key in `timeZone` moves past `todayKey`
+ * — the zone's next midnight, as epoch ms. Binary search to the minute rather
+ * than calendar math: DST-proof, and it is the same bucketing [dayKeyInTz]
+ * gives every other surface.
+ */
+export function nextDayStartMs(todayKey: string, timeZone: string, from = Date.now()): number {
+  let lo = from;
+  let hi = lo + 48 * 3_600_000;
+  while (hi - lo > 60_000) {
+    const mid = (lo + hi) / 2;
+    if (dayKeyInTz(new Date(mid).toISOString(), timeZone) === todayKey) lo = mid;
+    else hi = mid;
+  }
+  return Math.round(hi);
+}
+
 /** Sunday day-key of the week `offsetWeeks` from today, on the trader's clock. */
 export function weekStartKey(offsetWeeks: number, timeZone?: string): string {
   const todayKey = dayKeyInTz(new Date().toISOString(), timeZone);
