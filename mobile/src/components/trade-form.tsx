@@ -50,6 +50,12 @@ import {
   type TradeFormValues,
 } from '@/lib/trade-form';
 import { useFormatters } from '@/lib/format';
+import {
+  instantToWallDate,
+  resolveDisplayTimezone,
+  useDisplayPrefs,
+  wallDateToInstant,
+} from '@/lib/prefs';
 import type { ImportSource } from '@/lib/trade-import';
 import { blockFillPnls, blockPnlPreview } from '@/lib/trade-pnl-preview';
 
@@ -112,6 +118,9 @@ function FillCard({
   onDuplicate: () => void;
 }) {
   const { formatPnl } = useFormatters();
+  // Fill times are typed on the display clock (web's form does the same), not
+  // the phone's: a Hong Kong phone logging a New York fill reads ET.
+  const timeZone = resolveDisplayTimezone(useDisplayPrefs().timezone);
   const sides = [
     { value: 'buy' as const, label: t`Buy`, fill: PnlFill.pos },
     { value: 'sell' as const, label: t`Sell`, fill: PnlFill.neg },
@@ -140,13 +149,13 @@ function FillCard({
       </ControlRow>
       <DateRow
         label={t`Executed at`}
-        selection={fill.executedAt}
+        selection={instantToWallDate(fill.executedAt, timeZone)}
         displayedComponents={['date', 'hourAndMinute']}
         // Fills are timestamped to the second — brokers report them that way,
         // and the server replays a trade's executions in `executed_at, id`
         // order, so the seconds are what sequence two legs of the same minute.
         seconds
-        onDateChange={(executedAt) => onChange({ executedAt })}
+        onDateChange={(wall) => onChange({ executedAt: wallDateToInstant(wall, timeZone) })}
       />
       <InputRow
         label={t`Quantity`}
