@@ -30,6 +30,11 @@ type Filters struct {
 	// (`tz` query param, IANA name). UTC when unset — the legacy behavior.
 	// Session bucketing stays on the exchange clock (US Eastern) regardless.
 	Loc *time.Location
+	// MarketLoc is the `tz` the client actually sent, nil when absent. The
+	// scalp/day/swing duration bucket uses it so an absent tz keeps the
+	// America/New_York trading day (analytics.DurationBucket's nil default)
+	// instead of inheriting Loc's UTC fallback.
+	MarketLoc *time.Location
 	// IncludeBacktest keeps backtest-account rows in unscoped results. Never
 	// parsed from the query — set internally by handlers (exports/backups)
 	// that must see the complete dataset.
@@ -65,6 +70,7 @@ func parseFilters(c *echo.Context) (Filters, error) {
 			return f, fmt.Errorf("invalid 'tz' (want IANA timezone name)")
 		}
 		f.Loc = loc
+		f.MarketLoc = loc
 	}
 	if v := c.QueryParam("from"); v != "" {
 		t, err := time.Parse(time.RFC3339, v)
@@ -192,7 +198,7 @@ func (f Filters) matchSideDuration(t store.Trade) bool {
 			v := t.TimeInTradeSecs.Int64
 			secs = &v
 		}
-		if analytics.DurationBucket(t.OpenedAt, t.ClosedAt.Time, secs) != f.Duration {
+		if analytics.DurationBucket(t.OpenedAt, t.ClosedAt.Time, secs, f.MarketLoc) != f.Duration {
 			return false
 		}
 	}
