@@ -36,7 +36,7 @@ export function paceTone(status: GoalPaceStatus): string {
     case "ahead":
       return "text-profit";
     case "behind":
-      return "text-destructive";
+      return "text-loss";
     default:
       return "text-muted-foreground";
   }

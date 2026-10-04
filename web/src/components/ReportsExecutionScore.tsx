@@ -69,7 +69,7 @@ export function execScoreBand(score: number): string {
 
 function scoreTone(score: number): string {
   if (score >= 70) return "text-profit";
-  if (score < 40) return "text-destructive";
+  if (score < 40) return "text-loss";
   return "text-foreground";
 }
 

@@ -16,7 +16,13 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { CardSkeleton } from "@/components/skeletons/card-skeleton";
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/HoverCard";
-import { heroPnlClass, pnlBgTint, pnlColor, TINTED_LABEL_SUBTLE } from "@/components/theme-tokens";
+import {
+  heatInk,
+  heroPnlClass,
+  pnlBgTint,
+  pnlColor,
+  TINTED_LABEL_SUBTLE,
+} from "@/components/theme-tokens";
 
 import type { Account, CashTransaction, EquityPoint, Summary, Trade } from "@/lib/api/types";
 import { netDeposits } from "@/lib/headerStats";
@@ -99,11 +105,6 @@ export interface CalendarViewProps {
   /** Quick peek drawer */
   onSelectTrade: (t: Trade) => void;
   onOpenDayReview?: (day: string) => void;
-}
-
-/** Softer P&L ink for heatmap cells — teal/rose, less neon than --color-profit/loss. */
-function dayColor(pnl: number): string {
-  return pnl >= 0 ? "rgb(82, 202, 150)" : "rgb(235, 75, 104)";
 }
 
 function todayString(tz?: string): string {
@@ -397,7 +398,7 @@ export function CalendarView({
                 "sm:h-7 sm:px-2.5 sm:text-[13px]",
                 (mode === "month" ? monthPnl : yearPnlTotal) >= 0
                   ? "bg-profit/10 text-profit hover:bg-profit/16"
-                  : "bg-destructive/10 text-destructive hover:bg-destructive/16",
+                  : "bg-loss/10 text-loss hover:bg-loss/16",
               )}
             >
               {fmtSignedMoneyCompact(
@@ -552,7 +553,7 @@ export function CalendarView({
                                       "@min-[5rem]/day:text-[13px]",
                                       "@min-[6.5rem]/day:text-base @min-[8.5rem]/day:text-lg",
                                     )}
-                                    style={{ color: dayColor(cell.pnl!) }}
+                                    style={{ color: heatInk(cell.pnl!) }}
                                   >
                                     {fmtSignedMoneyCompact(
                                       money(cell.pnl!),
@@ -569,11 +570,7 @@ export function CalendarView({
                                         TINTED_LABEL_SUBTLE,
                                       )}
                                     >
-                                      <WinLossRecord
-                                        wins={rec!.wins}
-                                        losses={rec!.losses}
-                                        className="opacity-90"
-                                      />
+                                      <WinLossRecord wins={rec!.wins} losses={rec!.losses} onWash />
                                       <span
                                         className={cn(
                                           "hidden @min-[4.5rem]/day:inline",
@@ -691,7 +688,7 @@ export function CalendarView({
                                       "max-w-full truncate text-[11px] font-semibold tracking-[-0.02em] tabular-nums",
                                       "@min-[6rem]/week:text-base @min-[7.5rem]/week:text-lg",
                                     )}
-                                    style={{ color: dayColor(ws.pnl) }}
+                                    style={{ color: heatInk(ws.pnl) }}
                                   >
                                     {fmtSignedMoneyCompact(
                                       money(ws.pnl),
@@ -702,7 +699,7 @@ export function CalendarView({
                                   {weekPcts[wi] != null ? (
                                     <span
                                       className="max-w-full truncate text-[10px] font-semibold tabular-nums opacity-80"
-                                      style={{ color: dayColor(ws.pnl) }}
+                                      style={{ color: heatInk(ws.pnl) }}
                                     >
                                       {fmtSignedPct(weekPcts[wi]!, intlLocale())}
                                     </span>
@@ -710,7 +707,7 @@ export function CalendarView({
                                   {/* W/L only — no day-count line, matching the mobile board. */}
                                   {ws.wins + ws.losses > 0 ? (
                                     <span className="max-w-full truncate text-[10px] tabular-nums">
-                                      <WinLossRecord wins={ws.wins} losses={ws.losses} />
+                                      <WinLossRecord wins={ws.wins} losses={ws.losses} onWash />
                                     </span>
                                   ) : null}
                                 </span>
@@ -886,7 +883,7 @@ function MonthStatChip({
       className={cn(
         "inline-flex items-baseline gap-1.5 rounded-md px-2.5 py-1 text-[11px] tabular-nums",
         tone === "pos" && "bg-profit/10 text-profit",
-        tone === "neg" && "bg-destructive/10 text-destructive",
+        tone === "neg" && "bg-destructive/10 text-loss",
         !tone && "bg-muted/60 text-foreground",
       )}
     >
@@ -983,7 +980,7 @@ function PeriodSummaryBody({
 
 function PeriodSummaryStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1.5 rounded-md bg-background px-3 py-3">
+    <div className="flex min-w-0 flex-col gap-1.5 rounded-md bg-canvas px-3 py-3">
       <p className="m-0 truncate text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
         {label}
       </p>

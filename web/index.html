@@ -9,7 +9,7 @@
          --background (global.css); the script below and ThemeProvider re-derive
          them from the token once the app's own theme preference is known. -->
     <meta name="theme-color" content="#161616" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#f5f5f5" media="(prefers-color-scheme: light)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="TraderMemos" />
@@ -34,8 +34,8 @@
           // The app's stored theme outranks the system scheme, so give every
           // theme-color copy the same value — whichever media matches is right.
           // Literals here because the body has no styles yet; ThemeProvider
-          // re-derives them from --background once React mounts.
-          var chrome = resolved === "dark" ? "#161616" : "#ffffff";
+          // re-derives them from --canvas once React mounts.
+          var chrome = resolved === "dark" ? "#161616" : "#f5f5f5";
           var metas = document.querySelectorAll('meta[name="theme-color"]');
           for (var i = 0; i < metas.length; i++) {
             metas[i].setAttribute("content", chrome);

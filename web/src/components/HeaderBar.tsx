@@ -306,7 +306,7 @@ export function HeaderBar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-20 flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-background px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0",
+        "sticky top-0 z-20 flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-canvas px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0",
         "transition-transform duration-200 ease-out motion-reduce:transition-none md:translate-y-0",
         hidden && "-translate-y-full",
       )}

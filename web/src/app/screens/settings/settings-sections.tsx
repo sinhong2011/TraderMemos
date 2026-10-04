@@ -679,7 +679,7 @@ export function AccountsTab({
                             netPnl > 0
                               ? "text-profit"
                               : netPnl < 0
-                                ? "text-destructive"
+                                ? "text-loss"
                                 : "text-muted-foreground",
                           )}
                         >
@@ -907,7 +907,7 @@ export function AccountsTab({
                     <div className="flex items-center gap-1.5">
                       <span
                         className={`mr-1.5 text-[12px] font-semibold tabular-nums ${
-                          isOutflow ? "text-destructive" : "text-profit"
+                          isOutflow ? "text-loss" : "text-profit"
                         }`}
                       >
                         {display}
@@ -1315,7 +1315,7 @@ export function RulesTab({
                       goalProgress.ytdNetPnl > 0
                         ? "text-profit"
                         : goalProgress.ytdNetPnl < 0
-                          ? "text-destructive"
+                          ? "text-loss"
                           : "text-muted-foreground",
                     )}
                   >

@@ -80,7 +80,7 @@ import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 function coachToneClass(tone: CoachTone): string {
   switch (tone) {
     case "neg":
-      return "text-destructive";
+      return "text-loss";
     case "warn":
       // `warning` is the semantic alert token; `chart-3` is data-viz paint.
       return "text-warning";

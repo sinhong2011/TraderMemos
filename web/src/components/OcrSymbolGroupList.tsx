@@ -103,7 +103,7 @@ export function OcrSymbolGroupList({
                   className={cn(
                     "font-semibold uppercase tracking-[0.06em]",
                     g.side === "long" && "text-profit",
-                    g.side === "short" && "text-destructive",
+                    g.side === "short" && "text-loss",
                     !g.side && "text-muted-foreground",
                   )}
                 >

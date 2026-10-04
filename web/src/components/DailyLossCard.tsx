@@ -38,7 +38,7 @@ export function DailyLossCard({ todayNetPnl, currency, fxRate = 1 }: DailyLossCa
           <span
             className={cn(
               "text-xl font-semibold tabular-nums",
-              net >= 0 ? "text-profit" : breached ? "text-destructive" : "text-foreground",
+              net >= 0 ? "text-profit" : breached ? "text-loss" : "text-foreground",
             )}
           >
             {fmtSignedMoney(net, currency, locale)}

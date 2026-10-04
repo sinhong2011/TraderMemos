@@ -17,7 +17,7 @@ export interface HomeInsightBentoProps {
 
 function toneClass(tone?: InsightRow["tone"]): string {
   if (tone === "pos") return "text-profit";
-  if (tone === "neg") return "text-destructive";
+  if (tone === "neg") return "text-loss";
   if (tone === "muted") return "text-muted-foreground";
   return "text-foreground";
 }

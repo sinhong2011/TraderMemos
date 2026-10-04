@@ -53,7 +53,7 @@ function StatCell({
         className={cn(
           "mt-1 truncate text-[20px] font-semibold leading-none tracking-[-0.02em] tabular-nums",
           tone === "pos" && "text-profit",
-          tone === "neg" && "text-destructive",
+          tone === "neg" && "text-loss",
           tone === "muted" && "text-muted-foreground",
           !tone && "text-foreground",
         )}
@@ -214,7 +214,7 @@ export function PublicShareView({ token }: PublicShareViewProps) {
                 <span
                   className={cn(
                     "text-[22px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[24px]",
-                    pf >= 1 ? "text-profit" : pf > 0 ? "text-destructive" : "text-muted-foreground",
+                    pf >= 1 ? "text-profit" : pf > 0 ? "text-loss" : "text-muted-foreground",
                   )}
                 >
                   {pf > 0 ? pf.toFixed(2) : "0.00"}

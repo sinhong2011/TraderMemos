@@ -31,7 +31,7 @@ function cellBackground(pnl: number, trades: number, maxAbsPnl: number): string 
 }
 
 function pnlClass(v: number): string {
-  return v > 0 ? "text-profit" : v < 0 ? "text-destructive" : "text-muted-foreground";
+  return v > 0 ? "text-profit" : v < 0 ? "text-loss" : "text-muted-foreground";
 }
 
 /** Weekday × entry-hour P&L heatmap over the Reports-filtered trades. */

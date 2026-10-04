@@ -37,10 +37,10 @@ function AuthedShell() {
   // Phones scroll the document (lets Safari collapse its toolbar); ≥md the
   // shell is viewport-height again and <main> is the scroller.
   return (
-    <div className="relative flex min-h-svh bg-background pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] md:h-full md:min-h-0 md:overflow-hidden">
+    <div className="relative flex min-h-svh bg-canvas pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] md:h-full md:min-h-0 md:overflow-hidden">
       <AppNav />
 
-      <div className="relative z-[1] flex min-w-0 flex-1 flex-col bg-background md:min-h-0 md:overflow-hidden">
+      <div className="relative z-[1] flex min-w-0 flex-1 flex-col bg-canvas md:min-h-0 md:overflow-hidden">
         <HeaderBar />
         {/* Bottom padding clears the floating MobileTabBar (~44px capsule + 12px gap). */}
         {/* Named so route changes animate only the routed page — see the
@@ -49,7 +49,7 @@ function AuthedShell() {
             tab bar crossfade along with the content. */}
         <main
           style={{ viewTransitionName: "page" }}
-          className="flex min-w-0 flex-1 flex-col bg-background pb-[calc(64px+env(safe-area-inset-bottom))] md:min-h-0 md:overflow-auto md:pb-0"
+          className="flex min-w-0 flex-1 flex-col bg-canvas pb-[calc(64px+env(safe-area-inset-bottom))] md:min-h-0 md:overflow-auto md:pb-0"
         >
           <Outlet />
         </main>
@@ -108,7 +108,7 @@ function UnauthedGate() {
 
   if (!status) {
     return (
-      <div className="flex min-h-svh items-center justify-center bg-background text-[13px] text-muted-foreground">
+      <div className="flex min-h-svh items-center justify-center bg-canvas text-[13px] text-muted-foreground">
         Checking install status…
       </div>
     );
@@ -145,7 +145,7 @@ export function AppShell() {
   if (publicRoute) {
     return (
       <Toaster>
-        <main className="flex min-h-svh min-w-0 flex-col bg-background">
+        <main className="flex min-h-svh min-w-0 flex-col bg-canvas">
           <Outlet />
         </main>
       </Toaster>

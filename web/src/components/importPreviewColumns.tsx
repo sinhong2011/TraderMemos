@@ -18,9 +18,7 @@ function ReturnCell({ value, currency }: { value: number; currency: string }) {
   const { fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   return (
-    <span
-      className={cn("tabular-nums font-semibold", value >= 0 ? "text-profit" : "text-destructive")}
-    >
+    <span className={cn("tabular-nums font-semibold", value >= 0 ? "text-profit" : "text-loss")}>
       {fmtSignedMoney(value, currency, locale)}
     </span>
   );

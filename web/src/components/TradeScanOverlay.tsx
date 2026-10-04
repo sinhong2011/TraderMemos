@@ -277,7 +277,7 @@ function ScanBlockSummary({
         <span
           className={cn(
             "rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold",
-            long ? "text-profit" : "text-destructive",
+            long ? "text-profit" : "text-loss",
           )}
         >
           {long ? "Long" : "Short"}
@@ -298,10 +298,7 @@ function ScanBlockSummary({
             <div key={row.key} className="flex items-center gap-2 px-4 py-1">
               <span className="flex flex-1 items-center gap-2">
                 <span
-                  className={cn(
-                    "w-8 text-[12px] font-semibold",
-                    buy ? "text-profit" : "text-destructive",
-                  )}
+                  className={cn("w-8 text-[12px] font-semibold", buy ? "text-profit" : "text-loss")}
                 >
                   {buy ? "Buy" : "Sell"}
                 </span>

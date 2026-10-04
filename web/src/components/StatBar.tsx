@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 
 const TONE_VALUE: Record<PillTone, string> = {
   pos: "text-profit",
-  neg: "text-destructive",
+  neg: "text-loss",
   accent: "text-primary",
   amber: "text-chart-3",
   muted: "text-foreground",

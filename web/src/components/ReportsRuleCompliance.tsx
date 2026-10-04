@@ -137,7 +137,7 @@ export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleCom
                     className={
                       d.net_pnl >= 0
                         ? "tabular-nums font-medium text-profit"
-                        : "tabular-nums font-medium text-destructive"
+                        : "tabular-nums font-medium text-loss"
                     }
                   >
                     {money.format(d.net_pnl)}

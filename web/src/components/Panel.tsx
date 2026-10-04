@@ -6,7 +6,7 @@ interface PanelProps {
   right?: ReactNode;
   children: ReactNode;
   className?: string;
-  /** void = full-bleed page surface (bg-background); panel = elevated card (default) */
+  /** void = full-bleed page surface (bg-canvas); panel = elevated card (default) */
   surface?: "void" | "panel";
 }
 
@@ -16,7 +16,7 @@ export function Panel({ title, right, children, className = "", surface = "panel
       className={cn(
         "flex flex-col",
         surface === "panel" && "rounded-md border border-border bg-card",
-        surface === "void" && "bg-background",
+        surface === "void" && "bg-canvas",
         className,
       )}
     >
