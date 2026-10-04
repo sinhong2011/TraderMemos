@@ -116,8 +116,21 @@ export function errorMessage(error: unknown): string {
     return t`Could not reach the server. Check your connection and try again.`;
   }
   if (error instanceof UnauthorizedError) return t`Your session expired. Sign in again.`;
-  if (error instanceof ApiError && error.status < 500) return error.message;
+  if (error instanceof ApiError && (error.status < 500 || isRelayedFailure(error))) {
+    return error.message;
+  }
   return describeError(error).description;
+}
+
+/**
+ * A 502/503/504 the API itself wrote (`code` comes from its JSON body; a proxy's
+ * HTML error page leaves it `unknown`): the server is fine and is telling us
+ * which thing behind it failed — the vision model's key was suspended, market
+ * data isn't configured. "The server couldn't handle this request" would send
+ * the user to the server logs for an answer the server already gave.
+ */
+function isRelayedFailure(error: ApiError): boolean {
+  return error.status >= 502 && error.status <= 504 && error.code !== 'unknown';
 }
 
 /** True when the failure is "no response", i.e. the server, not the request. */
