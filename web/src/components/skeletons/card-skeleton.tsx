@@ -10,7 +10,7 @@ export function CardSkeleton({
   mediaClassName?: string;
 }) {
   return (
-    <div className={cn("flex w-full flex-col gap-3 rounded-xl bg-bg-panel p-4", className)}>
+    <div className={cn("flex w-full flex-col gap-3 rounded-lg bg-card p-4", className)}>
       <Skeleton className="h-4 w-2/3 max-w-48" />
       <Skeleton className="h-3 w-1/2 max-w-32" />
       <Skeleton className={cn("w-full rounded-md", mediaClassName)} />
