@@ -66,7 +66,7 @@ export function ReportsDayStrip({ trades, loading, onDayClick }: ReportsDayStrip
 
   return (
     <section className="min-w-0">
-      <p className="mb-2 text-[10px] font-semibold tracking-wide text-chart-3">Trading days</p>
+      <p className="mb-2 text-2xs font-semibold tracking-wide text-chart-3">Trading days</p>
       <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">
         {days.map((d) => {
           const dow = new Date(`${d.date}T12:00:00Z`).getUTCDay();
@@ -86,7 +86,7 @@ export function ReportsDayStrip({ trades, loading, onDayClick }: ReportsDayStrip
               )}
               aria-label={onDayClick ? `View trades for ${label}` : undefined}
             >
-              <p className="text-[10px] font-medium text-muted-foreground">{label}</p>
+              <p className="text-2xs font-medium text-muted-foreground">{label}</p>
               <p
                 className={cn(
                   "mt-1.5 text-[13px] font-semibold leading-none tabular-nums tracking-[-0.02em]",
@@ -95,7 +95,7 @@ export function ReportsDayStrip({ trades, loading, onDayClick }: ReportsDayStrip
               >
                 {money.format(d.pnl)}
               </p>
-              <p className="mt-1 text-[9px] text-muted-foreground">
+              <p className="mt-1 text-2xs text-muted-foreground">
                 {d.trades} {d.trades === 1 ? "trade" : "trades"}
               </p>
             </CardTag>

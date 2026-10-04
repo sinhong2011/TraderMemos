@@ -73,7 +73,7 @@ export function ReportsDurationScatter({
                 scale="log"
                 domain={["dataMin", "dataMax"]}
                 ticks={ticks.length > 0 ? ticks : undefined}
-                tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                 tickFormatter={(v: number) => fmtDuration(v)}
                 axisLine={false}
                 tickLine={false}
@@ -81,7 +81,7 @@ export function ReportsDurationScatter({
               <YAxis
                 dataKey="value"
                 type="number"
-                tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                 tickFormatter={(v: number) => money.formatAxis(v)}
                 axisLine={false}
                 tickLine={false}
@@ -108,7 +108,7 @@ export function ReportsDurationScatter({
                 label={{
                   value: `median ${fmtDuration(median)}`,
                   position: "top",
-                  fontSize: 10,
+                  fontSize: 11,
                   fill: chartTheme.axisColor,
                 }}
               />
@@ -129,7 +129,7 @@ export function ReportsDurationScatter({
             </ScatterChart>
           </ResponsiveContainer>
         </ChartFrame>
-        <p className="mt-2 text-[10px] text-muted-foreground">
+        <p className="mt-2 text-2xs text-muted-foreground">
           Hold time on a log scale · dashed line marks the median hold
         </p>
       </>

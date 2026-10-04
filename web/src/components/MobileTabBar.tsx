@@ -56,7 +56,7 @@ function TabLink({
       />
       <span
         className={cn(
-          "max-w-full truncate text-[10px] leading-tight tracking-wide",
+          "max-w-full truncate text-2xs leading-tight tracking-wide",
           "transition-[font-weight,opacity] duration-200 ease-out motion-reduce:transition-none",
           active ? "font-semibold" : "font-medium opacity-80",
         )}
@@ -91,7 +91,7 @@ function MoreButton({ label }: { label: string }) {
       />
       <span
         className={cn(
-          "max-w-full truncate text-[10px] leading-tight tracking-wide",
+          "max-w-full truncate text-2xs leading-tight tracking-wide",
           "font-medium opacity-80",
         )}
       >

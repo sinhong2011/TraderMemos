@@ -60,9 +60,7 @@ function HeaderStack({ title, source, dim }: { title: string; source: string; di
   return (
     <span className={cn("flex flex-col gap-0.5 normal-case", dim && "opacity-60")}>
       <span className="text-[11px] font-semibold tracking-normal text-foreground">{title}</span>
-      <span className="text-[10px] font-normal tracking-normal text-muted-foreground">
-        {source}
-      </span>
+      <span className="text-2xs font-normal tracking-normal text-muted-foreground">{source}</span>
     </span>
   );
 }

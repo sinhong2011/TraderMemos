@@ -10,7 +10,7 @@ import { gradeFromInt } from "@/lib/tradeGrades";
 function JournalBlock({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="m-0 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
+      <p className="m-0 text-2xs font-semibold tracking-widest text-muted-foreground uppercase">
         {label}
       </p>
       <p className="m-0 text-[13px] leading-relaxed whitespace-pre-wrap text-foreground">

@@ -32,7 +32,7 @@ export const appCalendarClassNames: NonNullable<ComponentProps<typeof DayPicker>
   month_grid: "w-full border-collapse",
   weekdays: "flex",
   weekday:
-    "flex-1 text-center text-[10px] font-medium uppercase tracking-widest text-muted-foreground",
+    "flex-1 text-center text-2xs font-medium uppercase tracking-widest text-muted-foreground",
   week: "mt-1 flex w-full",
   day: "relative flex-1 p-0 text-center",
   day_button: cn(

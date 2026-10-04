@@ -154,7 +154,7 @@ const EMOTION_OPTIONS: MultiSelectOption[] = EMOTIONAL_STATES.map((s) => ({ valu
 const FILL_TABLE_COLS =
   "@min-[46rem]/symbol:grid-cols-[72px_minmax(150px,1fr)_72px_80px_88px_72px_88px_32px]";
 const labelClass =
-  "mb-1 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground";
+  "mb-1 block text-2xs font-semibold uppercase tracking-widest text-muted-foreground";
 /**
  * Field type scale for this drawer — 13px instead of the 16px the coss controls
  * use below `sm`, so a narrow drawer reads at one size. Coarse pointers keep 16px
@@ -185,7 +185,7 @@ function JournalField({
       ) : (
         <span className={labelClass}>{label}</span>
       )}
-      {hint ? <p className="mb-2 text-[10px] leading-snug text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="mb-2 text-2xs leading-snug text-muted-foreground">{hint}</p> : null}
       {children}
     </div>
   );
@@ -218,7 +218,7 @@ function FillCell({
     <div className={cn("flex min-w-0 flex-col gap-1", className)}>
       <span
         aria-hidden
-        className="truncate text-[10px] font-medium uppercase tracking-widest text-muted-foreground @min-[46rem]/symbol:hidden"
+        className="truncate text-2xs font-medium uppercase tracking-widest text-muted-foreground @min-[46rem]/symbol:hidden"
       >
         {label}
       </span>
@@ -402,7 +402,7 @@ function SymbolExtrasAccordion({
           <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
             <span className="text-[12px] font-semibold tracking-wide">Journal</span>
             {journalSummary ? (
-              <span className="truncate text-[10px] font-normal text-muted-foreground group-data-panel-open/acc-trigger:hidden">
+              <span className="truncate text-2xs font-normal text-muted-foreground group-data-panel-open/acc-trigger:hidden">
                 {journalSummary}
               </span>
             ) : null}
@@ -418,7 +418,7 @@ function SymbolExtrasAccordion({
           <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
             <span className="text-[12px] font-semibold tracking-wide">Dividend</span>
             {dividendSummary ? (
-              <span className="truncate text-[10px] font-normal text-muted-foreground group-data-panel-open/acc-trigger:hidden">
+              <span className="truncate text-2xs font-normal text-muted-foreground group-data-panel-open/acc-trigger:hidden">
                 {dividendSummary}
               </span>
             ) : null}
@@ -635,7 +635,7 @@ function SymbolCard({
             <span className="truncate text-[15px] font-semibold leading-none tracking-[-0.02em] text-foreground">
               {block.symbol || "Untitled"}
             </span>
-            <span className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+            <span className="truncate text-2xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
               {collapsedSummary && !open
                 ? `Symbol ${index + 1} · ${collapsedSummary}`
                 : `Symbol ${index + 1}`}
@@ -841,7 +841,7 @@ function SymbolCard({
                 </span>
                 <div
                   className={cn(
-                    "hidden gap-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground @min-[46rem]/symbol:grid",
+                    "hidden gap-2 text-2xs font-medium uppercase tracking-widest text-muted-foreground @min-[46rem]/symbol:grid",
                     FILL_TABLE_COLS,
                   )}
                 >
@@ -1240,7 +1240,7 @@ function SymbolCard({
             }
             dividend={
               <>
-                <p className="m-0 text-[10px] leading-snug text-muted-foreground">
+                <p className="m-0 text-2xs leading-snug text-muted-foreground">
                   Optional payout on this symbol. Amount rolls into trade P&amp;L (shorts as a
                   debit).
                 </p>

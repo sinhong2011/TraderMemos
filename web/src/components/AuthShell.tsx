@@ -131,7 +131,7 @@ function EquityArtwork() {
           )}
         >
           <div className="flex items-baseline justify-between gap-2">
-            <span className="font-mono text-[10px] tracking-wider text-muted-foreground">
+            <span className="font-mono text-2xs tracking-wider text-muted-foreground">
               {m.meta}
             </span>
             <span

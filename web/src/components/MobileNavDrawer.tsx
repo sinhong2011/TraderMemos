@@ -97,7 +97,7 @@ function ActionRow({
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <p className="mt-1 mb-1 px-3 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
+    <p className="mt-1 mb-1 px-3 text-2xs font-semibold tracking-widest text-muted-foreground uppercase">
       {children}
     </p>
   );

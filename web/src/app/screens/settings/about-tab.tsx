@@ -295,7 +295,7 @@ export function AboutTab() {
                   <>
                     {content.updateReleasePublished} {fmtDateTime(remote.publishedAt)}
                     {remote.prerelease ? (
-                      <span className="ml-1.5 text-[10px] uppercase tracking-wide text-chart-3">
+                      <span className="ml-1.5 text-2xs uppercase tracking-wide text-chart-3">
                         pre
                       </span>
                     ) : null}
@@ -344,7 +344,7 @@ export function AboutTab() {
               {releaseSections.length > 0 ? (
                 releaseSections.map((section) => (
                   <div key={section.title} className="mt-3">
-                    <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                    <p className="m-0 text-2xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
                       {section.title}
                     </p>
                     <ul className="m-0 mt-1.5 flex list-none flex-col gap-1.5 p-0">
@@ -354,7 +354,7 @@ export function AboutTab() {
                           className="flex items-baseline gap-2 text-[12px] leading-relaxed"
                         >
                           {item.scope ? (
-                            <span className="shrink-0 rounded bg-sidebar px-1.5 py-px text-[10px] font-medium text-muted-foreground">
+                            <span className="shrink-0 rounded bg-sidebar px-1.5 py-px text-2xs font-medium text-muted-foreground">
                               {item.scope}
                             </span>
                           ) : null}
@@ -454,7 +454,7 @@ export function AboutTab() {
 
           {enabledFeatures.length > 0 ? (
             <div className="mt-4">
-              <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+              <p className="m-0 text-2xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
                 {content.apiFeaturesLabel}
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">

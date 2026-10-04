@@ -91,21 +91,21 @@ export function FacetedFilter({
             <span aria-hidden className="mx-0.5 h-4 w-px shrink-0 bg-border" />
             <span className="hidden items-center gap-1 lg:flex">
               {selected.size > 2 ? (
-                <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+                <span className="rounded-md border border-border px-1.5 py-0.5 text-2xs font-medium tabular-nums text-muted-foreground">
                   {selected.size} selected
                 </span>
               ) : (
                 selectedOptions.map((o) => (
                   <span
                     key={o.value}
-                    className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                    className="rounded-md border border-border px-1.5 py-0.5 text-2xs font-medium text-muted-foreground"
                   >
                     {o.label}
                   </span>
                 ))
               )}
             </span>
-            <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground lg:hidden">
+            <span className="rounded-md border border-border px-1.5 py-0.5 text-2xs font-medium tabular-nums text-muted-foreground lg:hidden">
               {selected.size}
             </span>
           </>
@@ -137,7 +137,7 @@ export function FacetedFilter({
                 </span>
                 <span className="min-w-0 flex-1 truncate">{option.label}</span>
                 {option.count != null ? (
-                  <span className="tabular-nums text-[10px] text-muted-foreground">
+                  <span className="tabular-nums text-2xs text-muted-foreground">
                     {option.count}
                   </span>
                 ) : null}

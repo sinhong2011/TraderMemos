@@ -95,7 +95,7 @@ export function ReportsBreakdownCard({
                 <>
                   <XAxis
                     type="number"
-                    tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                    tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                     tickFormatter={(v: number) => money.formatAxis(v)}
                     axisLine={false}
                     tickLine={false}
@@ -103,7 +103,7 @@ export function ReportsBreakdownCard({
                   <YAxis
                     type="category"
                     dataKey="key"
-                    tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                    tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                     axisLine={false}
                     tickLine={false}
                     width={64}
@@ -113,12 +113,12 @@ export function ReportsBreakdownCard({
                 <>
                   <XAxis
                     dataKey="key"
-                    tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                    tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                    tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                     tickFormatter={(v: number) => money.formatAxis(v)}
                     axisLine={false}
                     tickLine={false}

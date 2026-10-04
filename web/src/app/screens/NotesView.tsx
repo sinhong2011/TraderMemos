@@ -321,7 +321,7 @@ function NoteTile({
               <CalendarDays size={12} strokeWidth={1.75} aria-hidden />
               {formatNoteDay(note.occurred_at, locale)}
             </span>
-            <Pill tone={badge.tone} className="px-1.5 py-0 text-[10px]">
+            <Pill tone={badge.tone} className="px-1.5 py-0 text-2xs">
               {badge.label}
             </Pill>
             {progress ? (
@@ -352,7 +352,7 @@ function NoteTile({
           {symbols.map((s) => (
             <span
               key={s.symbol}
-              className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-primary"
+              className="rounded-md bg-primary/10 px-1.5 py-0.5 text-2xs font-semibold tracking-wide text-primary"
             >
               {s.symbol}
             </span>

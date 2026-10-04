@@ -41,7 +41,7 @@ import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
 function Stat({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className="min-w-0">
-      <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+      <p className="m-0 text-2xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </p>
       <p

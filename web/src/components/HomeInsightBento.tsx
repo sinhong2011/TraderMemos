@@ -105,7 +105,7 @@ function StatTile({ row, className }: { row: InsightRow; className?: string }) {
         >
           {row.value}
         </p>
-        {row.hint ? <p className="mt-1.5 text-[10px] text-muted-foreground">{row.hint}</p> : null}
+        {row.hint ? <p className="mt-1.5 text-2xs text-muted-foreground">{row.hint}</p> : null}
       </div>
     </BentoCell>
   );
@@ -162,7 +162,7 @@ export function HomeInsightBento({
                 {row.value}
               </p>
               {row.hint ? (
-                <p className="mt-0.5 text-[10px] text-muted-foreground">{row.hint}</p>
+                <p className="mt-0.5 text-2xs text-muted-foreground">{row.hint}</p>
               ) : null}
             </div>
           ))}

@@ -39,7 +39,7 @@ function PlanBar({
 
   return (
     <div className="grid grid-cols-[4.5rem_1fr_auto] items-center gap-x-3 gap-y-1 sm:grid-cols-[5.5rem_1fr_auto]">
-      <span className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
+      <span className="text-2xs font-semibold tracking-widest text-muted-foreground uppercase">
         {label}
       </span>
       <span className="h-2 min-w-0 overflow-hidden rounded-full bg-muted/60">

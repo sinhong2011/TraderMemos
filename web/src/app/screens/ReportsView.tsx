@@ -334,14 +334,14 @@ function SummaryMetricsGrid({
                     <XAxis
                       dataKey="at"
                       ticks={uniqueDayTicks(equityPoints)}
-                      tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                      tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                       tickFormatter={(v: string) => fmtDayShort(v, intlLocale())}
                       axisLine={false}
                       tickLine={false}
                       minTickGap={60}
                     />
                     <YAxis
-                      tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                      tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                       tickFormatter={(v: number) => fmtMoneyCompact(v, currency, intlLocale())}
                       axisLine={false}
                       tickLine={false}
@@ -547,12 +547,12 @@ export function PnlBarChart({ data }: PnlBarChartProps) {
           <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
           <XAxis
             dataKey="key"
-            tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+            tick={{ fontSize: 11, fill: chartTheme.axisColor }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+            tick={{ fontSize: 11, fill: chartTheme.axisColor }}
             tickFormatter={(v: number) => money.formatAxis(v)}
             axisLine={false}
             tickLine={false}

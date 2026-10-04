@@ -93,7 +93,7 @@ function ContextItem({
       >
         {value}
       </p>
-      {hint ? <p className="mt-1 truncate text-[10px] text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="mt-1 truncate text-2xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }
@@ -194,7 +194,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
                   {pf > 0 ? pf.toFixed(2) : "—"}
                 </span>
               </GaugeArc>
-              <p className="mt-1 text-[10px] text-muted-foreground">1.0 = break-even</p>
+              <p className="mt-1 text-2xs text-muted-foreground">1.0 = break-even</p>
             </div>
 
             <div className="flex flex-col items-center justify-center">
@@ -229,7 +229,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
               >
                 {payoff === Infinity ? "∞" : payoff > 0 ? `${payoff.toFixed(2)}×` : "—"}
               </p>
-              <p className="mt-1 text-[10px] text-muted-foreground">
+              <p className="mt-1 text-2xs text-muted-foreground">
                 {useMedian ? "median win ÷ median loss" : "avg win ÷ avg loss"}
               </p>
             </div>
@@ -237,13 +237,13 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
             <div className="flex flex-col justify-center">
               <div className="flex items-baseline justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground">{statLabel} win</p>
+                  <p className="text-2xs text-muted-foreground">{statLabel} win</p>
                   <p className="mt-0.5 truncate text-[14px] font-semibold tabular-nums text-profit">
                     {money.format(avgWin)}
                   </p>
                 </div>
                 <div className="min-w-0 text-right">
-                  <p className="text-[10px] text-muted-foreground">{statLabel} loss</p>
+                  <p className="text-2xs text-muted-foreground">{statLabel} loss</p>
                   <p className="mt-0.5 truncate text-[14px] font-semibold tabular-nums text-loss">
                     {money.format(avgLoss)}
                   </p>
@@ -259,13 +259,13 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <div>
-                  <p className="text-[10px] text-muted-foreground">Largest win</p>
+                  <p className="text-2xs text-muted-foreground">Largest win</p>
                   <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-profit">
                     {money.format(summary.largest_win)}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] text-muted-foreground">Largest loss</p>
+                  <p className="text-2xs text-muted-foreground">Largest loss</p>
                   <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-loss">
                     {money.format(summary.largest_loss)}
                   </p>
@@ -302,7 +302,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
           >
             {kellyDefined ? `${kelly.toFixed(1)}%` : "—"}
           </p>
-          <p className="mt-2 text-center text-[10px] text-muted-foreground">
+          <p className="mt-2 text-center text-2xs text-muted-foreground">
             {kellyDefined
               ? kelly > 0
                 ? `optimal risk · half Kelly ${(kelly / 2).toFixed(1)}%`
@@ -324,7 +324,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
           >
             {sqnDefined ? sqn.toFixed(2) : "—"}
           </p>
-          <p className="mt-2 text-center text-[10px] text-muted-foreground">
+          <p className="mt-2 text-center text-2xs text-muted-foreground">
             {sqnDefined ? `system quality: ${sqnLabel(sqn)}` : "needs 2+ varied trades"}
           </p>
         </BentoCell>
@@ -334,7 +334,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
           <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-loss sm:text-[26px]">
             {maxDrawdown != null && maxDrawdown > 0 ? money.format(-maxDrawdown) : "—"}
           </p>
-          <p className="mt-2 text-center text-[10px] text-muted-foreground">peak pullback</p>
+          <p className="mt-2 text-center text-2xs text-muted-foreground">peak pullback</p>
         </BentoCell>
 
         <BentoCell>
@@ -342,7 +342,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
           <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-loss sm:text-[26px]">
             {money.format(summary.total_fees)}
           </p>
-          <p className="mt-2 text-center text-[10px] text-muted-foreground">
+          <p className="mt-2 text-center text-2xs text-muted-foreground">
             {feePct.toFixed(1)}% of gross
           </p>
         </BentoCell>
@@ -352,7 +352,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
           <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-foreground sm:text-[26px]">
             {openTrades} / {summary.breakeven}
           </p>
-          <p className="mt-2 text-center text-[10px] text-muted-foreground">active · flat exits</p>
+          <p className="mt-2 text-center text-2xs text-muted-foreground">active · flat exits</p>
         </BentoCell>
       </div>
 

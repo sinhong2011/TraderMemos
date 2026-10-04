@@ -32,7 +32,7 @@ function BentoCell({
         className,
       )}
     >
-      <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+      <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
         {label}
       </p>
       <div className="text-[15px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-foreground">
@@ -64,11 +64,9 @@ export function TradeResultPreview({
       data-testid="trade-result-preview"
     >
       <div className="flex items-baseline justify-between gap-3">
-        <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-chart-3">
-          Result
-        </p>
+        <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-chart-3">Result</p>
         {initialRisk != null && initialRisk > 0 ? (
-          <p className="m-0 text-[10px] tabular-nums text-muted-foreground">
+          <p className="m-0 text-2xs tabular-nums text-muted-foreground">
             Risk {fmtMoney(initialRisk, currency, locale)}
           </p>
         ) : null}
@@ -169,11 +167,11 @@ export function AfterSaveResultPreview({
       data-testid="after-save-result-preview"
     >
       <div className="flex items-baseline justify-between gap-3">
-        <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-chart-3">
+        <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-chart-3">
           After save
         </p>
         {initialRisk != null && initialRisk > 0 ? (
-          <p className="m-0 text-[10px] tabular-nums text-muted-foreground">
+          <p className="m-0 text-2xs tabular-nums text-muted-foreground">
             Risk {fmtMoney(initialRisk, currency, locale)}
           </p>
         ) : null}
@@ -247,7 +245,7 @@ export interface BatchTradeResultPreviewProps {
 function BatchMeta({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="min-w-0">
-      <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+      <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
         {label}
       </p>
       <div className="mt-1 text-[13px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-foreground">
@@ -286,11 +284,11 @@ export function BatchTradeResultPreview({
       data-testid="batch-trade-result-preview"
     >
       <div className="flex items-baseline justify-between gap-3">
-        <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-chart-3">
+        <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-chart-3">
           Batch result
         </p>
         {batch.riskTotal != null && batch.riskTotal > 0 ? (
-          <p className="m-0 text-[10px] tabular-nums text-muted-foreground">
+          <p className="m-0 text-2xs tabular-nums text-muted-foreground">
             Risk {fmtMoney(batch.riskTotal, currency, locale)}
           </p>
         ) : null}
@@ -298,7 +296,7 @@ export function BatchTradeResultPreview({
 
       <div className="flex flex-col gap-3 @min-[32rem]/batch:flex-row @min-[32rem]/batch:items-end @min-[32rem]/batch:justify-between @min-[32rem]/batch:gap-6">
         <div className="min-w-0">
-          <p className="m-0 text-[10px] font-medium tracking-[0.04em] text-muted-foreground">
+          <p className="m-0 text-2xs font-medium tracking-[0.04em] text-muted-foreground">
             Est. P&L
           </p>
           {batch.net == null ? (
@@ -367,7 +365,7 @@ export function BatchTradeResultPreview({
           data-testid="batch-ext-total"
         >
           <div className="min-w-0">
-            <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
               After save
             </p>
             <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
@@ -394,7 +392,7 @@ export function BatchTradeResultPreview({
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <span className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
               Balance
             </span>
             <span className="text-[13px] font-semibold tabular-nums tracking-tight text-foreground">

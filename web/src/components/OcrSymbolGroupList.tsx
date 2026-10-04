@@ -222,7 +222,7 @@ export function OcrScanSummary({
               className="flex flex-col gap-2 rounded-md bg-muted/60 px-3 py-2.5"
               data-testid="ocr-warnings"
             >
-              <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              <p className="m-0 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                 Extraction notes
                 <span className="ml-1.5 tabular-nums">({noteCount})</span>
               </p>

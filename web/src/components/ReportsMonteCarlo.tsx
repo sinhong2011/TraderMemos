@@ -122,14 +122,14 @@ export function ReportsMonteCarlo({
                   <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
                   <XAxis
                     dataKey="n"
-                    tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                    tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                     tickFormatter={(v: number) => String(v)}
                     axisLine={false}
                     tickLine={false}
                     minTickGap={40}
                   />
                   <YAxis
-                    tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                    tick={{ fontSize: 11, fill: chartTheme.axisColor }}
                     tickFormatter={(v: number) => money.formatAxis(v)}
                     axisLine={false}
                     tickLine={false}

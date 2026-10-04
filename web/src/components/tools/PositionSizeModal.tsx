@@ -8,7 +8,7 @@ import { Modal } from "@/components/Modal";
 import { fieldInputClass } from "@/components/field-styles";
 
 const labelClass =
-  "mb-1 block text-[10px] font-medium uppercase tracking-widest text-muted-foreground";
+  "mb-1 block text-2xs font-medium uppercase tracking-widest text-muted-foreground";
 const inputClass = fieldInputClass;
 
 export function PositionSizeModal({
@@ -111,7 +111,7 @@ export function PositionSizeModal({
       </div>
       {result ? (
         <div className="rounded-panel border border-border bg-muted px-3.5 py-3">
-          <p className="m-0 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+          <p className="m-0 text-2xs font-medium uppercase tracking-widest text-muted-foreground">
             Suggested size
           </p>
           <p className="mt-1 mb-0 text-2xl tabular-nums text-foreground">{result.qty} shares</p>

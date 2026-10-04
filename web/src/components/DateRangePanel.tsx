@@ -32,9 +32,7 @@ function toDraft(from?: string, to?: string): DateRange | undefined {
 
 function RangeFooter({ draft }: { draft: DateRange | undefined }) {
   if (draft?.from && !draft.to) {
-    return (
-      <p className="m-0 text-[10px] uppercase tracking-widest text-chart-3">Select end date</p>
-    );
+    return <p className="m-0 text-2xs uppercase tracking-widest text-chart-3">Select end date</p>;
   }
   if (draft?.from && draft.to) {
     return (
@@ -148,7 +146,7 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
       {/* Stacked on a phone the two surfaces read as unrelated bands, so the
           panel goes single-surface there and only splits on sm+. */}
       <aside className="flex shrink-0 flex-col rounded-md max-sm:pt-1 sm:w-[148px] sm:bg-background">
-        <p className="m-0 px-3 pt-3 pb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground max-sm:px-2 max-sm:pt-0 max-sm:pb-1.5">
+        <p className="m-0 px-3 pt-3 pb-2 text-2xs font-medium uppercase tracking-widest text-muted-foreground max-sm:px-2 max-sm:pt-0 max-sm:pb-1.5">
           Quick range
         </p>
         {presetList}

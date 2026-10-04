@@ -256,7 +256,7 @@ function BentoStat({
 }) {
   return (
     <div className={cn("flex min-w-0 flex-col gap-1 bg-sidebar p-2 sm:p-2.5", className)}>
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
       <span
@@ -332,7 +332,7 @@ function TradeDetailSheetBody({
               )}
             </div>
             {trade.gross_pnl != null && (
-              <p className="m-0 text-[10px] tabular-nums text-muted-foreground">
+              <p className="m-0 text-2xs tabular-nums text-muted-foreground">
                 {fmtSignedMoney(trade.gross_pnl, currency, intlLocale())} gross −{""}
                 {fmtMoney(trade.fees_total, currency, intlLocale())} fees
               </p>
@@ -402,7 +402,7 @@ function TradeDetailSheetBody({
                   <span
                     aria-label={f.side === "buy" ? "Buy" : "Sell"}
                     className={cn(
-                      "flex size-4 items-center justify-center rounded-md text-[10px] font-bold",
+                      "flex size-4 items-center justify-center rounded-md text-2xs font-bold",
                       f.side === "buy" ? "bg-profit/10 text-profit" : "bg-loss/10 text-loss",
                     )}
                   >

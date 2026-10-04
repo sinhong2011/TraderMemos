@@ -71,10 +71,10 @@ export function CreatedAtFilter({
         {active ? (
           <>
             <span aria-hidden className="mx-0.5 h-4 w-px shrink-0 bg-border" />
-            <span className="hidden max-w-[9rem] truncate rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline">
+            <span className="hidden max-w-[9rem] truncate rounded-md border border-border px-1.5 py-0.5 text-2xs font-medium text-muted-foreground sm:inline">
               {label}
             </span>
-            <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground sm:hidden">
+            <span className="rounded-md border border-border px-1.5 py-0.5 text-2xs font-medium tabular-nums text-muted-foreground sm:hidden">
               1
             </span>
           </>

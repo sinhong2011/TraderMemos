@@ -14,6 +14,10 @@
     ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   --font-heading: var(--font-sans);
+  /* Smallest text step — captions, eyebrows, chips, dense cells. Nothing in
+     the app renders below 11px. Font size only; line height is inherited, as
+     it was with the arbitrary px sizes this replaces. */
+  --text-2xs: 11px;
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
     monospace;
@@ -243,7 +247,7 @@
 }
 
 @utility text-label {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;

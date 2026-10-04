@@ -284,7 +284,7 @@ export function YearWrappedView({
                     height: `${m.trades === 0 ? 4 : Math.max(8, (m.trades / maxMonthTrades) * 72)}px`,
                   }}
                 />
-                <span className="text-[9px] text-muted-foreground">{m.label}</span>
+                <span className="text-2xs text-muted-foreground">{m.label}</span>
               </div>
             ))}
           </div>

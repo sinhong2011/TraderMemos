@@ -91,7 +91,7 @@ export function ReportsPnlHeatmap({
             {hours.map((h) => (
               <div
                 key={`h${h}`}
-                className="text-center text-[10px] tabular-nums text-muted-foreground"
+                className="text-center text-2xs tabular-nums text-muted-foreground"
               >
                 {h}
               </div>

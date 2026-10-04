@@ -44,7 +44,7 @@ export function DirCell(props: {
       </TooltipTrigger>
       <TooltipContent side="top" className="flex-col items-start gap-0.5 px-2.5 py-1.5">
         <span className="font-medium text-foreground">{view.label}</span>
-        <span className="text-[10px] text-muted-foreground">{view.detail}</span>
+        <span className="text-2xs text-muted-foreground">{view.detail}</span>
       </TooltipContent>
     </Tooltip>
   );

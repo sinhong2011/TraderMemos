@@ -29,7 +29,7 @@ export function StatCell({
         className,
       )}
     >
-      <span className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
+      <span className="text-2xs font-semibold tracking-widest text-muted-foreground uppercase">
         {label}
       </span>
       <span className="flex min-w-0 items-baseline gap-1.5">
@@ -56,4 +56,4 @@ export function StatCell({
  * a data-viz token, and DESIGN.md keeps chrome quiet.
  */
 export const cardSectionLabelClass =
-  "m-0 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase";
+  "m-0 text-2xs font-semibold tracking-widest text-muted-foreground uppercase";

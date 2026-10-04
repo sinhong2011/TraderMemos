@@ -54,7 +54,7 @@ export function ReportsExecutionGrade({ breakdown, loading, error }: ReportsExec
                     {label}
                   </span>
                   <span className="flex items-baseline gap-3">
-                    <span className="text-[10px] tracking-wide text-flat">
+                    <span className="text-2xs tracking-wide text-flat">
                       PF {pfText(g.summary.profit_factor)}
                     </span>
                     <span className={`text-sm font-semibold tabular-nums ${pnlColor(pnl)}`}>
@@ -69,7 +69,7 @@ export function ReportsExecutionGrade({ breakdown, loading, error }: ReportsExec
                     style={{ width: `${pct}%`, backgroundColor: barColor }}
                   />
                 </div>
-                <span className="text-[10px] text-flat">
+                <span className="text-2xs text-flat">
                   {g.summary.wins}W · {g.summary.losses}L
                 </span>
               </li>

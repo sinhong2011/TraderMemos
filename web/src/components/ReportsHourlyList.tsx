@@ -23,7 +23,7 @@ export function ReportsHourlyList({ breakdown, loading, error }: ReportsHourlyLi
 
   return (
     <section className="flex min-h-0 min-w-0 flex-col rounded-lg bg-card p-3">
-      <p className="text-[10px] font-semibold tracking-wide text-chart-3">Hourly</p>
+      <p className="text-2xs font-semibold tracking-wide text-chart-3">Hourly</p>
       {loading ? (
         <Skeleton height="200px" className="mt-3" />
       ) : error ? (
@@ -49,7 +49,7 @@ export function ReportsHourlyList({ breakdown, loading, error }: ReportsHourlyLi
                       <span className={cn("text-[12px] font-semibold tabular-nums", pnlColor(pnl))}>
                         {money.format(pnl)}
                       </span>
-                      <span className="text-[10px] tabular-nums text-muted-foreground">
+                      <span className="text-2xs tabular-nums text-muted-foreground">
                         {fmtPct(g.summary.win_rate, locale)}
                       </span>
                     </span>

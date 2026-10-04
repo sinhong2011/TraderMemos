@@ -46,8 +46,8 @@ const badgeVariants = cva(
         "focus-outline": "bg-background border-border text-focus-foreground dark:bg-input/30",
       },
       size: {
-        xs: "px-1 py-0.25 text-[0.6rem] leading-none h-4 min-w-4 gap-1",
-        sm: "px-1 py-0.25 text-[0.625rem] leading-none h-4.5 min-w-4.5 gap-1",
+        xs: "px-1 py-0.25 text-2xs leading-none h-4 min-w-4 gap-1",
+        sm: "px-1 py-0.25 text-2xs leading-none h-4.5 min-w-4.5 gap-1",
         default: "px-1.25 py-0.5 text-xs h-5 min-w-5 gap-1",
         lg: "px-1.5 py-0.5 text-xs h-5.5 min-w-5.5 gap-1",
         xl: "px-2 py-0.75 text-sm h-6 min-w-6 gap-1.5",
