@@ -102,6 +102,8 @@ export function NewNoteDrawer() {
           ? await notesApi.update(editingId, payload)
           : await notesApi.create(payload);
         await queryClient.invalidateQueries({ queryKey: ["notes"] });
+        // A weekly review sets this week's focus.
+        void queryClient.invalidateQueries({ queryKey: ["focus"] });
         toast.add({
           title: editingId
             ? isDailyLog

@@ -67,6 +67,8 @@ export interface DayReviewViewProps {
   isToday?: boolean;
   /** Jump back to today; shown only on other days. */
   onToday?: () => void;
+  /** This week's focus from the last weekly review; today only. */
+  focus?: ReactNode;
   /** The day's routine checklist — the session opens with it. */
   routine?: ReactNode;
   /** Live session guardrails (daily loss, open positions); today only. */
@@ -195,6 +197,7 @@ export function DayReviewView({
   onNewNote,
   isToday = false,
   onToday,
+  focus,
   routine,
   desk,
   missed,
@@ -252,6 +255,7 @@ export function DayReviewView({
         </div>
       </div>
 
+      {focus}
       {routine}
       {desk}
 
