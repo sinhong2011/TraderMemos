@@ -86,7 +86,8 @@ truth, parsed on read (`alerts.ParseFocus`, `alerts.PreviousFocus`).
 ### 2.3 Show it
 - **Today page**: a slim "This week's focus" card above the routine — 1–3 lines, no
   ticks (focus is a behavior, not a task), with a link to open the source note.
-- **Mobile Home**: same card (follow-up). Widget later.
+- **Mobile Home**: same card above the routine, "Review ›" opens the note; a
+  saved note refreshes it. Widget later.
 
 ### 2.4 Check it
 - The next generated weekly review note opens with `## Last week's focus` — each
