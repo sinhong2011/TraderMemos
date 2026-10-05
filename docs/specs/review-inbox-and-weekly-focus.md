@@ -32,18 +32,18 @@ to clear a trade, or the inbox becomes a chore.
 ### 1.2 Scope
 - The inbox lists unreviewed closed trades from the **last 14 days**, newest first.
 - Older unreviewed trades are a collapsed **backlog** count ("212 older — review or
-  dismiss") with a one-click "Mark all older as reviewed" that sets no grade but
-  stamps them out of the queue (`review_dismissed_at`). Without this, a journal with
-  history opens to an unclearable queue.
+  dismiss") with a one-click dismiss that sets no grade but stops counting them.
+  Without this, a journal with history opens to an unclearable queue.
 
-### 1.3 Data
-- Migration: `trade_journal.reviewed_at TEXT NULL`, `review_dismissed_at TEXT NULL`
-  (SQLite: add via table rebuild per `000039` idiom; Postgres: `ALTER TABLE`).
-- `reviewed_at` is set server-side the first time `trade_quality` goes non-null and
-  cleared if it is cleared.
-- `GET /reviews/inbox?window_days=14` → `{ items: [trade + journal summary], backlog: n }`.
-- `POST /reviews/dismiss-backlog` → stamps everything older than the window.
-- `rule_unreviewed` switches to the same definition and gains `Data.route = "/review"`.
+### 1.3 Data — no migration
+- "Reviewed" is read straight off `trade_journal.trade_quality`; no `reviewed_at`
+  column.
+- The backlog dismissal is one timestamp, `reviewBacklogCutoff`, in
+  `user_preferences`: unreviewed trades closed before it are no longer counted.
+- `GET /reviews/inbox?window_days=14` → `{ items, backlog, window_days }`.
+- `POST /reviews/dismiss-backlog` → sets the cutoff to the window's start.
+- `rule_unreviewed` alignment (same definition, `Data.route = "/review"`) is still
+  open.
 
 ### 1.4 Web — `/review`
 One trade at a time, keyboard-first:
@@ -95,7 +95,7 @@ truth, parsed on read (`alerts.ParseFocus`, `alerts.PreviousFocus`).
 ## 3. Delivery plan
 | PR | Scope |
 |---|---|
-| 1 | `reviewed_at`/`review_dismissed_at`, inbox + dismiss endpoints, `rule_unreviewed` alignment, web `/review` + entry points |
+| 1 | Inbox + dismiss endpoints (grade-based, preference cutoff), web `/review` + entry points — `rule_unreviewed` alignment still open |
 | 2 | Note parsing on read, `GET /focus/current`, Today card, "Last week's focus" checklist in the generated note (web) |
 | 3 | Mobile: quick-journal queue mode, focus card |
 
