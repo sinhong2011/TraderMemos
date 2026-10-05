@@ -159,6 +159,9 @@ func TestUnreviewed(t *testing.T) {
 	if !strings.Contains(evs[0].Body, "12") || !strings.Contains(evs[0].Body, "7 days") {
 		t.Errorf("body should carry count and window: %q", evs[0].Body)
 	}
+	if evs := Unreviewed(1, 7, now, nyc); evs[0].Body != "1 closed trade older than 7 days has no execution grade." {
+		t.Errorf("singular body: %q", evs[0].Body)
+	}
 	if evs := Unreviewed(0, 7, now, nyc); len(evs) != 0 {
 		t.Fatalf("zero unreviewed → silent: %+v", evs)
 	}
