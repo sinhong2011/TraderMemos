@@ -92,8 +92,11 @@ truth, parsed on read (`alerts.ParseFocus`, `alerts.PreviousFocus`).
 ### 2.4 Check it
 - The next generated weekly review note opens with `## Last week's focus` — each
   item as a `- [ ]` checklist line the trader ticks while reviewing.
-- Kept / Partly / Missed outcomes and "Focus kept 7 of 10 weeks" on Reports are
-  deferred; they would need stored outcomes (a table) and are not built yet.
+- Scored from that checklist, no table: a ticked item was kept, an unticked one
+  was missed or never scored (two states — owner decision 2026-10-05).
+  `GET /focus/history` (Reports from/to, every review when unset) feeds the
+  **Weekly focus** card on Reports → Behavior: items kept, weeks fully kept, and
+  each week's items, linking to its review.
 
 ---
 

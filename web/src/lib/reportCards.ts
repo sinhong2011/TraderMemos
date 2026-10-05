@@ -41,6 +41,7 @@ export const REPORT_CARDS: Record<ReportsTab, ReportCardDef[]> = {
     { id: "rule-compliance", label: "Rule compliance" },
   ],
   behavior: [
+    { id: "focus", label: "Weekly focus" },
     { id: "revenge", label: "Revenge trading" },
     { id: "overconfidence", label: "Overconfidence" },
     { id: "loss-aversion", label: "Loss aversion" },

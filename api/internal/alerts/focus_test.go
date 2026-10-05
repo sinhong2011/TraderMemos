@@ -87,3 +87,24 @@ func TestPreviousFocus(t *testing.T) {
 	require.Nil(t, items)
 	require.Nil(t, note)
 }
+
+func TestParseFocusOutcomes(t *testing.T) {
+	body := "## Week in numbers\n\n- [x] not this one\n\n## Last week's focus\n\n- [x] Wait for the close\n- [ ] Max three trades\n* [X] Only A setups\n- plain bullet\n\n## What worked\n- [x] nor this\n"
+	got := ParseFocusOutcomes(body)
+	want := []FocusOutcome{
+		{Text: "Wait for the close", Kept: true},
+		{Text: "Max three trades", Kept: false},
+		{Text: "Only A setups", Kept: true},
+	}
+	if len(got) != len(want) {
+		t.Fatalf("got %+v", got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("item %d: got %+v, want %+v", i, got[i], want[i])
+		}
+	}
+	if ParseFocusOutcomes("## Focus for next week\n- [ ] x\n") != nil {
+		t.Error("no Last week's focus section → nil")
+	}
+}

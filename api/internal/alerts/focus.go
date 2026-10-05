@@ -75,3 +75,41 @@ func PreviousFocus(ctx context.Context, q NotesReader, userID string, weekStart 
 	}
 	return nil, nil, nil
 }
+
+var (
+	lastFocusHeading = regexp.MustCompile(`(?i)^#{1,6}\s*last week'?s focus\b`)
+	checkItem        = regexp.MustCompile(`^\s*(?:[-*+]|\d+[.)])\s+\[([ xX])\]\s+(.*\S)\s*$`)
+)
+
+// FocusOutcome is one item of a week's focus as the following review scored it.
+type FocusOutcome struct {
+	Text string `json:"text"`
+	// Kept is a ticked box. An unticked one is "not ticked": missed, or never
+	// scored — a two-state checklist can't tell those apart.
+	Kept bool `json:"kept"`
+}
+
+// ParseFocusOutcomes reads the checklist under "Last week's focus" in a weekly
+// review — the generated note writes last week's focus there as `- [ ]` lines
+// for the owner to tick. Only checkbox items count.
+func ParseFocusOutcomes(body string) []FocusOutcome {
+	var out []FocusOutcome
+	in := false
+	for _, line := range strings.Split(body, "\n") {
+		trimmed := strings.TrimSpace(line)
+		switch {
+		case lastFocusHeading.MatchString(trimmed):
+			in = true
+			continue
+		case in && anyHeading.MatchString(trimmed):
+			return out
+		}
+		if !in {
+			continue
+		}
+		if m := checkItem.FindStringSubmatch(line); m != nil {
+			out = append(out, FocusOutcome{Text: m[2], Kept: m[1] != " "})
+		}
+	}
+	return out
+}

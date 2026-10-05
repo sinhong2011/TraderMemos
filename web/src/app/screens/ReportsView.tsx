@@ -14,6 +14,8 @@ import {
 } from "recharts";
 import { AnnualGoalCard } from "@/components/AnnualGoalCard";
 import { BehaviorLossAversionCard } from "@/components/BehaviorLossAversionCard";
+import { FocusHistoryCard } from "@/components/FocusHistoryCard";
+import type { FocusHistory } from "@/lib/api/focus";
 import { BehaviorOverconfidenceCard } from "@/components/BehaviorOverconfidenceCard";
 import { BehaviorRevengeCard } from "@/components/BehaviorRevengeCard";
 import { Card } from "@/components/Card";
@@ -177,6 +179,11 @@ export interface ReportsViewProps {
   behavior?: BehaviorReport;
   behaviorLoading?: boolean;
   behaviorError?: boolean;
+  focusHistory?: FocusHistory;
+  focusHistoryLoading?: boolean;
+  focusHistoryError?: boolean;
+  /** Opens a weekly review note (the focus history links each week to it). */
+  onOpenNote?: (noteId: string) => void;
   monteCarlo?: MonteCarloResult;
   monteCarloLoading?: boolean;
   monteCarloError?: boolean;
@@ -637,6 +644,10 @@ export function ReportsView({
   behavior,
   behaviorLoading = false,
   behaviorError = false,
+  focusHistory,
+  focusHistoryLoading = false,
+  focusHistoryError = false,
+  onOpenNote,
   monteCarlo,
   monteCarloLoading = false,
   monteCarloError = false,
@@ -922,6 +933,14 @@ export function ReportsView({
       ),
     },
     behavior: {
+      focus: (
+        <FocusHistoryCard
+          history={focusHistory}
+          loading={focusHistoryLoading}
+          error={focusHistoryError}
+          onOpenNote={onOpenNote}
+        />
+      ),
       revenge: (
         <BehaviorRevengeCard
           report={behavior}
