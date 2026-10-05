@@ -51,6 +51,8 @@ export interface DayReviewViewProps {
   behavior?: BehaviorReport;
   /** The day's mistake tax — losses on trades that broke the process. */
   mistakeTax?: MistakeTaxReport;
+  /** Closed trades waiting in the review inbox (today only). */
+  reviewCount?: number;
   notes: JournalNote[];
   notesLoading: boolean;
   currency: string;
@@ -180,6 +182,7 @@ export function DayReviewView({
   compliance,
   behavior,
   mistakeTax,
+  reviewCount,
   notes,
   notesLoading,
   currency,
@@ -329,6 +332,14 @@ export function DayReviewView({
                   </Link>
                 </div>
               )}
+            {isToday && (reviewCount ?? 0) > 0 ? (
+              <Link
+                to="/review"
+                className="self-start text-[12px] font-medium text-primary hover:underline"
+              >
+                {reviewCount} trade{reviewCount === 1 ? "" : "s"} to review →
+              </Link>
+            ) : null}
             {mistakeTax != null && (summary?.total_trades ?? 0) > 0 ? (
               <p className="m-0 text-[12px] text-muted-foreground tabular-nums">
                 Mistake tax:{" "}

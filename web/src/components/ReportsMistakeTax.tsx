@@ -1,4 +1,5 @@
 import { ChevronDown } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import type { MistakeTaxReport, MistakeTaxSource, Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
@@ -259,15 +260,20 @@ function UnreviewedLine({
 }) {
   const n = report.unreviewed_losses;
   return (
-    <button
-      type="button"
-      aria-expanded={open}
-      onClick={onToggle}
-      className="cursor-pointer self-start rounded-sm text-left text-[12px] font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-    >
-      {n} losing trade{n === 1 ? " has" : "s have"} no mistake tag or note —{" "}
-      {open ? "hide" : "review"} {n === 1 ? "it" : "them"}
-    </button>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="cursor-pointer self-start rounded-sm text-left text-[12px] font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      >
+        {n} losing trade{n === 1 ? " has" : "s have"} no mistake tag or note —{" "}
+        {open ? "hide" : "show"} {n === 1 ? "it" : "them"}
+      </button>
+      <Link to="/review" className="text-[12px] text-muted-foreground hover:text-foreground">
+        Open the review inbox →
+      </Link>
+    </div>
   );
 }
 

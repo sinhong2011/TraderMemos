@@ -22,6 +22,7 @@ import { useNotes } from "@/lib/hooks/useNotes";
 import { useCheckRoutine, useRoutineDay, useRoutineItems } from "@/lib/hooks/useRoutines";
 import { useSetups } from "@/lib/hooks/useSetups";
 import { useTrades } from "@/lib/hooks/useTrades";
+import { useReviewInbox } from "@/lib/hooks/useReviewInbox";
 import { useMarketToday } from "@/lib/today";
 import { useUI } from "@/lib/ui";
 
@@ -79,6 +80,7 @@ function DayReviewPage() {
   const complianceQ = useCompliance(dayFilters);
   const behaviorQ = useBehavior(dayFilters);
   const mistakeTaxQ = useMistakeTax(dayFilters);
+  const reviewQ = useReviewInbox(filters.account_id);
   const notesQ = useNotes({ from: dayFilters.from, to: dayFilters.to });
   const accountsQ = useAccounts();
   const baseCurrency = accountBaseCurrency(accountsQ.data ?? [], accountIds);
@@ -208,6 +210,7 @@ function DayReviewPage() {
         compliance={complianceQ.data}
         behavior={behaviorQ.data}
         mistakeTax={mistakeTaxQ.data}
+        reviewCount={reviewQ.data?.items.length}
         notes={notesQ.data ?? []}
         notesLoading={notesQ.isLoading}
         currency={currency}
