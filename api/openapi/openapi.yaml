@@ -1061,8 +1061,9 @@ paths:
         Scores each playbook setup on the filtered closed trades, grouped by the
         trade's main setup. Stats are in R when at least 60% of a setup's trades
         carry an initial risk (`basis: r`), else in account currency. `ci_low` /
-        `ci_high` are a 95% interval on the mean; `clean_mean` excludes trades
-        tagged with a mistake. `verdict` is one of edge, execution, promising,
+        `ci_high` are a 95% interval on the mean; `clean_mean` excludes every
+        trade the mistake tax charges (mistake tags, broken risk rules, revenge
+        and oversized entries). `verdict` is one of edge, execution, promising,
         watch, unproven or bleeding. Trades with no setup come back as `none`.
       operationId: analyticsSetupScorecard
       parameters:

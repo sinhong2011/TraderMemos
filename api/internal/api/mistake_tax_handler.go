@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
 	"github.com/tradermemos/api/internal/auth"
+	"github.com/tradermemos/api/internal/store"
 )
 
 var ruleLabels = map[string]string{
@@ -55,17 +56,7 @@ func (s *Server) handleMistakeTax(c *echo.Context) error {
 		}
 	}
 
-	flags := map[string][]analytics.MistakeSource{}
-	for _, t := range tagRows {
-		if t.Kind == "mistake" {
-			flags[t.TradeID] = append(flags[t.TradeID], analytics.MistakeSource{
-				Key: "tag:" + t.ID, Kind: analytics.MistakeKindTag, Label: t.Name,
-			})
-		}
-	}
-
 	taxTrades := make([]analytics.TaxTrade, 0, len(rows))
-	compTrades := make([]analytics.ComplianceTrade, 0, len(rows))
 	for _, t := range rows {
 		if !t.NetPnl.Valid || !t.ClosedAt.Valid {
 			continue
@@ -77,12 +68,41 @@ func (s *Server) handleMistakeTax(c *echo.Context) error {
 			ClosedAt:    t.ClosedAt.Time,
 			Reviewed:    strings.TrimSpace(t.Notes) != "" || journalNote[t.ID],
 		})
+	}
+	flags := mistakeFlags(rows, risk, tagRows, rules, f.Loc)
+	return c.JSON(http.StatusOK, analytics.MistakeTax(taxTrades, flags, taxBucket(f), f.Loc))
+}
+
+// mistakeFlags lists, per trade id, every reason the trade counts as a
+// mistake: its mistake tags, the risk rules it broke, and detected revenge /
+// oversized entries. Rule and behavior checks run over rows as given, so the
+// caller's filters shape them (a daily-loss breach is judged on that set).
+func mistakeFlags(
+	rows []store.Trade,
+	risk map[string]float64,
+	tagRows []store.ListTradeTagsForUserRow,
+	rules analytics.ComplianceRules,
+	loc *time.Location,
+) map[string][]analytics.MistakeSource {
+	flags := map[string][]analytics.MistakeSource{}
+	for _, t := range tagRows {
+		if t.Kind == "mistake" {
+			flags[t.TradeID] = append(flags[t.TradeID], analytics.MistakeSource{
+				Key: "tag:" + t.ID, Kind: analytics.MistakeKindTag, Label: t.Name,
+			})
+		}
+	}
+
+	compTrades := make([]analytics.ComplianceTrade, 0, len(rows))
+	for _, t := range rows {
+		if !t.NetPnl.Valid || !t.ClosedAt.Valid {
+			continue
+		}
 		compTrades = append(compTrades, analytics.ComplianceTrade{
 			ID: t.ID, NetPnl: t.NetPnl.Float64, ClosedAt: t.ClosedAt.Time, InitialRisk: risk[t.ID],
 		})
 	}
-
-	for id, broken := range analytics.Compliance(compTrades, rules, f.Loc).Violations {
+	for id, broken := range analytics.Compliance(compTrades, rules, loc).Violations {
 		for _, rule := range broken {
 			flags[id] = append(flags[id], analytics.MistakeSource{
 				Key: "rule:" + rule, Kind: analytics.MistakeKindRule, Label: ruleLabels[rule],
@@ -90,7 +110,7 @@ func (s *Server) handleMistakeTax(c *echo.Context) error {
 		}
 	}
 
-	behavior := analytics.Behavior(behaviorTrades(rows, nil), analytics.DefaultBehaviorConfig(), f.Loc)
+	behavior := analytics.Behavior(behaviorTrades(rows, nil), analytics.DefaultBehaviorConfig(), loc)
 	for _, ev := range behavior.Revenge.Events {
 		flags[ev.TradeID] = append(flags[ev.TradeID], analytics.MistakeSource{
 			Key: "behavior:revenge", Kind: analytics.MistakeKindBehavior, Label: "Revenge trade",
@@ -101,8 +121,7 @@ func (s *Server) handleMistakeTax(c *echo.Context) error {
 			Key: "behavior:overconfidence", Kind: analytics.MistakeKindBehavior, Label: "Oversized after a win streak",
 		})
 	}
-
-	return c.JSON(http.StatusOK, analytics.MistakeTax(taxTrades, flags, taxBucket(f), f.Loc))
+	return flags
 }
 
 // taxBucket trends a range of up to ~3 months by week, anything longer (or

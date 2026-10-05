@@ -16,7 +16,8 @@ export const VERDICT_META: Record<
   execution: {
     label: "Execution leak",
     tone: "amber",
-    advice: "The setup pays when you follow it — the losses come from the mistake-tagged trades.",
+    advice:
+      "The setup pays when you follow it — the losses come from trades that broke your process.",
     ink: "bg-warning",
   },
   promising: {
