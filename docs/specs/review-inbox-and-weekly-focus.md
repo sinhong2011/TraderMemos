@@ -1,6 +1,6 @@
 # Spec — Review inbox & Weekly focus loop
 
-Status: draft for owner review · 2026-10-05
+Status: built (web) · 2026-10-05
 
 Items 5 and 3 of the product brainstorm. Together they close the loop
 **trade → review → rule → next session**: the inbox makes reviewing every trade a
@@ -32,18 +32,18 @@ to clear a trade, or the inbox becomes a chore.
 ### 1.2 Scope
 - The inbox lists unreviewed closed trades from the **last 14 days**, newest first.
 - Older unreviewed trades are a collapsed **backlog** count ("212 older — review or
-  dismiss") with a one-click "Mark all older as reviewed" that sets no grade but
-  stamps them out of the queue (`review_dismissed_at`). Without this, a journal with
-  history opens to an unclearable queue.
+  dismiss") with a one-click dismiss that sets no grade but stops counting them.
+  Without this, a journal with history opens to an unclearable queue.
 
-### 1.3 Data
-- Migration: `trade_journal.reviewed_at TEXT NULL`, `review_dismissed_at TEXT NULL`
-  (SQLite: add via table rebuild per `000039` idiom; Postgres: `ALTER TABLE`).
-- `reviewed_at` is set server-side the first time `trade_quality` goes non-null and
-  cleared if it is cleared.
-- `GET /reviews/inbox?window_days=14` → `{ items: [trade + journal summary], backlog: n }`.
-- `POST /reviews/dismiss-backlog` → stamps everything older than the window.
-- `rule_unreviewed` switches to the same definition and gains `Data.route = "/review"`.
+### 1.3 Data — no migration
+- "Reviewed" is read straight off `trade_journal.trade_quality`; no `reviewed_at`
+  column.
+- The backlog dismissal is one timestamp, `reviewBacklogCutoff`, in
+  `user_preferences`: unreviewed trades closed before it are no longer counted.
+- `GET /reviews/inbox?window_days=14` → `{ items, backlog, window_days }`.
+- `POST /reviews/dismiss-backlog` → sets the cutoff to the window's start.
+- `rule_unreviewed` alignment (same definition, `Data.route = "/review"`) is still
+  open.
 
 ### 1.4 Web — `/review`
 One trade at a time, keyboard-first:
@@ -67,36 +67,37 @@ next inbox trade; the push route lands there.
 ## 2. Weekly focus loop
 
 ### 2.1 Capture — from the review note itself
-The weekly review note already has `## Focus for next week`. When a `weekly_review`
-note is saved, the server reads the **bullet lines under that heading** (max 3) and
-stores them as next week's focus. Writing stays natural and both clients work on day
-one; no new editor UI.
+The weekly review note already has `## Focus for next week`. Its **bullet lines
+under that heading** (max 3) are next week's focus. Writing stays natural and both
+clients work on day one; no new editor UI.
 
-### 2.2 Data
-- Table `weekly_focus(id, user_id, week_start, position, text, outcome NULL|kept|partly|missed, note_id, created_at)`;
-  `week_start` is the Monday the focus applies to, in the market timezone.
-- Re-saving the note replaces that week's items (outcomes kept for unchanged text).
-- `GET /focus?week=current` → items; `PATCH /focus/:id {outcome}`.
+### 2.2 Data — read from the note, no table
+Shipped without a `weekly_focus` table or migration: the note is the source of
+truth, parsed on read (`alerts.ParseFocus`, `alerts.PreviousFocus`).
+- The focus for the week starting Monday *M* (market timezone) is the newest
+  `weekly_review` note created before *M*, from the previous week.
+- `GET /focus/current` → `{week_start, items, note_id, note_title}`; empty `items`
+  when there is no note or no bullets. Editing the note changes the focus at once.
 
 ### 2.3 Show it
 - **Today page**: a slim "This week's focus" card above the routine — 1–3 lines, no
-  ticks (focus is a behavior, not a task).
-- **Mobile Home**: same card. Widget later.
+  ticks (focus is a behavior, not a task), with a link to open the source note.
+- **Mobile Home**: same card (follow-up). Widget later.
 
 ### 2.4 Check it
-- The next weekly review note is prefilled with `## Last week's focus` listing each
-  item, and the review screen (web note editor side panel / mobile edit-note header)
-  shows the items with **Kept / Partly / Missed**.
-- Over time: "Focus kept 7 of 10 weeks" on the Reports Behavior tab (later).
+- The next generated weekly review note opens with `## Last week's focus` — each
+  item as a `- [ ]` checklist line the trader ticks while reviewing.
+- Kept / Partly / Missed outcomes and "Focus kept 7 of 10 weeks" on Reports are
+  deferred; they would need stored outcomes (a table) and are not built yet.
 
 ---
 
 ## 3. Delivery plan
 | PR | Scope |
 |---|---|
-| 1 | `reviewed_at`/`review_dismissed_at`, inbox + dismiss endpoints, `rule_unreviewed` alignment, web `/review` + entry points |
-| 2 | `weekly_focus` table, note-save parsing, focus endpoints, Today card, "Last week's focus" in the generated note, outcome buttons (web) |
-| 3 | Mobile: quick-journal queue mode, focus card, outcome buttons |
+| 1 | Inbox + dismiss endpoints (grade-based, preference cutoff), web `/review` + entry points — `rule_unreviewed` alignment still open |
+| 2 | Note parsing on read, `GET /focus/current`, Today card, "Last week's focus" checklist in the generated note (web) |
+| 3 | Mobile: quick-journal queue mode, focus card |
 
 ## 4. Owner decisions (2026-10-05)
 1. Reviewed = **execution grade set**; lesson and mistake tags optional.

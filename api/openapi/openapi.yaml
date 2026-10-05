@@ -1140,6 +1140,19 @@ paths:
         "200":
           description: "`{cutoff}`"
 
+  /api/v1/focus/current:
+    get:
+      tags: [Notes]
+      summary: This week's focus
+      description: >-
+        The bullet items (max 3) under "Focus for next week" in the latest
+        weekly review note dated before this week's Monday (market timezone),
+        looking back two weeks. `items` is empty when no review set a focus.
+      operationId: currentFocus
+      responses:
+        "200":
+          description: "`{week_start, items, note_id, note_title}`"
+
   /api/v1/tags:
     get:
       tags: [Tags]

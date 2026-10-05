@@ -229,6 +229,7 @@ func (s *Server) routes() {
 	s.attachmentRoutes(protected)
 	s.analyticsRoutes(protected)
 	s.reviewRoutes(protected)
+	s.focusRoutes(protected)
 	s.settingsRoutes(protected)
 	s.alertRoutes(protected)
 	s.noteRoutes(protected)

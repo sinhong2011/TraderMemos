@@ -100,6 +100,9 @@ type WeeklyStats struct {
 	RulesSet     bool
 	RuleBreaks   int
 	MissedTrades int
+	// LastFocus is what the previous review committed to; the new note lists it
+	// as a checklist so this review can say whether each one held.
+	LastFocus []string
 }
 
 // ComputeWeekly summarizes the week starting at start. trades and missed may
@@ -261,6 +264,13 @@ func WeeklyNoteBody(st WeeklyStats) string {
 		line("Rule breaks", "no risk rules set")
 	}
 	line("Missed trades", strconv.Itoa(st.MissedTrades))
+
+	if len(st.LastFocus) > 0 {
+		b.WriteString("\n## Last week's focus\n\n")
+		for _, item := range st.LastFocus {
+			fmt.Fprintf(&b, "- [ ] %s\n", item)
+		}
+	}
 
 	b.WriteString("\n## What worked\n\n\n")
 	b.WriteString("## What didn't\n\n\n")

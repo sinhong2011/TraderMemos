@@ -25,6 +25,9 @@ import { useTrades } from "@/lib/hooks/useTrades";
 import { useReviewInbox } from "@/lib/hooks/useReviewInbox";
 import { useMarketToday } from "@/lib/today";
 import { useUI } from "@/lib/ui";
+import { WeeklyFocusCard } from "@/components/WeeklyFocusCard";
+import { notesApi } from "@/lib/api/notes";
+import { useWeeklyFocus } from "@/lib/hooks/useWeeklyFocus";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -93,6 +96,8 @@ function DayReviewPage() {
 
   // Routine ticks are keyed by the market trading day, like everything else on
   // this page, so a post-session tick after local midnight still lands here.
+  const focusQ = useWeeklyFocus();
+  const openNoteEdit = useUI((s) => s.openNoteEdit);
   const routineItemsQ = useRoutineItems(date);
   const routineDayQ = useRoutineDay(date);
   const checkRoutine = useCheckRoutine();
@@ -199,6 +204,28 @@ function DayReviewPage() {
         date={date}
         isToday={isToday}
         onToday={() => goToDay(today)}
+        focus={
+          date === today && focusQ.data ? (
+            <WeeklyFocusCard
+              items={focusQ.data.items}
+              onOpenReview={
+                focusQ.data.note_id
+                  ? async () => {
+                      const note = await notesApi.get(focusQ.data!.note_id);
+                      openNoteEdit({
+                        id: note.id,
+                        type: note.type ?? "weekly_review",
+                        occurredAt: note.occurred_at,
+                        title: note.title,
+                        body: note.body,
+                        symbols: note.symbols ?? [],
+                      });
+                    }
+                  : undefined
+              }
+            />
+          ) : null
+        }
         routine={routine}
         desk={desk}
         missed={missed}
