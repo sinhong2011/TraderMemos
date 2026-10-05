@@ -4,6 +4,12 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import type { MistakeTaxReport, Trade } from "@/lib/api/types";
 import { ReportsMistakeTax } from "./ReportsMistakeTax";
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+    <a href={to}>{children}</a>
+  ),
+}));
+
 const trade = (id: string, symbol: string, net: number) =>
   ({ id, symbol, net_pnl: net, closed_at: "2026-09-15T15:00:00Z" }) as Trade;
 
@@ -111,7 +117,7 @@ describe("ReportsMistakeTax", () => {
       />,
     );
     await userEvent.click(
-      screen.getByRole("button", { name: /1 losing trade has no mistake tag or note/ }),
+      screen.getByRole("button", { name: /1 losing trade has no mistake tag or note — show/ }),
     );
     expect(screen.getByRole("button", { name: /AMD/ })).toBeInTheDocument();
   });

@@ -36,6 +36,8 @@ export function usePatchTrade() {
     onSuccess: (_data, { id }) => {
       void queryClient.invalidateQueries({ queryKey: ["trades"] });
       void queryClient.invalidateQueries({ queryKey: ["trade", id] });
+      // A grade added or cleared moves the trade in or out of the review inbox.
+      void queryClient.invalidateQueries({ queryKey: ["reviews"] });
     },
   });
 }
