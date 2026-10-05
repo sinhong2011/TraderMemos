@@ -111,7 +111,7 @@ Grouped by the trade's **main** setup (`trade_journal.setup_id`), matching today
 | `r_distribution` | same 6 buckets as `/analytics/r-summary` |
 | `net_pnl`, `expectancy` | dollars (always shown) |
 | `r_coverage` | n_r / n — below 60% the row falls back to dollars and says "add initial risk" |
-| `clean_expectancy_r` | expectancy over the setup's trades **without** mistake tags or rule flags |
+| `clean_expectancy_r` | expectancy over the setup's trades **without** mistake tags, rule flags or behavior flags — the same set the mistake tax charges |
 | `missed` | from missed-trades `by_setup`: count + planned `net_r` |
 | `last_trade_at` | for "stale" detection |
 

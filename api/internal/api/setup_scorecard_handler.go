@@ -36,6 +36,10 @@ func (s *Server) handleSetupScorecard(c *echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load setups", nil)
 	}
+	rules, err := s.complianceRules(ctx, uid)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load risk rules", nil)
+	}
 
 	type plan struct {
 		setupID string
@@ -52,12 +56,15 @@ func (s *Server) handleSetupScorecard(c *echo.Context) error {
 		}
 		plans[j.TradeID] = p
 	}
-	mistakes := map[string]bool{}
-	for _, t := range tagRows {
-		if t.Kind == "mistake" {
-			mistakes[t.TradeID] = true
+	risk := make(map[string]float64, len(plans))
+	for id, p := range plans {
+		if p.risk > 0 {
+			risk[id] = p.risk
 		}
 	}
+	// "Clean" drops every trade the mistake tax would charge: mistake tags,
+	// broken risk rules, and revenge / oversized entries.
+	flags := mistakeFlags(rows, risk, tagRows, rules, f.Loc)
 	names := make(map[string]string, len(setups))
 	for _, st := range setups {
 		names[st.ID] = st.Name
@@ -76,7 +83,7 @@ func (s *Server) handleSetupScorecard(c *echo.Context) error {
 		groups[p.setupID] = append(groups[p.setupID], analytics.ScorecardTrade{
 			NetPnl:      t.NetPnl.Float64,
 			InitialRisk: p.risk,
-			Mistake:     mistakes[t.ID],
+			Mistake:     len(flags[t.ID]) > 0,
 			OpenedAt:    t.OpenedAt,
 		})
 	}

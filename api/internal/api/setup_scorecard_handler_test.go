@@ -84,3 +84,39 @@ func TestSetupScorecard(t *testing.T) {
 	require.Equal(t, 1, got.None.Trades)
 	require.Equal(t, "currency", got.None.Basis)
 }
+
+func TestSetupScorecardCleanDropsRuleBreaks(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "scorecard-rules@x.com")
+	acc := accountID(t, s, tok)
+	require.Equal(t, http.StatusOK, do(s, http.MethodPut, "/api/v1/settings/risk-rules",
+		`{"max_risk_per_trade":60}`, tok).Code)
+
+	rec := do(s, http.MethodPost, "/api/v1/setups", `{"name":"ORB"}`, tok)
+	require.Equal(t, http.StatusCreated, rec.Code)
+	var setup map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &setup))
+	setupID := setup["id"].(string)
+
+	// +$100 on $50 risk is clean; -$50 on $100 risk breaks the $60 max risk
+	// rule without carrying any mistake tag.
+	win := roundTrip(t, s, tok, acc, 5, 110)
+	loss := roundTrip(t, s, tok, acc, 6, 95)
+	require.Equal(t, http.StatusOK, do(s, http.MethodPatch, "/api/v1/trades/"+win,
+		`{"setup_id":"`+setupID+`","initial_risk":50}`, tok).Code)
+	require.Equal(t, http.StatusOK, do(s, http.MethodPatch, "/api/v1/trades/"+loss,
+		`{"setup_id":"`+setupID+`","initial_risk":100}`, tok).Code)
+
+	rec = do(s, http.MethodGet, "/api/v1/analytics/setup-scorecard?account_id="+acc, "", tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var got struct {
+		Setups []struct {
+			CleanTrades int      `json:"clean_trades"`
+			CleanMean   *float64 `json:"clean_mean"`
+		} `json:"setups"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Len(t, got.Setups, 1)
+	require.Equal(t, 1, got.Setups[0].CleanTrades)
+	require.Equal(t, 2.0, *got.Setups[0].CleanMean)
+}
