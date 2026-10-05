@@ -4,7 +4,7 @@ import { useToastManager } from "@/components/Toast";
 import { accountBaseCurrency } from "@/lib/displayPrefs";
 import { useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
-import { useBreakdown } from "@/lib/hooks/useAnalytics";
+import { useSetupScorecard } from "@/lib/hooks/useAnalytics";
 import { useDeleteSetup, useSetups } from "@/lib/hooks/useSetups";
 
 export const Route = createFileRoute("/playbook")({
@@ -17,7 +17,7 @@ function PlaybookPage() {
   const accountIds = useFilters((s) => s.accountIds);
 
   const setupsQ = useSetups();
-  const breakdownQ = useBreakdown("setup", filters);
+  const scorecardQ = useSetupScorecard(filters);
   const accountsQ = useAccounts();
   const currency = accountBaseCurrency(accountsQ.data ?? [], accountIds);
 
@@ -28,8 +28,8 @@ function PlaybookPage() {
       setups={setupsQ.data ?? []}
       setupsLoading={setupsQ.isLoading}
       setupsError={setupsQ.isError}
-      breakdown={breakdownQ.data ?? []}
-      breakdownLoading={breakdownQ.isLoading}
+      scorecard={scorecardQ.data}
+      scorecardLoading={scorecardQ.isLoading}
       currency={currency}
       onDelete={async (id) => {
         const name = setupsQ.data?.find((setup) => setup.id === id)?.name ?? "Setup";

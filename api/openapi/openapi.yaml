@@ -1053,6 +1053,30 @@ paths:
         "200":
           description: Edge Score with per-component scores, weights and raw inputs
 
+  /api/v1/analytics/setup-scorecard:
+    get:
+      tags: [Analytics]
+      summary: Setup scorecard
+      description: >-
+        Scores each playbook setup on the filtered closed trades, grouped by the
+        trade's main setup. Stats are in R when at least 60% of a setup's trades
+        carry an initial risk (`basis: r`), else in account currency. `ci_low` /
+        `ci_high` are a 95% interval on the mean; `clean_mean` excludes trades
+        tagged with a mistake. `verdict` is one of edge, execution, promising,
+        watch, unproven or bleeding. Trades with no setup come back as `none`.
+      operationId: analyticsSetupScorecard
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
+      responses:
+        "200":
+          description: Scored setups (sorted by verdict, then mean) and the no-setup bucket
+
   /api/v1/tags:
     get:
       tags: [Tags]
