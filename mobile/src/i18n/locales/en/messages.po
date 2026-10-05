@@ -3094,7 +3094,7 @@ msgstr "EOD trailing — ratchets at day close"
 msgid "Equity"
 msgstr "Equity"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:155
+#: src/app/(tabs)/(dashboard)/index.tsx:156
 #: src/components/equity-card.tsx:79
 #: src/components/equity-card.tsx:96
 msgid "Equity curve"
@@ -3549,7 +3549,7 @@ msgstr "Full Kelly"
 msgid "Full marks: {0}"
 msgstr "Full marks: {0}"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:271
+#: src/app/(tabs)/(dashboard)/index.tsx:275
 msgid "Full reports"
 msgstr "Full reports"
 
@@ -4158,7 +4158,7 @@ msgstr "Loading trades"
 msgid "Loading win/loss report"
 msgstr "Loading win/loss report"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:97
+#: src/app/(tabs)/(dashboard)/index.tsx:98
 msgid "Loading your dashboard"
 msgstr "Loading your dashboard"
 
@@ -4202,7 +4202,7 @@ msgstr "Log"
 msgid "Log a missed trade"
 msgstr "Log a missed trade"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:135
+#: src/app/(tabs)/(dashboard)/index.tsx:136
 msgid "Log a trade from the Trades tab, or import from Settings → Import trades."
 msgstr "Log a trade from the Trades tab, or import from Settings → Import trades."
 
@@ -5028,7 +5028,7 @@ msgstr "No tokens yet"
 msgid "No trades"
 msgstr "No trades"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:258
+#: src/app/(tabs)/(dashboard)/index.tsx:262
 #: src/components/reports/detailed-section.tsx:174
 #: src/components/reports/detailed-section.tsx:207
 #: src/components/reports/detailed-section.tsx:237
@@ -5057,7 +5057,7 @@ msgstr "No trades to review yet"
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "No trades with a knowable initial risk — set stops to unlock R analytics."
 
-#: src/app/(tabs)/(dashboard)/index.tsx:133
+#: src/app/(tabs)/(dashboard)/index.tsx:134
 msgid "No trades yet"
 msgstr "No trades yet"
 
@@ -5161,7 +5161,7 @@ msgid "Note not found"
 msgstr "Note not found"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:93
-#: src/app/(tabs)/(dashboard)/index.tsx:222
+#: src/app/(tabs)/(dashboard)/index.tsx:226
 #: src/app/(tabs)/(dashboard)/notes.tsx:204
 #: src/app/(tabs)/(dashboard)/notes.tsx:256
 #: src/app/(tabs)/(trades)/[id].tsx:819
@@ -5699,7 +5699,7 @@ msgid "Playback speed"
 msgstr "Playback speed"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:106
-#: src/app/(tabs)/(dashboard)/index.tsx:232
+#: src/app/(tabs)/(dashboard)/index.tsx:236
 #: src/app/(tabs)/(dashboard)/playbook.tsx:176
 #: src/app/(tabs)/(dashboard)/playbook.tsx:226
 #: src/components/tools-menu.tsx:65
@@ -6097,7 +6097,7 @@ msgstr "Recent breach days"
 msgid "Recent events"
 msgstr "Recent events"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:243
+#: src/app/(tabs)/(dashboard)/index.tsx:247
 msgid "Recent trades"
 msgstr "Recent trades"
 
@@ -6377,6 +6377,7 @@ msgstr "Revenge trading"
 #: src/app/quick-journal.tsx:247
 #: src/app/quick-journal.tsx:370
 #: src/components/trade-form.tsx:555
+#: src/components/weekly-focus-card.tsx:29
 msgid "Review"
 msgstr "Review"
 
@@ -7812,6 +7813,10 @@ msgstr "This trade already has {0} screenshots — raise the cap under Settings 
 msgid "This week"
 msgstr "This week"
 
+#: src/components/weekly-focus-card.tsx:25
+msgid "This week's focus"
+msgstr "This week's focus"
+
 #: src/app/(tabs)/(trades)/index.tsx:302
 msgid "This year"
 msgstr "This year"
@@ -8286,7 +8291,7 @@ msgstr "Version"
 msgid "version build server licence"
 msgstr "version build server licence"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:249
+#: src/app/(tabs)/(dashboard)/index.tsx:253
 msgid "View all"
 msgstr "View all"
 

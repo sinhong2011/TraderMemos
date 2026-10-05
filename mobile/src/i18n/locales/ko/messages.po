@@ -2973,7 +2973,7 @@ msgstr "종가 트레일링 — 일마감 기준 상향"
 msgid "Equity"
 msgstr "자산"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:155
+#: src/app/(tabs)/(dashboard)/index.tsx:156
 #: src/components/equity-card.tsx:79
 #: src/components/equity-card.tsx:96
 msgid "Equity curve"
@@ -3406,7 +3406,7 @@ msgstr "풀 켈리"
 msgid "Full marks: {0}"
 msgstr "만점: {0}"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:271
+#: src/app/(tabs)/(dashboard)/index.tsx:275
 msgid "Full reports"
 msgstr "전체 리포트"
 
@@ -3997,7 +3997,7 @@ msgstr "거래 목록 불러오는 중"
 msgid "Loading win/loss report"
 msgstr "승패 리포트 불러오는 중"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:97
+#: src/app/(tabs)/(dashboard)/index.tsx:98
 msgid "Loading your dashboard"
 msgstr "대시보드 불러오는 중"
 
@@ -4041,7 +4041,7 @@ msgstr "로그"
 msgid "Log a missed trade"
 msgstr "놓친 거래 기록"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:135
+#: src/app/(tabs)/(dashboard)/index.tsx:136
 msgid "Log a trade from the Trades tab, or import from Settings → Import trades."
 msgstr "거래 탭에서 기록하거나, 설정 → 매매 가져오기에서 가져오세요."
 
@@ -4849,7 +4849,7 @@ msgstr "아직 토큰이 없습니다"
 msgid "No trades"
 msgstr "거래 없음"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:258
+#: src/app/(tabs)/(dashboard)/index.tsx:262
 #: src/components/reports/detailed-section.tsx:174
 #: src/components/reports/detailed-section.tsx:207
 #: src/components/reports/detailed-section.tsx:237
@@ -4878,7 +4878,7 @@ msgstr "아직 리뷰할 트레이드가 없습니다"
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "초기 리스크를 알 수 있는 거래가 없습니다 — 스톱을 설정하면 R 분석이 활성화됩니다."
 
-#: src/app/(tabs)/(dashboard)/index.tsx:133
+#: src/app/(tabs)/(dashboard)/index.tsx:134
 msgid "No trades yet"
 msgstr "아직 트레이드가 없습니다"
 
@@ -4982,7 +4982,7 @@ msgid "Note not found"
 msgstr "노트를 찾을 수 없습니다"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:93
-#: src/app/(tabs)/(dashboard)/index.tsx:222
+#: src/app/(tabs)/(dashboard)/index.tsx:226
 #: src/app/(tabs)/(dashboard)/notes.tsx:204
 #: src/app/(tabs)/(dashboard)/notes.tsx:256
 #: src/app/(tabs)/(trades)/[id].tsx:819
@@ -5506,7 +5506,7 @@ msgid "Playback speed"
 msgstr "재생 속도"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:106
-#: src/app/(tabs)/(dashboard)/index.tsx:232
+#: src/app/(tabs)/(dashboard)/index.tsx:236
 #: src/app/(tabs)/(dashboard)/playbook.tsx:176
 #: src/app/(tabs)/(dashboard)/playbook.tsx:226
 #: src/components/tools-menu.tsx:65
@@ -5880,7 +5880,7 @@ msgstr "최근 위반일"
 msgid "Recent events"
 msgstr "최근 이벤트"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:243
+#: src/app/(tabs)/(dashboard)/index.tsx:247
 msgid "Recent trades"
 msgstr "최근 트레이드"
 
@@ -6151,6 +6151,7 @@ msgstr "복수 매매"
 #: src/app/quick-journal.tsx:247
 #: src/app/quick-journal.tsx:370
 #: src/components/trade-form.tsx:555
+#: src/components/weekly-focus-card.tsx:29
 msgid "Review"
 msgstr "리뷰"
 
@@ -7538,6 +7539,10 @@ msgstr "이 거래에는 이미 스크린샷이 {0}장 있습니다 — 설정 �
 msgid "This week"
 msgstr "이번 주"
 
+#: src/components/weekly-focus-card.tsx:25
+msgid "This week's focus"
+msgstr "이번 주 집중 목표"
+
 #: src/app/(tabs)/(trades)/index.tsx:302
 msgid "This year"
 msgstr "올해"
@@ -7997,7 +8002,7 @@ msgstr "버전"
 msgid "version build server licence"
 msgstr "버전 빌드 서버 라이선스"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:249
+#: src/app/(tabs)/(dashboard)/index.tsx:253
 msgid "View all"
 msgstr "모두 보기"
 

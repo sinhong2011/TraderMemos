@@ -2973,7 +2973,7 @@ msgstr "終値トレーリング — 日次終値で切り上げ"
 msgid "Equity"
 msgstr "エクイティ"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:155
+#: src/app/(tabs)/(dashboard)/index.tsx:156
 #: src/components/equity-card.tsx:79
 #: src/components/equity-card.tsx:96
 msgid "Equity curve"
@@ -3406,7 +3406,7 @@ msgstr "フルケリー"
 msgid "Full marks: {0}"
 msgstr "満点: {0}"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:271
+#: src/app/(tabs)/(dashboard)/index.tsx:275
 msgid "Full reports"
 msgstr "レポートをすべて見る"
 
@@ -3997,7 +3997,7 @@ msgstr "トレード一覧を読み込み中"
 msgid "Loading win/loss report"
 msgstr "勝敗レポートを読み込み中"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:97
+#: src/app/(tabs)/(dashboard)/index.tsx:98
 msgid "Loading your dashboard"
 msgstr "ダッシュボードを読み込み中"
 
@@ -4041,7 +4041,7 @@ msgstr "ログ"
 msgid "Log a missed trade"
 msgstr "見送ったトレードを記録"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:135
+#: src/app/(tabs)/(dashboard)/index.tsx:136
 msgid "Log a trade from the Trades tab, or import from Settings → Import trades."
 msgstr "トレードタブで記録するか、設定 → トレードをインポートから取り込みます。"
 
@@ -4849,7 +4849,7 @@ msgstr "トークンがまだありません"
 msgid "No trades"
 msgstr "取引なし"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:258
+#: src/app/(tabs)/(dashboard)/index.tsx:262
 #: src/components/reports/detailed-section.tsx:174
 #: src/components/reports/detailed-section.tsx:207
 #: src/components/reports/detailed-section.tsx:237
@@ -4878,7 +4878,7 @@ msgstr "振り返るトレードはまだありません"
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "初期リスクが判明しているトレードがありません — ストップを設定するとR分析が有効になります。"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:133
+#: src/app/(tabs)/(dashboard)/index.tsx:134
 msgid "No trades yet"
 msgstr "トレードはまだありません"
 
@@ -4982,7 +4982,7 @@ msgid "Note not found"
 msgstr "ノートが見つかりません"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:93
-#: src/app/(tabs)/(dashboard)/index.tsx:222
+#: src/app/(tabs)/(dashboard)/index.tsx:226
 #: src/app/(tabs)/(dashboard)/notes.tsx:204
 #: src/app/(tabs)/(dashboard)/notes.tsx:256
 #: src/app/(tabs)/(trades)/[id].tsx:819
@@ -5506,7 +5506,7 @@ msgid "Playback speed"
 msgstr "再生速度"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:106
-#: src/app/(tabs)/(dashboard)/index.tsx:232
+#: src/app/(tabs)/(dashboard)/index.tsx:236
 #: src/app/(tabs)/(dashboard)/playbook.tsx:176
 #: src/app/(tabs)/(dashboard)/playbook.tsx:226
 #: src/components/tools-menu.tsx:65
@@ -5880,7 +5880,7 @@ msgstr "最近の違反日"
 msgid "Recent events"
 msgstr "最近のイベント"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:243
+#: src/app/(tabs)/(dashboard)/index.tsx:247
 msgid "Recent trades"
 msgstr "最近のトレード"
 
@@ -6151,6 +6151,7 @@ msgstr "リベンジトレード"
 #: src/app/quick-journal.tsx:247
 #: src/app/quick-journal.tsx:370
 #: src/components/trade-form.tsx:555
+#: src/components/weekly-focus-card.tsx:29
 msgid "Review"
 msgstr "振り返り"
 
@@ -7538,6 +7539,10 @@ msgstr "このトレードには既に{0}枚のスクリーンショットがあ
 msgid "This week"
 msgstr "今週"
 
+#: src/components/weekly-focus-card.tsx:25
+msgid "This week's focus"
+msgstr "今週のフォーカス"
+
 #: src/app/(tabs)/(trades)/index.tsx:302
 msgid "This year"
 msgstr "今年"
@@ -7997,7 +8002,7 @@ msgstr "バージョン"
 msgid "version build server licence"
 msgstr "バージョン ビルド サーバー ライセンス"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:249
+#: src/app/(tabs)/(dashboard)/index.tsx:253
 msgid "View all"
 msgstr "すべて表示"
 

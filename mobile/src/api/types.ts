@@ -100,6 +100,17 @@ export type ReviewInbox = {
   backlog: number;
 };
 
+/** GET /focus/current — mirrors api/internal/api/focus_handler.go. */
+export type WeeklyFocus = {
+  /** Monday (market timezone) of the week the focus applies to. */
+  week_start: string;
+  /** Up to three bullets from the last weekly review's "Focus for next week". */
+  items: string[];
+  /** The review note that set it; '' when there is none. */
+  note_id: string;
+  note_title: string;
+};
+
 /** One fill (api/internal/api/dto.go executionDTO). */
 export type Execution = {
   id: string;
