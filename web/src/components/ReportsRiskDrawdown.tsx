@@ -21,7 +21,13 @@ import {
   maxDrawdownPct,
 } from "@/lib/reportsAnalytics";
 import { ChartCard } from "./ChartCard";
-import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
+import {
+  ChartFrame,
+  chartTheme,
+  chartTooltipStyle,
+  pnlTooltipValue,
+  useChartAnimation,
+} from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
@@ -47,6 +53,7 @@ export function ReportsRiskDrawdown({
   loading,
   error,
 }: ReportsRiskDrawdownProps) {
+  const animate = useChartAnimation();
   useDisplayTimePrefs();
   const money = useReportsMoney();
   const locale = intlLocale();
@@ -136,6 +143,7 @@ export function ReportsRiskDrawdown({
                   ]}
                 />
                 <Area
+                  isAnimationActive={animate}
                   type="monotone"
                   dataKey="drawdownPct"
                   stroke="var(--loss)"

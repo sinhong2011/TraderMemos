@@ -242,7 +242,9 @@ export function MonthPicker({
                     aria-pressed={isActive}
                     className={cn(
                       "h-9 capitalize",
-                      !isActive && isCurrent && "text-chart-3 ring-1 ring-warning/40 ring-inset",
+                      !isActive &&
+                        isCurrent &&
+                        "text-warning-foreground ring-1 ring-warning/40 ring-inset",
                       isFuture && "opacity-30",
                     )}
                   >

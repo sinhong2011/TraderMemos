@@ -35,7 +35,7 @@ function WrappedCard({ className, children }: { className?: string; children: Re
 
 function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <p className="text-[11px] font-semibold tracking-[0.06em] uppercase text-chart-3 sm:text-[12px]">
+    <p className="text-[11px] font-semibold tracking-[0.06em] uppercase text-heading sm:text-[12px]">
       {children}
     </p>
   );
@@ -82,7 +82,7 @@ export function YearWrappedView({
   currency,
   fxRate,
 }: YearWrappedViewProps) {
-  const { fmtSignedMoney } = useMoneyFormatters();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const money = (v: number) => fmtSignedMoney(v * fxRate, currency, locale);
   const [shareOpen, setShareOpen] = useState(false);
@@ -346,7 +346,10 @@ export function YearWrappedView({
               hint="per trade"
               tone={wrapped.expectancy >= 0 ? "pos" : "neg"}
             />
-            <StatCell label="Fees paid" value={money(-wrapped.totalFees)} tone="neg" />
+            <StatCell
+              label="Fees paid"
+              value={fmtMoney(wrapped.totalFees * fxRate, currency, locale)}
+            />
           </div>
           <Link
             to="/reports"

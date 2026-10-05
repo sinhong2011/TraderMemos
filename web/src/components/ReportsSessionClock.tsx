@@ -86,7 +86,7 @@ export function ReportsSessionClock() {
   return (
     <section className="flex min-w-0 flex-col rounded-lg bg-card p-4 sm:p-5">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-2xs font-semibold tracking-wide text-chart-3">Market sessions</p>
+        <p className="text-2xs font-semibold tracking-wide text-heading">Market sessions</p>
         <p className="text-2xs text-muted-foreground">{tzCity} clock</p>
       </div>
       <div className="mt-3 flex gap-3">

@@ -53,6 +53,7 @@
   --color-invert: var(--invert);
   --color-invert-foreground: var(--invert-foreground);
 
+  --color-heading: var(--heading);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -151,6 +152,9 @@
   /* Series accent (equity curve, radar). Brand blue in light; in dark the
      brand blue is under 3:1 on the card, so the line steps up to blue-500. */
   --chart-accent: var(--primary);
+  /* Section titles / eyebrows. Deep teal in light, amber in dark — mirrors
+     mobile's `heading`. Not a chart color, and not a warning (use warning-*). */
+  --heading: oklch(0.398 0.07 227.392);
 
   --invert: var(--color-zinc-900);
   --invert-foreground: var(--color-zinc-50);
@@ -212,6 +216,7 @@
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
   --chart-accent: var(--color-blue-500);
+  --heading: oklch(0.769 0.188 70.08);
 
   --invert: var(--color-zinc-700);
   --invert-foreground: var(--color-zinc-50);

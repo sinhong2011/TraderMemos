@@ -19,7 +19,13 @@ import {
   metricEvolution,
 } from "@/lib/reportsAnalytics";
 import { ChartCard } from "./ChartCard";
-import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
+import {
+  ChartFrame,
+  chartTheme,
+  chartTooltipStyle,
+  pnlTooltipValue,
+  useChartAnimation,
+} from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { SegmentedControl } from "./SegmentedControl";
@@ -54,6 +60,7 @@ export interface ReportsMetricEvolutionProps {
 }
 
 export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetricEvolutionProps) {
+  const animate = useChartAnimation();
   useDisplayTimePrefs();
   const locale = intlLocale();
   const money = useReportsMoney();
@@ -164,6 +171,7 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
               }}
             />
             <Line
+              isAnimationActive={animate}
               yAxisId="left"
               type="monotone"
               dataKey="winRate"
@@ -173,6 +181,7 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
               dot={false}
             />
             <Line
+              isAnimationActive={animate}
               yAxisId="right"
               type="monotone"
               dataKey={rightMetric}

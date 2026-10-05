@@ -19,7 +19,7 @@ import { useDisplayTimePrefs } from "@/lib/displayPrefs";
 import { fmtDayShort } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, useChartAnimation } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { SegmentedControl } from "./SegmentedControl";
 import { Skeleton } from "./Skeleton";
@@ -98,6 +98,7 @@ export function ReportsExecutionScore({
   bucket,
   onBucketChange,
 }: ReportsExecutionScoreProps) {
+  const animate = useChartAnimation();
   useDisplayTimePrefs();
   const locale = intlLocale();
   const [axis, setAxis] = useState<AxisKey>("composite");
@@ -159,6 +160,7 @@ export function ReportsExecutionScore({
                 />
                 <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
                 <Radar
+                  isAnimationActive={animate}
                   dataKey="score"
                   stroke={chartTheme.accentStroke}
                   fill={chartTheme.accentStroke}
@@ -237,6 +239,7 @@ export function ReportsExecutionScore({
                   }}
                 />
                 <Line
+                  isAnimationActive={animate}
                   type="monotone"
                   dataKey={axis}
                   name={axis}

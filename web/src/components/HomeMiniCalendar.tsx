@@ -53,7 +53,7 @@ export function HomeMiniCalendar({
     <section className="flex h-full flex-col rounded-lg bg-card">
       <header className="flex items-start justify-between gap-3 px-4 py-3">
         <div>
-          <h2 className="text-2xs font-semibold tracking-wide text-chart-3">Month</h2>
+          <h2 className="text-2xs font-semibold tracking-wide text-heading">Month</h2>
           <p className="mt-1 text-[13px] font-medium text-foreground">
             {monthLabel(year, month, locale)}
           </p>

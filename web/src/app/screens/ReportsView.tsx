@@ -23,6 +23,7 @@ import {
   chartTheme,
   chartTooltipStyle,
   pnlTooltipValue,
+  useChartAnimation,
 } from "@/components/ChartFrame";
 import { DataTable } from "@/components/DataTable";
 import { DayTradesDrawer } from "@/components/DayTradesDrawer";
@@ -244,7 +245,7 @@ function BentoTitle({
       className={cn(
         "self-start text-left text-[11px] font-semibold tracking-[0.06em] uppercase sm:text-[12px]",
         tone === "signal"
-          ? "text-chart-3"
+          ? "text-heading"
           : "font-medium normal-case tracking-wide text-muted-foreground",
         className,
       )}
@@ -289,6 +290,7 @@ function SummaryMetricsGrid({
   onSaveGoal: (amount: number) => Promise<void>;
   onClearGoal: () => Promise<void>;
 }) {
+  const animate = useChartAnimation();
   const { fmtMoney, fmtMoneyCompact } = useMoneyFormatters();
   useDisplayTimePrefs();
   const locale = intlLocale();
@@ -358,6 +360,7 @@ function SummaryMetricsGrid({
                       cursor={{ fill: chartTheme.cursorFill }}
                     />
                     <Area
+                      isAnimationActive={animate}
                       type="monotone"
                       dataKey="equity"
                       stroke={chartTheme.accentStroke}
@@ -534,6 +537,7 @@ interface PnlBarChartProps {
 
 /** Playbook & Leaks bar chart — P&L series honors net/gross + $/% via useReportsMoney. */
 export function PnlBarChart({ data }: PnlBarChartProps) {
+  const animate = useChartAnimation();
   const money = useReportsMoney();
   const chartData = data.map((g) => ({
     key: g.key,
@@ -566,7 +570,7 @@ export function PnlBarChart({ data }: PnlBarChartProps) {
             ]}
             cursor={{ fill: chartTheme.cursorFill }}
           />
-          <Bar dataKey="pnl" radius={[2, 2, 0, 0]}>
+          <Bar isAnimationActive={animate} dataKey="pnl" radius={[2, 2, 0, 0]}>
             {chartData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}

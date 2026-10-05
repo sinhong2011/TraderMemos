@@ -23,7 +23,7 @@ export function ReportsHourlyList({ breakdown, loading, error }: ReportsHourlyLi
 
   return (
     <section className="flex min-h-0 min-w-0 flex-col rounded-lg bg-card p-3">
-      <p className="text-2xs font-semibold tracking-wide text-chart-3">Hourly</p>
+      <p className="text-2xs font-semibold tracking-wide text-heading">Hourly</p>
       {loading ? (
         <Skeleton height="200px" className="mt-3" />
       ) : error ? (

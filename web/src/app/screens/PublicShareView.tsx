@@ -29,7 +29,7 @@ function ShareCard({ className, children }: { className?: string; children: Reac
 
 function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <p className="text-[11px] font-semibold tracking-[0.06em] uppercase text-chart-3 sm:text-[12px]">
+    <p className="text-[11px] font-semibold tracking-[0.06em] uppercase text-heading sm:text-[12px]">
       {children}
     </p>
   );

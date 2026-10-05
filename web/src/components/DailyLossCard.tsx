@@ -51,7 +51,7 @@ export function DailyLossCard({ todayNetPnl, currency, fxRate = 1 }: DailyLossCa
           <span
             className={cn(
               "block h-full rounded-full transition-[width] duration-300",
-              breached ? "bg-destructive" : warning ? "bg-chart-3" : "bg-primary/60",
+              breached ? "bg-destructive" : warning ? "bg-warning" : "bg-primary/60",
             )}
             style={{ width: `${usedPct}%` }}
           />

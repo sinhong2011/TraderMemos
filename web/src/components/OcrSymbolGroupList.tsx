@@ -173,7 +173,7 @@ export function OcrScanSummary({
         <span
           className={cn(
             "flex size-7 shrink-0 items-center justify-center rounded-md",
-            "bg-sidebar text-chart-3 transition-colors duration-150",
+            "bg-sidebar text-heading transition-colors duration-150",
             "group-hover/collapsible-trigger:bg-primary/10 group-hover/collapsible-trigger:text-primary",
           )}
         >
@@ -182,7 +182,7 @@ export function OcrScanSummary({
         <span className="min-w-0 flex-1">
           <span
             className={cn(
-              "block text-[11px] font-semibold uppercase tracking-widest text-chart-3",
+              "block text-[11px] font-semibold uppercase tracking-widest text-heading",
               "transition-colors duration-150 group-hover/collapsible-trigger:text-primary",
             )}
           >
@@ -231,7 +231,7 @@ export function OcrScanSummary({
                   {highlights.map((w) => (
                     <li
                       key={w}
-                      className="rounded-md bg-warning/10 px-2.5 py-1.5 text-[11px] leading-snug text-chart-3"
+                      className="rounded-md bg-warning/10 px-2.5 py-1.5 text-[11px] leading-snug text-warning-foreground"
                     >
                       {w}
                     </li>

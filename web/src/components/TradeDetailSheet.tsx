@@ -373,7 +373,7 @@ function TradeDetailSheetBody({
             ))}
             {trade.setup && (
               <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Zap size={14} strokeWidth={1.5} className="text-chart-3" />
+                <Zap size={14} strokeWidth={1.5} className="text-heading" />
                 Setup: <span className="font-medium text-foreground">{trade.setup.name}</span>
               </span>
             )}

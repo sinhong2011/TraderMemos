@@ -42,7 +42,7 @@ function Eyebrow({
       className={cn(
         "text-[11px] font-semibold tracking-[0.06em] uppercase sm:text-[12px]",
         tone === "signal"
-          ? "text-chart-3"
+          ? "text-heading"
           : "font-medium normal-case tracking-wide text-muted-foreground",
       )}
     >
@@ -163,8 +163,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
             />
             <MetaRow
               label="Fees"
-              value={`${money.format(summary.total_fees)} (${feePct.toFixed(1)}%)`}
-              className="text-loss"
+              value={`${money.formatAmount(summary.total_fees)} (${feePct.toFixed(1)}%)`}
             />
             <MetaRow label="Trades" value={String(summary.total_trades)} />
             <MetaRow
@@ -339,8 +338,8 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
 
         <BentoCell>
           <Eyebrow tone="muted">Total fees</Eyebrow>
-          <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-loss sm:text-[26px]">
-            {money.format(summary.total_fees)}
+          <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-foreground sm:text-[26px]">
+            {money.formatAmount(summary.total_fees)}
           </p>
           <p className="mt-2 text-center text-2xs text-muted-foreground">
             {feePct.toFixed(1)}% of gross
