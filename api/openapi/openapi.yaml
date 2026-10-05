@@ -1077,6 +1077,33 @@ paths:
         "200":
           description: Scored setups (sorted by verdict, then mean) and the no-setup bucket
 
+  /api/v1/analytics/mistake-tax:
+    get:
+      tags: [Analytics]
+      summary: Mistake tax
+      description: >-
+        Prices the filtered closed trades that came from a mistake — a mistake
+        tag, a broken risk rule (over max risk, past the daily loss limit, over
+        the daily trade limit, past the losing-streak limit) or a detected
+        revenge / overconfidence entry. `total_cost` counts each flagged trade's
+        loss once; winners among them are reported as `lucky_wins`, never
+        netted against the cost. `sources` total each reason (a trade counts
+        under every reason it has). `series` trends the cost by week for ranges
+        up to about three months, else by month, in market time.
+        `unreviewed_ids` are losers with no flag and no note.
+      operationId: analyticsMistakeTax
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
+      responses:
+        "200":
+          description: Total cost, per-source rows with trade ids, and a cost series
+
   /api/v1/tags:
     get:
       tags: [Tags]

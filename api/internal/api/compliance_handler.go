@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -19,24 +20,9 @@ func (s *Server) handleCompliance(c *echo.Context) error {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
 
-	rulesRow, err := s.deps.Store.GetRiskRules(ctx, uid)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	rules, err := s.complianceRules(ctx, uid)
+	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load risk rules", nil)
-	}
-	rules := analytics.ComplianceRules{}
-	if err == nil {
-		if rulesRow.MaxRiskPerTrade.Valid {
-			rules.MaxRiskPerTrade = rulesRow.MaxRiskPerTrade.Float64
-		}
-		if rulesRow.MaxDailyLoss.Valid {
-			rules.MaxDailyLoss = rulesRow.MaxDailyLoss.Float64
-		}
-		if rulesRow.MaxTradesPerDay.Valid {
-			rules.MaxTradesPerDay = int(rulesRow.MaxTradesPerDay.Int64)
-		}
-		if rulesRow.MaxConsecutiveLosses.Valid {
-			rules.MaxConsecutiveLosses = int(rulesRow.MaxConsecutiveLosses.Int64)
-		}
 	}
 
 	rows, err := s.loadClosedTrades(ctx, uid, f)
@@ -66,4 +52,29 @@ func (s *Server) handleCompliance(c *echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, analytics.Compliance(trades, rules, f.Loc))
+}
+
+// complianceRules loads the user's enforceable risk rules; none set → zero rules.
+func (s *Server) complianceRules(ctx context.Context, uid string) (analytics.ComplianceRules, error) {
+	rules := analytics.ComplianceRules{}
+	row, err := s.deps.Store.GetRiskRules(ctx, uid)
+	if errors.Is(err, sql.ErrNoRows) {
+		return rules, nil
+	}
+	if err != nil {
+		return rules, err
+	}
+	if row.MaxRiskPerTrade.Valid {
+		rules.MaxRiskPerTrade = row.MaxRiskPerTrade.Float64
+	}
+	if row.MaxDailyLoss.Valid {
+		rules.MaxDailyLoss = row.MaxDailyLoss.Float64
+	}
+	if row.MaxTradesPerDay.Valid {
+		rules.MaxTradesPerDay = int(row.MaxTradesPerDay.Int64)
+	}
+	if row.MaxConsecutiveLosses.Valid {
+		rules.MaxConsecutiveLosses = int(row.MaxConsecutiveLosses.Int64)
+	}
+	return rules, nil
 }

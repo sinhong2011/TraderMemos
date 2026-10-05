@@ -11,7 +11,7 @@ import type { MissedTrade } from "@/lib/api/missedTrades";
 import { accountBaseCurrency, wallClockToIso } from "@/lib/displayPrefs";
 import { normalizeFilterDate, useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
-import { useBehavior, useCompliance, useSummary } from "@/lib/hooks/useAnalytics";
+import { useBehavior, useMistakeTax, useCompliance, useSummary } from "@/lib/hooks/useAnalytics";
 import {
   useDeleteMissedTrade,
   useMissedTrades,
@@ -78,6 +78,7 @@ function DayReviewPage() {
   const summaryQ = useSummary(dayFilters);
   const complianceQ = useCompliance(dayFilters);
   const behaviorQ = useBehavior(dayFilters);
+  const mistakeTaxQ = useMistakeTax(dayFilters);
   const notesQ = useNotes({ from: dayFilters.from, to: dayFilters.to });
   const accountsQ = useAccounts();
   const baseCurrency = accountBaseCurrency(accountsQ.data ?? [], accountIds);
@@ -206,6 +207,7 @@ function DayReviewPage() {
         summaryLoading={summaryQ.isLoading}
         compliance={complianceQ.data}
         behavior={behaviorQ.data}
+        mistakeTax={mistakeTaxQ.data}
         notes={notesQ.data ?? []}
         notesLoading={notesQ.isLoading}
         currency={currency}

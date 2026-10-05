@@ -57,6 +57,7 @@ import { ReportsSummaryBento } from "@/components/ReportsSummaryBento";
 import { ReportsMetricEvolution } from "@/components/ReportsMetricEvolution";
 import { ReportsMonteCarlo } from "@/components/ReportsMonteCarlo";
 import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
+import { ReportsMistakeTax } from "@/components/ReportsMistakeTax";
 import { ReportsRuleCompliance } from "@/components/ReportsRuleCompliance";
 import { ReportsRMultiplePerformance } from "@/components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "@/components/ReportsRollingWinRate";
@@ -73,9 +74,10 @@ import type {
   BehaviorReport,
   BreakGroup,
   ComplianceReport,
-  EquityCurve,
   EdgeScore,
+  EquityCurve,
   ExecScoreReport,
+  MistakeTaxReport,
   MonteCarloResult,
   RSummary,
   Summary,
@@ -166,6 +168,9 @@ export interface ReportsViewProps {
   qualityBreakdown: BreakGroup[];
   qualityBreakdownLoading: boolean;
   qualityBreakdownError: boolean;
+  mistakeTax?: MistakeTaxReport;
+  mistakeTaxLoading?: boolean;
+  mistakeTaxError?: boolean;
   compliance?: ComplianceReport;
   complianceLoading?: boolean;
   complianceError?: boolean;
@@ -623,6 +628,9 @@ export function ReportsView({
   qualityBreakdown,
   qualityBreakdownLoading,
   qualityBreakdownError,
+  mistakeTax,
+  mistakeTaxLoading = false,
+  mistakeTaxError = false,
   compliance,
   complianceLoading = false,
   complianceError = false,
@@ -717,6 +725,17 @@ export function ReportsView({
   // store decides which of these render, and in what order, per tab.
   const cardNodes: Record<ReportsTab, Record<string, ReactNode>> = {
     overview: {
+      "mistake-tax": (
+        <ReportsMistakeTax
+          report={mistakeTax}
+          loading={mistakeTaxLoading}
+          error={mistakeTaxError}
+          trades={trades}
+          currency={displayCurrency}
+          fxRate={fxRate}
+          onSelectTradeId={onSelectTradeId}
+        />
+      ),
       summary: summaryLoading ? (
         <Skeleton height="120px" />
       ) : summaryError ? (

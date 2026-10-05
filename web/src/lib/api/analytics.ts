@@ -8,6 +8,7 @@ import type {
   ExecScoreReport,
   Filters,
   MonteCarloResult,
+  MistakeTaxReport,
   RSummary,
   SetupScorecard,
   Summary,
@@ -43,6 +44,10 @@ export const analyticsApi = {
   setupScorecard: (f: Filters) =>
     apiFetch<SetupScorecard>(
       `/analytics/setup-scorecard${qs(f as Record<string, string | undefined>)}`,
+    ),
+  mistakeTax: (f: Filters) =>
+    apiFetch<MistakeTaxReport>(
+      `/analytics/mistake-tax${qs(f as Record<string, string | undefined>)}`,
     ),
   executionScore: (f: Filters, bucket: "week" | "month") =>
     apiFetch<ExecScoreReport>(
