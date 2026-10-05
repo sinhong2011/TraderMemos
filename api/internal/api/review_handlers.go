@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v5"
+	"github.com/tradermemos/api/internal/alerts"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -18,9 +19,6 @@ import (
 const (
 	defaultReviewWindowDays = 14
 	maxReviewWindowDays     = 90
-	// reviewCutoffPref is the preferences key holding the dismissed-backlog
-	// cutoff: unreviewed trades closed before it no longer count as backlog.
-	reviewCutoffPref = "reviewBacklogCutoff"
 )
 
 func (s *Server) reviewRoutes(g *echo.Group) {
@@ -61,7 +59,7 @@ func (s *Server) handleReviewInbox(c *echo.Context) error {
 	}
 	graded := make(map[string]bool, len(journals))
 	for _, j := range journals {
-		if j.TradeQuality.Valid && j.TradeQuality.Int64 > 0 {
+		if alerts.Graded(j.TradeQuality.Valid, j.TradeQuality.Int64) {
 			graded[j.TradeID] = true
 		}
 	}
@@ -115,7 +113,7 @@ func (s *Server) handleDismissReviewBacklog(c *echo.Context) error {
 		_ = json.Unmarshal([]byte(row.Prefs), &prefs)
 	}
 	stamp, _ := json.Marshal(cutoff.Format(time.RFC3339))
-	prefs[reviewCutoffPref] = stamp
+	prefs[alerts.ReviewCutoffPref] = stamp
 	encoded, err := json.Marshal(prefs)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not save preferences", nil)
@@ -137,19 +135,7 @@ func (s *Server) reviewCutoff(ctx context.Context, uid string) (*time.Time, erro
 	if err != nil {
 		return nil, err
 	}
-	var prefs map[string]json.RawMessage
-	if json.Unmarshal([]byte(row.Prefs), &prefs) != nil {
-		return nil, nil
-	}
-	var raw string
-	if json.Unmarshal(prefs[reviewCutoffPref], &raw) != nil {
-		return nil, nil
-	}
-	t, err := time.Parse(time.RFC3339, raw)
-	if err != nil {
-		return nil, nil
-	}
-	return &t, nil
+	return alerts.ReviewCutoff(row.Prefs), nil
 }
 
 func reviewWindow(raw string) (int, error) {

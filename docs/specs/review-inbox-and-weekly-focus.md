@@ -42,8 +42,9 @@ to clear a trade, or the inbox becomes a chore.
   `user_preferences`: unreviewed trades closed before it are no longer counted.
 - `GET /reviews/inbox?window_days=14` → `{ items, backlog, window_days }`.
 - `POST /reviews/dismiss-backlog` → sets the cutoff to the window's start.
-- `rule_unreviewed` alignment (same definition, `Data.route = "/review"`) is still
-  open.
+- `rule_unreviewed` uses the same definition: ungraded trades older than its
+  threshold, minus the dismissed backlog. Its tap route lands with the mobile queue
+  mode (PR 3) — mobile has no review screen to open yet.
 
 ### 1.4 Web — `/review`
 One trade at a time, keyboard-first:
@@ -95,9 +96,9 @@ truth, parsed on read (`alerts.ParseFocus`, `alerts.PreviousFocus`).
 ## 3. Delivery plan
 | PR | Scope |
 |---|---|
-| 1 | Inbox + dismiss endpoints (grade-based, preference cutoff), web `/review` + entry points — `rule_unreviewed` alignment still open |
+| 1 | Inbox + dismiss endpoints (grade-based, preference cutoff), web `/review` + entry points, `rule_unreviewed` on the same definition |
 | 2 | Note parsing on read, `GET /focus/current`, Today card, "Last week's focus" checklist in the generated note (web) |
-| 3 | Mobile: quick-journal queue mode, focus card |
+| 3 | Mobile: quick-journal queue mode (+ `rule_unreviewed` tap route), focus card |
 
 ## 4. Owner decisions (2026-10-05)
 1. Reviewed = **execution grade set**; lesson and mistake tags optional.

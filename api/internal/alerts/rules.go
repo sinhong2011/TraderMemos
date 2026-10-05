@@ -165,7 +165,7 @@ func EvaluateProp(accountID, accountName string, st prop.Status, warnPct float64
 }
 
 // Unreviewed builds the once-per-week nag about closed trades that never got
-// a journal entry.
+// an execution grade (see CountUnreviewed).
 func Unreviewed(count int, olderThanDays int, now time.Time, loc *time.Location) []Event {
 	if count <= 0 {
 		return nil
@@ -174,14 +174,14 @@ func Unreviewed(count int, olderThanDays int, now time.Time, loc *time.Location)
 		loc = time.UTC
 	}
 	year, week := now.In(loc).ISOWeek()
-	noun := "trades"
+	noun, verb := "trades", "have"
 	if count == 1 {
-		noun = "trade"
+		noun, verb = "trade", "has"
 	}
 	return []Event{{
 		Rule:      RuleUnreviewed,
 		DedupeKey: fmt.Sprintf("%d-W%02d", year, week),
 		Title:     "Unreviewed trades piling up",
-		Body:      fmt.Sprintf("%d closed %s older than %d days have no journal notes.", count, noun, olderThanDays),
+		Body:      fmt.Sprintf("%d closed %s older than %d days %s no execution grade.", count, noun, olderThanDays, verb),
 	}}
 }
