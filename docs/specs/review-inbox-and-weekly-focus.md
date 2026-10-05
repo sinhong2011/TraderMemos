@@ -43,8 +43,8 @@ to clear a trade, or the inbox becomes a chore.
 - `GET /reviews/inbox?window_days=14` → `{ items, backlog, window_days }`.
 - `POST /reviews/dismiss-backlog` → sets the cutoff to the window's start.
 - `rule_unreviewed` uses the same definition: ungraded trades older than its
-  threshold, minus the dismissed backlog. Its tap route lands with the mobile queue
-  mode (PR 3) — mobile has no review screen to open yet.
+  threshold, minus the dismissed backlog. Tapping the push opens the mobile
+  review queue (`route: /quick-journal?queue=1`).
 
 ### 1.4 Web — `/review`
 One trade at a time, keyboard-first:
@@ -59,9 +59,12 @@ One trade at a time, keyboard-first:
 - Entry points: a count badge on the rail's Today icon, a line on the Today page
   ("3 trades to review →"), and the mistake-tax "unreviewed" prompt.
 
-### 1.5 Mobile (follow-up PR)
-Quick journal gains a queue mode (`/quick-journal?queue=1`): after save it opens the
-next inbox trade; the push route lands there.
+### 1.5 Mobile
+Quick journal has a queue mode (`/quick-journal?queue=1`): it walks the inbox one
+trade at a time — grade required, "Save and next", "Skip for now" — and ends on
+Inbox zero / End of the queue. Home shows "N trades to review" while the inbox has
+any; the `rule_unreviewed` push opens the same route. Dismissing the backlog stays
+on the web.
 
 ---
 

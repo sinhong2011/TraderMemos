@@ -1,14 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { cn } from 'panelui-native';
+import { Button, cn } from 'panelui-native';
 import { Alert, Text, View } from 'react-native';
 
 import { FormSkeleton } from '@/components/skeleton';
 
-import { useTags, useTrade, useTrades } from '@/api/hooks';
+import { useReviewInbox, useTags, useTrade, useTrades } from '@/api/hooks';
 import type { Tag, Trade, TradeDetail } from '@/api/types';
 import { ChipGroup } from '@/components/chips';
+import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import { FormField, FormInput, FormSheet } from '@/components/form-sheet';
 import { Pill } from '@/components/pill';
 import { errorMessage } from '@/lib/errors';
@@ -31,12 +33,31 @@ const CONTINUOUS = { borderCurve: 'continuous' } as const;
 /** The screen's "nothing to show" frame, shared by both dead ends below. */
 const CENTERED = 'flex-1 items-center justify-center bg-background p-6';
 
+/** Where a form sits in the review queue, and how it moves on. */
+type QueueStep = {
+  position: number;
+  total: number;
+  onSaved: () => void;
+  onSkip: () => void;
+};
+
 /**
  * Swipe-action "quick journal": just the post-trade reflection fields (review
  * notes, mistake tags, execution grade), merged into the trade's journal
  * without touching setups/plan/entry-exit reasons.
+ *
+ * In the review queue a grade is required — it is what takes the trade out of
+ * the inbox — and saving moves to the next trade instead of closing.
  */
-function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeTags: Tag[] }) {
+function QuickJournalForm({
+  trade,
+  mistakeTags,
+  queue,
+}: {
+  trade: TradeDetail;
+  mistakeTags: Tag[];
+  queue?: QueueStep;
+}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   // Queue-aware save (the trade PATCH is a full replace of these fields, so a
@@ -79,7 +100,8 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
       }),
     onSuccess: ({ queued }) => {
       if (!queued) void queryClient.invalidateQueries();
-      router.back();
+      if (queue) queue.onSaved();
+      else router.back();
     },
     onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
@@ -87,7 +109,14 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
   return (
     // Title is just "Review": the sheet header truncates at 55% width, and the
     // trade it belongs to is stated properly in the summary below anyway.
-    <FormSheet title={t`Review`} saving={save.isPending} onSave={() => save.mutate()}>
+    <FormSheet
+      title={queue ? t`Review ${queue.position} of ${queue.total}` : t`Review`}
+      saving={save.isPending}
+      saveLabel={queue ? t`Save and next` : undefined}
+      saveIcon={queue ? 'checkmark' : undefined}
+      saveDisabled={queue != null && !grade}
+      onSave={() => save.mutate()}
+    >
       <TradeSummary trade={trade} />
       {entryReason ? (
         // What you told yourself at entry — the thing the review is measured
@@ -126,6 +155,11 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
             tone="neg"
           />
         </FormField>
+      ) : null}
+      {queue ? (
+        <Button variant="ghost" fullWidth disabled={save.isPending} onPress={queue.onSkip}>
+          {t`Skip for now`}
+        </Button>
       ) : null}
     </FormSheet>
   );
@@ -181,7 +215,133 @@ function latestReviewableTrade(trades: Trade[]): Trade | undefined {
   return latestClosed ?? trades[0];
 }
 
+/**
+ * `?queue=1`: the review inbox, one trade at a time — the trades the web
+ * /review page lists (closed in the last two weeks, no execution grade). The
+ * list is fixed when the queue opens, so a save that is still syncing, or a
+ * skip, can't bring the same trade straight back.
+ */
+function ReviewQueue() {
+  const router = useRouter();
+  const inbox = useReviewInbox();
+  const { data: tags } = useTags();
+  const [ids, setIds] = useState<string[] | null>(null);
+  const [position, setPosition] = useState(0);
+  const [reviewed, setReviewed] = useState(0);
+  const [skipped, setSkipped] = useState(0);
+
+  // Snapshot once the server has answered this visit — the persisted cache can
+  // still hold trades graded since. A failed refetch falls back to that cache.
+  if (ids === null && inbox.data && inbox.isFetchedAfterMount) {
+    setIds(inbox.data.items.map((item) => item.id));
+  }
+
+  const currentId = ids?.[position] ?? '';
+  const { data: trade, isLoading } = useTrade(currentId);
+
+  if (ids === null) {
+    if (inbox.error && !inbox.data) {
+      return <ErrorState error={inbox.error} onRetry={() => void inbox.refetch()} />;
+    }
+    return (
+      <FormSheet title={t`Review`} saveDisabled onSave={() => {}}>
+        <FormSkeleton fields={3} />
+      </FormSheet>
+    );
+  }
+
+  if (position >= ids.length) {
+    const backlog = inbox.data?.backlog ?? 0;
+    const summary = [
+      reviewed === 1 ? t`1 trade reviewed.` : reviewed > 1 ? t`${reviewed} trades reviewed.` : '',
+      skipped === 1
+        ? t`1 skipped trade stays in the inbox.`
+        : skipped > 1
+          ? t`${skipped} skipped trades stay in the inbox.`
+          : '',
+      backlog === 1
+        ? t`1 older trade is still ungraded — grade or dismiss it on the web review page.`
+        : backlog > 1
+          ? t`${backlog} older trades are still ungraded — grade or dismiss them on the web review page.`
+          : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+    return (
+      <View className="flex-1 gap-4 bg-background p-6 pb-12">
+        <View className="flex-1">
+          <EmptyState
+            systemImage="checkmark.circle"
+            title={
+              ids.length === 0
+                ? t`Nothing to review`
+                : skipped > 0
+                  ? t`End of the queue`
+                  : t`Inbox zero`
+            }
+            description={summary || t`Every closed trade from the last two weeks has a grade.`}
+          />
+        </View>
+        <Button className="rounded-3xl" fullWidth onPress={() => router.back()}>
+          {t`Done`}
+        </Button>
+      </View>
+    );
+  }
+
+  const next = () => setPosition((p) => p + 1);
+  const step: QueueStep = {
+    position: position + 1,
+    total: ids.length,
+    onSaved: () => {
+      setReviewed((n) => n + 1);
+      next();
+    },
+    onSkip: () => {
+      setSkipped((n) => n + 1);
+      next();
+    },
+  };
+
+  if (isLoading || !tags) {
+    return (
+      <FormSheet title={t`Review ${step.position} of ${step.total}`} saveDisabled onSave={() => {}}>
+        <FormSkeleton fields={3} />
+      </FormSheet>
+    );
+  }
+
+  if (!trade) {
+    // Deleted since the queue opened, or not reachable offline.
+    return (
+      <View className="flex-1 gap-4 bg-background p-6 pb-12">
+        <View className="flex-1">
+          <EmptyState systemImage="questionmark.circle" title={t`Trade not found`} />
+        </View>
+        <Button className="rounded-3xl" fullWidth onPress={next}>
+          {t`Next trade`}
+        </Button>
+      </View>
+    );
+  }
+
+  return (
+    <QuickJournalForm
+      // A fresh form per trade — its fields are seeded from the trade once.
+      key={trade.id}
+      trade={trade}
+      mistakeTags={tags.filter((tag) => tag.kind === 'mistake')}
+      queue={step}
+    />
+  );
+}
+
 export default function QuickJournalScreen() {
+  const { queue } = useLocalSearchParams<{ queue?: string }>();
+  return queue === '1' ? <ReviewQueue /> : <SingleTradeJournal />;
+}
+
+function SingleTradeJournal() {
   // Opened either from a trade row with an explicit id, or id-less from the
   // App Intents surfaces (Siri / Action Button / Control Center deep-link
   // tradermemos://quick-journal?latest=1) — then the latest trade is resolved

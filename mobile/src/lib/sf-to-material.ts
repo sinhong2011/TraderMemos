@@ -171,6 +171,7 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   'square.grid.2x2': 'grid_view',
   flag: 'flag',
   checklist: 'checklist',
+  tray: 'inbox',
   scalemass: 'scale',
   percent: 'percent',
   'building.columns': 'account_balance',

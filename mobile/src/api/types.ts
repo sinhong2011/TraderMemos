@@ -91,6 +91,15 @@ export type Trade = {
   trade_quality?: number | null;
 };
 
+/** GET /reviews/inbox — mirrors reviewInboxDTO in api/internal/api/review_handlers.go. */
+export type ReviewInbox = {
+  /** Closed trades from the window with no execution grade, newest first. */
+  items: Trade[];
+  window_days: number;
+  /** Ungraded trades older than the window, minus a dismissed backlog. */
+  backlog: number;
+};
+
 /** One fill (api/internal/api/dto.go executionDTO). */
 export type Execution = {
   id: string;

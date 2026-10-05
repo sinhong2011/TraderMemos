@@ -55,6 +55,7 @@ import type {
   MarketBarsResponse,
   Me,
   PropSettings,
+  ReviewInbox,
   Setup,
   Tag,
   Trade,
@@ -124,6 +125,7 @@ export const queryKeys = {
   imports: () => ['imports'] as const,
   health: () => ['health'] as const,
   systemInfo: () => ['system-info'] as const,
+  reviewInbox: () => ['reviews', 'inbox'] as const,
 };
 
 /** The two LLM integrations share one settings shape and endpoint family. */
@@ -259,6 +261,18 @@ export function useAnnualGoal(year: number) {
 
 export function useRiskRules() {
   return useApiQuery<RiskRules>(queryKeys.riskRules(), '/settings/risk-rules');
+}
+
+/**
+ * Closed trades still waiting for an execution grade (the web /review queue).
+ * staleTime 0: a grade saved anywhere — web, another device — must drop the
+ * count on the next mount, and the MMKV persister would otherwise answer.
+ */
+export function useReviewInbox(options?: { enabled?: boolean }) {
+  return useApiQuery<ReviewInbox>(queryKeys.reviewInbox(), '/reviews/inbox', undefined, {
+    enabled: options?.enabled,
+    staleTime: 0,
+  });
 }
 
 export function useAlertSettings() {
