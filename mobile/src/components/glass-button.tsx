@@ -94,7 +94,10 @@ export function GlassIconButton({
   loading,
   onPress,
 }: GlassIconButtonProps) {
-  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
+  const [foreground, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-muted-foreground',
+  ]) as [string, string];
   const off = disabled || loading;
 
   const glyph = loading ? (
@@ -102,7 +105,10 @@ export function GlassIconButton({
     // the spinner cannot resize the circle under the finger.
     <ActivityIndicator size="small" color={foreground} />
   ) : (
-    <Icon name={systemImage} size={16} tintColor={foreground} />
+    // The drawn Android button shows no disabled state of its own (verified on
+    // the Pixel emulator) — the glyph has to say it, or a form that still
+    // needs input looks ready to save.
+    <Icon name={systemImage} size={16} tintColor={disabled ? mutedForeground : foreground} />
   );
 
   if (Platform.OS !== 'ios') {

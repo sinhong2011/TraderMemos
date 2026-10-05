@@ -164,6 +164,10 @@ func EvaluateProp(accountID, accountName string, st prop.Status, warnPct float64
 	return nil
 }
 
+// ReviewQueueRoute is the mobile app path of the review queue — the
+// quick-journal sheet stepping through the review inbox.
+const ReviewQueueRoute = "/quick-journal?queue=1"
+
 // Unreviewed builds the once-per-week nag about closed trades that never got
 // an execution grade (see CountUnreviewed).
 func Unreviewed(count int, olderThanDays int, now time.Time, loc *time.Location) []Event {
@@ -183,5 +187,7 @@ func Unreviewed(count int, olderThanDays int, now time.Time, loc *time.Location)
 		DedupeKey: fmt.Sprintf("%d-W%02d", year, week),
 		Title:     "Unreviewed trades piling up",
 		Body:      fmt.Sprintf("%d closed %s older than %d days %s no execution grade.", count, noun, olderThanDays, verb),
+		// Tapping it opens the mobile review queue.
+		Data: map[string]string{"route": ReviewQueueRoute},
 	}}
 }

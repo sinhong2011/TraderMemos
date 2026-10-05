@@ -153,6 +153,9 @@ func TestUnreviewed(t *testing.T) {
 	if len(evs) != 1 || evs[0].Rule != RuleUnreviewed {
 		t.Fatalf("want unreviewed event, got %+v", evs)
 	}
+	if evs[0].Data["route"] != "/quick-journal?queue=1" {
+		t.Errorf("tap should open the review queue: %+v", evs[0].Data)
+	}
 	if !strings.HasPrefix(evs[0].DedupeKey, "2026-W") {
 		t.Errorf("dedupes per ISO week: %q", evs[0].DedupeKey)
 	}

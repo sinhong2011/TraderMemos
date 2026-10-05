@@ -17,6 +17,7 @@ import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { BreakdownCard } from '@/components/breakdown-card';
 import { ChecklistCard } from '@/components/checklist-card';
+import { ReviewInboxRow } from '@/components/review-inbox-row';
 import { DailyLossCard } from '@/components/daily-loss-card';
 import { DashboardCard } from '@/components/dashboard-card';
 import { EquityCard } from '@/components/equity-card';
@@ -161,6 +162,10 @@ export default function DashboardScreen() {
       {/* Today's discipline sits right under the curve: the checklist is the
           first thing to clear, before any of the aggregates below. */}
       <ChecklistCard />
+
+      {/* Closed trades still waiting for a grade — the other half of the
+          day's discipline, so it sits with the routine. */}
+      <ReviewInboxRow />
 
       <PerformanceCard
         summary={summary.data}
