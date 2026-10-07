@@ -1153,6 +1153,24 @@ paths:
         "200":
           description: "`{week_start, items, note_id, note_title}`"
 
+  /api/v1/focus/history:
+    get:
+      tags: [Notes]
+      summary: Focus kept, week by week
+      description: >-
+        Each weekly review's "Last week's focus" checklist, scored: a ticked
+        box is kept, an unticked one is not. One entry per week (the latest
+        review in it), newest first, for reviews dated between `from` and `to`
+        — every review when neither is given. Reviews without that
+        checklist are not scored weeks.
+      operationId: focusHistory
+      parameters:
+        - { name: from, in: query, schema: { type: string, format: date-time } }
+        - { name: to, in: query, schema: { type: string, format: date-time } }
+      responses:
+        "200":
+          description: "`{weeks: [{week_start, items: [{text, kept}], note_id, note_title}], items_total, items_kept, weeks_all_kept}`"
+
   /api/v1/tags:
     get:
       tags: [Tags]
