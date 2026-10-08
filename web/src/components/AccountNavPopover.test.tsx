@@ -39,9 +39,9 @@ describe("AccountNavPopover", () => {
     wrap(<AccountNavPopover />);
 
     await user.click(screen.getByRole("button", { name: /Account: All accounts/i }));
-    const all = await screen.findByRole("menuitemcheckbox", { name: /All accounts 3 accounts/ });
+    const all = await screen.findByRole("menuitemcheckbox", { name: /All accounts\s*3 accounts/ });
     expect(all).toBeChecked();
-    const live = screen.getByRole("menuitemcheckbox", { name: /Live USD/ });
+    const live = screen.getByRole("menuitemcheckbox", { name: /Live\s*USD/ });
     await user.click(live);
 
     expect(useFilters.getState().accountIds).toEqual(["a1"]);
@@ -52,18 +52,18 @@ describe("AccountNavPopover", () => {
     wrap(<AccountNavPopover />);
 
     await user.click(screen.getByRole("button", { name: /Account: All accounts/i }));
-    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Live USD/ }));
-    await user.click(screen.getByRole("menuitemcheckbox", { name: /Paper USD/ }));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Live\s*USD/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Paper\s*USD/ }));
     expect(useFilters.getState().accountIds).toEqual(["a1", "a2"]);
 
     // The EUR account can't join a USD portfolio.
-    expect(screen.getByRole("menuitemcheckbox", { name: /Euro EUR/ })).toHaveAttribute(
+    expect(screen.getByRole("menuitemcheckbox", { name: /Euro\s*EUR/ })).toHaveAttribute(
       "aria-disabled",
       "true",
     );
 
     // Deselecting one keeps the rest of the scope.
-    await user.click(screen.getByRole("menuitemcheckbox", { name: /Live USD/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Live\s*USD/ }));
     expect(useFilters.getState().accountIds).toEqual(["a2"]);
   });
 

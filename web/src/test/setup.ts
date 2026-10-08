@@ -59,3 +59,10 @@ if (typeof globalThis.PointerEvent === "undefined") {
   }
   globalThis.PointerEvent = PointerEventPolyfill as unknown as typeof PointerEvent;
 }
+
+// jsdom 30 implements URL.createObjectURL, but only for its own Blob wrappers —
+// a File built from Node's global constructor throws inside it. Tests only need
+// a URL string back; individual tests still spy on these to assert calls.
+let objectUrlSeq = 0;
+URL.createObjectURL = () => `blob:test/${++objectUrlSeq}`;
+URL.revokeObjectURL = () => {};
