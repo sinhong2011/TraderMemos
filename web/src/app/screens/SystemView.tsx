@@ -645,7 +645,7 @@ function VersionEditor({
       ) : null}
 
       {/* Map + inspector share one dotted surface (same level as the draft). */}
-      <div className="system-workspace grid min-h-[min(640px,70vh)] overflow-hidden rounded-lg lg:grid-cols-[minmax(0,1fr)_minmax(300px,380px)]">
+      <div className="system-workspace grid min-h-[min(640px,70vh)] flex-1 overflow-hidden rounded-lg lg:grid-cols-[minmax(0,1fr)_minmax(300px,380px)]">
         <div className="relative min-h-[min(520px,55vh)] min-w-0 lg:min-h-0">
           <div className="absolute inset-0 hidden md:block">
             <SystemMap

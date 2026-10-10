@@ -61,7 +61,11 @@ function edgeLabel(key: (typeof MAP_EDGES)[number]["labelKey"]): string | undefi
   }
 }
 
-const FIT_PADDING = 0.16;
+/** The feedback loop bows left of the node boxes fitView measures; the top and bottom clear the toolbar and legend. */
+const FIT_OPTIONS = {
+  padding: { top: "64px", right: "32px", bottom: "64px", left: "168px" },
+  maxZoom: 1,
+} as const;
 
 function MapLegend() {
   const items: RuleClarity[] = ["self_clear", "needs_clarity", "empty"];
@@ -229,9 +233,7 @@ function MapInner({
     const next = defaultMapLayout();
     setNodes((prev) => prev.map((n) => ({ ...n, position: next[n.id] ?? n.position })));
     saveMapLayout(systemId, next);
-    requestAnimationFrame(
-      () => void fitView({ padding: FIT_PADDING, duration: reduceMotion ? 0 : 200 }),
-    );
+    requestAnimationFrame(() => void fitView({ ...FIT_OPTIONS, duration: reduceMotion ? 0 : 200 }));
   };
 
   const isDefaultLayout = sameLayout(positionsFromNodes(nodes), defaultMapLayout());
@@ -254,7 +256,7 @@ function MapInner({
         panOnDrag
         zoomOnScroll
         fitView
-        fitViewOptions={{ padding: FIT_PADDING }}
+        fitViewOptions={FIT_OPTIONS}
         minZoom={0.45}
         maxZoom={1.4}
         proOptions={{ hideAttribution: true }}
@@ -281,7 +283,7 @@ function MapInner({
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => void fitView({ padding: FIT_PADDING, duration: reduceMotion ? 0 : 200 })}
+          onClick={() => void fitView({ ...FIT_OPTIONS, duration: reduceMotion ? 0 : 200 })}
           title={t`Fit the whole map in view`}
         >
           <Maximize2 className="size-3.5" aria-hidden />
