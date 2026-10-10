@@ -55,7 +55,9 @@ web/.playwright-mcp/
 !mobile/assets/expo.icon/Assets/*.png
 !web/src/assets/*.png
 !docs/screenshots/*.png
-!docs/specs/assets/*.png
+!docs/specs/
+!docs/specs/assets/
+!docs/specs/assets/**
 # store listing art: raw device captures and the composed artboards we upload
 !scripts/appstore/captures/*/*.png
 !scripts/appstore/out/*/*.png
