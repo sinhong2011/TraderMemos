@@ -355,6 +355,7 @@ type SystemVersion struct {
 	RetiredAt     sql.NullTime `json:"retired_at"`
 	CreatedAt     time.Time    `json:"created_at"`
 	UpdatedAt     time.Time    `json:"updated_at"`
+	Name          string       `json:"name"`
 }
 
 type Tag struct {

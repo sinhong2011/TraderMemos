@@ -3,6 +3,7 @@ package api_test
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -188,4 +189,52 @@ func TestMarketRegimeDay(t *testing.T) {
 	}
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &day))
 	require.Equal(t, "defensive", day.Regime)
+}
+
+func TestRenameSystemVersion(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "rename@example.com")
+
+	rec := do(s, http.MethodPost, "/api/v1/system/versions", "", tok)
+	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+	var draft struct {
+		ID        string `json:"id"`
+		Label     string `json:"label"`
+		Name      string `json:"name"`
+		UpdatedAt string `json:"updated_at"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &draft))
+	require.Equal(t, "", draft.Name)
+
+	rename := func(id, body, token string) (int, map[string]any) {
+		r := do(s, http.MethodPatch, "/api/v1/system/versions/"+id, body, token)
+		var out map[string]any
+		_ = json.Unmarshal(r.Body.Bytes(), &out)
+		return r.Code, out
+	}
+
+	code, out := rename(draft.ID, `{"name":"  Trend   pullbacks "}`, tok)
+	require.Equal(t, http.StatusOK, code)
+	require.Equal(t, "Trend pullbacks", out["name"])
+	require.Equal(t, "v1.0", out["label"], "the version number is untouched")
+	require.Equal(t, draft.UpdatedAt, out["updated_at"], "renaming is not a rule edit")
+
+	// Active versions accept a name too.
+	rec = do(s, http.MethodPost, "/api/v1/system/versions/"+draft.ID+"/activate", `{"changes":[]}`, tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	code, out = rename(draft.ID, `{"name":"Breakouts only"}`, tok)
+	require.Equal(t, http.StatusOK, code)
+	require.Equal(t, "Breakouts only", out["name"])
+
+	code, out = rename(draft.ID, `{"name":""}`, tok)
+	require.Equal(t, http.StatusOK, code)
+	require.Equal(t, "", out["name"], "an empty name clears it")
+
+	long := `{"name":"` + strings.Repeat("x", 81) + `"}`
+	code, _ = rename(draft.ID, long, tok)
+	require.Equal(t, http.StatusBadRequest, code)
+
+	other := registerAndLogin(t, s, "rename-other@example.com")
+	code, _ = rename(draft.ID, `{"name":"mine now"}`, other)
+	require.Equal(t, http.StatusNotFound, code)
 }

@@ -1540,6 +1540,32 @@ paths:
       responses:
         "200":
           description: Saved
+    patch:
+      tags: [Trading system]
+      summary: Name a system version
+      description: >
+        Sets the optional display name on a draft, active or retired version.
+        The `label` (version number) and the rules are unchanged, and so is
+        `updated_at`. An empty name clears it; whitespace runs collapse.
+      operationId: renameSystemVersion
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, maxLength: 80, example: "Trend pullbacks" }
+      responses:
+        "200":
+          description: Renamed version
+        "400":
+          description: Name longer than 80 characters
+        "404":
+          description: Version not found
     delete:
       tags: [Trading system]
       summary: Discard a draft version

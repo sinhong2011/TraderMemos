@@ -1151,6 +1151,14 @@ func (p *PG) UpdateSetup(ctx context.Context, arg UpdateSetupParams) error {
 	return p.q.UpdateSetup(ctx, storepg.UpdateSetupParams(arg))
 }
 
+func (p *PG) RenameSystemVersion(ctx context.Context, arg RenameSystemVersionParams) (SystemVersion, error) {
+	v, err := p.q.RenameSystemVersion(ctx, storepg.RenameSystemVersionParams(arg))
+	if err != nil {
+		return SystemVersion{}, err
+	}
+	return SystemVersion(v), nil
+}
+
 func (p *PG) UpdateSystemVersion(ctx context.Context, arg UpdateSystemVersionParams) (SystemVersion, error) {
 	v, err := p.q.UpdateSystemVersion(ctx, storepg.UpdateSystemVersionParams(arg))
 	if err != nil {

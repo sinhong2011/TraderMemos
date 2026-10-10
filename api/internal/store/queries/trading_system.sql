@@ -38,6 +38,12 @@ SET label = ?, rules = ?, open_questions = ?, regimes = ?, trade_types = ?,
 WHERE id = ? AND user_id = ? AND status = 'draft'
 RETURNING *;
 
+-- name: RenameSystemVersion :one
+UPDATE system_versions
+SET name = ?
+WHERE id = ? AND user_id = ?
+RETURNING *;
+
 -- name: ActivateSystemVersion :one
 UPDATE system_versions
 SET status = 'active', activated_at = ?, retired_at = NULL, updated_at = CURRENT_TIMESTAMP

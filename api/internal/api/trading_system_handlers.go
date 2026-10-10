@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"unicode/utf8"
 	"uuid"
 
 	"github.com/labstack/echo/v5"
@@ -23,6 +24,7 @@ func (s *Server) tradingSystemRoutes(g *echo.Group) {
 	g.POST("/system/versions", s.handleStartSystemVersion)
 	g.GET("/system/versions/:id", s.handleGetSystemVersion)
 	g.PUT("/system/versions/:id", s.handleSaveSystemVersion)
+	g.PATCH("/system/versions/:id", s.handleRenameSystemVersion)
 	g.DELETE("/system/versions/:id", s.handleDiscardSystemDraft)
 	g.POST("/system/versions/:id/activate", s.handleActivateSystemVersion)
 	g.GET("/system/changes", s.handleListSystemChanges)
@@ -41,25 +43,26 @@ type ruleDTO struct {
 }
 
 type versionDTO struct {
-	ID            string              `json:"id"`
-	Label         string              `json:"label"`
-	Status        string              `json:"status"`
-	Rules         map[string]ruleDTO  `json:"rules"`
-	OpenQuestions map[string]string   `json:"open_questions"`
-	Regimes       map[string]string   `json:"regimes"`
-	TradeTypes    map[string]string   `json:"trade_types"`
-	ActivatedAt   *time.Time          `json:"activated_at"`
-	RetiredAt     *time.Time          `json:"retired_at"`
-	CreatedAt     time.Time           `json:"created_at"`
-	UpdatedAt     time.Time           `json:"updated_at"`
+	ID            string             `json:"id"`
+	Label         string             `json:"label"`
+	Name          string             `json:"name"`
+	Status        string             `json:"status"`
+	Rules         map[string]ruleDTO `json:"rules"`
+	OpenQuestions map[string]string  `json:"open_questions"`
+	Regimes       map[string]string  `json:"regimes"`
+	TradeTypes    map[string]string  `json:"trade_types"`
+	ActivatedAt   *time.Time         `json:"activated_at"`
+	RetiredAt     *time.Time         `json:"retired_at"`
+	CreatedAt     time.Time          `json:"created_at"`
+	UpdatedAt     time.Time          `json:"updated_at"`
 }
 
 type tradingSystemDTO struct {
-	ID      string       `json:"id"`
-	Name    string       `json:"name"`
-	Active  *versionDTO  `json:"active"`
-	Draft   *versionDTO  `json:"draft"`
-	History []versionDTO `json:"history"`
+	ID      string        `json:"id"`
+	Name    string        `json:"name"`
+	Active  *versionDTO   `json:"active"`
+	Draft   *versionDTO   `json:"draft"`
+	History []versionDTO  `json:"history"`
 	Plan    []system.Step `json:"plan"`
 }
 
@@ -80,23 +83,23 @@ type regimeDTO struct {
 }
 
 type systemCardDTO struct {
-	TradeID         string          `json:"trade_id"`
-	VersionID       *string         `json:"version_id"`
-	VersionLabel    string          `json:"version_label"`
-	Regime          string          `json:"regime"`
-	DayRegime       string          `json:"day_regime"`
-	TriggerMet      string          `json:"trigger_met"`
-	TradeType       string          `json:"trade_type"`
-	Thesis          string          `json:"thesis"`
-	PlannedHoldDays *int64          `json:"planned_hold_days"`
-	TimeStopDays    *int64          `json:"time_stop_days"`
-	ExitState       string          `json:"exit_state"`
-	Adherence       string          `json:"adherence"`
-	SuggestedAdherence string       `json:"suggested_adherence"`
-	Checklist       map[string]bool `json:"checklist"`
-	Lesson          string          `json:"lesson"`
-	RuleChange      bool            `json:"rule_change"`
-	PlannedAt       *time.Time      `json:"planned_at"`
+	TradeID            string          `json:"trade_id"`
+	VersionID          *string         `json:"version_id"`
+	VersionLabel       string          `json:"version_label"`
+	Regime             string          `json:"regime"`
+	DayRegime          string          `json:"day_regime"`
+	TriggerMet         string          `json:"trigger_met"`
+	TradeType          string          `json:"trade_type"`
+	Thesis             string          `json:"thesis"`
+	PlannedHoldDays    *int64          `json:"planned_hold_days"`
+	TimeStopDays       *int64          `json:"time_stop_days"`
+	ExitState          string          `json:"exit_state"`
+	Adherence          string          `json:"adherence"`
+	SuggestedAdherence string          `json:"suggested_adherence"`
+	Checklist          map[string]bool `json:"checklist"`
+	Lesson             string          `json:"lesson"`
+	RuleChange         bool            `json:"rule_change"`
+	PlannedAt          *time.Time      `json:"planned_at"`
 }
 
 type systemReviewDTO struct {
@@ -173,7 +176,7 @@ func int64Null(v *int64) sql.NullInt64 {
 
 func versionFromRow(v store.SystemVersion) versionDTO {
 	return versionDTO{
-		ID: v.ID, Label: v.Label, Status: v.Status,
+		ID: v.ID, Label: v.Label, Name: v.Name, Status: v.Status,
 		Rules: decodeRules(v.Rules), OpenQuestions: decodeStringMap(v.OpenQuestions),
 		Regimes: decodeStringMap(v.Regimes), TradeTypes: decodeStringMap(v.TradeTypes),
 		ActivatedAt: nullTimePtr(v.ActivatedAt), RetiredAt: nullTimePtr(v.RetiredAt),
@@ -450,6 +453,37 @@ func (s *Server) handleSaveSystemVersion(c *echo.Context) error {
 	}
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not save the draft", nil)
+	}
+	return c.JSON(http.StatusOK, versionFromRow(row))
+}
+
+// maxVersionNameLen caps the optional display name, in runes.
+const maxVersionNameLen = 80
+
+// handleRenameSystemVersion sets the optional display name on any version.
+// The name is metadata, so retired and active versions accept it too, and
+// updated_at is left alone: rules did not change.
+func (s *Server) handleRenameSystemVersion(c *echo.Context) error {
+	ctx, uid := c.Request().Context(), auth.UserID(c)
+	var in struct {
+		Name string `json:"name"`
+	}
+	if err := c.Bind(&in); err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
+	}
+	name := strings.Join(strings.Fields(in.Name), " ")
+	if utf8.RuneCountInString(name) > maxVersionNameLen {
+		return Fail(http.StatusBadRequest, "bad_request",
+			"name must be at most "+itoa(maxVersionNameLen)+" characters", nil)
+	}
+	row, err := s.deps.Store.RenameSystemVersion(ctx, store.RenameSystemVersionParams{
+		Name: name, ID: c.Param("id"), UserID: uid,
+	})
+	if errors.Is(err, sql.ErrNoRows) {
+		return Fail(http.StatusNotFound, "not_found", "version not found", nil)
+	}
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not rename the version", nil)
 	}
 	return c.JSON(http.StatusOK, versionFromRow(row))
 }

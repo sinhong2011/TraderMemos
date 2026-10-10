@@ -160,6 +160,7 @@ type Querier interface {
 	MoveRoutineChecks(ctx context.Context, arg MoveRoutineChecksParams) error
 	PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error
 	RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error
+	RenameSystemVersion(ctx context.Context, arg RenameSystemVersionParams) (SystemVersion, error)
 	RetireSystemVersion(ctx context.Context, arg RetireSystemVersionParams) (int64, error)
 	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
 	RevokeShareLink(ctx context.Context, arg RevokeShareLinkParams) (int64, error)

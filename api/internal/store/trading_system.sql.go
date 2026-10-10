@@ -14,7 +14,7 @@ const activateSystemVersion = `-- name: ActivateSystemVersion :one
 UPDATE system_versions
 SET status = 'active', activated_at = ?, retired_at = NULL, updated_at = CURRENT_TIMESTAMP
 WHERE id = ? AND user_id = ?
-RETURNING id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at
+RETURNING id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at, name
 `
 
 type ActivateSystemVersionParams struct {
@@ -40,6 +40,7 @@ func (q *Queries) ActivateSystemVersion(ctx context.Context, arg ActivateSystemV
 		&i.RetiredAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Name,
 	)
 	return i, err
 }
@@ -88,7 +89,7 @@ const createSystemVersion = `-- name: CreateSystemVersion :one
 INSERT INTO system_versions (
     id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-RETURNING id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at
+RETURNING id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at, name
 `
 
 type CreateSystemVersionParams struct {
@@ -130,6 +131,7 @@ func (q *Queries) CreateSystemVersion(ctx context.Context, arg CreateSystemVersi
 		&i.RetiredAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Name,
 	)
 	return i, err
 }
@@ -194,7 +196,7 @@ func (q *Queries) DeleteSystemVersion(ctx context.Context, arg DeleteSystemVersi
 }
 
 const getActiveSystemVersion = `-- name: GetActiveSystemVersion :one
-SELECT id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at FROM system_versions
+SELECT id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at, name FROM system_versions
 WHERE user_id = ? AND status = 'active'
 LIMIT 1
 `
@@ -216,12 +218,13 @@ func (q *Queries) GetActiveSystemVersion(ctx context.Context, userID string) (Sy
 		&i.RetiredAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Name,
 	)
 	return i, err
 }
 
 const getDraftSystemVersion = `-- name: GetDraftSystemVersion :one
-SELECT id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at FROM system_versions
+SELECT id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at, name FROM system_versions
 WHERE user_id = ? AND status = 'draft'
 ORDER BY created_at DESC
 LIMIT 1
@@ -244,6 +247,7 @@ func (q *Queries) GetDraftSystemVersion(ctx context.Context, userID string) (Sys
 		&i.RetiredAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Name,
 	)
 	return i, err
 }
@@ -270,7 +274,7 @@ func (q *Queries) GetMarketRegimeDay(ctx context.Context, arg GetMarketRegimeDay
 }
 
 const getSystemVersion = `-- name: GetSystemVersion :one
-SELECT id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at FROM system_versions WHERE id = ? AND user_id = ?
+SELECT id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at, name FROM system_versions WHERE id = ? AND user_id = ?
 `
 
 type GetSystemVersionParams struct {
@@ -295,6 +299,7 @@ func (q *Queries) GetSystemVersion(ctx context.Context, arg GetSystemVersionPara
 		&i.RetiredAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Name,
 	)
 	return i, err
 }
@@ -464,7 +469,7 @@ func (q *Queries) ListSystemChangesForVersion(ctx context.Context, arg ListSyste
 }
 
 const listSystemVersions = `-- name: ListSystemVersions :many
-SELECT id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at FROM system_versions
+SELECT id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at, name FROM system_versions
 WHERE user_id = ?
 ORDER BY created_at ASC, id ASC
 `
@@ -492,6 +497,7 @@ func (q *Queries) ListSystemVersions(ctx context.Context, userID string) ([]Syst
 			&i.RetiredAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Name,
 		); err != nil {
 			return nil, err
 		}
@@ -551,6 +557,41 @@ func (q *Queries) ListTradeSystemCards(ctx context.Context, userID string) ([]Tr
 	return items, nil
 }
 
+const renameSystemVersion = `-- name: RenameSystemVersion :one
+UPDATE system_versions
+SET name = ?
+WHERE id = ? AND user_id = ?
+RETURNING id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at, name
+`
+
+type RenameSystemVersionParams struct {
+	Name   string `json:"name"`
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
+}
+
+func (q *Queries) RenameSystemVersion(ctx context.Context, arg RenameSystemVersionParams) (SystemVersion, error) {
+	row := q.db.QueryRowContext(ctx, renameSystemVersion, arg.Name, arg.ID, arg.UserID)
+	var i SystemVersion
+	err := row.Scan(
+		&i.ID,
+		&i.SystemID,
+		&i.UserID,
+		&i.Label,
+		&i.Status,
+		&i.Rules,
+		&i.OpenQuestions,
+		&i.Regimes,
+		&i.TradeTypes,
+		&i.ActivatedAt,
+		&i.RetiredAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+	)
+	return i, err
+}
+
 const retireSystemVersion = `-- name: RetireSystemVersion :execrows
 UPDATE system_versions
 SET status = 'retired', retired_at = ?, updated_at = CURRENT_TIMESTAMP
@@ -576,7 +617,7 @@ UPDATE system_versions
 SET label = ?, rules = ?, open_questions = ?, regimes = ?, trade_types = ?,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = ? AND user_id = ? AND status = 'draft'
-RETURNING id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at
+RETURNING id, system_id, user_id, label, status, rules, open_questions, regimes, trade_types, activated_at, retired_at, created_at, updated_at, name
 `
 
 type UpdateSystemVersionParams struct {
@@ -614,6 +655,7 @@ func (q *Queries) UpdateSystemVersion(ctx context.Context, arg UpdateSystemVersi
 		&i.RetiredAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Name,
 	)
 	return i, err
 }

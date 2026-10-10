@@ -38,6 +38,12 @@ SET label = $1, rules = $2, open_questions = $3, regimes = $4, trade_types = $5,
 WHERE id = $6 AND user_id = $7 AND status = 'draft'
 RETURNING *;
 
+-- name: RenameSystemVersion :one
+UPDATE system_versions
+SET name = $1
+WHERE id = $2 AND user_id = $3
+RETURNING *;
+
 -- name: ActivateSystemVersion :one
 UPDATE system_versions
 SET status = 'active', activated_at = $1, retired_at = NULL, updated_at = CURRENT_TIMESTAMP
