@@ -1,152 +1,126 @@
-import { type ReactNode, useId } from "react";
+import type { ReactNode } from "react";
 import { AppLogo } from "@/components/AppLogo";
 import { cn } from "@/lib/cn";
 
 /**
- * Equity curve at panel scale: a smooth run with one drawdown, drawn on load,
- * grounded by a gradient area fill. Journal memos pin onto its turning points
- * and the run ends in the brand's glowing terminal cursor.
+ * A season of daily candles in one ink — the brand's candlestick-T, multiplied.
+ * Up days are solid, down days hollow; older days fade toward the left edge the
+ * way memory does. The worst day of the drawdown carries its journal note on a
+ * hairline: the point of the product is the sentence, not the bar.
  */
-const EQUITY_LINE =
-  "M0 270 C 50 266, 90 252, 130 236 C 160 224, 180 250, 214 248 C 250 246, 270 210, 305 182 C 330 162, 350 186, 380 178 C 420 168, 440 120, 480 96 C 505 81, 522 66, 540 60";
+const W = 720;
+const H = 440;
+const N = 64;
+const STEP = W / N;
+const BODY = STEP * 0.62;
+const NOTE_AT = 41;
 
-const EQUITY_AREA = `${EQUITY_LINE} L540 320 L0 320 Z`;
+type Candle = { o: number; c: number; h: number; l: number };
 
-type Memo = {
-  meta: string;
-  note: string;
-  r: string;
-  tone: "profit" | "loss";
-  /** Chip anchor: % offsets + translate that hangs it off the marker. */
-  chip: string;
-  marker: { cx: number; cy: number };
-  delay: string;
-};
+/** Seeded walk: a slow climb, a drawdown that bottoms on the noted day, a run-up. */
+function buildCandles(): Candle[] {
+  let seed = 20261015;
+  const rnd = () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+  const out: Candle[] = [];
+  let price = 100;
+  for (let i = 0; i < N; i++) {
+    const drift = i < 24 ? 0.45 : i <= NOTE_AT ? -1.05 : 1.5;
+    const o = price;
+    const c = i === NOTE_AT ? o - 7 : o + drift + (rnd() - 0.5) * 4.6;
+    const h = Math.max(o, c) + 0.4 + rnd() * 2;
+    const l = Math.min(o, c) - 0.4 - rnd() * 2;
+    out.push({ o, c, h, l });
+    price = c;
+  }
+  return out;
+}
 
-const MEMOS: Memo[] = [
-  {
-    meta: "MAR 14 · NVDA",
-    note: "Chased the open. Cut it fast.",
-    r: "−1.4R",
-    tone: "loss",
-    chip: "left-[36.6%] top-[77.5%] -translate-x-1/2 translate-y-3",
-    marker: { cx: 214, cy: 248 },
-    delay: "[animation-delay:700ms]",
-  },
-  {
-    meta: "APR 02 · ES",
-    note: "Waited for the retest.",
-    r: "+2.1R",
-    tone: "profit",
-    chip: "left-[65.1%] top-[55.6%] -translate-x-1/2 translate-y-[calc(-100%_-_12px)]",
-    marker: { cx: 380, cy: 178 },
-    delay: "[animation-delay:950ms]",
-  },
-  {
-    meta: "MAY 21 · AAPL",
-    note: "A+ setup. Followed the plan.",
-    r: "+3.2R",
-    tone: "profit",
-    chip: "left-[82.2%] top-[30%] translate-x-[-85%] translate-y-[calc(-100%_-_14px)]",
-    marker: { cx: 480, cy: 96 },
-    delay: "[animation-delay:1200ms]",
-  },
-];
+const CANDLES = buildCandles();
+const LO = Math.min(...CANDLES.map((k) => k.l));
+const HI = Math.max(...CANDLES.map((k) => k.h));
+// Leave the bottom third clear for the note under the trough.
+const y = (v: number) => 30 + ((HI - v) / (HI - LO)) * (H * 0.62);
 
-function EquityArtwork() {
-  const uid = useId().replace(/:/g, "");
-  const glowId = `${uid}-glow`;
-  const areaId = `${uid}-area`;
-  const fadeId = `${uid}-fade`;
-  const maskId = `${uid}-mask`;
+function CandleField() {
+  const note = CANDLES[NOTE_AT]!;
+  const noteX = NOTE_AT * STEP + STEP / 2;
+  const lineTop = y(note.l) + 8;
+  const lineBottom = lineTop + 46;
+  const textX = noteX - 12;
 
   return (
-    <div aria-hidden className="pointer-events-none relative w-full max-w-[36rem] select-none">
-      <svg viewBox="0 0 584 320" fill="none" className="w-full">
-        <defs>
-          <radialGradient id={glowId}>
-            <stop offset="0" stopColor="var(--profit)" stopOpacity="0.28" />
-            <stop offset="1" stopColor="var(--profit)" stopOpacity="0" />
-          </radialGradient>
-          <linearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="var(--profit)" stopOpacity="0.16" />
-            <stop offset="0.85" stopColor="var(--profit)" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id={fadeId} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0.7" stopColor="#fff" />
-            <stop offset="1" stopColor="#fff" stopOpacity="0" />
-          </linearGradient>
-          <mask id={maskId}>
-            <rect width="584" height="320" fill={`url(#${fadeId})`} />
-          </mask>
-        </defs>
-        <path
-          d={EQUITY_AREA}
-          fill={`url(#${areaId})`}
-          mask={`url(#${maskId})`}
-          className="motion-safe:animate-[auth-panel-in_700ms_ease-out_both] motion-safe:[animation-delay:700ms]"
-        />
-        <path
-          d={EQUITY_LINE}
-          pathLength={1}
-          className="stroke-profit [stroke-dasharray:1] motion-safe:animate-[auth-equity-draw_1.4s_ease-out_both]"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        {MEMOS.map((m) => (
+    <svg
+      aria-hidden
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="xMaxYMax slice"
+      className="pointer-events-none block size-full select-none"
+      fill="none"
+    >
+      {CANDLES.map((k, i) => {
+        const x = i * STEP + STEP / 2;
+        const up = k.c >= k.o;
+        const top = y(Math.max(k.o, k.c));
+        const bottom = y(Math.min(k.o, k.c));
+        // Older days recede: faint at the left edge, full ink on the latest day.
+        const opacity = i === N - 1 ? 1 : 0.16 + 0.8 * (i / (N - 1)) ** 1.5;
+        return (
           <g
-            key={m.meta}
-            className={cn("motion-safe:animate-[auth-memo-in_500ms_ease-out_both]", m.delay)}
+            key={i}
+            style={{ opacity, animationDelay: `${150 + i * 14}ms` }}
+            className="motion-safe:animate-[auth-candle-in_480ms_cubic-bezier(0.22,1,0.36,1)_both]"
           >
-            <circle
-              cx={m.marker.cx}
-              cy={m.marker.cy}
-              r="7"
-              className={m.tone === "profit" ? "fill-profit/20" : "fill-loss/20"}
+            <line
+              x1={x}
+              x2={x}
+              y1={y(k.h)}
+              y2={y(k.l)}
+              strokeWidth={1.25}
+              className="stroke-chart-accent"
             />
-            <circle
-              cx={m.marker.cx}
-              cy={m.marker.cy}
-              r="3"
-              className={m.tone === "profit" ? "fill-profit" : "fill-loss"}
+            <rect
+              x={x - BODY / 2}
+              y={top}
+              width={BODY}
+              height={Math.max(bottom - top, 2)}
+              rx={1}
+              strokeWidth={up ? 0 : 1.25}
+              className={up ? "fill-chart-accent" : "fill-sidebar stroke-chart-accent"}
             />
           </g>
-        ))}
-        {/* glowing terminal cursor at the end of the run — from the logo */}
-        <circle cx="545" cy="58" r="30" fill={`url(#${glowId})`} />
-        <g className="motion-safe:animate-[auth-cursor-blink_1.24s_steps(1,end)_infinite] [animation-delay:1600ms]">
-          <rect x="537" y="47" width="16" height="23" rx="4" className="fill-profit" />
-          <rect x="539.5" y="49.5" width="11" height="2.5" rx="1.25" className="fill-white/50" />
-        </g>
-      </svg>
+        );
+      })}
 
-      {MEMOS.map((m) => (
-        <div
-          key={m.meta}
-          className={cn(
-            "absolute w-44 rounded-lg border border-border/60 bg-popover/85 px-2.5 py-1.5 text-left shadow-lg backdrop-blur-sm",
-            "motion-safe:animate-[auth-memo-in_500ms_ease-out_both]",
-            m.chip,
-            m.delay,
-          )}
+      <g className="motion-safe:animate-[auth-memo-in_500ms_ease-out_both] motion-safe:[animation-delay:1200ms]">
+        <path
+          d={`M${noteX} ${lineTop} V${lineBottom} H${textX + 4}`}
+          strokeWidth={1}
+          strokeDasharray="2 3"
+          className="stroke-muted-foreground"
+        />
+        <text
+          x={textX}
+          y={lineBottom - 22}
+          textAnchor="end"
+          className="fill-muted-foreground text-2xs font-medium tracking-[0.08em] uppercase tabular-nums"
         >
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="font-mono text-2xs tracking-wider text-muted-foreground">
-              {m.meta}
-            </span>
-            <span
-              className={cn(
-                "font-mono text-[11px] tabular-nums",
-                m.tone === "profit" ? "text-profit" : "text-loss",
-              )}
-            >
-              {m.r}
-            </span>
-          </div>
-          <p className="mt-0.5 text-[11px] leading-snug text-popover-foreground">{m.note}</p>
-        </div>
-      ))}
-    </div>
+          Oct 15 · NVDA · <tspan className="fill-loss">−1.4R</tspan>
+        </text>
+        <text x={textX} y={lineBottom - 3} textAnchor="end" className="fill-foreground text-[15px]">
+          “Chased the open. Cut it at the stop.”
+        </text>
+        <text
+          x={textX}
+          y={lineBottom + 17}
+          textAnchor="end"
+          className="fill-muted-foreground text-[15px]"
+        >
+          Next time, wait for the retest.
+        </text>
+      </g>
+    </svg>
   );
 }
 
@@ -160,46 +134,33 @@ export function AuthShell({
 }) {
   return (
     <div className="min-h-svh w-full bg-canvas lg:grid lg:grid-cols-[1.1fr_minmax(0,1fr)]">
-      <div className="relative hidden flex-col justify-between gap-10 overflow-hidden bg-sidebar p-10 lg:flex xl:p-14">
-        {/* layered washes so the panel reads as lit space, not flat fill */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(110%_75%_at_80%_-5%,color-mix(in_oklab,var(--primary)_13%,transparent),transparent_62%)]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_55%_at_12%_105%,color-mix(in_oklab,var(--profit)_8%,transparent),transparent_60%)]"
-        />
-
-        <div className="relative flex items-center gap-2.5">
-          <AppLogo size={30} />
-          <p className="text-base font-semibold tracking-tight text-foreground">TraderMemos</p>
-        </div>
-
-        <div className="relative flex flex-col gap-10">
-          <div className="flex max-w-[26rem] flex-col gap-3">
-            <h2 className="text-balance text-4xl font-semibold tracking-tight text-foreground xl:text-[2.75rem] xl:leading-[1.1]">
+      <div className="relative hidden flex-col overflow-hidden bg-sidebar lg:flex">
+        <div className="relative z-10 flex flex-col gap-[clamp(2.5rem,9vh,6rem)] p-10 xl:p-14 2xl:p-16">
+          <div className="flex items-center gap-2.5">
+            <AppLogo size={30} />
+            <p className="text-base font-semibold tracking-tight text-foreground">TraderMemos</p>
+          </div>
+          <div className="flex max-w-[30rem] flex-col gap-3 2xl:max-w-[38rem]">
+            <h2 className="text-balance text-4xl font-semibold tracking-tight text-foreground xl:text-[2.75rem] xl:leading-[1.1] 2xl:text-[3.25rem]">
               Every trade, written down.
             </h2>
-            <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
-              Your private trading journal — dashboard, P&L calendar, playbook, and reports, on your
+            <p className="text-pretty text-sm leading-relaxed text-muted-foreground 2xl:text-base">
+              Log the trade, write the lesson, and come back to both — a journal that runs on your
               own server.
             </p>
           </div>
-          <EquityArtwork />
         </div>
 
-        <p className="relative text-xs text-muted-foreground">
+        <div className="absolute inset-x-0 bottom-0 h-[58%]">
+          <CandleField />
+        </div>
+
+        <p className="absolute bottom-10 left-10 z-10 text-xs text-muted-foreground xl:left-14">
           Self-hosted. Your trades never leave your server.
         </p>
       </div>
 
       <main className="relative flex min-h-svh flex-col items-center justify-center px-4 py-10 sm:px-8 lg:min-h-0">
-        {/* faint answering glow so the form column reads as part of the same lit space */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(65%_45%_at_50%_-8%,color-mix(in_oklab,var(--primary)_6%,transparent),transparent_62%)]"
-        />
         <div className="relative mb-8 flex flex-col items-center gap-2.5 lg:hidden">
           <AppLogo size={36} />
           <p className="text-base font-semibold tracking-tight text-foreground">TraderMemos</p>
