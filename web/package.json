@@ -11,6 +11,7 @@
     "test": "vp test run",
     "test:watch": "vp test",
     "e2e": "playwright test",
+    "verify:system-map": "node scripts/verify-system-map.cjs",
     "lint": "vp check",
     "fmt": "vp fmt",
     "check": "vp check",

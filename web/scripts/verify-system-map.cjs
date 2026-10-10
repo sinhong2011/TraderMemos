@@ -3,19 +3,21 @@
 // suite — ad hoc verification script using the project's own Playwright
 // install (via the system Chrome binary, since no Chromium browser was
 // downloaded for Playwright in this sandbox).
+const fs = require("fs");
 const path = require("path");
-const {
-  chromium,
-} = require("/workspace/web/node_modules/.pnpm/playwright-core@1.63.0/node_modules/playwright-core");
+const { chromium } = require("@playwright/test");
 
-const BASE_URL = "http://127.0.0.1:5173";
+const BASE_URL = process.env.TM_E2E_BASE_URL || "http://127.0.0.1:5173";
 // A separate, dedicated account for this scripted run — a live GUI session was
 // already in progress against sysqa@example.com (Chrome on :9222, actively
 // updating) when this script started; reusing that account would race its
 // in-flight state. See the final report for the sysqa@example.com login check.
 const EMAIL = "system-map-e2e@example.com";
 const PASSWORD = "password123";
-const SHOT_DIR = "/opt/cursor/artifacts/screenshots";
+const SHOT_DIR =
+  process.env.TM_E2E_SHOT_DIR || path.join(__dirname, "../e2e-artifacts/system-map");
+
+if (!fs.existsSync(SHOT_DIR)) fs.mkdirSync(SHOT_DIR, { recursive: true });
 
 const results = [];
 function record(id, pass, note) {
