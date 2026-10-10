@@ -22,7 +22,9 @@ CREATE TABLE IF NOT EXISTS system_versions (
     activated_at   TIMESTAMPTZ,
     retired_at     TIMESTAMPTZ,
     created_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Optional human name ("Trend pullbacks"). label stays the version number.
+    name           TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS idx_system_versions_user ON system_versions(user_id, status);
 CREATE INDEX IF NOT EXISTS idx_system_versions_system ON system_versions(system_id, created_at);
