@@ -140,6 +140,30 @@ func (p *PG) CreateSystemChange(ctx context.Context, arg CreateSystemChangeParam
 	return SystemChange(v), nil
 }
 
+func (p *PG) CreateSystemPlan(ctx context.Context, arg CreateSystemPlanParams) (SystemPlan, error) {
+	v, err := p.q.CreateSystemPlan(ctx, storepg.CreateSystemPlanParams(arg))
+	if err != nil {
+		return SystemPlan{}, err
+	}
+	return SystemPlan(v), nil
+}
+
+func (p *PG) CreateSystemPlanEvent(ctx context.Context, arg CreateSystemPlanEventParams) (SystemPlanEvent, error) {
+	v, err := p.q.CreateSystemPlanEvent(ctx, storepg.CreateSystemPlanEventParams(arg))
+	if err != nil {
+		return SystemPlanEvent{}, err
+	}
+	return SystemPlanEvent(v), nil
+}
+
+func (p *PG) CreateSystemPlanRevision(ctx context.Context, arg CreateSystemPlanRevisionParams) (SystemPlanRevision, error) {
+	v, err := p.q.CreateSystemPlanRevision(ctx, storepg.CreateSystemPlanRevisionParams(arg))
+	if err != nil {
+		return SystemPlanRevision{}, err
+	}
+	return SystemPlanRevision(v), nil
+}
+
 func (p *PG) CreateSystemVersion(ctx context.Context, arg CreateSystemVersionParams) (SystemVersion, error) {
 	v, err := p.q.CreateSystemVersion(ctx, storepg.CreateSystemVersionParams(arg))
 	if err != nil {
@@ -504,6 +528,22 @@ func (p *PG) GetShareLinkByToken(ctx context.Context, token string) (ShareLink, 
 	return ShareLink(v), nil
 }
 
+func (p *PG) GetSystemPlan(ctx context.Context, arg GetSystemPlanParams) (SystemPlan, error) {
+	v, err := p.q.GetSystemPlan(ctx, storepg.GetSystemPlanParams(arg))
+	if err != nil {
+		return SystemPlan{}, err
+	}
+	return SystemPlan(v), nil
+}
+
+func (p *PG) GetSystemPlanByTrade(ctx context.Context, arg GetSystemPlanByTradeParams) (SystemPlan, error) {
+	v, err := p.q.GetSystemPlanByTrade(ctx, storepg.GetSystemPlanByTradeParams(arg))
+	if err != nil {
+		return SystemPlan{}, err
+	}
+	return SystemPlan(v), nil
+}
+
 func (p *PG) GetSystemVersion(ctx context.Context, arg GetSystemVersionParams) (SystemVersion, error) {
 	v, err := p.q.GetSystemVersion(ctx, storepg.GetSystemVersionParams(arg))
 	if err != nil {
@@ -843,6 +883,14 @@ func (p *PG) ListJournalRisks(ctx context.Context, userID string) ([]ListJournal
 	return func() []ListJournalRisksRow { in := v; out := make([]ListJournalRisksRow, len(in)); for i := range in { out[i] = ListJournalRisksRow(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListLatestSystemPlanRevisions(ctx context.Context, userID string) ([]SystemPlanRevision, error) {
+	v, err := p.q.ListLatestSystemPlanRevisions(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []SystemPlanRevision { in := v; out := make([]SystemPlanRevision, len(in)); for i := range in { out[i] = SystemPlanRevision(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error) {
 	v, err := p.q.ListMediaFilesForUser(ctx, userID)
 	if err != nil {
@@ -939,6 +987,30 @@ func (p *PG) ListSystemChangesForVersion(ctx context.Context, arg ListSystemChan
 	return func() []SystemChange { in := v; out := make([]SystemChange, len(in)); for i := range in { out[i] = SystemChange(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListSystemPlanEvents(ctx context.Context, arg ListSystemPlanEventsParams) ([]SystemPlanEvent, error) {
+	v, err := p.q.ListSystemPlanEvents(ctx, storepg.ListSystemPlanEventsParams(arg))
+	if err != nil {
+		return nil, err
+	}
+	return func() []SystemPlanEvent { in := v; out := make([]SystemPlanEvent, len(in)); for i := range in { out[i] = SystemPlanEvent(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListSystemPlanRevisions(ctx context.Context, arg ListSystemPlanRevisionsParams) ([]SystemPlanRevision, error) {
+	v, err := p.q.ListSystemPlanRevisions(ctx, storepg.ListSystemPlanRevisionsParams(arg))
+	if err != nil {
+		return nil, err
+	}
+	return func() []SystemPlanRevision { in := v; out := make([]SystemPlanRevision, len(in)); for i := range in { out[i] = SystemPlanRevision(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListSystemPlans(ctx context.Context, userID string) ([]SystemPlan, error) {
+	v, err := p.q.ListSystemPlans(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []SystemPlan { in := v; out := make([]SystemPlan, len(in)); for i := range in { out[i] = SystemPlan(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListSystemVersions(ctx context.Context, userID string) ([]SystemVersion, error) {
 	v, err := p.q.ListSystemVersions(ctx, userID)
 	if err != nil {
@@ -999,6 +1071,14 @@ func (p *PG) ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, err
 	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListTradesBySymbol(ctx context.Context, arg ListTradesBySymbolParams) ([]Trade, error) {
+	v, err := p.q.ListTradesBySymbol(ctx, storepg.ListTradesBySymbolParams(arg))
+	if err != nil {
+		return nil, err
+	}
+	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error) {
 	v, err := p.q.ListTradesMissingExcursion(ctx, storepg.ListTradesMissingExcursionParams{
 		PostCutoff: arg.PostCutoff,
@@ -1023,6 +1103,10 @@ func (p *PG) MarkWeeklyReviewSent(ctx context.Context, arg MarkWeeklyReviewSentP
 	return p.q.MarkWeeklyReviewSent(ctx, storepg.MarkWeeklyReviewSentParams(arg))
 }
 
+func (p *PG) MaxSystemPlanRevisionSeq(ctx context.Context, arg MaxSystemPlanRevisionSeqParams) (int64, error) {
+	return p.q.MaxSystemPlanRevisionSeq(ctx, storepg.MaxSystemPlanRevisionSeqParams(arg))
+}
+
 func (p *PG) MoveRoutineChecks(ctx context.Context, arg MoveRoutineChecksParams) error {
 	return p.q.MoveRoutineChecks(ctx, storepg.MoveRoutineChecksParams(arg))
 }
@@ -1037,6 +1121,14 @@ func (p *PG) PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesP
 
 func (p *PG) RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error {
 	return p.q.RecordAccessTokenUse(ctx, storepg.RecordAccessTokenUseParams(arg))
+}
+
+func (p *PG) RenameSystemVersion(ctx context.Context, arg RenameSystemVersionParams) (SystemVersion, error) {
+	v, err := p.q.RenameSystemVersion(ctx, storepg.RenameSystemVersionParams(arg))
+	if err != nil {
+		return SystemVersion{}, err
+	}
+	return SystemVersion(v), nil
 }
 
 func (p *PG) RetireSystemVersion(ctx context.Context, arg RetireSystemVersionParams) (int64, error) {
@@ -1071,6 +1163,14 @@ func (p *PG) SetRoutineItemPosition(ctx context.Context, arg SetRoutineItemPosit
 	return p.q.SetRoutineItemPosition(ctx, storepg.SetRoutineItemPositionParams(arg))
 }
 
+func (p *PG) SetSystemPlanTrade(ctx context.Context, arg SetSystemPlanTradeParams) (SystemPlan, error) {
+	v, err := p.q.SetSystemPlanTrade(ctx, storepg.SetSystemPlanTradeParams(arg))
+	if err != nil {
+		return SystemPlan{}, err
+	}
+	return SystemPlan(v), nil
+}
+
 func (p *PG) SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error {
 	return p.q.SetTradeSetup(ctx, storepg.SetTradeSetupParams(arg))
 }
@@ -1089,6 +1189,10 @@ func (p *PG) SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, er
 
 func (p *PG) TouchAccessTokenLastUsed(ctx context.Context, id string) error {
 	return p.q.TouchAccessTokenLastUsed(ctx, id)
+}
+
+func (p *PG) TouchSystemPlan(ctx context.Context, arg TouchSystemPlanParams) error {
+	return p.q.TouchSystemPlan(ctx, storepg.TouchSystemPlanParams(arg))
 }
 
 func (p *PG) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
@@ -1151,12 +1255,12 @@ func (p *PG) UpdateSetup(ctx context.Context, arg UpdateSetupParams) error {
 	return p.q.UpdateSetup(ctx, storepg.UpdateSetupParams(arg))
 }
 
-func (p *PG) RenameSystemVersion(ctx context.Context, arg RenameSystemVersionParams) (SystemVersion, error) {
-	v, err := p.q.RenameSystemVersion(ctx, storepg.RenameSystemVersionParams(arg))
+func (p *PG) UpdateSystemPlanStatus(ctx context.Context, arg UpdateSystemPlanStatusParams) (SystemPlan, error) {
+	v, err := p.q.UpdateSystemPlanStatus(ctx, storepg.UpdateSystemPlanStatusParams(arg))
 	if err != nil {
-		return SystemVersion{}, err
+		return SystemPlan{}, err
 	}
-	return SystemVersion(v), nil
+	return SystemPlan(v), nil
 }
 
 func (p *PG) UpdateSystemVersion(ctx context.Context, arg UpdateSystemVersionParams) (SystemVersion, error) {

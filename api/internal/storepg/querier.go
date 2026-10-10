@@ -26,6 +26,9 @@ type Querier interface {
 	CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup, error)
 	CreateShareLink(ctx context.Context, arg CreateShareLinkParams) (ShareLink, error)
 	CreateSystemChange(ctx context.Context, arg CreateSystemChangeParams) (SystemChange, error)
+	CreateSystemPlan(ctx context.Context, arg CreateSystemPlanParams) (SystemPlan, error)
+	CreateSystemPlanEvent(ctx context.Context, arg CreateSystemPlanEventParams) (SystemPlanEvent, error)
+	CreateSystemPlanRevision(ctx context.Context, arg CreateSystemPlanRevisionParams) (SystemPlanRevision, error)
 	CreateSystemVersion(ctx context.Context, arg CreateSystemVersionParams) (SystemVersion, error)
 	CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error)
 	CreateTradingSystem(ctx context.Context, arg CreateTradingSystemParams) (TradingSystem, error)
@@ -90,6 +93,8 @@ type Querier interface {
 	GetRoutineItem(ctx context.Context, arg GetRoutineItemParams) (RoutineItem, error)
 	GetSetup(ctx context.Context, arg GetSetupParams) (Setup, error)
 	GetShareLinkByToken(ctx context.Context, token string) (ShareLink, error)
+	GetSystemPlan(ctx context.Context, arg GetSystemPlanParams) (SystemPlan, error)
+	GetSystemPlanByTrade(ctx context.Context, arg GetSystemPlanByTradeParams) (SystemPlan, error)
 	GetSystemVersion(ctx context.Context, arg GetSystemVersionParams) (SystemVersion, error)
 	GetTrade(ctx context.Context, arg GetTradeParams) (Trade, error)
 	GetTradeIDForExecution(ctx context.Context, executionID string) (string, error)
@@ -132,6 +137,7 @@ type Querier interface {
 	ListImportBatches(ctx context.Context, userID string) ([]ImportBatch, error)
 	ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error)
 	ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error)
+	ListLatestSystemPlanRevisions(ctx context.Context, userID string) ([]SystemPlanRevision, error)
 	ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error)
 	ListMissedTrades(ctx context.Context, userID string) ([]MissedTrade, error)
 	ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error)
@@ -144,6 +150,9 @@ type Querier interface {
 	ListShareLinksByUser(ctx context.Context, userID string) ([]ShareLink, error)
 	ListSystemChanges(ctx context.Context, userID string) ([]SystemChange, error)
 	ListSystemChangesForVersion(ctx context.Context, arg ListSystemChangesForVersionParams) ([]SystemChange, error)
+	ListSystemPlanEvents(ctx context.Context, arg ListSystemPlanEventsParams) ([]SystemPlanEvent, error)
+	ListSystemPlanRevisions(ctx context.Context, arg ListSystemPlanRevisionsParams) ([]SystemPlanRevision, error)
+	ListSystemPlans(ctx context.Context, userID string) ([]SystemPlan, error)
 	ListSystemVersions(ctx context.Context, userID string) ([]SystemVersion, error)
 	ListTags(ctx context.Context, userID string) ([]Tag, error)
 	ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, error)
@@ -151,6 +160,7 @@ type Querier interface {
 	ListTradeSystemCards(ctx context.Context, userID string) ([]TradeSystemCard, error)
 	ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTradeTagsForUserRow, error)
 	ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, error)
+	ListTradesBySymbol(ctx context.Context, arg ListTradesBySymbolParams) ([]Trade, error)
 	// Closed, chart-eligible trades with no recorded MFE -- or with MFE but no
 	// post-exit excursion yet -- newest first. Options are excluded up front: bars
 	// for OCC symbols chart the underlying, so auto excursion would mislead (same
@@ -161,6 +171,7 @@ type Querier interface {
 	ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error)
 	ListUsers(ctx context.Context) ([]User, error)
 	MarkWeeklyReviewSent(ctx context.Context, arg MarkWeeklyReviewSentParams) error
+	MaxSystemPlanRevisionSeq(ctx context.Context, arg MaxSystemPlanRevisionSeqParams) (int64, error)
 	MoveRoutineChecks(ctx context.Context, arg MoveRoutineChecksParams) error
 	PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error
 	RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error
@@ -172,10 +183,12 @@ type Querier interface {
 	SetAlertChannelEnabled(ctx context.Context, arg SetAlertChannelEnabledParams) (AlertChannel, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetRoutineItemPosition(ctx context.Context, arg SetRoutineItemPositionParams) (int64, error)
+	SetSystemPlanTrade(ctx context.Context, arg SetSystemPlanTradeParams) (SystemPlan, error)
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error
 	SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error
 	SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error)
 	TouchAccessTokenLastUsed(ctx context.Context, id string) error
+	TouchSystemPlan(ctx context.Context, arg TouchSystemPlanParams) error
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateAlertChannelStatus(ctx context.Context, arg UpdateAlertChannelStatusParams) error
 	UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactionParams) (CashTransaction, error)
@@ -186,6 +199,7 @@ type Querier interface {
 	UpdateMissedTrade(ctx context.Context, arg UpdateMissedTradeParams) (MissedTrade, error)
 	UpdateRoutineItem(ctx context.Context, arg UpdateRoutineItemParams) (RoutineItem, error)
 	UpdateSetup(ctx context.Context, arg UpdateSetupParams) error
+	UpdateSystemPlanStatus(ctx context.Context, arg UpdateSystemPlanStatusParams) (SystemPlan, error)
 	UpdateSystemVersion(ctx context.Context, arg UpdateSystemVersionParams) (SystemVersion, error)
 	UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error)
 	UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) error

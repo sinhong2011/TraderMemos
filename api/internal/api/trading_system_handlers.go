@@ -33,6 +33,7 @@ func (s *Server) tradingSystemRoutes(g *echo.Group) {
 	g.GET("/trades/:id/system-card", s.handleGetTradeSystemCard)
 	g.PUT("/trades/:id/system-card", s.handlePutTradeSystemCard)
 	g.GET("/analytics/system-review", s.handleSystemReview)
+	s.systemPlanRoutes(g)
 }
 
 // --- DTOs ---

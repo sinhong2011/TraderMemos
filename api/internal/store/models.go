@@ -341,6 +341,49 @@ type SystemChange struct {
 	CreatedAt        time.Time `json:"created_at"`
 }
 
+type SystemPlan struct {
+	ID        string         `json:"id"`
+	UserID    string         `json:"user_id"`
+	VersionID sql.NullString `json:"version_id"`
+	Symbol    string         `json:"symbol"`
+	Direction string         `json:"direction"`
+	Status    string         `json:"status"`
+	Source    string         `json:"source"`
+	TradeID   sql.NullString `json:"trade_id"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+}
+
+type SystemPlanEvent struct {
+	ID         string    `json:"id"`
+	PlanID     string    `json:"plan_id"`
+	UserID     string    `json:"user_id"`
+	Kind       string    `json:"kind"`
+	FromStatus string    `json:"from_status"`
+	ToStatus   string    `json:"to_status"`
+	TradeID    string    `json:"trade_id"`
+	Reason     string    `json:"reason"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+type SystemPlanRevision struct {
+	ID           string          `json:"id"`
+	PlanID       string          `json:"plan_id"`
+	UserID       string          `json:"user_id"`
+	Seq          int64           `json:"seq"`
+	Stage        string          `json:"stage"`
+	Setup        string          `json:"setup"`
+	Thesis       string          `json:"thesis"`
+	TriggerText  string          `json:"trigger_text"`
+	Invalidation string          `json:"invalidation"`
+	EntryPrice   sql.NullFloat64 `json:"entry_price"`
+	StopPrice    sql.NullFloat64 `json:"stop_price"`
+	TargetPrice  sql.NullFloat64 `json:"target_price"`
+	Conditions   string          `json:"conditions"`
+	OccurredAt   sql.NullTime    `json:"occurred_at"`
+	RecordedAt   time.Time       `json:"recorded_at"`
+}
+
 type SystemVersion struct {
 	ID            string       `json:"id"`
 	SystemID      string       `json:"system_id"`

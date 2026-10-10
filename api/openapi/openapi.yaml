@@ -1596,6 +1596,169 @@ paths:
       responses:
         "200":
           description: Change log entries
+  /api/v1/system/plans:
+    get:
+      tags: [Trading system]
+      summary: List trade plans
+      description: >
+        Plans newest first, each with its latest revision, the version it was
+        written under, and the confirmed trade (if linked).
+      operationId: listSystemPlans
+      responses:
+        "200":
+          description: Plans
+    post:
+      tags: [Trading system]
+      summary: Write a trade plan
+      description: >
+        Records an opportunity before (or without) a fill, stamped with the
+        active version. Writes revision 1. `retrospective` plans are written
+        after the fact and need `revision.occurred_at`.
+      operationId: createSystemPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [symbol, direction]
+              properties:
+                symbol: { type: string, maxLength: 32, example: NVDA }
+                direction: { type: string, enum: [long, short] }
+                source: { type: string, enum: [live, retrospective], default: live }
+                revision:
+                  $ref: "#/components/schemas/SystemPlanRevisionInput"
+      responses:
+        "201":
+          description: Plan with revisions and events
+        "400":
+          description: Invalid symbol, direction, source or revision
+        "409":
+          description: No active system version (`no_active_version`)
+  /api/v1/system/plans/{id}:
+    get:
+      tags: [Trading system]
+      summary: Get a trade plan
+      description: Plan with every revision (oldest first) and its status/link event log.
+      operationId: getSystemPlan
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Plan detail
+        "404":
+          description: Plan not found
+  /api/v1/system/plans/{id}/revisions:
+    post:
+      tags: [Trading system]
+      summary: Append a plan revision
+      description: >
+        Revisions are append-only; earlier ones are never rewritten. A revision
+        written after a trade is linked is stamped `after_fill`.
+      operationId: addSystemPlanRevision
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SystemPlanRevisionInput"
+      responses:
+        "201":
+          description: Plan detail
+        "409":
+          description: Plan is skipped or cancelled (`plan_closed`)
+  /api/v1/system/plans/{id}/status:
+    post:
+      tags: [Trading system]
+      summary: Change a plan's status
+      description: >
+        planned ⇄ waiting; planned/waiting → skipped | cancelled; skipped /
+        cancelled → planned. Skipping, cancelling and reopening need a reason.
+        `taken` is reached only by linking a trade.
+      operationId: setSystemPlanStatus
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [planned, waiting, skipped, cancelled] }
+                reason: { type: string, maxLength: 500 }
+      responses:
+        "200":
+          description: Plan detail
+        "400":
+          description: Reason missing
+        "409":
+          description: Transition not allowed (`invalid_transition`)
+  /api/v1/system/plans/{id}/link:
+    post:
+      tags: [Trading system]
+      summary: Confirm the trade that filled a plan
+      description: >
+        Explicit link only — nothing is matched automatically. The plan must be
+        planned or waiting and becomes taken. A trade confirms at most one plan.
+      operationId: linkSystemPlan
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [trade_id]
+              properties:
+                trade_id: { type: string }
+      responses:
+        "200":
+          description: Plan detail
+        "404":
+          description: Plan or trade not found
+        "409":
+          description: Plan not linkable, or trade already linked (`trade_linked`)
+  /api/v1/system/plans/{id}/unlink:
+    post:
+      tags: [Trading system]
+      summary: Unlink a plan's trade
+      description: Returns a taken plan to waiting. A reason is required and logged.
+      operationId: unlinkSystemPlan
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, maxLength: 500 }
+      responses:
+        "200":
+          description: Plan detail
+        "409":
+          description: Plan is not taken
+  /api/v1/system/plans/{id}/trades:
+    get:
+      tags: [Trading system]
+      summary: Candidate trades for a plan
+      description: >
+        Up to 50 same-symbol trades, newest first. `linked_plan_id` marks trades
+        that already confirm a plan; `opened_before_plan` flags trades opened
+        before the plan was written.
+      operationId: listSystemPlanTrades
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Candidate trades
   /api/v1/system/regimes/{day}:
     get:
       tags: [Trading system]
@@ -2202,6 +2365,28 @@ components:
           example: tradermemos-20261004-031500Z.db
         size_bytes: { type: integer, format: int64 }
         created_at: { type: string, format: date-time }
+    SystemPlanRevisionInput:
+      type: object
+      properties:
+        setup: { type: string, maxLength: 2000 }
+        thesis: { type: string, maxLength: 2000 }
+        trigger: { type: string, maxLength: 2000 }
+        invalidation: { type: string, maxLength: 2000 }
+        entry_price: { type: [number, "null"], exclusiveMinimum: 0 }
+        stop_price: { type: [number, "null"], exclusiveMinimum: 0 }
+        target_price: { type: [number, "null"], exclusiveMinimum: 0 }
+        conditions:
+          type: object
+          description: Decision id → answer. Unanswered entries without a note are dropped.
+          additionalProperties:
+            type: object
+            properties:
+              answer: { type: string, enum: ["", "yes", "no", "na"] }
+              note: { type: string, maxLength: 500 }
+        occurred_at:
+          type: [string, "null"]
+          format: date-time
+          description: When the opportunity happened, if not now. Cannot be in the future.
     MissedTradeInput:
       type: object
       required: [symbol, direction, observed_at]
