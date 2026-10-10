@@ -259,7 +259,7 @@ function VersionEditor({
                 </div>
                 <p className="flex-1 text-2xs leading-snug text-muted-foreground">{copy.detail}</p>
                 <div
-                  className="h-2 overflow-hidden rounded-full bg-background ring-1 ring-border/60"
+                  className="h-2 overflow-hidden rounded-full bg-foreground/15"
                   role="progressbar"
                   aria-valuenow={step.progress}
                   aria-valuemin={0}
@@ -267,10 +267,7 @@ function VersionEditor({
                   aria-label={copy.title}
                 >
                   <div
-                    className={cn(
-                      "h-full rounded-full bg-primary transition-[width] duration-200",
-                      pct === 0 && "opacity-0",
-                    )}
+                    className="h-full rounded-full bg-primary transition-[width] duration-200"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
