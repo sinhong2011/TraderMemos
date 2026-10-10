@@ -30,6 +30,7 @@ tags:
   - name: Notes
   - name: Routines
   - name: Missed trades
+  - name: Trading system
   - name: Alerts
   - name: Admin
 paths:
@@ -1499,6 +1500,427 @@ paths:
         "204":
           description: Deleted
 
+  /api/v1/system:
+    get:
+      tags: [Trading system]
+      summary: Trading system overview
+      description: >
+        The user's written trading system — active and draft versions, history,
+        and four-week plan progress. Creates an empty system row on first call.
+      operationId: getTradingSystem
+      responses:
+        "200":
+          description: System overview
+  /api/v1/system/versions:
+    post:
+      tags: [Trading system]
+      summary: Start the next draft version
+      operationId: startSystemVersion
+      responses:
+        "201":
+          description: Draft created
+        "409":
+          description: A draft already exists
+  /api/v1/system/versions/{id}:
+    get:
+      tags: [Trading system]
+      summary: Get a system version
+      operationId: getSystemVersion
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Version
+    put:
+      tags: [Trading system]
+      summary: Save a draft version
+      operationId: saveSystemVersion
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Saved
+    patch:
+      tags: [Trading system]
+      summary: Name a system version
+      description: >
+        Sets the optional display name on a draft, active or retired version.
+        The `label` (version number) and the rules are unchanged, and so is
+        `updated_at`. An empty name clears it; whitespace runs collapse.
+      operationId: renameSystemVersion
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, maxLength: 80, example: "Trend pullbacks" }
+      responses:
+        "200":
+          description: Renamed version
+        "400":
+          description: Name longer than 80 characters
+        "404":
+          description: Version not found
+    delete:
+      tags: [Trading system]
+      summary: Discard a draft version
+      operationId: discardSystemDraft
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Discarded
+  /api/v1/system/versions/{id}/activate:
+    post:
+      tags: [Trading system]
+      summary: Activate a draft version
+      description: >
+        Retires the previous active version. When decisions changed, each
+        changed decision needs a reason in the body.
+      operationId: activateSystemVersion
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Activated
+  /api/v1/system/changes:
+    get:
+      tags: [Trading system]
+      summary: Change log
+      operationId: listSystemChanges
+      responses:
+        "200":
+          description: Change log entries
+  /api/v1/system/plans:
+    get:
+      tags: [Trading system]
+      summary: List trade plans
+      description: >
+        Plans newest first, each with its latest revision, the version it was
+        written under, and the confirmed trade (if linked).
+      operationId: listSystemPlans
+      responses:
+        "200":
+          description: Plans
+    post:
+      tags: [Trading system]
+      summary: Write a trade plan
+      description: >
+        Records an opportunity before (or without) a fill, stamped with the
+        active version. Writes revision 1. `retrospective` plans are written
+        after the fact and need `revision.occurred_at`.
+      operationId: createSystemPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [symbol, direction]
+              properties:
+                symbol: { type: string, maxLength: 32, example: NVDA }
+                direction: { type: string, enum: [long, short] }
+                source: { type: string, enum: [live, retrospective], default: live }
+                revision:
+                  $ref: "#/components/schemas/SystemPlanRevisionInput"
+      responses:
+        "201":
+          description: Plan with revisions and events
+        "400":
+          description: Invalid symbol, direction, source or revision
+        "409":
+          description: No active system version (`no_active_version`)
+  /api/v1/system/plans/{id}:
+    get:
+      tags: [Trading system]
+      summary: Get a trade plan
+      description: Plan with every revision (oldest first) and its status/link event log.
+      operationId: getSystemPlan
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Plan detail
+        "404":
+          description: Plan not found
+  /api/v1/system/plans/{id}/revisions:
+    post:
+      tags: [Trading system]
+      summary: Append a plan revision
+      description: >
+        Revisions are append-only; earlier ones are never rewritten. A revision
+        written after a trade is linked is stamped `after_fill`.
+      operationId: addSystemPlanRevision
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SystemPlanRevisionInput"
+      responses:
+        "201":
+          description: Plan detail
+        "409":
+          description: Plan is skipped or cancelled (`plan_closed`)
+  /api/v1/system/plans/{id}/status:
+    post:
+      tags: [Trading system]
+      summary: Change a plan's status
+      description: >
+        planned ⇄ waiting; planned/waiting → skipped | cancelled; skipped /
+        cancelled → planned. Skipping, cancelling and reopening need a reason.
+        `taken` is reached only by linking a trade.
+      operationId: setSystemPlanStatus
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [planned, waiting, skipped, cancelled] }
+                reason: { type: string, maxLength: 500 }
+      responses:
+        "200":
+          description: Plan detail
+        "400":
+          description: Reason missing
+        "409":
+          description: Transition not allowed (`invalid_transition`)
+  /api/v1/system/plans/{id}/link:
+    post:
+      tags: [Trading system]
+      summary: Confirm the trade that filled a plan
+      description: >
+        Explicit link only — nothing is matched automatically. The plan must be
+        planned or waiting and becomes taken. A trade confirms at most one plan.
+      operationId: linkSystemPlan
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [trade_id]
+              properties:
+                trade_id: { type: string }
+      responses:
+        "200":
+          description: Plan detail
+        "404":
+          description: Plan or trade not found
+        "409":
+          description: Plan not linkable, or trade already linked (`trade_linked`)
+  /api/v1/system/plans/{id}/unlink:
+    post:
+      tags: [Trading system]
+      summary: Unlink a plan's trade
+      description: Returns a taken plan to waiting. A reason is required and logged.
+      operationId: unlinkSystemPlan
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, maxLength: 500 }
+      responses:
+        "200":
+          description: Plan detail
+        "409":
+          description: Plan is not taken
+  /api/v1/system/plans/{id}/trades:
+    get:
+      tags: [Trading system]
+      summary: Candidate trades for a plan
+      description: >
+        Up to 50 same-symbol trades, newest first. `linked_plan_id` marks trades
+        that already confirm a plan; `opened_before_plan` flags trades opened
+        before the plan was written.
+      operationId: listSystemPlanTrades
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Candidate trades
+  /api/v1/system/plans/{id}/evidence:
+    get:
+      tags: [Trading system]
+      summary: Evidence recorded while holding
+      description: >
+        Notes on a plan, newest first. Each note's revisions are oldest first
+        and are never rewritten. `prompt` is a due time stop or planned hold
+        to confirm — it does not create a note or close the trade. `scaling_rule`
+        is the text of the version the plan was written under.
+      operationId: listSystemPlanEvidence
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Evidence timeline
+        "404":
+          description: Plan not found
+    post:
+      tags: [Trading system]
+      summary: Record evidence while holding
+      description: >
+        Requires a taken plan. `retrospective` notes need `occurred_at`.
+        An action is the author's record, not a broker order.
+      operationId: createSystemPlanEvidence
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SystemPlanEvidenceInput"
+      responses:
+        "201":
+          description: Evidence timeline
+        "400":
+          description: Invalid note
+        "409":
+          description: Plan has no linked trade (`plan_not_taken`)
+  /api/v1/system/plans/{id}/evidence/{eid}/revisions:
+    post:
+      tags: [Trading system]
+      summary: Correct an evidence note
+      description: Appends a revision. The earlier wording stays readable. A withdrawn note cannot be corrected.
+      operationId: addSystemPlanEvidenceRevision
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+        - name: eid
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SystemPlanEvidenceInput"
+      responses:
+        "201":
+          description: Evidence timeline
+        "409":
+          description: Note is withdrawn (`evidence_withdrawn`) or plan is not taken
+  /api/v1/system/plans/{id}/evidence/{eid}/withdraw:
+    post:
+      tags: [Trading system]
+      summary: Withdraw an evidence note
+      description: Keeps every revision and records why the note was withdrawn. Needs a reason.
+      operationId: withdrawSystemPlanEvidence
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+        - name: eid
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, maxLength: 500 }
+      responses:
+        "200":
+          description: Evidence timeline
+        "400":
+          description: Reason missing
+        "409":
+          description: Already withdrawn
+  /api/v1/system/regimes/{day}:
+    get:
+      tags: [Trading system]
+      summary: Market regime for a day
+      operationId: getMarketRegime
+      parameters:
+        - name: day
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Regime (empty regime when unset)
+    put:
+      tags: [Trading system]
+      summary: Set market regime for a day
+      operationId: putMarketRegime
+      parameters:
+        - name: day
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Saved
+  /api/v1/trades/{id}/system-card:
+    get:
+      tags: [Trading system]
+      summary: Per-trade system card
+      operationId: getTradeSystemCard
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Card (empty defaults when none saved)
+    put:
+      tags: [Trading system]
+      summary: Save per-trade system card
+      operationId: putTradeSystemCard
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Saved
+  /api/v1/analytics/system-review:
+    get:
+      tags: [Trading system]
+      summary: System review analytics
+      description: >
+        Coverage, process×outcome quadrant, breakdowns by regime/setup/exit/
+        type/version/adherence with sample-size bands, and streak diagnosis.
+        Hesitated misses are counted separately and do not dilute adherence_rate.
+        Mixed-currency portfolios return 400 mixed_currencies.
+      operationId: systemReview
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+        - name: version_id
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Review
+        "400":
+          description: Mixed currencies or bad filters
+
   /api/v1/me/preferences:
     get:
       tags: [Auth]
@@ -2033,6 +2455,42 @@ components:
           example: tradermemos-20261004-031500Z.db
         size_bytes: { type: integer, format: int64 }
         created_at: { type: string, format: date-time }
+    SystemPlanEvidenceInput:
+      type: object
+      required: [decision_id, stance, body, state, action]
+      properties:
+        decision_id: { type: string }
+        stance: { type: string, enum: [support, weaken, uncertain] }
+        body: { type: string, maxLength: 2000 }
+        state: { type: string, enum: [wrong, still_working, not_working, finished] }
+        action: { type: string, enum: [hold, add, trim, take_profit, exit] }
+        source: { type: string, enum: [live, retrospective], default: live }
+        occurred_at:
+          type: [string, "null"]
+          format: date-time
+          description: When the author says it happened. Required for retrospective notes. Cannot be in the future.
+    SystemPlanRevisionInput:
+      type: object
+      properties:
+        setup: { type: string, maxLength: 2000 }
+        thesis: { type: string, maxLength: 2000 }
+        trigger: { type: string, maxLength: 2000 }
+        invalidation: { type: string, maxLength: 2000 }
+        entry_price: { type: [number, "null"], exclusiveMinimum: 0 }
+        stop_price: { type: [number, "null"], exclusiveMinimum: 0 }
+        target_price: { type: [number, "null"], exclusiveMinimum: 0 }
+        conditions:
+          type: object
+          description: Decision id → answer. Unanswered entries without a note are dropped.
+          additionalProperties:
+            type: object
+            properties:
+              answer: { type: string, enum: ["", "yes", "no", "na"] }
+              note: { type: string, maxLength: 500 }
+        occurred_at:
+          type: [string, "null"]
+          format: date-time
+          description: When the opportunity happened, if not now. Cannot be in the future.
     MissedTradeInput:
       type: object
       required: [symbol, direction, observed_at]

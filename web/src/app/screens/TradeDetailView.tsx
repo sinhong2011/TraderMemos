@@ -32,6 +32,7 @@ import { TradeExecutionsCard } from "@/components/TradeExecutionsCard";
 import { TradeJournalCard } from "@/components/TradeJournalCard";
 import { TradePlanCard } from "@/components/TradePlanCard";
 import { TradeSummaryCard } from "@/components/TradeSummaryCard";
+import { TradeSystemCard } from "@/components/TradeSystemCard";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -1155,6 +1156,8 @@ export function TradeDetailView({
         onAutoExcursion={canAutoExcursion ? onAutoExcursion : undefined}
         autoExcursionPending={computeExcursion.isPending}
       />
+
+      <TradeSystemCard tradeId={trade.id} />
 
       <Card flush className="pt-4">
         <TradeChartSection trade={trade} />

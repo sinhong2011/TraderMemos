@@ -1,22 +1,56 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-07-11 20:58+0800\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Generator: @lingui/cli\n"
-"Language: ko\n"
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Plural-Forms: \n"
+
+#: src/components/TradeSystemCard.tsx:106
+#: src/components/TradeSystemCard.tsx:120
+#: src/components/TradeSystemCard.tsx:132
+#: src/components/TradeSystemCard.tsx:166
+#: src/components/TradeSystemCard.tsx:180
+msgid "—"
+msgstr "—"
+
+#. placeholder {0}: plan.symbol
+#. placeholder {1}: directionLabel(plan.direction)
+#. placeholder {2}: plan.version_label || "—"
+#: src/components/system-map/FollowPlan.tsx:1002
+msgid "{0} · {1} · {2}"
+msgstr "{0} · {1} · {2}"
+
+#. placeholder {0}: selectedVersion.label
+#. placeholder {1}: decisions.length
+#: src/app/screens/SystemView.tsx:582
+#~ msgid "{0} · {1} decisions"
+#~ msgstr ""
+
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:667
+msgid "{0} · draft"
+msgstr "{0} · 초안"
+
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:666
+msgid "{0} · read-only"
+msgstr "{0} · 읽기 전용"
+
+#. placeholder {0}: step.progress
+#. placeholder {1}: step.target
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "{0} / {1}"
+msgstr "{0} / {1}"
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:198
 msgid "{0} days in the market"
 msgstr "시장에 있던 날 {0}일"
+
+#. placeholder {0}: check.answered
+#. placeholder {0}: data.check.answered
+#. placeholder {1}: check.total
+#. placeholder {1}: data.check.total
+#: src/components/system-map/FollowPlan.tsx:1008
+#: src/components/system-map/SystemNode.tsx:182
+msgid "{0} of {1} checked"
+msgstr "{1}개 중 {0}개 확인"
 
 #. placeholder {0}: s.total_trades
 #. placeholder {0}: sym.trades
@@ -30,17 +64,220 @@ msgstr "{0}건의 거래"
 msgid "{0} win rate"
 msgstr "승률 {0}"
 
+#. placeholder {0}: copy.title
+#. placeholder {1}: step.progress
+#. placeholder {2}: step.target
+#: src/components/system-map/PlanStepper.tsx:60
+msgid "{0}: {1} of {2}"
+msgstr "{0}: {2}개 중 {1}개"
+
+#. placeholder {0}: plan.length
+#: src/components/system-map/PlanStepper.tsx:45
+msgid "{doneCount} of {0} steps done"
+msgstr "{0}단계 중 {doneCount}단계 완료"
+
+#. placeholder {0}: n.decisions.length
+#: src/components/system-map/SystemMap.tsx:121
+#~ msgid "{filled} of {0} written"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:141
+msgid "{filled} of {total} decisions written"
+msgstr "{filled}/{total}개 결정 작성됨"
+
+#: src/components/system-map/FollowPlan.tsx:876
+msgid "{from} → {to}"
+msgstr "{from} → {to}"
+
+#. placeholder {0}: checkLabel(check.state)
+#. placeholder {1}: check.answered
+#. placeholder {2}: check.total
+#: src/components/system-map/SystemMap.tsx:131
+msgid "{title}: {0}, {1} of {2} checked"
+msgstr "{title}: {0}, {2}개 중 {1}개 확인"
+
+#. placeholder {0}: clarityLabel(clarity)
+#. placeholder {1}: n.decisions.length
+#: src/components/system-map/SystemMap.tsx:132
+msgid "{title}: {0}, {filled} of {1} written"
+msgstr "{title}: {0}, {filled}/{1} 작성됨"
+
 #: src/app/screens/PublicShareView.tsx:223
 msgid "1.0 = break-even"
 msgstr "1.0 = 손익분기"
+
+#: src/lib/system.ts:108
+msgid "1% of equity per trade at full size; 0.5% when the setup is only a B."
+msgstr "풀 사이즈는 거래당 자본의 1%; B급 셋업만이면 0.5%."
 
 #: src/app/screens/settings/backups-section.tsx:94
 msgid "A backup is already running"
 msgstr "이미 백업이 실행 중입니다"
 
+#: src/lib/system.ts:90
+msgid "A base of at least 3 weeks after a 30% advance, the last pullback under 10% on falling volume."
+msgstr "30% 상승 후 최소 3주 베이스; 마지막 조정은 거래량 감소 속 10% 미만."
+
+#: src/lib/system-plan.ts:222
+msgid "A long needs its stop below entry."
+msgstr "롱은 손절이 진입가보다 아래여야 합니다."
+
+#: src/lib/system-plan.ts:230
+msgid "A long needs its target above entry."
+msgstr "롱은 목표가 진입가보다 위여야 합니다."
+
+#. placeholder {0}: version.label
+#: src/app/screens/SystemView.tsx:850
+msgid "A short name makes versions easier to tell apart. The version number stays {0}, and the rules don't change."
+msgstr "짧은 이름이 있으면 버전을 구분하기 쉽습니다. 버전 번호는 {0}이고 규칙은 바뀌지 않습니다."
+
+#: src/lib/system-plan.ts:225
+msgid "A short needs its stop above entry."
+msgstr "숏은 손절이 진입가보다 위여야 합니다."
+
+#: src/lib/system-plan.ts:233
+msgid "A short needs its target below entry."
+msgstr "숏은 목표가 진입가보다 아래여야 합니다."
+
+#: src/components/system-map/FollowPlan.tsx:1055
+msgid "A trade is linked. New revisions are marked after the fill; what you wrote before stays as it was."
+msgstr "거래를 연결했습니다. 이후 수정은 체결 후로 표시되고, 체결 전에 적은 내용은 그대로 남습니다."
+
+#: src/components/system-map/PlanStepper.tsx:31
+msgid "About the four-week plan"
+msgstr "4주 계획 정보"
+
+#: src/components/system-map/EvidenceTimeline.tsx:284
+#: src/components/system-map/EvidenceTimeline.tsx:286
+#: src/lib/system.ts:148
+msgid "Action"
+msgstr "행동"
+
+#: src/app/screens/SystemView.tsx:606
+#: src/app/screens/SystemView.tsx:1021
+msgid "Activate"
+msgstr "활성화"
+
+#. placeholder {0}: draft ? versionTitle(draft) : ""
+#: src/app/screens/SystemView.tsx:957
+msgid "Activate {0}"
+msgstr "{0} 활성화"
+
+#: src/components/system-map/FollowPlan.tsx:290
+#: src/components/system-map/FollowTradeInspector.tsx:61
+msgid "Activate a version before planning trades"
+msgstr "거래를 계획하기 전에 버전을 활성화하세요"
+
+#: src/components/system-map/FollowTradeInspector.tsx:81
+msgid "Activate a version first — plans are checked against the rules in use."
+msgstr "먼저 버전을 활성화하세요. 계획은 사용 중인 규칙과 대조됩니다."
+
+#: src/lib/system.ts:315
+#~ msgid "Activate the next version after the live run. A saved review decision comes later — this step only tracks that you revised."
+#~ msgstr "라이브 운용 후 다음 버전을 활성화합니다. 저장된 리뷰 결정은 나중에 — 이 단계는 개정 여부만 추적합니다."
+
+#: src/components/system-map/FollowPlan.tsx:945
+#: src/components/system-map/FollowPlan.tsx:946
+msgid "Activity"
+msgstr "활동"
+
+#: src/components/system-map/EvidenceTimeline.tsx:63
+msgid "Add"
+msgstr "추가 매수"
+
+#: src/lib/system.ts:126
+msgid "Add only when relative strength makes a new high with the index; trim when the thesis is intact but time is half gone."
+msgstr "상대강도가 지수와 함께 신고가일 때만 추가; 논지는 살아 있으나 시간이 절반 지나면 축소."
+
+#: src/components/system-map/EvidenceTimeline.tsx:306
+msgid "Adding or trimming is a note. It is not an order, and it is not marked as breaking a rule."
+msgstr "추가 매수나 축소는 기록일 뿐이며 주문이 아니고, 규칙 위반으로 표시되지도 않습니다."
+
+#: src/app/screens/SystemReviewPanel.tsx:136
+msgid "Adequate"
+msgstr "충분"
+
+#: src/components/TradeSystemCard.tsx:175
+msgid "Adherence"
+msgstr "준수도"
+
+#: src/app/screens/SystemReviewPanel.tsx:51
+msgid "Adherence rate"
+msgstr "준수율"
+
+#: src/lib/system.ts:166
+msgid "Adjust"
+msgstr "조정"
+
+#: src/components/system-map/FollowPlan.tsx:101
+msgid "After fill"
+msgstr "체결 후"
+
+#: src/components/system-map/EvidenceTimeline.tsx:332
+#: src/components/system-map/EvidenceTimeline.tsx:423
+#: src/components/system-map/PlanDialogs.tsx:128
+msgid "After the fact"
+msgstr "사후 기록"
+
+#: src/components/system-map/PlanDialogs.tsx:275
+msgid "Already confirms another plan"
+msgstr "이미 다른 계획을 확인한 거래입니다"
+
+#: src/components/system-map/RuleEditor.tsx:144
+#~ msgid "Ambiguous, conflicting or missing cases ({part})"
+#~ msgstr ""
+
+#: src/lib/system.ts:291
+msgid "Another reason — say which evidence."
+msgstr "다른 이유 — 근거를 적으세요."
+
+#: src/lib/system.ts:300
+msgid "Answer all 16 decisions so someone else would decide the same, then activate."
+msgstr "16개 결정을 모두 써서 남도 같은 판단을 할 수 있게 한 뒤 활성화하세요."
+
+#: src/components/system-map/FollowPlan.tsx:692
+msgid "Answer for {title}"
+msgstr "{title} 답변"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "적용"
+
+#: src/lib/system.ts:102
+msgid "At most 6% open risk; cut to 3% in defensive markets."
+msgstr "미청산 위험은 최대 6%; 방어 시장에서는 3%로."
+
+#: src/components/system-map/EvidenceTimeline.tsx:331
+msgid "At the time"
+msgstr "당시"
+
+#: src/components/system-map/FollowTradeInspector.tsx:85
+#~ msgid "Attach a trade to check conditions against this rule"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:394
+#~ msgid "Attach an opportunity in Phase C — layout matches the follow inspector now."
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:45
+#~ msgid "Available when a trade is attached (Phase C–E)"
+#~ msgstr ""
+
+#: src/components/system-map/PlanDialogs.tsx:218
+msgid "Back"
+msgstr "뒤로"
+
+#: src/components/system-map/FollowPlan.tsx:1046
+msgid "Back to latest"
+msgstr "최신으로 돌아가기"
+
+#: src/components/system-map/FollowPlan.tsx:339
+msgid "Back to planned"
+msgstr "계획 중으로 되돌리기"
+
+#: src/app/screens/SystemView.tsx:170
+#~ msgid "Back to write rules"
+#~ msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:149
 msgid "Back up now"
@@ -74,21 +311,270 @@ msgstr "백업이 최신 상태입니다"
 msgid "Backups are overdue"
 msgstr "백업이 지연되었습니다"
 
+#: src/components/system-map/FollowPlan.tsx:101
+msgid "Before fill"
+msgstr "체결 전"
+
 #: src/app/screens/PublicShareView.tsx:308
 msgid "Best day"
 msgstr "최고의 날"
+
+#: src/lib/system-plan.ts:121
+msgid "Breaks a rule"
+msgstr "규칙을 벗어남"
+
+#: src/app/screens/SystemReviewPanel.tsx:72
+msgid "Broke rules · lost"
+msgstr "규칙 위반 · 손실"
+
+#: src/app/screens/SystemReviewPanel.tsx:71
+msgid "Broke rules · won"
+msgstr "규칙 위반 · 이익"
+
+#: src/lib/system.ts:96
+msgid "Buy only on a break and hold above the pivot with volume above the 50-day average."
+msgstr "피벗을 거래량과 함께 돌파·유지할 때만 매수. 거래량은 50일 평균 초과."
+
+#: src/app/screens/SystemReviewPanel.tsx:104
+msgid "By adherence"
+msgstr "준수도별"
+
+#: src/app/screens/SystemReviewPanel.tsx:101
+msgid "By exit state"
+msgstr "청산 상태별"
+
+#: src/app/screens/SystemReviewPanel.tsx:99
+msgid "By market"
+msgstr "시장별"
+
+#: src/app/screens/SystemReviewPanel.tsx:100
+msgid "By setup"
+msgstr "셋업별"
+
+#: src/app/screens/SystemReviewPanel.tsx:102
+msgid "By trade type"
+msgstr "거래 유형별"
+
+#: src/app/screens/SystemReviewPanel.tsx:103
+msgid "By version"
+msgstr "버전별"
 
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "캘린더"
 
+#: src/app/screens/SystemView.tsx:882
+#: src/app/screens/SystemView.tsx:1006
+#: src/components/system-map/EvidenceTimeline.tsx:218
+#: src/components/system-map/PlanDialogs.tsx:154
+#: src/components/system-map/PlanDialogs.tsx:346
+msgid "Cancel"
+msgstr "취소"
+
+#: src/app/screens/SystemView.tsx:592
+msgid "Cancel edits"
+msgstr "편집 취소"
+
+#: src/components/system-map/FollowPlan.tsx:629
+msgid "Cancel plan"
+msgstr "계획 취소"
+
+#: src/components/system-map/FollowPlan.tsx:429
+msgid "Cancel plan…"
+msgstr "계획 취소…"
+
+#: src/components/system-map/FollowPlan.tsx:627
+msgid "Cancel this plan?"
+msgstr "이 계획을 취소할까요?"
+
+#: src/lib/system-plan.ts:44
+msgid "Cancelled"
+msgstr "취소됨"
+
+#: src/components/system-map/FollowPlan.tsx:1103
+msgid "Cancelled — no trade."
+msgstr "취소됨 — 거래 없음."
+
+#: src/lib/system.ts:305
+msgid "Card past or backtest trades against the rules; note ambiguous, conflicting or missing cases."
+msgstr "과거·백테스트 거래를 규칙에 비춰 모호·충돌·누락 사례를 적으세요."
+
+#: src/app/screens/SystemReviewPanel.tsx:47
+msgid "Carded"
+msgstr "카드 작성됨"
+
+#: src/components/system-map/RuleEditor.tsx:189
+msgid "Cases your rules don't settle yet — ambiguous, conflicting or missing."
+msgstr "규칙이 아직 정리하지 못한 사례 — 모호·충돌·누락."
+
+#. placeholder {0}: Math.round(review.streak.chance * 100)
+#: src/app/screens/SystemReviewPanel.tsx:79
+msgid "Chance of this run given recent win rate: {0}%."
+msgstr "최근 승률 기준 이 결과의 확률: {0}%."
+
+#: src/lib/system.ts:168
+msgid "Change a rule only with enough trades behind it; a single normal loss changes nothing."
+msgstr "충분한 거래가 쌓인 뒤에만 규칙을 바꿉니다. 평범한 한 번의 손실로는 바꾸지 않습니다."
+
+#. placeholder {0}: version.label
+#: src/components/system-map/FollowPlan.tsx:1118
+msgid "Check against {0}"
+msgstr "{0}과 대조"
+
+#. placeholder {0}: detail.version_label || "—"
+#. placeholder {1}: detail.latest?.seq ?? 0
+#: src/components/system-map/FollowPlan.tsx:305
+msgid "Checked against {0} · revision {1}"
+msgstr "{0}과 대조 · 수정 {1}"
+
 #: src/app/screens/settings/backups-section.tsx:158
 msgid "Checking…"
 msgstr "확인 중…"
 
+#: src/components/system-map/FollowTradeInspector.tsx:102
+#~ msgid "Checks unlock when Follow trade has a linked opportunity (Phase C)."
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:63
+msgid "Clear"
+msgstr "지우기"
+
+#: src/app/screens/SystemReviewPanel.tsx:46
+msgid "Closed"
+msgstr "청산됨"
+
+#. placeholder {0}: fmtDateTime(plan.trade.closed_at)
+#: src/components/system-map/FollowPlan.tsx:1084
+msgid "closed {0}"
+msgstr "{0}에 청산"
+
+#: src/lib/system.ts:119
+msgid "Concentration, correlation, gap, liquidity and slippage across all positions."
+msgstr "전체 포지션의 집중도·상관·갭·유동성·슬리피지."
+
+#: src/components/system-map/FollowTradeInspector.tsx:110
+msgid "Condition check"
+msgstr "조건 확인"
+
+#: src/components/system-map/SystemMap.tsx:57
+msgid "Conditions not met"
+msgstr "조건 미충족"
+
+#: src/components/system-map/SystemMapList.tsx:95
+#~ msgid "Conditions not met → keep watching is a branch of Entry, not a failure."
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:112
+msgid "Conditions to confirm"
+msgstr "확인할 조건"
+
+#: src/components/system-map/SystemMap.tsx:55
+msgid "Confirm trigger"
+msgstr "트리거 확인"
+
+#: src/app/screens/SystemView.tsx:134
+msgid "Connect rules, decisions, and evidence."
+msgstr "규칙·결정·근거를 연결합니다."
+
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
 msgstr "일관성"
+
+#: src/components/system-map/EvidenceTimeline.tsx:441
+msgid "Correct"
+msgstr "정정"
+
+#: src/components/system-map/EvidenceTimeline.tsx:207
+msgid "Correcting this note. The earlier wording stays."
+msgstr "이 기록을 정정하는 중입니다. 이전 문장은 남습니다."
+
+#: src/components/system-map/EvidenceTimeline.tsx:144
+msgid "Correction saved"
+msgstr "정정을 저장했습니다"
+
+#: src/app/screens/SystemView.tsx:802
+msgid "Could not activate"
+msgstr "활성화할 수 없음"
+
+#: src/components/system-map/FollowPlan.tsx:513
+msgid "Could not create the plan"
+msgstr "계획을 만들지 못했습니다"
+
+#: src/app/screens/SystemView.tsx:767
+msgid "Could not discard"
+msgstr "폐기할 수 없음"
+
+#: src/components/system-map/FollowPlan.tsx:562
+msgid "Could not link"
+msgstr "연결하지 못했습니다"
+
+#: src/components/system-map/EvidenceTimeline.tsx:163
+msgid "Could not load evidence."
+msgstr "증거를 불러올 수 없습니다."
+
+#: src/app/screens/SystemReviewPanel.tsx:28
+msgid "Could not load the review"
+msgstr "리뷰를 불러올 수 없음"
+
+#: src/app/screens/SystemView.tsx:190
+msgid "Could not load the system"
+msgstr "시스템을 불러올 수 없음"
+
+#: src/components/system-map/PlanDialogs.tsx:323
+msgid "Could not load trades."
+msgstr "거래를 불러오지 못했습니다."
+
+#: src/components/system-map/EvidenceTimeline.tsx:148
+msgid "Could not record evidence"
+msgstr "증거를 기록할 수 없습니다"
+
+#: src/app/screens/SystemView.tsx:837
+msgid "Could not rename"
+msgstr "이름을 바꿀 수 없음"
+
+#: src/app/screens/SystemView.tsx:619
+#: src/app/screens/SystemView.tsx:736
+#: src/components/system-map/FollowPlan.tsx:238
+#: src/components/TradeSystemCard.tsx:88
+msgid "Could not save"
+msgstr "저장할 수 없음"
+
+#: src/components/MarketRegimeCard.tsx:38
+msgid "Could not save regime"
+msgstr "레짐을 저장할 수 없음"
+
+#: src/app/screens/SystemView.tsx:367
+#: src/app/screens/SystemView.tsx:564
+msgid "Could not start"
+msgstr "시작할 수 없음"
+
+#: src/components/system-map/FollowPlan.tsx:539
+msgid "Could not unlink"
+msgstr "연결을 해제하지 못했습니다"
+
+#: src/components/system-map/FollowPlan.tsx:252
+msgid "Could not update"
+msgstr "업데이트하지 못했습니다"
+
+#: src/components/system-map/EvidenceTimeline.tsx:380
+msgid "Could not withdraw"
+msgstr "철회할 수 없습니다"
+
+#: src/app/screens/SystemReviewPanel.tsx:59
+msgid "Counted in range only — not in the adherence rate (no version on misses yet)."
+msgstr "기간 내 건수만 — 준수율에는 미포함(놓친 거래에 아직 버전 없음)."
+
+#: src/app/screens/SystemReviewPanel.tsx:44
+msgid "Coverage"
+msgstr "커버리지"
+
+#: src/components/system-map/PlanDialogs.tsx:157
+msgid "Create plan"
+msgstr "계획 만들기"
+
+#: src/components/system-map/PlanDialogs.tsx:157
+msgid "Creating…"
+msgstr "만드는 중…"
 
 #: src/app/screens/PublicShareView.tsx:272
 msgid "Cumulative net P&L over the shared period."
@@ -102,6 +588,10 @@ msgstr "누적 손익 곡선"
 msgid "Cumulative P&L shape — amounts are not shared."
 msgstr "누적 손익 형태 — 금액은 공유되지 않습니다."
 
+#: src/lib/system.ts:138
+msgid "Daily close under the 10-day and sector lagging for two sessions weakens the thesis."
+msgstr "일봉이 10일선 아래 마감하고 업종이 이틀 뒤처지면 논지가 약해집니다."
+
 #: src/components/AppNav.tsx:31
 #~ msgid "Dashboard"
 #~ msgstr "대시보드"
@@ -111,17 +601,193 @@ msgstr "누적 손익 형태 — 금액은 공유되지 않습니다."
 msgid "days in a row"
 msgstr "연속 일수"
 
+#: src/components/system-map/EvidenceTimeline.tsx:223
+#: src/components/system-map/EvidenceTimeline.tsx:225
+msgid "Decision"
+msgstr "결정"
+
+#. placeholder {0}: decisionCopy(decisions[0]).title
+#: src/app/screens/SystemView.tsx:584
+#~ msgid "Decision · {0}"
+#~ msgstr ""
+
+#. placeholder {0}: decisionIndex(d)
+#. placeholder {0}: decisionIndex(id)
+#. placeholder {1}: copy.title
+#. placeholder {1}: decisionCopy(d).title
+#: src/components/system-map/FollowTradeInspector.tsx:93
+#: src/components/system-map/RuleEditor.tsx:46
+msgid "Decision {0} · {1}"
+msgstr "결정 {0} · {1}"
+
+#. placeholder {0}: decisionIndex(decision)
+#: src/components/system-map/FollowPlan.tsx:675
+msgid "Decision {0} · {title}"
+msgstr "결정 {0} · {title}"
+
+#: src/lib/system.ts:203
+msgid "Defensive"
+msgstr "방어"
+
+#: src/app/screens/SystemView.tsx:391
+#~ msgid "Demo shell"
+#~ msgstr ""
+
+#: src/lib/system.ts:269
+msgid "Did not move or remove the stop or target off-plan"
+msgstr "계획 밖으로 손절·목표가 이동/제거 없음"
+
 #: src/app/screens/settings/backups-section.tsx:207
 msgid "Directory"
 msgstr "디렉터리"
 
-#: src/app/drawers/NewNoteDrawer.tsx:187
+#: src/app/screens/SystemView.tsx:919
+#: src/components/system-map/FollowPlan.tsx:592
+msgid "Discard"
+msgstr "폐기"
+
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:745
+msgid "Discard {0}?"
+msgstr "{0}을(를) 폐기할까요?"
+
+#: src/app/screens/SystemView.tsx:257
+msgid "Discard and leave"
+msgstr "폐기하고 나가기"
+
+#: src/app/screens/SystemView.tsx:583
+#: src/app/screens/SystemView.tsx:771
+msgid "Discard draft"
+msgstr "초안 폐기"
+
+#: src/components/system-map/FollowPlan.tsx:374
+msgid "Discard edits"
+msgstr "편집 버리기"
+
+#: src/app/screens/SystemView.tsx:523
+#~ msgid "Discard this draft? This cannot be undone."
+#~ msgstr ""
+
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "Done"
+msgstr "완료"
+
+#: src/app/screens/SystemView.tsx:87
+msgid "Draft"
+msgstr "초안"
+
+#: src/app/screens/SystemView.tsx:764
+msgid "Draft discarded"
+msgstr "초안을 폐기했습니다"
+
+#: src/app/screens/SystemView.tsx:617
+msgid "Draft saved"
+msgstr "초안을 저장했습니다"
+
+#: src/app/screens/SystemView.tsx:365
+msgid "Draft started"
+msgstr "초안을 시작했습니다"
+
+#: src/components/system-map/SystemMap.tsx:81
+#~ msgid "Drag nodes to rearrange"
+#~ msgstr ""
+
+#: src/components/system-map/SystemMap.tsx:94
+msgid "Drag to rearrange"
+msgstr "드래그하여 재배치"
+
+#: src/lib/system.ts:124
+msgid "Dynamic adjustment"
+msgstr "동적 조정"
+
+#: src/components/system-map/FollowPlan.tsx:775
+msgid "e.g. Flat base, 7 weeks"
+msgstr "예: 7주 플랫 베이스"
+
+#: src/app/screens/SystemView.tsx:869
+msgid "e.g. Trend pullbacks, tighter stops"
+msgstr "예: 추세 조정, 더 타이트한 손절"
+
+#: src/components/system-map/RuleEditor.tsx:198
+msgid "e.g. What if the index gaps through the 200-day line?"
+msgstr "예: 지수가 200일선을 갭으로 뚫으면?"
+
+#: src/components/system-map/EvidenceTimeline.tsx:449
+msgid "Earlier revisions"
+msgstr "이전 수정"
+
+#: src/components/system-map/FollowTradeInspector.tsx:52
+#~ msgid "Edit draft"
+#~ msgstr ""
+
+#: src/components/system-map/FollowPlan.tsx:1017
+#: src/components/system-map/FollowTradeInspector.tsx:56
+msgid "Edit rules"
+msgstr "규칙 편집"
+
+#: src/app/screens/SystemView.tsx:585
+#~ msgid "Edit the selected node."
+#~ msgstr ""
+
+#: src/app/drawers/NewNoteDrawer.tsx:189
 msgid "Edit weekly review"
 msgstr "주간 리뷰 편집"
+
+#: src/lib/system.ts:261
+msgid "Entered at a level planned beforehand"
+msgstr "미리 정한 가격에 진입"
+
+#: src/components/system-map/FollowPlan.tsx:810
+#: src/components/system-map/FollowPlan.tsx:816
+#: src/lib/system.ts:62
+msgid "Entry"
+msgstr "진입"
+
+#: src/components/system-map/SystemNode.tsx:46
+msgid "Entry conditions"
+msgstr "진입 조건"
+
+#: src/components/system-map/FollowPlan.tsx:804
+msgid "Entry, stop and target price the plan in R."
+msgstr "진입, 손절, 목표로 계획의 R을 계산합니다."
 
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
 msgstr "{interval}마다"
+
+#: src/components/system-map/EvidenceTimeline.tsx:155
+#: src/components/system-map/FollowTradeInspector.tsx:130
+msgid "Evidence at the time"
+msgstr "당시 근거"
+
+#: src/components/system-map/EvidenceTimeline.tsx:256
+msgid "Evidence note"
+msgstr "증거 메모"
+
+#: src/components/system-map/EvidenceTimeline.tsx:144
+msgid "Evidence recorded"
+msgstr "증거를 기록했습니다"
+
+#: src/components/system-map/EvidenceTimeline.tsx:180
+msgid "Evidence while holding"
+msgstr "보유 중 증거"
+
+#: src/lib/system.ts:277
+msgid "Execution error"
+msgstr "실행 오류"
+
+#: src/components/system-map/EvidenceTimeline.tsx:69
+#: src/lib/system.ts:66
+msgid "Exit"
+msgstr "청산"
+
+#: src/components/TradeSystemCard.tsx:161
+msgid "Exit state"
+msgstr "청산 상태"
+
+#: src/lib/system.ts:267
+msgid "Exited by the plan, not by emotion"
+msgstr "감정이 아니라 계획대로 청산"
 
 #: src/app/screens/PublicShareView.tsx:250
 msgid "Expectancy"
@@ -136,13 +802,152 @@ msgstr "실패"
 msgid "Failed {0}"
 msgstr "실패 ({0})"
 
+#: src/components/system-map/FeedbackEdge.tsx:25
+#: src/components/system-map/SystemMap.tsx:59
+msgid "Feedback to rules"
+msgstr "규칙으로 피드백"
+
+#: src/app/screens/SystemView.tsx:540
+#~ msgid "fill these first; the rest can wait."
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:54
+#: src/lib/system.ts:241
+msgid "Finished"
+msgstr "완료"
+
+#: src/lib/system.ts:315
+msgid "Finishes only after the write, the history test, and a live run, once you activate the next version. Activating early does not complete it."
+msgstr "작성, 과거 거래 검증, 실전 운용이 모두 끝나고 다음 버전을 활성화해야 완료됩니다. 일찍 활성화해도 완료되지 않습니다."
+
+#: src/components/system-map/SystemMap.tsx:309
+msgid "Fit"
+msgstr "맞추기"
+
+#: src/components/system-map/SystemMap.tsx:306
+msgid "Fit the whole map in view"
+msgstr "전체 맵을 화면에 맞춤"
+
+#: src/components/system-map/FollowPlan.tsx:228
+msgid "Fix the prices first"
+msgstr "먼저 가격을 고치세요"
+
+#: src/components/system-map/FollowPlan.tsx:1030
+#: src/components/system-map/FollowTradeInspector.tsx:69
+msgid "Follow mode organizes conditions and evidence. It never places orders."
+msgstr "팔로우 모드는 조건과 근거를 정리할 뿐, 주문을 넣지 않습니다."
+
+#: src/app/screens/SystemView.tsx:179
+msgid "Follow trade"
+msgstr "거래 따라가기"
+
+#: src/app/screens/SystemView.tsx:166
+#~ msgid "Follow trade comes next"
+#~ msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:70
+msgid "Followed · lost"
+msgstr "준수 · 손실"
+
+#: src/app/screens/SystemReviewPanel.tsx:69
+msgid "Followed · won"
+msgstr "준수 · 이익"
+
+#: src/components/system-map/FollowTradeInspector.tsx:43
+msgid "Following {label}"
+msgstr "{label} 따라가는 중"
+
+#. placeholder {0}: decisionIndex(primary)
+#: src/components/system-map/FollowTradeInspector.tsx:36
+#~ msgid "Following {label} · decision {0}"
+#~ msgstr ""
+
+#: src/components/system-map/PlanStepper.tsx:21
+#: src/components/system-map/PlanStepper.tsx:26
+msgid "Four-week plan"
+msgstr "4주 계획"
+
+#: src/app/screens/SystemReviewPanel.tsx:66
+msgid "Full adherence vs partial/none, against win vs loss. Wrong-but-won is the dangerous cell."
+msgstr "완전 준수 vs 부분/없음 × 승 vs 패. 위반하고도 이긴 칸이 가장 위험합니다."
+
+#: src/lib/system.ts:250
+msgid "Fully followed"
+msgstr "완전 준수"
+
+#: src/app/screens/SystemView.tsx:960
+msgid "Give a reason for each changed decision. The previous active version becomes read-only history."
+msgstr "바뀐 결정마다 이유를 적으세요. 이전 활성 버전은 읽기 전용 기록이 됩니다."
+
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
 msgstr "수익일"
 
+#: src/app/screens/SystemReviewPanel.tsx:169
+msgid "Group"
+msgstr "그룹"
+
+#. placeholder {0}: fmtDateTime(r.occurred_at)
+#: src/components/system-map/FollowPlan.tsx:927
+msgid "happened {0}"
+msgstr "{0}에 발생"
+
+#. placeholder {0}: fmtDateTime(latest.occurred_at)
+#: src/components/system-map/EvidenceTimeline.tsx:431
+msgid "Happened {0}"
+msgstr "{0}에 발생"
+
+#: src/app/screens/SystemReviewPanel.tsx:57
+msgid "Hesitated misses"
+msgstr "망설여 놓친 건"
+
+#: src/app/screens/SystemView.tsx:582
+#~ msgid "Historical versions are read-only."
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:426
+#~ msgid "History"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:71
+msgid "Hold"
+msgstr "보유"
+
+#: src/components/system-map/SystemNode.tsx:25
+#~ msgid "Holding"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:50
+msgid "Holding decisions"
+msgstr "보유 결정"
+
+#: src/lib/system.ts:161
+msgid "How do I judge process apart from outcome?"
+msgstr "결과와 별개로 과정을 어떻게 평가할까?"
+
+#: src/lib/system.ts:64
+msgid "How much risk each trade and the book carry."
+msgstr "거래별·전체 장부가 감당하는 위험."
+
+#: src/lib/system.ts:66
+msgid "How you read the trade after entry and what you do."
+msgstr "진입 후 거래를 어떻게 읽고 무엇을 할지."
+
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
 #~ msgstr "가져오기"
+
+#: src/app/screens/SystemView.tsx:85
+msgid "In use"
+msgstr "사용 중"
+
+#: src/lib/system.ts:78
+msgid "Index above the 200-day and the 50-day rising = normal; below the 200-day = defensive; more new lows than highs for two weeks = paused."
+msgstr "지수 200일선 위·50일선 상승=정상; 200일선 아래=방어; 2주간 신저가>신고가=중단."
+
+#: src/app/screens/SystemReviewPanel.tsx:134
+msgid "Indicative"
+msgstr "참고용"
 
 #: src/app/screens/settings/settings-sections.tsx:1170
 #~ msgid "Interface language"
@@ -152,6 +957,15 @@ msgstr "수익일"
 #~ msgid "Interface language for TraderMemos."
 #~ msgstr "TraderMemos 인터페이스 언어입니다."
 
+#: src/components/system-map/FollowPlan.tsx:853
+#: src/components/system-map/FollowPlan.tsx:855
+msgid "Invalidation"
+msgstr "무효화 조건"
+
+#: src/components/system-map/FollowPlan.tsx:634
+msgid "It goes back to planned so you can revise it and link a fill."
+msgstr "계획 중으로 돌아가 수정하고 체결을 연결할 수 있습니다."
+
 #: src/app/screens/PublicShareView.tsx:155
 msgid "It may have expired or been revoked by its owner."
 msgstr "만료되었거나 소유자가 철회했을 수 있습니다."
@@ -160,9 +974,27 @@ msgstr "만료되었거나 소유자가 철회했을 수 있습니다."
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "<0>TraderMemos</0>로 기록 — 셀프호스팅 트레이딩 저널"
 
+#: src/app/screens/SystemView.tsx:752
+msgid "Keep draft"
+msgstr "초안 유지"
+
+#: src/app/screens/SystemView.tsx:244
+#: src/app/screens/SystemView.tsx:916
+#: src/components/system-map/FollowPlan.tsx:580
+msgid "Keep editing"
+msgstr "계속 편집"
+
+#: src/components/system-map/SystemMap.tsx:153
+msgid "Keep watching"
+msgstr "계속 관찰"
+
 #: src/app/screens/PublicShareView.tsx:257
 msgid "Kelly"
 msgstr "Kelly"
+
+#: src/components/system-map/PlanDialogs.tsx:212
+msgid "Kept in the plan's history"
+msgstr "계획 이력에 남습니다"
 
 #: src/app/screens/settings/settings-sections.tsx:1166
 #~ msgid "Language"
@@ -180,9 +1012,55 @@ msgstr "마지막 백업"
 msgid "Last backup failed"
 msgstr "마지막 백업이 실패했습니다"
 
+#: src/components/system-map/FollowPlan.tsx:934
+msgid "Latest"
+msgstr "최신"
+
 #: src/app/screens/settings/backups-section.tsx:192
 msgid "Latest file"
 msgstr "최신 파일"
+
+#: src/app/screens/SystemView.tsx:874
+msgid "Leave empty to remove the name."
+msgstr "비우면 이름을 제거합니다."
+
+#: src/lib/system.ts:243
+msgid "Left for a reason outside the system."
+msgstr "시스템 밖 이유로 청산."
+
+#: src/components/TradeSystemCard.tsx:209
+msgid "Lesson"
+msgstr "교훈"
+
+#: src/components/system-map/FollowTradeInspector.tsx:59
+#~ msgid "Link a trade first to record evidence against it"
+#~ msgstr "근거를 기록하려면 먼저 거래를 연결하세요"
+
+#: src/components/system-map/EvidenceTimeline.tsx:158
+msgid "Link a trade to record what you saw while holding. A note is your judgment — it is not an order."
+msgstr "거래를 연결해야 보유 중에 본 것을 기록할 수 있습니다. 기록은 당신의 판단이며 주문이 아닙니다."
+
+#: src/components/system-map/PlanDialogs.tsx:315
+msgid "Link the trade that filled this plan"
+msgstr "이 계획을 체결한 거래를 연결"
+
+#: src/components/system-map/FollowPlan.tsx:355
+#: src/components/system-map/PlanDialogs.tsx:354
+msgid "Link trade"
+msgstr "거래 연결"
+
+#: src/components/system-map/FollowPlan.tsx:871
+msgid "Linked a trade"
+msgstr "거래를 연결함"
+
+#: src/lib/system.ts:84
+msgid "Liquid names above $10 with average volume over 1M; no biotech binary events."
+msgstr "$10 초과·평균 거래량 100만 초과의 유동 종목; 바이오 이진 이벤트 제외."
+
+#: src/components/system-map/PlanDialogs.tsx:32
+#: src/components/system-map/PlanDialogs.tsx:107
+msgid "Long"
+msgstr "롱"
 
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
@@ -192,13 +1070,125 @@ msgstr "최장 수익 연속"
 msgid "Longest red streak"
 msgstr "최장 손실 연속"
 
+#. placeholder {0}: review.streak.length
+#: src/app/screens/SystemReviewPanel.tsx:78
+msgid "Losing streak ({0})"
+msgstr "연패 ({0})"
+
+#: src/lib/system.ts:288
+msgid "Losses were too large too often. Change the sizing rules."
+msgstr "손실이 너무 크고 잦습니다. 사이징 규칙을 바꾸세요."
+
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Manual only"
 msgstr "수동 전용"
 
+#: src/components/system-map/PlanDialogs.tsx:118
+msgid "Marked as written after the fact, so it never passes for a plan made in advance."
+msgstr "사후 기록으로 표시되어 사전 계획으로 보이지 않습니다."
+
+#: src/components/system-map/EvidenceTimeline.tsx:321
+msgid "Marked as written after the fact. The earlier note stays."
+msgstr "사후 기록으로 표시합니다. 이전 기록은 남습니다."
+
+#: src/components/system-map/SystemNode.tsx:19
+#~ msgid "Market"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:44
+#: src/lib/system.ts:76
+msgid "Market environment"
+msgstr "시장 환경"
+
+#: src/components/TradeSystemCard.tsx:101
+msgid "Market regime"
+msgstr "시장 레짐"
+
+#: src/components/MarketRegimeCard.tsx:19
+msgid "Market today"
+msgstr "오늘 시장"
+
+#: src/lib/system.ts:154
+msgid "Measure"
+msgstr "측정"
+
+#: src/lib/system.ts:68
+msgid "Measure, judge process apart from outcome, adjust."
+msgstr "측정하고, 결과와 별개로 과정을 판단한 뒤 조정합니다."
+
+#: src/lib/system-plan.ts:119
+msgid "Meets your rules"
+msgstr "규칙에 맞음"
+
+#: src/components/system-map/FollowPlan.tsx:702
+#: src/lib/system-plan.ts:69
+msgid "Met"
+msgstr "충족"
+
+#: src/lib/system.ts:132
+msgid "Momentum swing, 2–3 weeks, targeting the measured move of the base."
+msgstr "모멘텀 스윙, 2–3주, 베이스 계측 폭을 목표."
+
+#: src/components/system-map/FollowPlan.tsx:391
+msgid "More plan actions"
+msgstr "계획 작업 더보기"
+
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
 msgstr "최다 거래"
+
+#: src/app/screens/SystemReviewPanel.tsx:170
+msgid "N"
+msgstr "N"
+
+#: src/components/system-map/FollowPlan.tsx:704
+#: src/components/TradeSystemCard.tsx:123
+#: src/lib/system-plan.ts:73
+msgid "N/A"
+msgstr "해당 없음"
+
+#: src/app/screens/SystemView.tsx:862
+msgid "Name"
+msgstr "이름"
+
+#. placeholder {0}: version.label
+#: src/app/screens/SystemView.tsx:847
+msgid "Name {0}"
+msgstr "{0} 이름 짓기"
+
+#. placeholder {0}: stanceLabel(stance)
+#: src/components/system-map/RuleEditor.tsx:153
+#~ msgid "Name for {0}"
+#~ msgstr "{0} 이름"
+
+#: src/components/system-map/RuleEditor.tsx:158
+msgid "Name for {label}"
+msgstr "{label} 이름"
+
+#: src/app/screens/SystemView.tsx:835
+msgid "Name removed"
+msgstr "이름을 제거했습니다"
+
+#: src/components/system-map/RuleEditor.tsx:139
+msgid "Name the three stances your rule switches between."
+msgstr "규칙이 전환하는 세 가지 스탠스에 이름을 붙입니다."
+
+#: src/app/screens/SystemView.tsx:533
+#: src/app/screens/SystemView.tsx:534
+msgid "Name this version"
+msgstr "이 버전 이름 짓기"
+
+#: src/lib/system.ts:283
+msgid "Narrow when this rule or setup may be used."
+msgstr "이 규칙·셋업을 쓸 시점을 좁히세요."
+
+#: src/components/system-map/SystemNode.tsx:61
+msgid "Needs clarity"
+msgstr "명확화 필요"
+
+#: src/app/screens/SystemReviewPanel.tsx:172
+msgid "Net"
+msgstr "순손익"
 
 #: src/app/screens/PublicShareView.tsx:182
 msgid "Net P&L"
@@ -208,9 +1198,19 @@ msgstr "순손익"
 msgid "Never"
 msgstr "없음"
 
+#: src/lib/system.ts:136
+msgid "New evidence"
+msgstr "새 근거"
+
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
 #~ msgstr "새 메모"
+
+#: src/components/system-map/FollowPlan.tsx:294
+#: src/components/system-map/FollowTradeInspector.tsx:65
+#: src/components/system-map/PlanDialogs.tsx:75
+msgid "New plan"
+msgstr "새 계획"
 
 #: src/components/AppNav.tsx:251
 #~ msgid "New Setup"
@@ -220,13 +1220,142 @@ msgstr "없음"
 #~ msgid "New Trade"
 #~ msgstr "새 거래"
 
+#: src/components/TradeSystemCard.tsx:122
+msgid "No"
+msgstr "아니요"
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/PlanDialogs.tsx:327
+msgid "No {0} trades yet. Import or log the fill, then link it here."
+msgstr "{0} 거래가 아직 없습니다. 체결을 가져오거나 기록한 뒤 여기서 연결하세요."
+
+#: src/components/TradeSystemCard.tsx:74
+msgid "No active version stamped yet."
+msgstr "아직 활성 버전이 찍히지 않았습니다."
+
+#: src/components/system-map/FollowPlan.tsx:701
+#: src/lib/system-plan.ts:67
+msgid "No answer"
+msgstr "미응답"
+
 #: src/app/screens/settings/backups-section.tsx:128
 msgid "No backup yet"
 msgstr "아직 백업이 없습니다"
 
+#: src/app/screens/SystemReviewPanel.tsx:180
+msgid "No data in this range."
+msgstr "이 구간에 데이터가 없습니다."
+
+#: src/components/system-map/FollowTradeInspector.tsx:120
+#~ msgid "No evidence recorded yet."
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:111
+#~ msgid "No live opportunity is attached yet — the map still shows where this decision sits."
+#~ msgstr ""
+
+#: src/lib/system.ts:120
+msgid "No more than two names in the same theme; skip if the open gap risk on the book exceeds 3%."
+msgstr "같은 테마는 최대 두 종목; 장부 갭 위험이 3% 넘으면 건너뜁니다."
+
+#: src/components/system-map/FollowTradeInspector.tsx:77
+msgid "No plan open"
+msgstr "열린 계획이 없습니다"
+
+#: src/components/system-map/FollowTradeInspector.tsx:72
+#~ msgid "No rule written for this decision yet. Edit the draft to add one."
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:217
+msgid "No rule yet — select to write one."
+msgstr "아직 규칙 없음 — 선택해 작성하세요."
+
+#: src/app/screens/SystemView.tsx:357
+msgid "No rules yet"
+msgstr "아직 규칙 없음"
+
+#: src/components/system-map/FollowTradeInspector.tsx:74
+#~ msgid "No trade linked yet"
+#~ msgstr "연결된 거래 없음"
+
+#: src/components/system-map/FollowPlan.tsx:1104
+msgid "No trade linked yet."
+msgstr "아직 연결된 거래가 없습니다."
+
+#: src/app/screens/SystemView.tsx:389
+#~ msgid "No trade selected"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:288
+msgid "No versions yet."
+msgstr "아직 버전이 없습니다."
+
 #: src/app/screens/settings/backups-section.tsx:198
 msgid "None"
 msgstr "없음"
+
+#: src/components/system-map/RuleEditor.tsx:197
+msgid "None recorded."
+msgstr "기록 없음."
+
+#: src/lib/system.ts:201
+msgid "Normal"
+msgstr "정상"
+
+#: src/components/MarketRegimeCard.tsx:20
+msgid "Normal and Defensive allow trading; Paused means stand aside."
+msgstr "정상·방어는 거래 가능, 중단은 관망입니다."
+
+#: src/components/system-map/SystemMap.tsx:153
+msgid "Not a failure — wait for the trigger"
+msgstr "실패가 아님 — 트리거를 기다리세요"
+
+#: src/lib/system.ts:254
+msgid "Not followed"
+msgstr "미준수"
+
+#: src/components/system-map/FollowPlan.tsx:703
+#: src/lib/system-plan.ts:71
+msgid "Not met"
+msgstr "미충족"
+
+#: src/lib/system.ts:238
+msgid "Not proven wrong, but never followed through — time and opportunity cost."
+msgstr "틀렸다고 증명되진 않았으나 따라가지 않음 — 시간과 기회비용."
+
+#: src/components/system-map/EvidenceTimeline.tsx:52
+#: src/lib/system.ts:237
+msgid "Not working"
+msgstr "통하지 않음"
+
+#: src/components/system-map/SystemNode.tsx:59
+msgid "Not written"
+msgstr "미작성"
+
+#: src/components/system-map/RuleEditor.tsx:64
+msgid "Not written in this version."
+msgstr "이 버전에는 작성되지 않았습니다."
+
+#: src/components/system-map/FollowPlan.tsx:682
+#: src/components/system-map/FollowTradeInspector.tsx:102
+msgid "Not written yet."
+msgstr "아직 작성되지 않았습니다."
+
+#: src/app/screens/SystemView.tsx:989
+msgid "Note (optional)"
+msgstr "메모(선택)"
+
+#: src/components/system-map/EvidenceTimeline.tsx:377
+msgid "Note withdrawn"
+msgstr "기록을 철회했습니다"
+
+#: src/components/system-map/EvidenceTimeline.tsx:178
+msgid "Nothing recorded while holding."
+msgstr "보유 중 기록이 없습니다."
+
+#: src/components/system-map/FollowTradeInspector.tsx:132
+#~ msgid "Nothing recorded yet. Screenshots and notes captured while following a trade land here."
+#~ msgstr "아직 기록 없음. 거래를 따라가며 찍은 스크린샷·메모가 여기에 모입니다."
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:285
@@ -234,31 +1363,326 @@ msgstr "없음"
 msgid "of {0} trading days"
 msgstr "거래일 {0}일 중"
 
+#: src/lib/system.ts:282
+msgid "Only works in some markets"
+msgstr "일부 시장에서만 통함"
+
+#: src/components/system-map/FollowPlan.tsx:1095
+#: src/components/system-map/PlanDialogs.tsx:288
+msgid "Open"
+msgstr "미청산"
+
+#: src/components/system-map/FollowTradeInspector.tsx:132
+msgid "Open a plan and link the trade. Notes you write while holding show up on Review."
+msgstr "계획을 열고 거래를 연결하세요. 보유 중에 쓴 기록은 검토에 표시됩니다."
+
+#: src/app/screens/SystemView.tsx:283
+msgid "Open a version on the map. Active and retired versions are read-only."
+msgstr "맵에서 버전을 엽니다. 활성·폐기 버전은 읽기 전용입니다."
+
+#: src/components/system-map/RuleEditor.tsx:142
+#~ msgid "Open questions"
+#~ msgstr ""
+
+#: src/components/system-map/RuleEditor.tsx:187
+#: src/components/system-map/RuleEditor.tsx:200
+msgid "Open questions · {partTitle}"
+msgstr "열린 질문 · {partTitle}"
+
+#: src/components/system-map/RuleEditor.tsx:121
+#~ msgid "Open questions ({part}) — ambiguous, conflicting or missing cases"
+#~ msgstr ""
+
+#. placeholder {0}: fmtDateTime(plan.trade.opened_at)
+#: src/components/system-map/FollowPlan.tsx:1082
+msgid "Opened {0}"
+msgstr "{0}에 진입"
+
+#: src/components/system-map/PlanDialogs.tsx:250
+msgid "Opened before this plan was written"
+msgstr "이 계획을 쓰기 전에 진입했습니다"
+
+#: src/components/system-map/PlanDialogs.tsx:248
+msgid "Opposite side to the plan"
+msgstr "계획과 반대 방향"
+
+#: src/lib/system.ts:243
+#: src/lib/system.ts:291
+msgid "Other"
+msgstr "기타"
+
+#: src/components/system-map/FollowPlan.tsx:1074
+msgid "Outcome"
+msgstr "결과"
+
+#: src/lib/system.ts:252
+msgid "Partly followed"
+msgstr "부분 준수"
+
+#: src/lib/system.ts:205
+msgid "Paused"
+msgstr "중단"
+
 #: src/app/screens/PublicShareView.tsx:252
 msgid "per trade"
 msgstr "거래당"
+
+#: src/lib/system.ts:106
+msgid "Per-trade risk"
+msgstr "거래당 위험"
+
+#: src/app/screens/SystemView.tsx:167
+#~ msgid "Phase C–E will attach a live opportunity or trade to this map: condition checks, evidence timeline, and confirm-trigger on the Entry node. Write rules first."
+#~ msgstr ""
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/PlanDialogs.tsx:317
+msgid "Pick the {0} trade yourself — nothing is matched automatically. You can unlink it later; both steps stay in the history."
+msgstr "{0} 거래는 직접 고르세요. 자동으로 맞추지 않습니다. 나중에 해제할 수 있고, 두 단계 모두 이력에 남습니다."
+
+#: src/components/system-map/FollowPlan.tsx:272
+#: src/components/system-map/FollowPlan.tsx:1060
+msgid "Plan"
+msgstr "계획"
+
+#: src/components/system-map/FollowPlan.tsx:510
+msgid "Plan created"
+msgstr "계획을 만들었습니다"
+
+#: src/components/system-map/FollowPlan.tsx:1026
+msgid "Plan history"
+msgstr "계획 이력"
+
+#. placeholder {0}: planStatusLabel(status).toLowerCase()
+#: src/components/system-map/FollowPlan.tsx:250
+msgid "Plan marked {0}"
+msgstr "계획을 {0}(으)로 표시했습니다"
+
+#: src/components/system-map/FollowPlan.tsx:873
+msgid "Plan written"
+msgstr "계획을 기록했습니다"
+
+#: src/lib/system-plan.ts:36
+msgid "Planned"
+msgstr "계획 중"
+
+#. placeholder {0}: r.toFixed(2)
+#: src/components/system-map/FollowPlan.tsx:804
+msgid "Planned {0}R"
+msgstr "계획 {0}R"
+
+#: src/components/TradeSystemCard.tsx:141
+msgid "Planned hold (days)"
+msgstr "계획 보유(일)"
+
+#: src/components/system-map/PlanDialogs.tsx:127
+msgid "Planning now"
+msgstr "지금 계획"
 
 #: src/components/AppNav.tsx:38
 #~ msgid "Playbook"
 #~ msgstr "플레이북"
 
+#: src/lib/system.ts:118
+msgid "Portfolio check"
+msgstr "포트폴리오 점검"
+
+#: src/lib/system.ts:112
+msgid "Position size"
+msgstr "포지션 크기"
+
+#: src/lib/system.ts:64
+msgid "Position sizing"
+msgstr "포지션 사이징"
+
+#: src/components/TradeSystemCard.tsx:191
+msgid "Post-trade checklist"
+msgstr "거래 후 체크리스트"
+
+#: src/app/screens/SystemReviewPanel.tsx:65
+msgid "Process × outcome"
+msgstr "과정 × 결과"
+
 #: src/app/screens/PublicShareView.tsx:208
 msgid "Profit factor"
 msgstr "프로핏 팩터"
+
+#: src/components/system-map/PlanStepper.tsx:40
+msgid "Progress is derived from your data — not a checklist you tick."
+msgstr "진행도는 데이터에서 산출됩니다 — 직접 체크하는 목록이 아닙니다."
+
+#: src/components/system-map/SystemMap.tsx:296
+msgid "Put every node back in its original place"
+msgstr "모든 노드를 원래 위치로"
+
+#: src/app/screens/SystemView.tsx:545
+msgid "Read-only"
+msgstr "읽기 전용"
+
+#: src/components/system-map/PlanDialogs.tsx:204
+msgid "Reason"
+msgstr "이유"
+
+#: src/components/system-map/EvidenceTimeline.tsx:351
+msgid "Record"
+msgstr "기록"
+
+#: src/components/system-map/FollowTradeInspector.tsx:62
+#~ msgid "Record evidence"
+#~ msgstr "근거 기록"
+
+#. placeholder {0}: fmtDateTime(latest.recorded_at)
+#. placeholder {0}: fmtDateTime(r.recorded_at)
+#: src/components/system-map/EvidenceTimeline.tsx:411
+#: src/components/system-map/FollowPlan.tsx:926
+msgid "Recorded {0}"
+msgstr "{0}에 기록"
+
+#. placeholder {0}: fmtDateTime(viewing.recorded_at)
+#: src/components/system-map/FollowPlan.tsx:1042
+msgid "Recorded {0}. Read-only — later revisions never change it."
+msgstr "{0}에 기록됨. 읽기 전용이며 이후 수정으로 바뀌지 않습니다."
+
+#: src/components/system-map/PlanDialogs.tsx:117
+msgid "Recorded now, before any fill."
+msgstr "어떤 체결보다 먼저, 지금 기록합니다."
+
+#: src/components/system-map/EvidenceTimeline.tsx:320
+msgid "Recorded now, while you were in the trade."
+msgstr "지금 기록합니다. 보유 중에 쓴 것으로 둡니다."
+
+#: src/components/system-map/EvidenceTimeline.tsx:348
+msgid "Recording an action does not place an order."
+msgstr "행동을 기록해도 주문은 나가지 않습니다."
 
 #: src/app/screens/PublicShareView.tsx:289
 msgid "Red days"
 msgstr "손실일"
 
+#. placeholder {0}: version.label
+#: src/app/screens/SystemView.tsx:847
+msgid "Rename {0}"
+msgstr "{0} 이름 변경"
+
+#: src/app/screens/SystemView.tsx:533
+#: src/app/screens/SystemView.tsx:534
+msgid "Rename this version"
+msgstr "이 버전 이름 변경"
+
+#: src/components/system-map/FollowPlan.tsx:369
+#: src/components/system-map/FollowPlan.tsx:635
+msgid "Reopen"
+msgstr "다시 열기"
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/FollowPlan.tsx:633
+msgid "Reopen {0}?"
+msgstr "{0}을(를) 다시 열까요?"
+
+#: src/app/screens/SystemReviewPanel.tsx:27
+#: src/app/screens/SystemView.tsx:76
+#: src/components/MarketRegimeCard.tsx:39
+#: src/components/system-map/EvidenceTimeline.tsx:34
+#: src/components/system-map/FollowPlan.tsx:91
+#: src/components/TradeSystemCard.tsx:89
+msgid "Request failed"
+msgstr "요청 실패"
+
+#: src/components/system-map/SystemMap.tsx:299
+msgid "Reset layout"
+msgstr "레이아웃 재설정"
+
+#: src/app/screens/SystemView.tsx:89
+msgid "Retired"
+msgstr "폐기됨"
+
+#: src/app/screens/SystemView.tsx:194
+msgid "Retry"
+msgstr "다시 시도"
+
+#: src/app/screens/SystemView.tsx:180
+#: src/lib/system.ts:68
+#: src/lib/system.ts:160
+msgid "Review"
+msgstr "리뷰"
+
+#: src/components/system-map/SystemNode.tsx:52
+msgid "Review & adjust"
+msgstr "리뷰 및 조정"
+
 #: src/app/screens/NotesView.tsx:61
 msgid "Reviews"
 msgstr "리뷰"
+
+#: src/lib/system.ts:314
+msgid "Revise the version"
+msgstr "버전 개정"
+
+#. placeholder {0}: latest.seq
+#. placeholder {0}: r.seq
+#: src/components/system-map/EvidenceTimeline.tsx:426
+#: src/components/system-map/EvidenceTimeline.tsx:452
+#: src/components/system-map/FollowPlan.tsx:912
+msgid "Revision {0}"
+msgstr "수정 {0}"
+
+#. placeholder {0}: viewing.seq
+#. placeholder {1}: stageLabel(viewing.stage)
+#: src/components/system-map/FollowPlan.tsx:1039
+msgid "Revision {0} · {1}"
+msgstr "수정 {0} · {1}"
+
+#. placeholder {0}: p.latest?.seq ?? ""
+#: src/components/system-map/FollowPlan.tsx:235
+msgid "Revision {0} saved"
+msgstr "수정 {0}을(를) 저장했습니다"
+
+#: src/components/system-map/FollowPlan.tsx:893
+#: src/components/system-map/FollowPlan.tsx:894
+msgid "Revisions"
+msgstr "수정"
+
+#: src/components/system-map/SystemNode.tsx:48
+msgid "Risk & position"
+msgstr "위험과 포지션"
+
+#: src/components/system-map/SystemNode.tsx:23
+#~ msgid "Risk & size"
+#~ msgstr ""
+
+#: src/lib/system.ts:100
+msgid "Risk budget"
+msgstr "위험 예산"
+
+#: src/lib/system.ts:287
+msgid "Risk too high"
+msgstr "위험이 너무 큼"
+
+#: src/components/system-map/FollowTradeInspector.tsx:63
+#~ msgid "Rule"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:82
+#: src/app/screens/SystemView.tsx:385
+#~ msgid "Rules"
+#~ msgstr ""
+
+#: src/lib/system.ts:309
+msgid "Run it live"
+msgstr "라이브로 운용"
+
+#: src/app/screens/SystemReviewPanel.tsx:173
+msgid "Sample"
+msgstr "표본"
 
 #: src/app/screens/settings/alerts-section.tsx:323
 msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
 msgstr "마켓 시간대 기준 토요일 09:00에 한 주의 손익, 승률, R, 셋업, 규칙 위반, 놓친 거래를 작성용 리뷰 노트로 정리해 보냅니다."
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
+#: src/app/screens/SystemView.tsx:625
+#: src/app/screens/SystemView.tsx:922
+#: src/components/TradeSystemCard.tsx:95
 msgid "Save"
 msgstr "저장"
 
@@ -266,17 +1690,125 @@ msgstr "저장"
 msgid "Save changes"
 msgstr "변경 사항 저장"
 
+#: src/components/system-map/EvidenceTimeline.tsx:351
+msgid "Save correction"
+msgstr "정정 저장"
+
+#: src/app/screens/SystemView.tsx:885
+msgid "Save name"
+msgstr "이름 저장"
+
+#: src/components/system-map/FollowPlan.tsx:263
+msgid "Save or discard your edits first"
+msgstr "먼저 편집을 저장하거나 버리세요"
+
+#: src/components/system-map/FollowPlan.tsx:385
+#: src/components/system-map/FollowPlan.tsx:605
+msgid "Save revision"
+msgstr "수정 저장"
+
+#: src/components/system-map/FollowPlan.tsx:575
+msgid "Save them as a new revision, discard them, or keep editing."
+msgstr "새 수정으로 저장하거나, 버리거나, 계속 편집하세요."
+
+#: src/app/screens/SystemView.tsx:599
+msgid "Save your edits before activating"
+msgstr "활성화 전에 편집을 저장하세요"
+
+#: src/app/screens/SystemView.tsx:911
+msgid "Save, discard, or keep editing before leaving this node or version."
+msgstr "이 노드·버전을 떠나기 전에 저장·폐기·계속 편집을 선택하세요."
+
+#: src/app/screens/SystemView.tsx:625
+#: src/app/screens/SystemView.tsx:885
+#: src/components/system-map/FollowPlan.tsx:385
+msgid "Saving…"
+msgstr "저장 중…"
+
 #: src/app/screens/settings/backups-section.tsx:131
 msgid "Scheduled backups are off"
 msgstr "예약 백업이 꺼져 있습니다"
+
+#: src/components/system-map/FollowTradeInspector.tsx:37
+#~ msgid "Select a node on the map"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:38
+#~ msgid "Self-checked clear"
+#~ msgstr ""
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "설정"
 
+#: src/components/system-map/FollowPlan.tsx:763
+#: src/components/system-map/FollowPlan.tsx:771
+#: src/lib/system.ts:88
+msgid "Setup"
+msgstr "셋업"
+
+#: src/components/system-map/FollowPlan.tsx:1142
+msgid "Setup, trigger and prices live on Entry and Risk; invalidation on Holding."
+msgstr "셋업, 트리거, 가격은 진입과 리스크에, 무효화 조건은 보유에 있습니다."
+
 #: src/app/screens/PublicShareView.tsx:129
 msgid "Shared performance record"
 msgstr "공유된 성과 기록"
+
+#: src/lib/system.ts:114
+msgid "Shares = (equity × risk%) / (entry − stop). Size follows risk, never the other way round."
+msgstr "주식 수=(자본×위험%)/(진입−손절). 크기는 위험을 따르며, 그 반대는 없습니다."
+
+#: src/components/system-map/PlanDialogs.tsx:32
+#: src/components/system-map/PlanDialogs.tsx:108
+msgid "Short"
+msgstr "숏"
+
+#: src/components/TradeSystemCard.tsx:217
+msgid "Should this change a rule?"
+msgstr "규칙을 바꿔야 할까요?"
+
+#: src/components/system-map/FollowPlan.tsx:932
+msgid "Showing"
+msgstr "보는 중"
+
+#: src/components/system-map/PlanDialogs.tsx:100
+#: src/components/system-map/PlanDialogs.tsx:102
+msgid "Side"
+msgstr "방향"
+
+#: src/lib/system.ts:265
+msgid "Size and risk matched the plan"
+msgstr "크기와 위험이 계획과 일치"
+
+#: src/lib/system.ts:113
+msgid "Size worked out from entry, stop and per-trade risk."
+msgstr "진입·손절·거래당 위험으로 크기를 산출."
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/FollowPlan.tsx:621
+msgid "Skip {0}?"
+msgstr "{0}을(를) 건너뛸까요?"
+
+#: src/components/system-map/FollowPlan.tsx:418
+msgid "Skip this trade…"
+msgstr "이 거래 건너뛰기…"
+
+#: src/components/system-map/FollowPlan.tsx:623
+msgid "Skip trade"
+msgstr "거래 건너뛰기"
+
+#: src/lib/system-plan.ts:42
+msgid "Skipped"
+msgstr "건너뜀"
+
+#: src/components/system-map/FollowPlan.tsx:1101
+msgid "Skipped — no trade."
+msgstr "건너뜀 — 거래 없음."
+
+#: src/lib/system.ts:214
+msgid "Smaller size, fewer trades."
+msgstr "포지션을 줄이고 거래를 줄입니다."
 
 #: src/app/screens/settings/backups-section.tsx:186
 msgid "Snapshots kept"
@@ -286,41 +1818,393 @@ msgstr "보관된 스냅샷"
 msgid "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
 msgstr "데이터베이스 스냅샷을 서버의 폴더에 저장합니다. 이 폴더를 외부 저장소로 동기화하세요 — 같은 디스크에 있는 사본은 디스크 장애를 견디지 못합니다."
 
+#: src/components/system-map/RuleEditor.tsx:82
+msgid "Someone else would decide the same"
+msgstr "남도 같은 결정을 내릴 것"
+
 #: src/app/screens/PublicShareView.tsx:261
 msgid "SQN"
 msgstr "SQN"
+
+#: src/lib/system.ts:216
+msgid "Stand aside and watch."
+msgstr "관망합니다."
+
+#: src/components/system-map/RuleEditor.tsx:51
+msgid "Start here"
+msgstr "여기서 시작"
+
+#: src/app/screens/SystemView.tsx:569
+msgid "Start next version"
+msgstr "다음 버전 시작"
+
+#: src/app/screens/SystemView.tsx:372
+msgid "Start v1.0"
+msgstr "v1.0 시작"
+
+#. placeholder {0}: STARTER_DECISIONS.map((d) => decisionCopy(d).title).join(", ")
+#: src/app/screens/SystemView.tsx:636
+msgid "Start with {0}. The rest can wait."
+msgstr "먼저 {0}부터. 나머지는 나중에."
+
+#: src/app/screens/SystemView.tsx:358
+msgid "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
+msgstr "먼저 네 가지: 언제 진입, 얼마 위험, 언제 청산, 언제 중단."
+
+#: src/app/screens/SystemView.tsx:539
+#~ msgid "Starter prompts:"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:267
+#: src/components/system-map/EvidenceTimeline.tsx:269
+msgid "State"
+msgstr "상태"
+
+#: src/lib/system.ts:142
+msgid "State diagnosis"
+msgstr "상태 진단"
 
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "통계"
 
+#: src/lib/system-plan.ts:123
+msgid "Still open"
+msgstr "아직 열림"
+
+#: src/components/system-map/EvidenceTimeline.tsx:56
+msgid "Still working"
+msgstr "아직 유효"
+
+#: src/lib/system.ts:82
+msgid "Stock selection"
+msgstr "종목 선정"
+
+#: src/components/system-map/FollowPlan.tsx:811
+#: src/components/system-map/FollowPlan.tsx:823
+msgid "Stop"
+msgstr "손절"
+
+#: src/lib/system.ts:263
+msgid "Stop and target were set before entry"
+msgstr "손절과 목표가를 진입 전에 설정함"
+
+#: src/components/system-map/EvidenceTimeline.tsx:39
+#: src/components/system-map/EvidenceTimeline.tsx:249
+msgid "Supports"
+msgstr "지지"
+
+#: src/components/system-map/PlanDialogs.tsx:89
+msgid "Symbol"
+msgstr "종목"
+
+#: src/components/TradeSystemCard.tsx:72
+msgid "System card"
+msgstr "시스템 카드"
+
+#: src/components/TradeSystemCard.tsx:85
+msgid "System card saved"
+msgstr "시스템 카드를 저장했습니다"
+
+#: src/components/system-map/SystemMapList.tsx:30
+msgid "System map"
+msgstr "시스템 맵"
+
+#: src/app/screens/SystemView.tsx:174
+msgid "System mode"
+msgstr "시스템 모드"
+
+#: src/app/screens/SystemView.tsx:78
+#~ msgid "System view"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:67
+msgid "Take profit"
+msgstr "이익 실현"
+
+#: src/lib/system-plan.ts:40
+msgid "Taken"
+msgstr "체결됨"
+
+#: src/components/system-map/FollowPlan.tsx:812
+#: src/components/system-map/FollowPlan.tsx:830
+msgid "Target"
+msgstr "목표"
+
+#: src/lib/system.ts:241
+msgid "Target reached, or the edge was fading."
+msgstr "목표가 도달, 또는 우위가 약해짐."
+
+#: src/lib/system.ts:304
+msgid "Test on past trades"
+msgstr "과거 거래로 검증"
+
+#: src/lib/system.ts:234
+msgid "The core hypothesis was broken — cut."
+msgstr "핵심 가설이 깨짐 — 청산."
+
 #: src/app/screens/PublicShareView.tsx:268
 msgid "The curve"
 msgstr "곡선"
+
+#: src/app/screens/SystemView.tsx:747
+msgid "The draft and every unsaved edit are deleted. Active and retired versions stay as they are. This can't be undone."
+msgstr "초안과 저장되지 않은 편집이 모두 삭제됩니다. 활성·폐기 버전은 그대로입니다. 되돌릴 수 없습니다."
 
 #: src/app/screens/PublicShareView.tsx:205
 msgid "The edge"
 msgstr "엣지"
 
+#: src/components/system-map/FollowPlan.tsx:793
+msgid "The exact event that gets you in"
+msgstr "실제로 진입하게 하는 사건"
+
+#: src/components/system-map/FollowTradeInspector.tsx:76
+#~ msgid "The map still shows where this decision sits. Linking a trade to check it against these rules is on the way."
+#~ msgstr "맵은 이 결정의 위치를 계속 보여 줍니다. 거래를 연결해 규칙과 대조하는 기능은 준비 중입니다."
+
+#: src/lib/system.ts:107
+msgid "The most one trade may risk, and how risk is split between better and worse odds."
+msgstr "한 거래가 감당할 최대 위험, 그리고 승률이 다른 기회 사이 배분."
+
+#: src/lib/system.ts:101
+msgid "The most planned risk the whole account carries at once, and when that grows or shrinks."
+msgstr "계좌 전체가 동시에 감당하는 계획 위험 상한, 그리고 늘리거나 줄이는 시점."
+
+#: src/components/system-map/FollowPlan.tsx:628
+msgid "The opportunity is gone or no longer valid. The plan and its revisions stay in history."
+msgstr "기회가 사라졌거나 더 이상 유효하지 않습니다. 계획과 수정은 이력에 남습니다."
+
+#: src/components/system-map/FollowPlan.tsx:640
+msgid "The plan returns to waiting and the trade is free to confirm another plan. The link stays in history."
+msgstr "계획은 트리거 대기로 돌아가고, 이 거래는 다른 계획을 확인할 수 있습니다. 연결은 이력에 남습니다."
+
+#. placeholder {0}: fmtDateTime(data.prompt.due_at)
+#: src/components/system-map/EvidenceTimeline.tsx:172
+msgid "The planned hold ended {0}. Record what you saw. This does not close the trade or judge the plan."
+msgstr "계획한 보유가 {0}에 끝났습니다. 본 것을 기록하세요. 청산하거나 계획을 판정하지 않습니다."
+
 #: src/app/screens/PublicShareView.tsx:326
 msgid "The rhythm"
 msgstr "리듬"
+
+#: src/lib/system.ts:278
+msgid "The rule was fine; I didn't follow it. Fix the process."
+msgstr "규칙은 괜찮았고, 내가 지키지 않았습니다. 과정을 고치세요."
+
+#: src/components/system-map/FollowPlan.tsx:622
+msgid "The setup came but you passed. Say why — it's how hesitation shows up in review."
+msgstr "셋업은 왔는데 지나쳤습니다. 이유를 적으면 복기에서 망설임이 보입니다."
+
+#. placeholder {0}: fmtDateTime(data.prompt.due_at)
+#: src/components/system-map/EvidenceTimeline.tsx:171
+msgid "The time stop was due {0}. Record what you saw. This does not close the trade or judge the plan."
+msgstr "타임 스톱이 {0}에 도래했습니다. 본 것을 기록하세요. 청산하거나 계획을 판정하지 않습니다."
+
+#: src/components/system-map/EvidenceTimeline.tsx:362
+msgid "The wording stays on the timeline. Say why you are withdrawing it."
+msgstr "문장은 타임라인에 남습니다. 철회하는 이유를 적으세요."
+
+#: src/components/system-map/FollowPlan.tsx:764
+#: src/components/system-map/FollowPlan.tsx:779
+#: src/components/TradeSystemCard.tsx:154
+msgid "Thesis"
+msgstr "논지"
+
+#: src/components/system-map/PlanDialogs.tsx:142
+msgid "Thesis (optional)"
+msgstr "논지(선택)"
+
+#: src/app/screens/SystemReviewPanel.tsx:132
+msgid "Thin"
+msgstr "부족"
+
+#: src/app/screens/SystemView.tsx:961
+msgid "This becomes the active system. You can revise later with a new draft."
+msgstr "이것이 활성 시스템이 됩니다. 나중에 새 초안으로 개정할 수 있습니다."
 
 #: src/app/screens/PublicShareView.tsx:153
 msgid "This link isn't available"
 msgstr "이 링크를 사용할 수 없습니다"
 
+#: src/components/system-map/FollowTradeInspector.tsx:57
+#~ msgid "This mode organizes recorded conditions and evidence — it does not place orders."
+#~ msgstr ""
+
+#. placeholder {0}: planStatusLabel(plan.status).toLowerCase()
+#: src/components/system-map/FollowPlan.tsx:1051
+msgid "This plan is {0}. Reopen it to keep revising."
+msgstr "이 계획은 {0}입니다. 수정을 계속하려면 다시 여세요."
+
 #: src/app/screens/settings/backups-section.tsx:118
 msgid "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
 msgstr "이 서버는 Postgres에서 실행 중입니다. 기본 제공 백업은 SQLite만 지원합니다 — Postgres는 pg_dump 또는 제공업체의 스냅샷으로 백업하세요."
 
-#: src/components/AppNav.tsx:32
-#~ msgid "Trades"
-#~ msgstr "거래"
+#: src/components/system-map/EvidenceTimeline.tsx:311
+msgid "This version has no scaling rule written."
+msgstr "이 버전에는 확대·축소 규칙이 아직 없습니다."
+
+#: src/lib/system.ts:130
+msgid "Trade definition"
+msgstr "거래 정의"
+
+#: src/lib/system.ts:310
+msgid "Trade it live with a card on each trade. The question is \"can I follow it?\", not \"does it make money?\". Progress counts carded live trades — not a small-size check."
+msgstr "라이브로 거래하고 거래마다 카드를 만드세요. 질문은 “지킬 수 있나?”이지 “돈 되나?”가 아닙니다. 진행도는 카드된 라이브 건수 — 소액 점검이 아닙니다."
+
+#: src/components/system-map/FollowPlan.tsx:559
+msgid "Trade linked"
+msgstr "거래를 연결했습니다"
+
+#: src/lib/system.ts:212
+msgid "Trade the system at normal risk."
+msgstr "정상 위험으로 시스템을 따릅니다."
+
+#: src/components/TradeSystemCard.tsx:127
+msgid "Trade type"
+msgstr "거래 유형"
+
+#: src/components/system-map/RuleEditor.tsx:172
+msgid "Trade type: {key}"
+msgstr "거래 유형: {key}"
+
+#: src/components/system-map/FollowPlan.tsx:536
+msgid "Trade unlinked"
+msgstr "연결을 해제했습니다"
+
+#: src/components/system-map/PlanDialogs.tsx:331
+msgid "Trades"
+msgstr "거래"
 
 #: src/app/screens/PublicShareView.tsx:349
 msgid "Trades per month."
 msgstr "월별 거래 수."
+
+#: src/app/screens/SystemView.tsx:132
+msgid "Trading system"
+msgstr "트레이딩 시스템"
+
+#: src/components/system-map/SystemMap.tsx:271
+msgid "Trading system map"
+msgstr "트레이딩 시스템 맵"
+
+#: src/components/system-map/FollowPlan.tsx:765
+#: src/components/system-map/FollowPlan.tsx:788
+#: src/lib/system.ts:94
+msgid "Trigger"
+msgstr "트리거"
+
+#: src/components/TradeSystemCard.tsx:115
+msgid "Trigger met"
+msgstr "트리거 충족"
+
+#: src/components/system-map/EvidenceTimeline.tsx:65
+msgid "Trim"
+msgstr "축소"
+
+#: src/components/system-map/RuleEditor.tsx:85
+msgid "Turn on once the rule leaves no room for judgment."
+msgstr "규칙에 판단 여지가 없을 때 켭니다."
+
+#: src/lib/system.ts:131
+msgid "Type of trade, expected move, holding time, core hypothesis."
+msgstr "거래 유형, 예상 움직임, 보유 기간, 핵심 가설."
+
+#: src/lib/system-plan.ts:67
+#~ msgid "Unanswered"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:43
+#: src/components/system-map/EvidenceTimeline.tsx:251
+msgid "Uncertain"
+msgstr "불확실"
+
+#: src/app/screens/SystemReviewPanel.tsx:162
+msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
+msgstr "10건 미만 그룹은 무의미하고, 30건 미만은 힌트일 뿐입니다. 표본 수는 증거가 아닙니다."
+
+#: src/components/system-map/FollowPlan.tsx:641
+msgid "Unlink"
+msgstr "연결 해제"
+
+#: src/components/system-map/FollowPlan.tsx:639
+msgid "Unlink the trade?"
+msgstr "거래 연결을 해제할까요?"
+
+#: src/components/system-map/FollowPlan.tsx:406
+msgid "Unlink trade…"
+msgstr "연결 해제…"
+
+#: src/components/system-map/FollowPlan.tsx:872
+msgid "Unlinked the trade"
+msgstr "거래 연결을 해제함"
+
+#: src/app/screens/SystemView.tsx:235
+#: src/app/screens/SystemView.tsx:551
+#: src/app/screens/SystemView.tsx:909
+#: src/components/system-map/FollowPlan.tsx:312
+msgid "Unsaved changes"
+msgstr "저장되지 않은 변경"
+
+#: src/components/system-map/FollowPlan.tsx:573
+msgid "Unsaved plan edits"
+msgstr "저장하지 않은 계획 편집"
+
+#: src/lib/system.ts:162
+msgid "Use the process × outcome quadrant; wrong-but-won is the most dangerous cell."
+msgstr "과정 × 결과 사분면을 쓰세요. 위반하고도 이긴 칸이 가장 위험합니다."
+
+#: src/components/system-map/RuleEditor.tsx:74
+msgid "Vague wording — make it objective:"
+msgstr "모호한 표현 — 객관적으로:"
+
+#: src/app/screens/SystemView.tsx:521
+msgid "Version"
+msgstr "버전"
+
+#. placeholder {0}: card.version_label
+#: src/components/TradeSystemCard.tsx:74
+msgid "Version {0}"
+msgstr "버전 {0}"
+
+#: src/app/screens/SystemView.tsx:799
+msgid "Version activated"
+msgstr "버전을 활성화했습니다"
+
+#: src/app/screens/SystemView.tsx:166
+#: src/app/screens/SystemView.tsx:281
+msgid "Version history"
+msgstr "버전 기록"
+
+#: src/app/screens/SystemView.tsx:835
+msgid "Version named"
+msgstr "버전 이름을 지었습니다"
+
+#: src/components/system-map/FollowPlan.tsx:936
+msgid "View"
+msgstr "보기"
+
+#: src/components/system-map/FollowTradeInspector.tsx:128
+#~ msgid "View plan snapshot"
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:109
+#~ msgid "Waiting for a trade"
+#~ msgstr ""
+
+#: src/components/system-map/FollowPlan.tsx:327
+#: src/lib/system-plan.ts:38
+msgid "Waiting for trigger"
+msgstr "트리거 대기"
+
+#: src/app/screens/SystemView.tsx:479
+#~ msgid "Walk the map one decision at a time and check each against the active rules."
+#~ msgstr "맵을 결정 하나씩 따라가며 활성 규칙과 대조하세요."
+
+#: src/components/system-map/EvidenceTimeline.tsx:41
+#: src/components/system-map/EvidenceTimeline.tsx:250
+msgid "Weakens"
+msgstr "약화"
 
 #: src/app/drawers/NewNoteDrawer.tsx:92
 #: src/app/screens/NotesView.tsx:71
@@ -332,19 +2216,202 @@ msgstr "주간 리뷰"
 msgid "Weekly review alerts"
 msgstr "주간 리뷰 알림"
 
-#: src/app/drawers/NewNoteDrawer.tsx:110
+#: src/app/drawers/NewNoteDrawer.tsx:112
 msgid "Weekly review updated"
 msgstr "주간 리뷰를 업데이트했습니다"
+
+#: src/components/system-map/EvidenceTimeline.tsx:241
+#: src/components/system-map/EvidenceTimeline.tsx:243
+msgid "What it does to the rule"
+msgstr "규칙에 미치는 영향"
+
+#: src/components/system-map/FollowPlan.tsx:860
+msgid "What proves the idea wrong"
+msgstr "이 생각이 틀렸음을 보여주는 것"
+
+#: src/lib/system.ts:83
+msgid "What qualifies? What will I never trade, even if it is going up?"
+msgstr "무엇이 대상인가? 오르더라도 절대 거래하지 않을 것은?"
+
+#: src/lib/system.ts:149
+msgid "What to do in each state: hold, trim, take profit, stop out, exit."
+msgstr "상태별 행동: 보유, 축소, 익절, 손절, 청산."
+
+#: src/lib/system.ts:137
+msgid "What to watch after entry: structure, relative strength, sector, levels, catalysts."
+msgstr "진입 후 볼 것: 구조, 상대강도, 업종, 레벨, 촉매."
+
+#: src/components/system-map/EvidenceTimeline.tsx:256
+#~ msgid "What you saw"
+#~ msgstr "본 것"
+
+#: src/components/system-map/FollowPlan.tsx:714
+msgid "What you saw (optional)"
+msgstr "그때 본 것(선택)"
+
+#: src/components/system-map/FollowPlan.tsx:708
+msgid "What you saw for {title}"
+msgstr "{title}에서 본 것"
+
+#: src/components/system-map/EvidenceTimeline.tsx:317
+#: src/components/system-map/EvidenceTimeline.tsx:325
+#: src/components/system-map/PlanDialogs.tsx:114
+#: src/components/system-map/PlanDialogs.tsx:122
+msgid "When"
+msgstr "언제"
+
+#: src/lib/system.ts:62
+msgid "When and what you trade."
+msgstr "언제, 무엇을 거래할지."
+
+#: src/lib/system.ts:77
+msgid "When do I trade actively, cut risk, or stop trading?"
+msgstr "언제 적극 거래하고, 위험을 줄이고, 거래를 멈출까?"
+
+#: src/components/system-map/SystemMapList.tsx:102
+msgid "When entry conditions aren't met, you keep watching — that's a branch, not a failure."
+msgstr "진입 조건이 안 되면 계속 관찰 — 실패가 아니라 분기입니다."
+
+#: src/components/system-map/EvidenceTimeline.tsx:337
+#: src/components/system-map/PlanDialogs.tsx:133
+#: src/components/system-map/PlanDialogs.tsx:136
+msgid "When it happened"
+msgstr "그때가 언제였는지"
+
+#: src/lib/system.ts:167
+msgid "Which lessons are worth a rule change, and which are just normal variance?"
+msgstr "어떤 교훈이 규칙 변경 가치이고, 어떤 것은 평범한 변동인가?"
+
+#: src/lib/system.ts:125
+msgid "Which new evidence justifies adding, and which justifies trimming?"
+msgstr "어떤 새 근거로 추가하고, 어떤 근거로 축소할까?"
+
+#: src/lib/system.ts:155
+msgid "Which numbers tell me the system is working — by market, setup and adherence?"
+msgstr "어떤 숫자가 시스템이 통한다고 말하는가 — 시장·셋업·준수도별?"
+
+#: src/lib/system.ts:95
+msgid "Which objective event makes me actually buy? Before it happens, do I know I do nothing?"
+msgstr "어떤 객관적 사건이 실제로 매수하게 하나? 그 전엔 아무것도 안 한다는 걸 아는가?"
+
+#: src/lib/system.ts:89
+msgid "Which price structure must exist before I prepare a trade?"
+msgstr "거래를 준비하기 전에 어떤 가격 구조가 있어야 하나?"
+
+#: src/components/system-map/FollowPlan.tsx:784
+#: src/components/system-map/PlanDialogs.tsx:147
+msgid "Why this, why now"
+msgstr "왜 이것인지, 왜 지금인지"
 
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
 msgid "Win rate"
 msgstr "승률"
 
+#: src/lib/system.ts:156
+msgid "Win rate, average win/loss, expectancy in R, results by regime and by setup."
+msgstr "승률, 평균 손익, R 기대값, 레짐·셋업별 결과."
+
+#: src/app/screens/SystemReviewPanel.tsx:171
+msgid "Win%"
+msgstr "승률%"
+
+#: src/app/screens/SystemReviewPanel.tsx:49
+msgid "With adherence"
+msgstr "준수도 포함"
+
+#: src/app/screens/SystemReviewPanel.tsx:48
+msgid "With regime"
+msgstr "레짐 포함"
+
+#: src/components/system-map/EvidenceTimeline.tsx:363
+#: src/components/system-map/EvidenceTimeline.tsx:444
+msgid "Withdraw"
+msgstr "철회"
+
+#: src/components/system-map/EvidenceTimeline.tsx:361
+msgid "Withdraw this note"
+msgstr "이 기록 철회"
+
+#. placeholder {0}: fmtDateTime(entry.withdrawn_at)
+#. placeholder {1}: entry.withdraw_reason
+#: src/components/system-map/EvidenceTimeline.tsx:436
+msgid "Withdrawn {0} · {1}"
+msgstr "{0}에 철회 · {1}"
+
 #: src/app/screens/PublicShareView.tsx:315
 msgid "Worst day"
 msgstr "최악의 날"
 
-#: src/app/drawers/NewNoteDrawer.tsx:195
+#: src/components/system-map/FollowPlan.tsx:441
+msgid "Write a plan before the fill, then walk the map and answer each rule."
+msgstr "체결 전에 계획을 쓰고, 지도를 따라 각 규칙에 답하세요."
+
+#: src/components/system-map/FollowTradeInspector.tsx:80
+msgid "Write a plan before the fill: setup, trigger, prices, and an answer for each rule. Link the trade once it fills."
+msgstr "체결 전에 계획을 쓰세요. 셋업, 트리거, 가격, 그리고 각 규칙의 답입니다. 체결되면 거래를 연결하세요."
+
+#: src/components/system-map/FollowTradeInspector.tsx:125
+msgid "Write a rule to turn it into conditions you can tick off."
+msgstr "규칙으로 써서 체크할 수 있는 조건으로 만드세요."
+
+#: src/components/system-map/PlanDialogs.tsx:77
+msgid "Write it before the fill. It's checked against {versionLabel}, and every save adds a revision instead of overwriting the last one."
+msgstr "체결 전에 쓰세요. {versionLabel}과 대조되고, 저장할 때마다 수정이 추가되어 이전 내용을 덮어쓰지 않습니다."
+
+#: src/app/screens/SystemView.tsx:178
+msgid "Write rules"
+msgstr "규칙 작성"
+
+#: src/app/screens/SystemView.tsx:73
+#~ msgid "Write the rules you trade by on the map, follow them trade by trade, and let the results tell you which rules to keep."
+#~ msgstr ""
+
+#: src/lib/system.ts:299
+msgid "Write v1.0"
+msgstr "v1.0 작성"
+
+#: src/components/system-map/FollowPlan.tsx:301
+msgid "Written after the fact"
+msgstr "사후 기록"
+
+#: src/components/system-map/EvidenceTimeline.tsx:50
+#: src/lib/system.ts:234
+msgid "Wrong"
+msgstr "틀림"
+
+#: src/lib/system.ts:150
+msgid "Wrong → exit; finished → take at least half; not working past time stop → exit."
+msgstr "틀림 → 청산; 완료 → 최소 절반 익절; 시간 지나도 안 통함 → 청산."
+
+#: src/lib/system.ts:144
+msgid "Wrong = close under the stop structure; not working = flat past planned hold with no follow-through."
+msgstr "틀림=손절 구조 아래 마감; 안 통함=계획 보유를 지나도 추종 없는 횡보."
+
+#: src/lib/system.ts:143
+msgid "Wrong, still working, not working, or finished — how do I tell them apart?"
+msgstr "틀림, 아직 통함, 안 통함, 완료 — 어떻게 구분할까?"
+
+#: src/components/TradeSystemCard.tsx:121
+msgid "Yes"
+msgstr "예"
+
+#: src/app/screens/SystemView.tsx:239
+msgid "Your draft has edits that aren't saved. Leaving now discards them."
+msgstr "초안에 저장되지 않은 편집이 있습니다. 지금 나가면 폐기됩니다."
+
+#: src/app/screens/SystemView.tsx:238
+msgid "Your plan has edits that aren't saved as a revision. Leaving now discards them."
+msgstr "계획 편집이 아직 수정으로 저장되지 않았습니다. 지금 나가면 버려집니다."
+
+#: src/components/system-map/FollowTradeInspector.tsx:86
+msgid "Your rule"
+msgstr "내 규칙"
+
+#: src/components/system-map/FollowTradeInspector.tsx:86
+msgid "Your rules"
+msgstr "내 규칙"
+
+#: src/app/drawers/NewNoteDrawer.tsx:197
 msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
 msgstr "한 주의 숫자, 그리고 잘된 점, 안 된 점, 다음 주의 초점."

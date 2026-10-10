@@ -1,22 +1,56 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-07-11 20:58+0800\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Generator: @lingui/cli\n"
-"Language: ja\n"
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Plural-Forms: \n"
+
+#: src/components/TradeSystemCard.tsx:106
+#: src/components/TradeSystemCard.tsx:120
+#: src/components/TradeSystemCard.tsx:132
+#: src/components/TradeSystemCard.tsx:166
+#: src/components/TradeSystemCard.tsx:180
+msgid "—"
+msgstr "—"
+
+#. placeholder {0}: plan.symbol
+#. placeholder {1}: directionLabel(plan.direction)
+#. placeholder {2}: plan.version_label || "—"
+#: src/components/system-map/FollowPlan.tsx:1002
+msgid "{0} · {1} · {2}"
+msgstr "{0} · {1} · {2}"
+
+#. placeholder {0}: selectedVersion.label
+#. placeholder {1}: decisions.length
+#: src/app/screens/SystemView.tsx:582
+#~ msgid "{0} · {1} decisions"
+#~ msgstr ""
+
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:667
+msgid "{0} · draft"
+msgstr "{0} · 下書き"
+
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:666
+msgid "{0} · read-only"
+msgstr "{0} · 読み取り専用"
+
+#. placeholder {0}: step.progress
+#. placeholder {1}: step.target
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "{0} / {1}"
+msgstr "{0} / {1}"
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:198
 msgid "{0} days in the market"
 msgstr "市場にいた日数 {0}日"
+
+#. placeholder {0}: check.answered
+#. placeholder {0}: data.check.answered
+#. placeholder {1}: check.total
+#. placeholder {1}: data.check.total
+#: src/components/system-map/FollowPlan.tsx:1008
+#: src/components/system-map/SystemNode.tsx:182
+msgid "{0} of {1} checked"
+msgstr "{1} 件中 {0} 件を確認"
 
 #. placeholder {0}: s.total_trades
 #. placeholder {0}: sym.trades
@@ -30,17 +64,220 @@ msgstr "{0}件のトレード"
 msgid "{0} win rate"
 msgstr "勝率 {0}"
 
+#. placeholder {0}: copy.title
+#. placeholder {1}: step.progress
+#. placeholder {2}: step.target
+#: src/components/system-map/PlanStepper.tsx:60
+msgid "{0}: {1} of {2}"
+msgstr "{0}：{2} 件中 {1} 件"
+
+#. placeholder {0}: plan.length
+#: src/components/system-map/PlanStepper.tsx:45
+msgid "{doneCount} of {0} steps done"
+msgstr "{0} ステップ中 {doneCount} ステップ完了"
+
+#. placeholder {0}: n.decisions.length
+#: src/components/system-map/SystemMap.tsx:121
+#~ msgid "{filled} of {0} written"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:141
+msgid "{filled} of {total} decisions written"
+msgstr "{filled}/{total} の判断を記入済み"
+
+#: src/components/system-map/FollowPlan.tsx:876
+msgid "{from} → {to}"
+msgstr "{from} → {to}"
+
+#. placeholder {0}: checkLabel(check.state)
+#. placeholder {1}: check.answered
+#. placeholder {2}: check.total
+#: src/components/system-map/SystemMap.tsx:131
+msgid "{title}: {0}, {1} of {2} checked"
+msgstr "{title}：{0}、{2} 件中 {1} 件を確認"
+
+#. placeholder {0}: clarityLabel(clarity)
+#. placeholder {1}: n.decisions.length
+#: src/components/system-map/SystemMap.tsx:132
+msgid "{title}: {0}, {filled} of {1} written"
+msgstr "{title}：{0}、{filled}/{1} 記入済み"
+
 #: src/app/screens/PublicShareView.tsx:223
 msgid "1.0 = break-even"
 msgstr "1.0 = 損益分岐"
+
+#: src/lib/system.ts:108
+msgid "1% of equity per trade at full size; 0.5% when the setup is only a B."
+msgstr "フルサイズは1トレードあたり資金の1%。Bセットアップのみのときは0.5%。"
 
 #: src/app/screens/settings/backups-section.tsx:94
 msgid "A backup is already running"
 msgstr "バックアップはすでに実行中です"
 
+#: src/lib/system.ts:90
+msgid "A base of at least 3 weeks after a 30% advance, the last pullback under 10% on falling volume."
+msgstr "30%上昇後に最低3週間のベース。最後の押し目は出来高減で10%未満。"
+
+#: src/lib/system-plan.ts:222
+msgid "A long needs its stop below entry."
+msgstr "ロングは損切りをエントリーより下に置く。"
+
+#: src/lib/system-plan.ts:230
+msgid "A long needs its target above entry."
+msgstr "ロングは目標をエントリーより上に置く。"
+
+#. placeholder {0}: version.label
+#: src/app/screens/SystemView.tsx:850
+msgid "A short name makes versions easier to tell apart. The version number stays {0}, and the rules don't change."
+msgstr "短い名前があると版を見分けやすい。版番号は {0} のまま、ルールは変わりません。"
+
+#: src/lib/system-plan.ts:225
+msgid "A short needs its stop above entry."
+msgstr "ショートは損切りをエントリーより上に置く。"
+
+#: src/lib/system-plan.ts:233
+msgid "A short needs its target below entry."
+msgstr "ショートは目標をエントリーより下に置く。"
+
+#: src/components/system-map/FollowPlan.tsx:1055
+msgid "A trade is linked. New revisions are marked after the fill; what you wrote before stays as it was."
+msgstr "取引をリンクしました。これ以降の改訂は約定後になり、約定前に書いた内容はそのまま残ります。"
+
+#: src/components/system-map/PlanStepper.tsx:31
+msgid "About the four-week plan"
+msgstr "4週間プランについて"
+
+#: src/components/system-map/EvidenceTimeline.tsx:284
+#: src/components/system-map/EvidenceTimeline.tsx:286
+#: src/lib/system.ts:148
+msgid "Action"
+msgstr "アクション"
+
+#: src/app/screens/SystemView.tsx:606
+#: src/app/screens/SystemView.tsx:1021
+msgid "Activate"
+msgstr "有効化"
+
+#. placeholder {0}: draft ? versionTitle(draft) : ""
+#: src/app/screens/SystemView.tsx:957
+msgid "Activate {0}"
+msgstr "{0} を有効化"
+
+#: src/components/system-map/FollowPlan.tsx:290
+#: src/components/system-map/FollowTradeInspector.tsx:61
+msgid "Activate a version before planning trades"
+msgstr "取引を計画する前にバージョンを有効にしてください"
+
+#: src/components/system-map/FollowTradeInspector.tsx:81
+msgid "Activate a version first — plans are checked against the rules in use."
+msgstr "先にバージョンを有効にしてください。計画は使用中のルールと照合されます。"
+
+#: src/lib/system.ts:315
+#~ msgid "Activate the next version after the live run. A saved review decision comes later — this step only tracks that you revised."
+#~ msgstr "ライブ運用のあとに次の版を有効化。保存済みの振り返り判断は後から——この段階は改訂したことだけを追います。"
+
+#: src/components/system-map/FollowPlan.tsx:945
+#: src/components/system-map/FollowPlan.tsx:946
+msgid "Activity"
+msgstr "履歴"
+
+#: src/components/system-map/EvidenceTimeline.tsx:63
+msgid "Add"
+msgstr "増し玉"
+
+#: src/lib/system.ts:126
+msgid "Add only when relative strength makes a new high with the index; trim when the thesis is intact but time is half gone."
+msgstr "相対強度が指数と共に高値更新したときだけ追加。仮説は生きているが時間が半分過ぎたら縮小。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:306
+msgid "Adding or trimming is a note. It is not an order, and it is not marked as breaking a rule."
+msgstr "増し玉や縮小は記録であり、発注ではありません。ルール違反にもなりません。"
+
+#: src/app/screens/SystemReviewPanel.tsx:136
+msgid "Adequate"
+msgstr "十分"
+
+#: src/components/TradeSystemCard.tsx:175
+msgid "Adherence"
+msgstr "遵守"
+
+#: src/app/screens/SystemReviewPanel.tsx:51
+msgid "Adherence rate"
+msgstr "遵守率"
+
+#: src/lib/system.ts:166
+msgid "Adjust"
+msgstr "調整"
+
+#: src/components/system-map/FollowPlan.tsx:101
+msgid "After fill"
+msgstr "約定後"
+
+#: src/components/system-map/EvidenceTimeline.tsx:332
+#: src/components/system-map/EvidenceTimeline.tsx:423
+#: src/components/system-map/PlanDialogs.tsx:128
+msgid "After the fact"
+msgstr "事後に記録"
+
+#: src/components/system-map/PlanDialogs.tsx:275
+msgid "Already confirms another plan"
+msgstr "別の計画をすでに確認しています"
+
+#: src/components/system-map/RuleEditor.tsx:144
+#~ msgid "Ambiguous, conflicting or missing cases ({part})"
+#~ msgstr ""
+
+#: src/lib/system.ts:291
+msgid "Another reason — say which evidence."
+msgstr "その他の理由——根拠を書く。"
+
+#: src/lib/system.ts:300
+msgid "Answer all 16 decisions so someone else would decide the same, then activate."
+msgstr "16の判断をすべて書き、他の人でも同じ結論になるようにしてから有効化。"
+
+#: src/components/system-map/FollowPlan.tsx:692
+msgid "Answer for {title}"
+msgstr "{title}の回答"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "適用"
+
+#: src/lib/system.ts:102
+msgid "At most 6% open risk; cut to 3% in defensive markets."
+msgstr "オープンリスクは最大6%。防御相場では3%へ。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:331
+msgid "At the time"
+msgstr "その時点"
+
+#: src/components/system-map/FollowTradeInspector.tsx:85
+#~ msgid "Attach a trade to check conditions against this rule"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:394
+#~ msgid "Attach an opportunity in Phase C — layout matches the follow inspector now."
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:45
+#~ msgid "Available when a trade is attached (Phase C–E)"
+#~ msgstr ""
+
+#: src/components/system-map/PlanDialogs.tsx:218
+msgid "Back"
+msgstr "戻る"
+
+#: src/components/system-map/FollowPlan.tsx:1046
+msgid "Back to latest"
+msgstr "最新に戻る"
+
+#: src/components/system-map/FollowPlan.tsx:339
+msgid "Back to planned"
+msgstr "計画中に戻す"
+
+#: src/app/screens/SystemView.tsx:170
+#~ msgid "Back to write rules"
+#~ msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:149
 msgid "Back up now"
@@ -74,21 +311,270 @@ msgstr "バックアップは最新です"
 msgid "Backups are overdue"
 msgstr "バックアップが遅れています"
 
+#: src/components/system-map/FollowPlan.tsx:101
+msgid "Before fill"
+msgstr "約定前"
+
 #: src/app/screens/PublicShareView.tsx:308
 msgid "Best day"
 msgstr "最高の日"
+
+#: src/lib/system-plan.ts:121
+msgid "Breaks a rule"
+msgstr "ルールに反する"
+
+#: src/app/screens/SystemReviewPanel.tsx:72
+msgid "Broke rules · lost"
+msgstr "ルール破り · 負け"
+
+#: src/app/screens/SystemReviewPanel.tsx:71
+msgid "Broke rules · won"
+msgstr "ルール破り · 勝ち"
+
+#: src/lib/system.ts:96
+msgid "Buy only on a break and hold above the pivot with volume above the 50-day average."
+msgstr "ピボットを出来高伴ってブレイク＆ホールドしたときだけ買う。出来高は50日平均超。"
+
+#: src/app/screens/SystemReviewPanel.tsx:104
+msgid "By adherence"
+msgstr "遵守別"
+
+#: src/app/screens/SystemReviewPanel.tsx:101
+msgid "By exit state"
+msgstr "エグジット状態別"
+
+#: src/app/screens/SystemReviewPanel.tsx:99
+msgid "By market"
+msgstr "相場別"
+
+#: src/app/screens/SystemReviewPanel.tsx:100
+msgid "By setup"
+msgstr "セットアップ別"
+
+#: src/app/screens/SystemReviewPanel.tsx:102
+msgid "By trade type"
+msgstr "取引タイプ別"
+
+#: src/app/screens/SystemReviewPanel.tsx:103
+msgid "By version"
+msgstr "版別"
 
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "カレンダー"
 
+#: src/app/screens/SystemView.tsx:882
+#: src/app/screens/SystemView.tsx:1006
+#: src/components/system-map/EvidenceTimeline.tsx:218
+#: src/components/system-map/PlanDialogs.tsx:154
+#: src/components/system-map/PlanDialogs.tsx:346
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: src/app/screens/SystemView.tsx:592
+msgid "Cancel edits"
+msgstr "編集を取り消す"
+
+#: src/components/system-map/FollowPlan.tsx:629
+msgid "Cancel plan"
+msgstr "計画を取り消す"
+
+#: src/components/system-map/FollowPlan.tsx:429
+msgid "Cancel plan…"
+msgstr "計画を取り消す…"
+
+#: src/components/system-map/FollowPlan.tsx:627
+msgid "Cancel this plan?"
+msgstr "この計画を取り消しますか？"
+
+#: src/lib/system-plan.ts:44
+msgid "Cancelled"
+msgstr "取り消し"
+
+#: src/components/system-map/FollowPlan.tsx:1103
+msgid "Cancelled — no trade."
+msgstr "取り消し——取引なし。"
+
+#: src/lib/system.ts:305
+msgid "Card past or backtest trades against the rules; note ambiguous, conflicting or missing cases."
+msgstr "過去／バックテストのトレードをルールに照らし、曖昧・矛盾・欠落を記録。"
+
+#: src/app/screens/SystemReviewPanel.tsx:47
+msgid "Carded"
+msgstr "カード済み"
+
+#: src/components/system-map/RuleEditor.tsx:189
+msgid "Cases your rules don't settle yet — ambiguous, conflicting or missing."
+msgstr "ルールがまだ決着しないケース——曖昧・矛盾・欠落。"
+
+#. placeholder {0}: Math.round(review.streak.chance * 100)
+#: src/app/screens/SystemReviewPanel.tsx:79
+msgid "Chance of this run given recent win rate: {0}%."
+msgstr "直近勝率から見たこの結果の確率：{0}%。"
+
+#: src/lib/system.ts:168
+msgid "Change a rule only with enough trades behind it; a single normal loss changes nothing."
+msgstr "十分なトレード数があってからルールを変える。普通の1敗では変えない。"
+
+#. placeholder {0}: version.label
+#: src/components/system-map/FollowPlan.tsx:1118
+msgid "Check against {0}"
+msgstr "{0} と照合"
+
+#. placeholder {0}: detail.version_label || "—"
+#. placeholder {1}: detail.latest?.seq ?? 0
+#: src/components/system-map/FollowPlan.tsx:305
+msgid "Checked against {0} · revision {1}"
+msgstr "{0} と照合 · 改訂 {1}"
+
 #: src/app/screens/settings/backups-section.tsx:158
 msgid "Checking…"
 msgstr "確認中…"
 
+#: src/components/system-map/FollowTradeInspector.tsx:102
+#~ msgid "Checks unlock when Follow trade has a linked opportunity (Phase C)."
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:63
+msgid "Clear"
+msgstr "クリア"
+
+#: src/app/screens/SystemReviewPanel.tsx:46
+msgid "Closed"
+msgstr "決済済み"
+
+#. placeholder {0}: fmtDateTime(plan.trade.closed_at)
+#: src/components/system-map/FollowPlan.tsx:1084
+msgid "closed {0}"
+msgstr "{0} に決済"
+
+#: src/lib/system.ts:119
+msgid "Concentration, correlation, gap, liquidity and slippage across all positions."
+msgstr "全ポジションの集中度・相関・ギャップ・流動性・スリッページ。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:110
+msgid "Condition check"
+msgstr "条件チェック"
+
+#: src/components/system-map/SystemMap.tsx:57
+msgid "Conditions not met"
+msgstr "条件未達"
+
+#: src/components/system-map/SystemMapList.tsx:95
+#~ msgid "Conditions not met → keep watching is a branch of Entry, not a failure."
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:112
+msgid "Conditions to confirm"
+msgstr "確認する条件"
+
+#: src/components/system-map/SystemMap.tsx:55
+msgid "Confirm trigger"
+msgstr "トリガー確認"
+
+#: src/app/screens/SystemView.tsx:134
+msgid "Connect rules, decisions, and evidence."
+msgstr "ルール・判断・根拠をつなぐ。"
+
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
 msgstr "一貫性"
+
+#: src/components/system-map/EvidenceTimeline.tsx:441
+msgid "Correct"
+msgstr "訂正"
+
+#: src/components/system-map/EvidenceTimeline.tsx:207
+msgid "Correcting this note. The earlier wording stays."
+msgstr "この記録を訂正しています。以前の文言は残ります。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:144
+msgid "Correction saved"
+msgstr "訂正を保存しました"
+
+#: src/app/screens/SystemView.tsx:802
+msgid "Could not activate"
+msgstr "有効化できませんでした"
+
+#: src/components/system-map/FollowPlan.tsx:513
+msgid "Could not create the plan"
+msgstr "計画を作成できませんでした"
+
+#: src/app/screens/SystemView.tsx:767
+msgid "Could not discard"
+msgstr "破棄できませんでした"
+
+#: src/components/system-map/FollowPlan.tsx:562
+msgid "Could not link"
+msgstr "リンクできませんでした"
+
+#: src/components/system-map/EvidenceTimeline.tsx:163
+msgid "Could not load evidence."
+msgstr "証拠を読み込めませんでした。"
+
+#: src/app/screens/SystemReviewPanel.tsx:28
+msgid "Could not load the review"
+msgstr "振り返りを読み込めませんでした"
+
+#: src/app/screens/SystemView.tsx:190
+msgid "Could not load the system"
+msgstr "システムを読み込めませんでした"
+
+#: src/components/system-map/PlanDialogs.tsx:323
+msgid "Could not load trades."
+msgstr "取引を読み込めませんでした。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:148
+msgid "Could not record evidence"
+msgstr "証拠を記録できませんでした"
+
+#: src/app/screens/SystemView.tsx:837
+msgid "Could not rename"
+msgstr "名前を変更できませんでした"
+
+#: src/app/screens/SystemView.tsx:619
+#: src/app/screens/SystemView.tsx:736
+#: src/components/system-map/FollowPlan.tsx:238
+#: src/components/TradeSystemCard.tsx:88
+msgid "Could not save"
+msgstr "保存できませんでした"
+
+#: src/components/MarketRegimeCard.tsx:38
+msgid "Could not save regime"
+msgstr "レジームを保存できませんでした"
+
+#: src/app/screens/SystemView.tsx:367
+#: src/app/screens/SystemView.tsx:564
+msgid "Could not start"
+msgstr "開始できませんでした"
+
+#: src/components/system-map/FollowPlan.tsx:539
+msgid "Could not unlink"
+msgstr "リンクを解除できませんでした"
+
+#: src/components/system-map/FollowPlan.tsx:252
+msgid "Could not update"
+msgstr "更新できませんでした"
+
+#: src/components/system-map/EvidenceTimeline.tsx:380
+msgid "Could not withdraw"
+msgstr "取り下げできませんでした"
+
+#: src/app/screens/SystemReviewPanel.tsx:59
+msgid "Counted in range only — not in the adherence rate (no version on misses yet)."
+msgstr "期間内の件数のみ——遵守率には含めない（見逃しに版がまだ付かない）。"
+
+#: src/app/screens/SystemReviewPanel.tsx:44
+msgid "Coverage"
+msgstr "カバレッジ"
+
+#: src/components/system-map/PlanDialogs.tsx:157
+msgid "Create plan"
+msgstr "計画を作成"
+
+#: src/components/system-map/PlanDialogs.tsx:157
+msgid "Creating…"
+msgstr "作成中…"
 
 #: src/app/screens/PublicShareView.tsx:272
 msgid "Cumulative net P&L over the shared period."
@@ -102,6 +588,10 @@ msgstr "累積損益曲線"
 msgid "Cumulative P&L shape — amounts are not shared."
 msgstr "累積損益の形状 — 金額は共有されていません。"
 
+#: src/lib/system.ts:138
+msgid "Daily close under the 10-day and sector lagging for two sessions weakens the thesis."
+msgstr "終値が10日線下、セクターが2セッション遅れなら仮説は弱まる。"
+
 #: src/components/AppNav.tsx:31
 #~ msgid "Dashboard"
 #~ msgstr "ダッシュボード"
@@ -111,17 +601,193 @@ msgstr "累積損益の形状 — 金額は共有されていません。"
 msgid "days in a row"
 msgstr "連続日数"
 
+#: src/components/system-map/EvidenceTimeline.tsx:223
+#: src/components/system-map/EvidenceTimeline.tsx:225
+msgid "Decision"
+msgstr "判断"
+
+#. placeholder {0}: decisionCopy(decisions[0]).title
+#: src/app/screens/SystemView.tsx:584
+#~ msgid "Decision · {0}"
+#~ msgstr ""
+
+#. placeholder {0}: decisionIndex(d)
+#. placeholder {0}: decisionIndex(id)
+#. placeholder {1}: copy.title
+#. placeholder {1}: decisionCopy(d).title
+#: src/components/system-map/FollowTradeInspector.tsx:93
+#: src/components/system-map/RuleEditor.tsx:46
+msgid "Decision {0} · {1}"
+msgstr "判断 {0} · {1}"
+
+#. placeholder {0}: decisionIndex(decision)
+#: src/components/system-map/FollowPlan.tsx:675
+msgid "Decision {0} · {title}"
+msgstr "判断 {0} · {title}"
+
+#: src/lib/system.ts:203
+msgid "Defensive"
+msgstr "防御"
+
+#: src/app/screens/SystemView.tsx:391
+#~ msgid "Demo shell"
+#~ msgstr ""
+
+#: src/lib/system.ts:269
+msgid "Did not move or remove the stop or target off-plan"
+msgstr "計画外にストップや目標を動かしたり外したりしていない"
+
 #: src/app/screens/settings/backups-section.tsx:207
 msgid "Directory"
 msgstr "保存先"
 
-#: src/app/drawers/NewNoteDrawer.tsx:187
+#: src/app/screens/SystemView.tsx:919
+#: src/components/system-map/FollowPlan.tsx:592
+msgid "Discard"
+msgstr "破棄"
+
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:745
+msgid "Discard {0}?"
+msgstr "{0} を破棄しますか？"
+
+#: src/app/screens/SystemView.tsx:257
+msgid "Discard and leave"
+msgstr "破棄して離れる"
+
+#: src/app/screens/SystemView.tsx:583
+#: src/app/screens/SystemView.tsx:771
+msgid "Discard draft"
+msgstr "下書きを破棄"
+
+#: src/components/system-map/FollowPlan.tsx:374
+msgid "Discard edits"
+msgstr "編集を破棄"
+
+#: src/app/screens/SystemView.tsx:523
+#~ msgid "Discard this draft? This cannot be undone."
+#~ msgstr ""
+
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "Done"
+msgstr "完了"
+
+#: src/app/screens/SystemView.tsx:87
+msgid "Draft"
+msgstr "下書き"
+
+#: src/app/screens/SystemView.tsx:764
+msgid "Draft discarded"
+msgstr "下書きを破棄しました"
+
+#: src/app/screens/SystemView.tsx:617
+msgid "Draft saved"
+msgstr "下書きを保存しました"
+
+#: src/app/screens/SystemView.tsx:365
+msgid "Draft started"
+msgstr "下書きを開始しました"
+
+#: src/components/system-map/SystemMap.tsx:81
+#~ msgid "Drag nodes to rearrange"
+#~ msgstr ""
+
+#: src/components/system-map/SystemMap.tsx:94
+msgid "Drag to rearrange"
+msgstr "ドラッグして並べ替え"
+
+#: src/lib/system.ts:124
+msgid "Dynamic adjustment"
+msgstr "動的調整"
+
+#: src/components/system-map/FollowPlan.tsx:775
+msgid "e.g. Flat base, 7 weeks"
+msgstr "例：7週間のフラットベース"
+
+#: src/app/screens/SystemView.tsx:869
+msgid "e.g. Trend pullbacks, tighter stops"
+msgstr "例：押し目買い、ストップを詰める"
+
+#: src/components/system-map/RuleEditor.tsx:198
+msgid "e.g. What if the index gaps through the 200-day line?"
+msgstr "例：指数が200日線をギャップで割ったら？"
+
+#: src/components/system-map/EvidenceTimeline.tsx:449
+msgid "Earlier revisions"
+msgstr "以前の改訂"
+
+#: src/components/system-map/FollowTradeInspector.tsx:52
+#~ msgid "Edit draft"
+#~ msgstr ""
+
+#: src/components/system-map/FollowPlan.tsx:1017
+#: src/components/system-map/FollowTradeInspector.tsx:56
+msgid "Edit rules"
+msgstr "ルールを編集"
+
+#: src/app/screens/SystemView.tsx:585
+#~ msgid "Edit the selected node."
+#~ msgstr ""
+
+#: src/app/drawers/NewNoteDrawer.tsx:189
 msgid "Edit weekly review"
 msgstr "週次レビューを編集"
+
+#: src/lib/system.ts:261
+msgid "Entered at a level planned beforehand"
+msgstr "事前に決めた水準でエントリー"
+
+#: src/components/system-map/FollowPlan.tsx:810
+#: src/components/system-map/FollowPlan.tsx:816
+#: src/lib/system.ts:62
+msgid "Entry"
+msgstr "エントリー"
+
+#: src/components/system-map/SystemNode.tsx:46
+msgid "Entry conditions"
+msgstr "エントリー条件"
+
+#: src/components/system-map/FollowPlan.tsx:804
+msgid "Entry, stop and target price the plan in R."
+msgstr "エントリー、損切り、目標で計画の R を出します。"
 
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
 msgstr "{interval}ごと"
+
+#: src/components/system-map/EvidenceTimeline.tsx:155
+#: src/components/system-map/FollowTradeInspector.tsx:130
+msgid "Evidence at the time"
+msgstr "当時の根拠"
+
+#: src/components/system-map/EvidenceTimeline.tsx:256
+msgid "Evidence note"
+msgstr "証拠のメモ"
+
+#: src/components/system-map/EvidenceTimeline.tsx:144
+msgid "Evidence recorded"
+msgstr "証拠を記録しました"
+
+#: src/components/system-map/EvidenceTimeline.tsx:180
+msgid "Evidence while holding"
+msgstr "保有中の証拠"
+
+#: src/lib/system.ts:277
+msgid "Execution error"
+msgstr "執行ミス"
+
+#: src/components/system-map/EvidenceTimeline.tsx:69
+#: src/lib/system.ts:66
+msgid "Exit"
+msgstr "エグジット"
+
+#: src/components/TradeSystemCard.tsx:161
+msgid "Exit state"
+msgstr "エグジット状態"
+
+#: src/lib/system.ts:267
+msgid "Exited by the plan, not by emotion"
+msgstr "感情ではなく計画どおりに決済"
 
 #: src/app/screens/PublicShareView.tsx:250
 msgid "Expectancy"
@@ -136,13 +802,152 @@ msgstr "失敗"
 msgid "Failed {0}"
 msgstr "失敗（{0}）"
 
+#: src/components/system-map/FeedbackEdge.tsx:25
+#: src/components/system-map/SystemMap.tsx:59
+msgid "Feedback to rules"
+msgstr "ルールへのフィードバック"
+
+#: src/app/screens/SystemView.tsx:540
+#~ msgid "fill these first; the rest can wait."
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:54
+#: src/lib/system.ts:241
+msgid "Finished"
+msgstr "完了"
+
+#: src/lib/system.ts:315
+msgid "Finishes only after the write, the history test, and a live run, once you activate the next version. Activating early does not complete it."
+msgstr "執筆、過去の取引での検証、実弾の実行がすべて終わり、次のバージョンを有効にして初めて完了します。早めに有効化しても完了にはなりません。"
+
+#: src/components/system-map/SystemMap.tsx:309
+msgid "Fit"
+msgstr "フィット"
+
+#: src/components/system-map/SystemMap.tsx:306
+msgid "Fit the whole map in view"
+msgstr "マップ全体を表示"
+
+#: src/components/system-map/FollowPlan.tsx:228
+msgid "Fix the prices first"
+msgstr "先に価格を直してください"
+
+#: src/components/system-map/FollowPlan.tsx:1030
+#: src/components/system-map/FollowTradeInspector.tsx:69
+msgid "Follow mode organizes conditions and evidence. It never places orders."
+msgstr "フォローモードは条件と根拠を整理するだけで、注文は出しません。"
+
+#: src/app/screens/SystemView.tsx:179
+msgid "Follow trade"
+msgstr "トレードを追う"
+
+#: src/app/screens/SystemView.tsx:166
+#~ msgid "Follow trade comes next"
+#~ msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:70
+msgid "Followed · lost"
+msgstr "遵守 · 負け"
+
+#: src/app/screens/SystemReviewPanel.tsx:69
+msgid "Followed · won"
+msgstr "遵守 · 勝ち"
+
+#: src/components/system-map/FollowTradeInspector.tsx:43
+msgid "Following {label}"
+msgstr "{label} を追跡中"
+
+#. placeholder {0}: decisionIndex(primary)
+#: src/components/system-map/FollowTradeInspector.tsx:36
+#~ msgid "Following {label} · decision {0}"
+#~ msgstr ""
+
+#: src/components/system-map/PlanStepper.tsx:21
+#: src/components/system-map/PlanStepper.tsx:26
+msgid "Four-week plan"
+msgstr "4週間プラン"
+
+#: src/app/screens/SystemReviewPanel.tsx:66
+msgid "Full adherence vs partial/none, against win vs loss. Wrong-but-won is the dangerous cell."
+msgstr "完全遵守と部分／なしを、勝ち負けと交差。ルール破り勝ちが危険なマス。"
+
+#: src/lib/system.ts:250
+msgid "Fully followed"
+msgstr "完全に遵守"
+
+#: src/app/screens/SystemView.tsx:960
+msgid "Give a reason for each changed decision. The previous active version becomes read-only history."
+msgstr "変えた判断ごとに理由を書く。直前の有効版は読み取り専用の履歴になる。"
+
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
 msgstr "プラスの日"
 
+#: src/app/screens/SystemReviewPanel.tsx:169
+msgid "Group"
+msgstr "グループ"
+
+#. placeholder {0}: fmtDateTime(r.occurred_at)
+#: src/components/system-map/FollowPlan.tsx:927
+msgid "happened {0}"
+msgstr "{0} に発生"
+
+#. placeholder {0}: fmtDateTime(latest.occurred_at)
+#: src/components/system-map/EvidenceTimeline.tsx:431
+msgid "Happened {0}"
+msgstr "{0} に発生"
+
+#: src/app/screens/SystemReviewPanel.tsx:57
+msgid "Hesitated misses"
+msgstr "迷いによる見逃し"
+
+#: src/app/screens/SystemView.tsx:582
+#~ msgid "Historical versions are read-only."
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:426
+#~ msgid "History"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:71
+msgid "Hold"
+msgstr "保有"
+
+#: src/components/system-map/SystemNode.tsx:25
+#~ msgid "Holding"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:50
+msgid "Holding decisions"
+msgstr "保有中の判断"
+
+#: src/lib/system.ts:161
+msgid "How do I judge process apart from outcome?"
+msgstr "結果とは別にプロセスをどう評価する？"
+
+#: src/lib/system.ts:64
+msgid "How much risk each trade and the book carry."
+msgstr "1トレードと口座全体が抱えるリスク。"
+
+#: src/lib/system.ts:66
+msgid "How you read the trade after entry and what you do."
+msgstr "エントリー後の読みと行動。"
+
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
 #~ msgstr "インポート"
+
+#: src/app/screens/SystemView.tsx:85
+msgid "In use"
+msgstr "使用中"
+
+#: src/lib/system.ts:78
+msgid "Index above the 200-day and the 50-day rising = normal; below the 200-day = defensive; more new lows than highs for two weeks = paused."
+msgstr "指数が200日線上かつ50日線上昇＝通常；200日線下＝防御；2週間の新安が新高より多い＝停止。"
+
+#: src/app/screens/SystemReviewPanel.tsx:134
+msgid "Indicative"
+msgstr "参考"
 
 #: src/app/screens/settings/settings-sections.tsx:1170
 #~ msgid "Interface language"
@@ -152,6 +957,15 @@ msgstr "プラスの日"
 #~ msgid "Interface language for TraderMemos."
 #~ msgstr "TraderMemos の表示言語。"
 
+#: src/components/system-map/FollowPlan.tsx:853
+#: src/components/system-map/FollowPlan.tsx:855
+msgid "Invalidation"
+msgstr "無効化条件"
+
+#: src/components/system-map/FollowPlan.tsx:634
+msgid "It goes back to planned so you can revise it and link a fill."
+msgstr "計画中に戻り、改訂して約定をリンクできます。"
+
 #: src/app/screens/PublicShareView.tsx:155
 msgid "It may have expired or been revoked by its owner."
 msgstr "期限切れか、所有者によって取り消された可能性があります。"
@@ -160,9 +974,27 @@ msgstr "期限切れか、所有者によって取り消された可能性があ
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "<0>TraderMemos</0> で記録 — セルフホストのトレードジャーナル"
 
+#: src/app/screens/SystemView.tsx:752
+msgid "Keep draft"
+msgstr "下書きを残す"
+
+#: src/app/screens/SystemView.tsx:244
+#: src/app/screens/SystemView.tsx:916
+#: src/components/system-map/FollowPlan.tsx:580
+msgid "Keep editing"
+msgstr "編集を続ける"
+
+#: src/components/system-map/SystemMap.tsx:153
+msgid "Keep watching"
+msgstr "見守りを続ける"
+
 #: src/app/screens/PublicShareView.tsx:257
 msgid "Kelly"
 msgstr "Kelly"
+
+#: src/components/system-map/PlanDialogs.tsx:212
+msgid "Kept in the plan's history"
+msgstr "計画の履歴に残ります"
 
 #: src/app/screens/settings/settings-sections.tsx:1166
 #~ msgid "Language"
@@ -180,9 +1012,55 @@ msgstr "最終バックアップ"
 msgid "Last backup failed"
 msgstr "前回のバックアップに失敗しました"
 
+#: src/components/system-map/FollowPlan.tsx:934
+msgid "Latest"
+msgstr "最新"
+
 #: src/app/screens/settings/backups-section.tsx:192
 msgid "Latest file"
 msgstr "最新ファイル"
+
+#: src/app/screens/SystemView.tsx:874
+msgid "Leave empty to remove the name."
+msgstr "空にすると名前を削除します。"
+
+#: src/lib/system.ts:243
+msgid "Left for a reason outside the system."
+msgstr "システムの外の理由で決済。"
+
+#: src/components/TradeSystemCard.tsx:209
+msgid "Lesson"
+msgstr "学び"
+
+#: src/components/system-map/FollowTradeInspector.tsx:59
+#~ msgid "Link a trade first to record evidence against it"
+#~ msgstr "根拠を記録するには先にトレードを紐づける"
+
+#: src/components/system-map/EvidenceTimeline.tsx:158
+msgid "Link a trade to record what you saw while holding. A note is your judgment — it is not an order."
+msgstr "取引をリンクすると、保有中に見たことを記録できます。記録はあなたの判断であり、発注ではありません。"
+
+#: src/components/system-map/PlanDialogs.tsx:315
+msgid "Link the trade that filled this plan"
+msgstr "この計画を約定した取引をリンク"
+
+#: src/components/system-map/FollowPlan.tsx:355
+#: src/components/system-map/PlanDialogs.tsx:354
+msgid "Link trade"
+msgstr "取引をリンク"
+
+#: src/components/system-map/FollowPlan.tsx:871
+msgid "Linked a trade"
+msgstr "取引をリンクしました"
+
+#: src/lib/system.ts:84
+msgid "Liquid names above $10 with average volume over 1M; no biotech binary events."
+msgstr "株価$10超・平均出来高100万超の流動銘柄。バイオの二値イベントは除外。"
+
+#: src/components/system-map/PlanDialogs.tsx:32
+#: src/components/system-map/PlanDialogs.tsx:107
+msgid "Long"
+msgstr "ロング"
 
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
@@ -192,13 +1070,125 @@ msgstr "最長プラス連続"
 msgid "Longest red streak"
 msgstr "最長マイナス連続"
 
+#. placeholder {0}: review.streak.length
+#: src/app/screens/SystemReviewPanel.tsx:78
+msgid "Losing streak ({0})"
+msgstr "連敗（{0}）"
+
+#: src/lib/system.ts:288
+msgid "Losses were too large too often. Change the sizing rules."
+msgstr "損失が大きすぎ・多すぎ。サイズ規則を変える。"
+
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Manual only"
 msgstr "手動のみ"
 
+#: src/components/system-map/PlanDialogs.tsx:118
+msgid "Marked as written after the fact, so it never passes for a plan made in advance."
+msgstr "事後の記録として残り、事前の計画にはなりません。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:321
+msgid "Marked as written after the fact. The earlier note stays."
+msgstr "事後の記録として示します。以前の記録は残ります。"
+
+#: src/components/system-map/SystemNode.tsx:19
+#~ msgid "Market"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:44
+#: src/lib/system.ts:76
+msgid "Market environment"
+msgstr "市場環境"
+
+#: src/components/TradeSystemCard.tsx:101
+msgid "Market regime"
+msgstr "市場レジーム"
+
+#: src/components/MarketRegimeCard.tsx:19
+msgid "Market today"
+msgstr "本日の相場"
+
+#: src/lib/system.ts:154
+msgid "Measure"
+msgstr "計測"
+
+#: src/lib/system.ts:68
+msgid "Measure, judge process apart from outcome, adjust."
+msgstr "測り、結果と切り離してプロセスを判断し、調整する。"
+
+#: src/lib/system-plan.ts:119
+msgid "Meets your rules"
+msgstr "ルールを満たす"
+
+#: src/components/system-map/FollowPlan.tsx:702
+#: src/lib/system-plan.ts:69
+msgid "Met"
+msgstr "満たす"
+
+#: src/lib/system.ts:132
+msgid "Momentum swing, 2–3 weeks, targeting the measured move of the base."
+msgstr "モメンタム・スイング、2–3週間。ベースの計測値幅を目標。"
+
+#: src/components/system-map/FollowPlan.tsx:391
+msgid "More plan actions"
+msgstr "その他の操作"
+
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
 msgstr "最多取引"
+
+#: src/app/screens/SystemReviewPanel.tsx:170
+msgid "N"
+msgstr "N"
+
+#: src/components/system-map/FollowPlan.tsx:704
+#: src/components/TradeSystemCard.tsx:123
+#: src/lib/system-plan.ts:73
+msgid "N/A"
+msgstr "該当なし"
+
+#: src/app/screens/SystemView.tsx:862
+msgid "Name"
+msgstr "名前"
+
+#. placeholder {0}: version.label
+#: src/app/screens/SystemView.tsx:847
+msgid "Name {0}"
+msgstr "{0} に名前を付ける"
+
+#. placeholder {0}: stanceLabel(stance)
+#: src/components/system-map/RuleEditor.tsx:153
+#~ msgid "Name for {0}"
+#~ msgstr "{0}の名前"
+
+#: src/components/system-map/RuleEditor.tsx:158
+msgid "Name for {label}"
+msgstr "{label}の名前"
+
+#: src/app/screens/SystemView.tsx:835
+msgid "Name removed"
+msgstr "名前を削除しました"
+
+#: src/components/system-map/RuleEditor.tsx:139
+msgid "Name the three stances your rule switches between."
+msgstr "ルールが切り替える3つのスタンスに名前を付けます。"
+
+#: src/app/screens/SystemView.tsx:533
+#: src/app/screens/SystemView.tsx:534
+msgid "Name this version"
+msgstr "この版に名前を付ける"
+
+#: src/lib/system.ts:283
+msgid "Narrow when this rule or setup may be used."
+msgstr "このルール／セットアップを使う条件を狭める。"
+
+#: src/components/system-map/SystemNode.tsx:61
+msgid "Needs clarity"
+msgstr "明確化が必要"
+
+#: src/app/screens/SystemReviewPanel.tsx:172
+msgid "Net"
+msgstr "ネット"
 
 #: src/app/screens/PublicShareView.tsx:182
 msgid "Net P&L"
@@ -208,9 +1198,19 @@ msgstr "純損益"
 msgid "Never"
 msgstr "なし"
 
+#: src/lib/system.ts:136
+msgid "New evidence"
+msgstr "新しい根拠"
+
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
 #~ msgstr "新規メモ"
+
+#: src/components/system-map/FollowPlan.tsx:294
+#: src/components/system-map/FollowTradeInspector.tsx:65
+#: src/components/system-map/PlanDialogs.tsx:75
+msgid "New plan"
+msgstr "新しい計画"
 
 #: src/components/AppNav.tsx:251
 #~ msgid "New Setup"
@@ -220,13 +1220,142 @@ msgstr "なし"
 #~ msgid "New Trade"
 #~ msgstr "新規トレード"
 
+#: src/components/TradeSystemCard.tsx:122
+msgid "No"
+msgstr "いいえ"
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/PlanDialogs.tsx:327
+msgid "No {0} trades yet. Import or log the fill, then link it here."
+msgstr "{0} の取引はまだありません。約定を取り込んだら、ここでリンクしてください。"
+
+#: src/components/TradeSystemCard.tsx:74
+msgid "No active version stamped yet."
+msgstr "有効版がまだスタンプされていません。"
+
+#: src/components/system-map/FollowPlan.tsx:701
+#: src/lib/system-plan.ts:67
+msgid "No answer"
+msgstr "未回答"
+
 #: src/app/screens/settings/backups-section.tsx:128
 msgid "No backup yet"
 msgstr "まだバックアップはありません"
 
+#: src/app/screens/SystemReviewPanel.tsx:180
+msgid "No data in this range."
+msgstr "この期間にデータがありません。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:120
+#~ msgid "No evidence recorded yet."
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:111
+#~ msgid "No live opportunity is attached yet — the map still shows where this decision sits."
+#~ msgstr ""
+
+#: src/lib/system.ts:120
+msgid "No more than two names in the same theme; skip if the open gap risk on the book exceeds 3%."
+msgstr "同一テーマは2銘柄まで。口座のオープンギャップリスクが3%超なら見送り。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:77
+msgid "No plan open"
+msgstr "開いている計画はありません"
+
+#: src/components/system-map/FollowTradeInspector.tsx:72
+#~ msgid "No rule written for this decision yet. Edit the draft to add one."
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:217
+msgid "No rule yet — select to write one."
+msgstr "まだルールなし——選択して書く。"
+
+#: src/app/screens/SystemView.tsx:357
+msgid "No rules yet"
+msgstr "まだルールがありません"
+
+#: src/components/system-map/FollowTradeInspector.tsx:74
+#~ msgid "No trade linked yet"
+#~ msgstr "トレード未紐づけ"
+
+#: src/components/system-map/FollowPlan.tsx:1104
+msgid "No trade linked yet."
+msgstr "まだ取引はリンクされていません。"
+
+#: src/app/screens/SystemView.tsx:389
+#~ msgid "No trade selected"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:288
+msgid "No versions yet."
+msgstr "まだ版がありません。"
+
 #: src/app/screens/settings/backups-section.tsx:198
 msgid "None"
 msgstr "なし"
+
+#: src/components/system-map/RuleEditor.tsx:197
+msgid "None recorded."
+msgstr "記録なし。"
+
+#: src/lib/system.ts:201
+msgid "Normal"
+msgstr "通常"
+
+#: src/components/MarketRegimeCard.tsx:20
+msgid "Normal and Defensive allow trading; Paused means stand aside."
+msgstr "通常と防御は取引可。停止は見送り。"
+
+#: src/components/system-map/SystemMap.tsx:153
+msgid "Not a failure — wait for the trigger"
+msgstr "失敗ではない——トリガーを待つ"
+
+#: src/lib/system.ts:254
+msgid "Not followed"
+msgstr "未遵守"
+
+#: src/components/system-map/FollowPlan.tsx:703
+#: src/lib/system-plan.ts:71
+msgid "Not met"
+msgstr "満たさない"
+
+#: src/lib/system.ts:238
+msgid "Not proven wrong, but never followed through — time and opportunity cost."
+msgstr "誤りは証明されていないが追随なし——時間と機会費用。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:52
+#: src/lib/system.ts:237
+msgid "Not working"
+msgstr "機能していない"
+
+#: src/components/system-map/SystemNode.tsx:59
+msgid "Not written"
+msgstr "未記入"
+
+#: src/components/system-map/RuleEditor.tsx:64
+msgid "Not written in this version."
+msgstr "この版には書かれていません。"
+
+#: src/components/system-map/FollowPlan.tsx:682
+#: src/components/system-map/FollowTradeInspector.tsx:102
+msgid "Not written yet."
+msgstr "まだ書かれていません。"
+
+#: src/app/screens/SystemView.tsx:989
+msgid "Note (optional)"
+msgstr "メモ（任意）"
+
+#: src/components/system-map/EvidenceTimeline.tsx:377
+msgid "Note withdrawn"
+msgstr "記録を取り下げました"
+
+#: src/components/system-map/EvidenceTimeline.tsx:178
+msgid "Nothing recorded while holding."
+msgstr "保有中の記録はまだありません。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:132
+#~ msgid "Nothing recorded yet. Screenshots and notes captured while following a trade land here."
+#~ msgstr "まだ記録なし。フォロー中のスクショとメモがここに入ります。"
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:285
@@ -234,31 +1363,326 @@ msgstr "なし"
 msgid "of {0} trading days"
 msgstr "取引日 {0}日中"
 
+#: src/lib/system.ts:282
+msgid "Only works in some markets"
+msgstr "一部の相場でしか効かない"
+
+#: src/components/system-map/FollowPlan.tsx:1095
+#: src/components/system-map/PlanDialogs.tsx:288
+msgid "Open"
+msgstr "未決済"
+
+#: src/components/system-map/FollowTradeInspector.tsx:132
+msgid "Open a plan and link the trade. Notes you write while holding show up on Review."
+msgstr "プランを開いて取引をリンクしてください。保有中の記録は振り返りに表示されます。"
+
+#: src/app/screens/SystemView.tsx:283
+msgid "Open a version on the map. Active and retired versions are read-only."
+msgstr "マップで版を開く。有効・引退版は読み取り専用。"
+
+#: src/components/system-map/RuleEditor.tsx:142
+#~ msgid "Open questions"
+#~ msgstr ""
+
+#: src/components/system-map/RuleEditor.tsx:187
+#: src/components/system-map/RuleEditor.tsx:200
+msgid "Open questions · {partTitle}"
+msgstr "未解決の問い · {partTitle}"
+
+#: src/components/system-map/RuleEditor.tsx:121
+#~ msgid "Open questions ({part}) — ambiguous, conflicting or missing cases"
+#~ msgstr ""
+
+#. placeholder {0}: fmtDateTime(plan.trade.opened_at)
+#: src/components/system-map/FollowPlan.tsx:1082
+msgid "Opened {0}"
+msgstr "{0} に建て"
+
+#: src/components/system-map/PlanDialogs.tsx:250
+msgid "Opened before this plan was written"
+msgstr "この計画を書く前に建てています"
+
+#: src/components/system-map/PlanDialogs.tsx:248
+msgid "Opposite side to the plan"
+msgstr "計画と逆の方向"
+
+#: src/lib/system.ts:243
+#: src/lib/system.ts:291
+msgid "Other"
+msgstr "その他"
+
+#: src/components/system-map/FollowPlan.tsx:1074
+msgid "Outcome"
+msgstr "結果"
+
+#: src/lib/system.ts:252
+msgid "Partly followed"
+msgstr "部分的に遵守"
+
+#: src/lib/system.ts:205
+msgid "Paused"
+msgstr "停止"
+
 #: src/app/screens/PublicShareView.tsx:252
 msgid "per trade"
 msgstr "1トレードあたり"
+
+#: src/lib/system.ts:106
+msgid "Per-trade risk"
+msgstr "1トレードのリスク"
+
+#: src/app/screens/SystemView.tsx:167
+#~ msgid "Phase C–E will attach a live opportunity or trade to this map: condition checks, evidence timeline, and confirm-trigger on the Entry node. Write rules first."
+#~ msgstr ""
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/PlanDialogs.tsx:317
+msgid "Pick the {0} trade yourself — nothing is matched automatically. You can unlink it later; both steps stay in the history."
+msgstr "{0} の取引は自分で選んでください。自動では紐づけません。あとから解除でき、どちらも履歴に残ります。"
+
+#: src/components/system-map/FollowPlan.tsx:272
+#: src/components/system-map/FollowPlan.tsx:1060
+msgid "Plan"
+msgstr "計画"
+
+#: src/components/system-map/FollowPlan.tsx:510
+msgid "Plan created"
+msgstr "計画を作成しました"
+
+#: src/components/system-map/FollowPlan.tsx:1026
+msgid "Plan history"
+msgstr "計画の履歴"
+
+#. placeholder {0}: planStatusLabel(status).toLowerCase()
+#: src/components/system-map/FollowPlan.tsx:250
+msgid "Plan marked {0}"
+msgstr "計画を{0}にしました"
+
+#: src/components/system-map/FollowPlan.tsx:873
+msgid "Plan written"
+msgstr "計画を記録しました"
+
+#: src/lib/system-plan.ts:36
+msgid "Planned"
+msgstr "計画中"
+
+#. placeholder {0}: r.toFixed(2)
+#: src/components/system-map/FollowPlan.tsx:804
+msgid "Planned {0}R"
+msgstr "計画 {0}R"
+
+#: src/components/TradeSystemCard.tsx:141
+msgid "Planned hold (days)"
+msgstr "予定保有（日）"
+
+#: src/components/system-map/PlanDialogs.tsx:127
+msgid "Planning now"
+msgstr "今から計画"
 
 #: src/components/AppNav.tsx:38
 #~ msgid "Playbook"
 #~ msgstr "プレイブック"
 
+#: src/lib/system.ts:118
+msgid "Portfolio check"
+msgstr "ポートフォリオ確認"
+
+#: src/lib/system.ts:112
+msgid "Position size"
+msgstr "ポジションサイズ"
+
+#: src/lib/system.ts:64
+msgid "Position sizing"
+msgstr "サイズ決定"
+
+#: src/components/TradeSystemCard.tsx:191
+msgid "Post-trade checklist"
+msgstr "トレード後チェックリスト"
+
+#: src/app/screens/SystemReviewPanel.tsx:65
+msgid "Process × outcome"
+msgstr "プロセス × 結果"
+
 #: src/app/screens/PublicShareView.tsx:208
 msgid "Profit factor"
 msgstr "プロフィットファクター"
+
+#: src/components/system-map/PlanStepper.tsx:40
+msgid "Progress is derived from your data — not a checklist you tick."
+msgstr "進捗はデータから算出——手でチェックするリストではない。"
+
+#: src/components/system-map/SystemMap.tsx:296
+msgid "Put every node back in its original place"
+msgstr "すべてのノードを元の位置へ"
+
+#: src/app/screens/SystemView.tsx:545
+msgid "Read-only"
+msgstr "読み取り専用"
+
+#: src/components/system-map/PlanDialogs.tsx:204
+msgid "Reason"
+msgstr "理由"
+
+#: src/components/system-map/EvidenceTimeline.tsx:351
+msgid "Record"
+msgstr "記録"
+
+#: src/components/system-map/FollowTradeInspector.tsx:62
+#~ msgid "Record evidence"
+#~ msgstr "根拠を記録"
+
+#. placeholder {0}: fmtDateTime(latest.recorded_at)
+#. placeholder {0}: fmtDateTime(r.recorded_at)
+#: src/components/system-map/EvidenceTimeline.tsx:411
+#: src/components/system-map/FollowPlan.tsx:926
+msgid "Recorded {0}"
+msgstr "{0} に記録"
+
+#. placeholder {0}: fmtDateTime(viewing.recorded_at)
+#: src/components/system-map/FollowPlan.tsx:1042
+msgid "Recorded {0}. Read-only — later revisions never change it."
+msgstr "{0} に記録。読み取り専用で、後の改訂では変わりません。"
+
+#: src/components/system-map/PlanDialogs.tsx:117
+msgid "Recorded now, before any fill."
+msgstr "約定の前に、今記録します。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:320
+msgid "Recorded now, while you were in the trade."
+msgstr "いま記録します。保有中に書いたものとして扱います。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:348
+msgid "Recording an action does not place an order."
+msgstr "行動を記録しても発注はされません。"
 
 #: src/app/screens/PublicShareView.tsx:289
 msgid "Red days"
 msgstr "マイナスの日"
 
+#. placeholder {0}: version.label
+#: src/app/screens/SystemView.tsx:847
+msgid "Rename {0}"
+msgstr "{0} の名前を変更"
+
+#: src/app/screens/SystemView.tsx:533
+#: src/app/screens/SystemView.tsx:534
+msgid "Rename this version"
+msgstr "この版の名前を変更"
+
+#: src/components/system-map/FollowPlan.tsx:369
+#: src/components/system-map/FollowPlan.tsx:635
+msgid "Reopen"
+msgstr "再開する"
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/FollowPlan.tsx:633
+msgid "Reopen {0}?"
+msgstr "{0} を再開しますか？"
+
+#: src/app/screens/SystemReviewPanel.tsx:27
+#: src/app/screens/SystemView.tsx:76
+#: src/components/MarketRegimeCard.tsx:39
+#: src/components/system-map/EvidenceTimeline.tsx:34
+#: src/components/system-map/FollowPlan.tsx:91
+#: src/components/TradeSystemCard.tsx:89
+msgid "Request failed"
+msgstr "リクエストに失敗しました"
+
+#: src/components/system-map/SystemMap.tsx:299
+msgid "Reset layout"
+msgstr "レイアウトをリセット"
+
+#: src/app/screens/SystemView.tsx:89
+msgid "Retired"
+msgstr "引退"
+
+#: src/app/screens/SystemView.tsx:194
+msgid "Retry"
+msgstr "再試行"
+
+#: src/app/screens/SystemView.tsx:180
+#: src/lib/system.ts:68
+#: src/lib/system.ts:160
+msgid "Review"
+msgstr "振り返り"
+
+#: src/components/system-map/SystemNode.tsx:52
+msgid "Review & adjust"
+msgstr "振り返りと調整"
+
 #: src/app/screens/NotesView.tsx:61
 msgid "Reviews"
 msgstr "レビュー"
+
+#: src/lib/system.ts:314
+msgid "Revise the version"
+msgstr "版を改訂"
+
+#. placeholder {0}: latest.seq
+#. placeholder {0}: r.seq
+#: src/components/system-map/EvidenceTimeline.tsx:426
+#: src/components/system-map/EvidenceTimeline.tsx:452
+#: src/components/system-map/FollowPlan.tsx:912
+msgid "Revision {0}"
+msgstr "改訂 {0}"
+
+#. placeholder {0}: viewing.seq
+#. placeholder {1}: stageLabel(viewing.stage)
+#: src/components/system-map/FollowPlan.tsx:1039
+msgid "Revision {0} · {1}"
+msgstr "改訂 {0} · {1}"
+
+#. placeholder {0}: p.latest?.seq ?? ""
+#: src/components/system-map/FollowPlan.tsx:235
+msgid "Revision {0} saved"
+msgstr "改訂 {0} を保存しました"
+
+#: src/components/system-map/FollowPlan.tsx:893
+#: src/components/system-map/FollowPlan.tsx:894
+msgid "Revisions"
+msgstr "改訂"
+
+#: src/components/system-map/SystemNode.tsx:48
+msgid "Risk & position"
+msgstr "リスクとポジション"
+
+#: src/components/system-map/SystemNode.tsx:23
+#~ msgid "Risk & size"
+#~ msgstr ""
+
+#: src/lib/system.ts:100
+msgid "Risk budget"
+msgstr "リスク予算"
+
+#: src/lib/system.ts:287
+msgid "Risk too high"
+msgstr "リスクが高すぎる"
+
+#: src/components/system-map/FollowTradeInspector.tsx:63
+#~ msgid "Rule"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:82
+#: src/app/screens/SystemView.tsx:385
+#~ msgid "Rules"
+#~ msgstr ""
+
+#: src/lib/system.ts:309
+msgid "Run it live"
+msgstr "ライブで回す"
+
+#: src/app/screens/SystemReviewPanel.tsx:173
+msgid "Sample"
+msgstr "サンプル"
 
 #: src/app/screens/settings/alerts-section.tsx:323
 msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
 msgstr "マーケットタイムゾーンの土曜 09:00 に、その週の損益・勝率・R・セットアップ・ルール違反・見送ったトレードを、記入用のレビューメモにまとめて届けます。"
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
+#: src/app/screens/SystemView.tsx:625
+#: src/app/screens/SystemView.tsx:922
+#: src/components/TradeSystemCard.tsx:95
 msgid "Save"
 msgstr "保存"
 
@@ -266,17 +1690,125 @@ msgstr "保存"
 msgid "Save changes"
 msgstr "変更を保存"
 
+#: src/components/system-map/EvidenceTimeline.tsx:351
+msgid "Save correction"
+msgstr "訂正を保存"
+
+#: src/app/screens/SystemView.tsx:885
+msgid "Save name"
+msgstr "名前を保存"
+
+#: src/components/system-map/FollowPlan.tsx:263
+msgid "Save or discard your edits first"
+msgstr "先に編集を保存するか破棄してください"
+
+#: src/components/system-map/FollowPlan.tsx:385
+#: src/components/system-map/FollowPlan.tsx:605
+msgid "Save revision"
+msgstr "改訂を保存"
+
+#: src/components/system-map/FollowPlan.tsx:575
+msgid "Save them as a new revision, discard them, or keep editing."
+msgstr "新しい改訂として保存するか、破棄するか、編集を続けてください。"
+
+#: src/app/screens/SystemView.tsx:599
+msgid "Save your edits before activating"
+msgstr "有効化の前に編集を保存"
+
+#: src/app/screens/SystemView.tsx:911
+msgid "Save, discard, or keep editing before leaving this node or version."
+msgstr "このノード／版を離れる前に、保存・破棄・編集継続を選んでください。"
+
+#: src/app/screens/SystemView.tsx:625
+#: src/app/screens/SystemView.tsx:885
+#: src/components/system-map/FollowPlan.tsx:385
+msgid "Saving…"
+msgstr "保存中…"
+
 #: src/app/screens/settings/backups-section.tsx:131
 msgid "Scheduled backups are off"
 msgstr "定期バックアップはオフです"
+
+#: src/components/system-map/FollowTradeInspector.tsx:37
+#~ msgid "Select a node on the map"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:38
+#~ msgid "Self-checked clear"
+#~ msgstr ""
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "設定"
 
+#: src/components/system-map/FollowPlan.tsx:763
+#: src/components/system-map/FollowPlan.tsx:771
+#: src/lib/system.ts:88
+msgid "Setup"
+msgstr "セットアップ"
+
+#: src/components/system-map/FollowPlan.tsx:1142
+msgid "Setup, trigger and prices live on Entry and Risk; invalidation on Holding."
+msgstr "セットアップ、トリガー、価格はエントリーとリスクに、無効化条件は保有にあります。"
+
 #: src/app/screens/PublicShareView.tsx:129
 msgid "Shared performance record"
 msgstr "共有された成績記録"
+
+#: src/lib/system.ts:114
+msgid "Shares = (equity × risk%) / (entry − stop). Size follows risk, never the other way round."
+msgstr "株数＝（資金×リスク%）／（エントリー−ストップ）。サイズはリスクに従い、逆はない。"
+
+#: src/components/system-map/PlanDialogs.tsx:32
+#: src/components/system-map/PlanDialogs.tsx:108
+msgid "Short"
+msgstr "ショート"
+
+#: src/components/TradeSystemCard.tsx:217
+msgid "Should this change a rule?"
+msgstr "ルールを変えるべき？"
+
+#: src/components/system-map/FollowPlan.tsx:932
+msgid "Showing"
+msgstr "表示中"
+
+#: src/components/system-map/PlanDialogs.tsx:100
+#: src/components/system-map/PlanDialogs.tsx:102
+msgid "Side"
+msgstr "方向"
+
+#: src/lib/system.ts:265
+msgid "Size and risk matched the plan"
+msgstr "サイズとリスクが計画どおり"
+
+#: src/lib/system.ts:113
+msgid "Size worked out from entry, stop and per-trade risk."
+msgstr "エントリー・ストップ・1トレードリスクからサイズを算出。"
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/FollowPlan.tsx:621
+msgid "Skip {0}?"
+msgstr "{0} を見送りますか？"
+
+#: src/components/system-map/FollowPlan.tsx:418
+msgid "Skip this trade…"
+msgstr "この取引を見送る…"
+
+#: src/components/system-map/FollowPlan.tsx:623
+msgid "Skip trade"
+msgstr "取引を見送る"
+
+#: src/lib/system-plan.ts:42
+msgid "Skipped"
+msgstr "見送り"
+
+#: src/components/system-map/FollowPlan.tsx:1101
+msgid "Skipped — no trade."
+msgstr "見送り——取引なし。"
+
+#: src/lib/system.ts:214
+msgid "Smaller size, fewer trades."
+msgstr "サイズを抑え、取引を減らす。"
 
 #: src/app/screens/settings/backups-section.tsx:186
 msgid "Snapshots kept"
@@ -286,41 +1818,393 @@ msgstr "保持中のスナップショット"
 msgid "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
 msgstr "データベースのスナップショットをサーバー上のフォルダに書き出します。このフォルダはオフサイトに同期してください — 同じディスク上のコピーはディスク障害を乗り越えられません。"
 
+#: src/components/system-map/RuleEditor.tsx:82
+msgid "Someone else would decide the same"
+msgstr "他の人でも同じ判断になる"
+
 #: src/app/screens/PublicShareView.tsx:261
 msgid "SQN"
 msgstr "SQN"
+
+#: src/lib/system.ts:216
+msgid "Stand aside and watch."
+msgstr "見送り、様子を見る。"
+
+#: src/components/system-map/RuleEditor.tsx:51
+msgid "Start here"
+msgstr "ここから"
+
+#: src/app/screens/SystemView.tsx:569
+msgid "Start next version"
+msgstr "次の版を開始"
+
+#: src/app/screens/SystemView.tsx:372
+msgid "Start v1.0"
+msgstr "v1.0 を開始"
+
+#. placeholder {0}: STARTER_DECISIONS.map((d) => decisionCopy(d).title).join(", ")
+#: src/app/screens/SystemView.tsx:636
+msgid "Start with {0}. The rest can wait."
+msgstr "まず {0} から。残りは後で。"
+
+#: src/app/screens/SystemView.tsx:358
+msgid "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
+msgstr "まず4つ：いつ入る、いくら賭ける、いつ出る、いつ休む。"
+
+#: src/app/screens/SystemView.tsx:539
+#~ msgid "Starter prompts:"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:267
+#: src/components/system-map/EvidenceTimeline.tsx:269
+msgid "State"
+msgstr "状態"
+
+#: src/lib/system.ts:142
+msgid "State diagnosis"
+msgstr "状態診断"
 
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "統計"
 
+#: src/lib/system-plan.ts:123
+msgid "Still open"
+msgstr "未確認"
+
+#: src/components/system-map/EvidenceTimeline.tsx:56
+msgid "Still working"
+msgstr "まだ有効"
+
+#: src/lib/system.ts:82
+msgid "Stock selection"
+msgstr "銘柄選定"
+
+#: src/components/system-map/FollowPlan.tsx:811
+#: src/components/system-map/FollowPlan.tsx:823
+msgid "Stop"
+msgstr "損切り"
+
+#: src/lib/system.ts:263
+msgid "Stop and target were set before entry"
+msgstr "ストップと目標はエントリー前に設定済み"
+
+#: src/components/system-map/EvidenceTimeline.tsx:39
+#: src/components/system-map/EvidenceTimeline.tsx:249
+msgid "Supports"
+msgstr "支持"
+
+#: src/components/system-map/PlanDialogs.tsx:89
+msgid "Symbol"
+msgstr "銘柄"
+
+#: src/components/TradeSystemCard.tsx:72
+msgid "System card"
+msgstr "システムカード"
+
+#: src/components/TradeSystemCard.tsx:85
+msgid "System card saved"
+msgstr "システムカードを保存しました"
+
+#: src/components/system-map/SystemMapList.tsx:30
+msgid "System map"
+msgstr "システムマップ"
+
+#: src/app/screens/SystemView.tsx:174
+msgid "System mode"
+msgstr "システムモード"
+
+#: src/app/screens/SystemView.tsx:78
+#~ msgid "System view"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:67
+msgid "Take profit"
+msgstr "利食い"
+
+#: src/lib/system-plan.ts:40
+msgid "Taken"
+msgstr "約定済み"
+
+#: src/components/system-map/FollowPlan.tsx:812
+#: src/components/system-map/FollowPlan.tsx:830
+msgid "Target"
+msgstr "目標"
+
+#: src/lib/system.ts:241
+msgid "Target reached, or the edge was fading."
+msgstr "目標到達、または優位が薄れてきた。"
+
+#: src/lib/system.ts:304
+msgid "Test on past trades"
+msgstr "過去トレードで検証"
+
+#: src/lib/system.ts:234
+msgid "The core hypothesis was broken — cut."
+msgstr "核心仮説が壊れた——切る。"
+
 #: src/app/screens/PublicShareView.tsx:268
 msgid "The curve"
 msgstr "曲線"
+
+#: src/app/screens/SystemView.tsx:747
+msgid "The draft and every unsaved edit are deleted. Active and retired versions stay as they are. This can't be undone."
+msgstr "下書きと未保存の編集はすべて削除。有効・引退版はそのまま。元に戻せません。"
 
 #: src/app/screens/PublicShareView.tsx:205
 msgid "The edge"
 msgstr "エッジ"
 
+#: src/components/system-map/FollowPlan.tsx:793
+msgid "The exact event that gets you in"
+msgstr "実際にエントリーするきっかけ"
+
+#: src/components/system-map/FollowTradeInspector.tsx:76
+#~ msgid "The map still shows where this decision sits. Linking a trade to check it against these rules is on the way."
+#~ msgstr "マップはこの判断の位置を示します。トレードを紐づけてルールと照合する機能は準備中。"
+
+#: src/lib/system.ts:107
+msgid "The most one trade may risk, and how risk is split between better and worse odds."
+msgstr "1トレードの上限リスクと、勝率の良し悪しへの配分。"
+
+#: src/lib/system.ts:101
+msgid "The most planned risk the whole account carries at once, and when that grows or shrinks."
+msgstr "口座全体が同時に抱える計画リスク上限と、拡大・縮小の条件。"
+
+#: src/components/system-map/FollowPlan.tsx:628
+msgid "The opportunity is gone or no longer valid. The plan and its revisions stay in history."
+msgstr "機会は消えたか、もう成立しません。計画と改訂は履歴に残ります。"
+
+#: src/components/system-map/FollowPlan.tsx:640
+msgid "The plan returns to waiting and the trade is free to confirm another plan. The link stays in history."
+msgstr "計画はトリガー待ちに戻り、この取引は別の計画を確認できます。リンクは履歴に残ります。"
+
+#. placeholder {0}: fmtDateTime(data.prompt.due_at)
+#: src/components/system-map/EvidenceTimeline.tsx:172
+msgid "The planned hold ended {0}. Record what you saw. This does not close the trade or judge the plan."
+msgstr "予定していた保有は {0} に終わりました。見たことを記録してください。決済も、プランの判定も行いません。"
+
 #: src/app/screens/PublicShareView.tsx:326
 msgid "The rhythm"
 msgstr "リズム"
+
+#: src/lib/system.ts:278
+msgid "The rule was fine; I didn't follow it. Fix the process."
+msgstr "ルールは問題ない。自分が守らなかった。プロセスを直す。"
+
+#: src/components/system-map/FollowPlan.tsx:622
+msgid "The setup came but you passed. Say why — it's how hesitation shows up in review."
+msgstr "セットアップは来たが見送った。理由を残すと、振り返りで迷いが見えます。"
+
+#. placeholder {0}: fmtDateTime(data.prompt.due_at)
+#: src/components/system-map/EvidenceTimeline.tsx:171
+msgid "The time stop was due {0}. Record what you saw. This does not close the trade or judge the plan."
+msgstr "タイムストップは {0} に到来しました。見たことを記録してください。決済も、プランの判定も行いません。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:362
+msgid "The wording stays on the timeline. Say why you are withdrawing it."
+msgstr "文言は時系列に残ります。取り下げる理由を書いてください。"
+
+#: src/components/system-map/FollowPlan.tsx:764
+#: src/components/system-map/FollowPlan.tsx:779
+#: src/components/TradeSystemCard.tsx:154
+msgid "Thesis"
+msgstr "仮説"
+
+#: src/components/system-map/PlanDialogs.tsx:142
+msgid "Thesis (optional)"
+msgstr "仮説（任意）"
+
+#: src/app/screens/SystemReviewPanel.tsx:132
+msgid "Thin"
+msgstr "薄い"
+
+#: src/app/screens/SystemView.tsx:961
+msgid "This becomes the active system. You can revise later with a new draft."
+msgstr "これが有効なシステムになります。後から新しい下書きで改訂できます。"
 
 #: src/app/screens/PublicShareView.tsx:153
 msgid "This link isn't available"
 msgstr "このリンクは利用できません"
 
+#: src/components/system-map/FollowTradeInspector.tsx:57
+#~ msgid "This mode organizes recorded conditions and evidence — it does not place orders."
+#~ msgstr ""
+
+#. placeholder {0}: planStatusLabel(plan.status).toLowerCase()
+#: src/components/system-map/FollowPlan.tsx:1051
+msgid "This plan is {0}. Reopen it to keep revising."
+msgstr "この計画は{0}です。改訂を続けるには再開してください。"
+
 #: src/app/screens/settings/backups-section.tsx:118
 msgid "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
 msgstr "このサーバーは Postgres で動作しています。組み込みバックアップは SQLite のみ対応です — Postgres は pg_dump またはプロバイダーのスナップショットでバックアップしてください。"
 
-#: src/components/AppNav.tsx:32
-#~ msgid "Trades"
-#~ msgstr "トレード"
+#: src/components/system-map/EvidenceTimeline.tsx:311
+msgid "This version has no scaling rule written."
+msgstr "このバージョンには増減のルールがまだありません。"
+
+#: src/lib/system.ts:130
+msgid "Trade definition"
+msgstr "トレード定義"
+
+#: src/lib/system.ts:310
+msgid "Trade it live with a card on each trade. The question is \"can I follow it?\", not \"does it make money?\". Progress counts carded live trades — not a small-size check."
+msgstr "ライブで回し、各トレードにカード。問いは「守れるか」であり「儲かるか」ではない。進捗はカード済みライブ件数——小サイズ確認ではない。"
+
+#: src/components/system-map/FollowPlan.tsx:559
+msgid "Trade linked"
+msgstr "取引をリンクしました"
+
+#: src/lib/system.ts:212
+msgid "Trade the system at normal risk."
+msgstr "通常のリスクでシステムに従う。"
+
+#: src/components/TradeSystemCard.tsx:127
+msgid "Trade type"
+msgstr "取引タイプ"
+
+#: src/components/system-map/RuleEditor.tsx:172
+msgid "Trade type: {key}"
+msgstr "取引タイプ：{key}"
+
+#: src/components/system-map/FollowPlan.tsx:536
+msgid "Trade unlinked"
+msgstr "リンクを解除しました"
+
+#: src/components/system-map/PlanDialogs.tsx:331
+msgid "Trades"
+msgstr "トレード"
 
 #: src/app/screens/PublicShareView.tsx:349
 msgid "Trades per month."
 msgstr "月あたりのトレード数。"
+
+#: src/app/screens/SystemView.tsx:132
+msgid "Trading system"
+msgstr "トレーディングシステム"
+
+#: src/components/system-map/SystemMap.tsx:271
+msgid "Trading system map"
+msgstr "トレーディングシステムマップ"
+
+#: src/components/system-map/FollowPlan.tsx:765
+#: src/components/system-map/FollowPlan.tsx:788
+#: src/lib/system.ts:94
+msgid "Trigger"
+msgstr "トリガー"
+
+#: src/components/TradeSystemCard.tsx:115
+msgid "Trigger met"
+msgstr "トリガー達成"
+
+#: src/components/system-map/EvidenceTimeline.tsx:65
+msgid "Trim"
+msgstr "縮小"
+
+#: src/components/system-map/RuleEditor.tsx:85
+msgid "Turn on once the rule leaves no room for judgment."
+msgstr "ルールに判断の余地がなくなったらオン。"
+
+#: src/lib/system.ts:131
+msgid "Type of trade, expected move, holding time, core hypothesis."
+msgstr "取引タイプ、想定値動き、保有期間、核心仮説。"
+
+#: src/lib/system-plan.ts:67
+#~ msgid "Unanswered"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:43
+#: src/components/system-map/EvidenceTimeline.tsx:251
+msgid "Uncertain"
+msgstr "不確実"
+
+#: src/app/screens/SystemReviewPanel.tsx:162
+msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
+msgstr "10未満のグループは無意味。30未満はヒントのみ。サンプル数は証明ではない。"
+
+#: src/components/system-map/FollowPlan.tsx:641
+msgid "Unlink"
+msgstr "リンク解除"
+
+#: src/components/system-map/FollowPlan.tsx:639
+msgid "Unlink the trade?"
+msgstr "取引のリンクを解除しますか？"
+
+#: src/components/system-map/FollowPlan.tsx:406
+msgid "Unlink trade…"
+msgstr "リンクを解除…"
+
+#: src/components/system-map/FollowPlan.tsx:872
+msgid "Unlinked the trade"
+msgstr "取引のリンクを解除しました"
+
+#: src/app/screens/SystemView.tsx:235
+#: src/app/screens/SystemView.tsx:551
+#: src/app/screens/SystemView.tsx:909
+#: src/components/system-map/FollowPlan.tsx:312
+msgid "Unsaved changes"
+msgstr "未保存の変更"
+
+#: src/components/system-map/FollowPlan.tsx:573
+msgid "Unsaved plan edits"
+msgstr "計画に未保存の編集があります"
+
+#: src/lib/system.ts:162
+msgid "Use the process × outcome quadrant; wrong-but-won is the most dangerous cell."
+msgstr "プロセス×結果の四象限を使う。ルール破り勝ちが最も危険。"
+
+#: src/components/system-map/RuleEditor.tsx:74
+msgid "Vague wording — make it objective:"
+msgstr "曖昧な表現——客観的に："
+
+#: src/app/screens/SystemView.tsx:521
+msgid "Version"
+msgstr "版"
+
+#. placeholder {0}: card.version_label
+#: src/components/TradeSystemCard.tsx:74
+msgid "Version {0}"
+msgstr "版 {0}"
+
+#: src/app/screens/SystemView.tsx:799
+msgid "Version activated"
+msgstr "版を有効化しました"
+
+#: src/app/screens/SystemView.tsx:166
+#: src/app/screens/SystemView.tsx:281
+msgid "Version history"
+msgstr "版の履歴"
+
+#: src/app/screens/SystemView.tsx:835
+msgid "Version named"
+msgstr "版に名前を付けました"
+
+#: src/components/system-map/FollowPlan.tsx:936
+msgid "View"
+msgstr "表示"
+
+#: src/components/system-map/FollowTradeInspector.tsx:128
+#~ msgid "View plan snapshot"
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:109
+#~ msgid "Waiting for a trade"
+#~ msgstr ""
+
+#: src/components/system-map/FollowPlan.tsx:327
+#: src/lib/system-plan.ts:38
+msgid "Waiting for trigger"
+msgstr "トリガー待ち"
+
+#: src/app/screens/SystemView.tsx:479
+#~ msgid "Walk the map one decision at a time and check each against the active rules."
+#~ msgstr "マップを判断ごとに歩き、有効なルールと照合する。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:41
+#: src/components/system-map/EvidenceTimeline.tsx:250
+msgid "Weakens"
+msgstr "弱める"
 
 #: src/app/drawers/NewNoteDrawer.tsx:92
 #: src/app/screens/NotesView.tsx:71
@@ -332,19 +2216,202 @@ msgstr "週次レビュー"
 msgid "Weekly review alerts"
 msgstr "週次レビューのアラート"
 
-#: src/app/drawers/NewNoteDrawer.tsx:110
+#: src/app/drawers/NewNoteDrawer.tsx:112
 msgid "Weekly review updated"
 msgstr "週次レビューを更新しました"
+
+#: src/components/system-map/EvidenceTimeline.tsx:241
+#: src/components/system-map/EvidenceTimeline.tsx:243
+msgid "What it does to the rule"
+msgstr "ルールへの影響"
+
+#: src/components/system-map/FollowPlan.tsx:860
+msgid "What proves the idea wrong"
+msgstr "この考えが間違いだと示すもの"
+
+#: src/lib/system.ts:83
+msgid "What qualifies? What will I never trade, even if it is going up?"
+msgstr "何が対象か？上がっていても絶対に取引しないものは？"
+
+#: src/lib/system.ts:149
+msgid "What to do in each state: hold, trim, take profit, stop out, exit."
+msgstr "各状態の行動：保有、縮小、利確、損切り、決済。"
+
+#: src/lib/system.ts:137
+msgid "What to watch after entry: structure, relative strength, sector, levels, catalysts."
+msgstr "エントリー後に見るもの：構造、相対強度、セクター、水準、カタリスト。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:256
+#~ msgid "What you saw"
+#~ msgstr "見たこと"
+
+#: src/components/system-map/FollowPlan.tsx:714
+msgid "What you saw (optional)"
+msgstr "そのとき見たこと（任意）"
+
+#: src/components/system-map/FollowPlan.tsx:708
+msgid "What you saw for {title}"
+msgstr "{title} で見たこと"
+
+#: src/components/system-map/EvidenceTimeline.tsx:317
+#: src/components/system-map/EvidenceTimeline.tsx:325
+#: src/components/system-map/PlanDialogs.tsx:114
+#: src/components/system-map/PlanDialogs.tsx:122
+msgid "When"
+msgstr "いつ"
+
+#: src/lib/system.ts:62
+msgid "When and what you trade."
+msgstr "いつ・何を取引するか。"
+
+#: src/lib/system.ts:77
+msgid "When do I trade actively, cut risk, or stop trading?"
+msgstr "いつ積極的に取引し、リスクを削り、取引を止める？"
+
+#: src/components/system-map/SystemMapList.tsx:102
+msgid "When entry conditions aren't met, you keep watching — that's a branch, not a failure."
+msgstr "エントリー条件が満たされなければ見守り続ける——分岐であり失敗ではない。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:337
+#: src/components/system-map/PlanDialogs.tsx:133
+#: src/components/system-map/PlanDialogs.tsx:136
+msgid "When it happened"
+msgstr "それが起きたとき"
+
+#: src/lib/system.ts:167
+msgid "Which lessons are worth a rule change, and which are just normal variance?"
+msgstr "どの学びがルール変更に値し、どれは普通のばらつきか？"
+
+#: src/lib/system.ts:125
+msgid "Which new evidence justifies adding, and which justifies trimming?"
+msgstr "どの新根拠で追加し、どれで縮小するか？"
+
+#: src/lib/system.ts:155
+msgid "Which numbers tell me the system is working — by market, setup and adherence?"
+msgstr "どの数字が「効いている」を示す——相場・セットアップ・遵守別？"
+
+#: src/lib/system.ts:95
+msgid "Which objective event makes me actually buy? Before it happens, do I know I do nothing?"
+msgstr "どの客観イベントで実際に買う？それが来るまで何もしないと分かっているか？"
+
+#: src/lib/system.ts:89
+msgid "Which price structure must exist before I prepare a trade?"
+msgstr "トレード準備の前に必要な価格構造は？"
+
+#: src/components/system-map/FollowPlan.tsx:784
+#: src/components/system-map/PlanDialogs.tsx:147
+msgid "Why this, why now"
+msgstr "なぜこれか、なぜ今か"
 
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
 msgid "Win rate"
 msgstr "勝率"
 
+#: src/lib/system.ts:156
+msgid "Win rate, average win/loss, expectancy in R, results by regime and by setup."
+msgstr "勝率、平均損益、R期待値、レジーム別・セットアップ別の結果。"
+
+#: src/app/screens/SystemReviewPanel.tsx:171
+msgid "Win%"
+msgstr "勝率%"
+
+#: src/app/screens/SystemReviewPanel.tsx:49
+msgid "With adherence"
+msgstr "遵守あり"
+
+#: src/app/screens/SystemReviewPanel.tsx:48
+msgid "With regime"
+msgstr "レジームあり"
+
+#: src/components/system-map/EvidenceTimeline.tsx:363
+#: src/components/system-map/EvidenceTimeline.tsx:444
+msgid "Withdraw"
+msgstr "取り下げ"
+
+#: src/components/system-map/EvidenceTimeline.tsx:361
+msgid "Withdraw this note"
+msgstr "この記録を取り下げ"
+
+#. placeholder {0}: fmtDateTime(entry.withdrawn_at)
+#. placeholder {1}: entry.withdraw_reason
+#: src/components/system-map/EvidenceTimeline.tsx:436
+msgid "Withdrawn {0} · {1}"
+msgstr "{0} に取り下げ · {1}"
+
 #: src/app/screens/PublicShareView.tsx:315
 msgid "Worst day"
 msgstr "最悪の日"
 
-#: src/app/drawers/NewNoteDrawer.tsx:195
+#: src/components/system-map/FollowPlan.tsx:441
+msgid "Write a plan before the fill, then walk the map and answer each rule."
+msgstr "約定の前に計画を書き、地図を辿って各ルールに答えてください。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:80
+msgid "Write a plan before the fill: setup, trigger, prices, and an answer for each rule. Link the trade once it fills."
+msgstr "約定の前に計画を書いてください。セットアップ、トリガー、価格、各ルールへの回答です。約定したら取引をリンクします。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:125
+msgid "Write a rule to turn it into conditions you can tick off."
+msgstr "ルールにして、チェックできる条件にする。"
+
+#: src/components/system-map/PlanDialogs.tsx:77
+msgid "Write it before the fill. It's checked against {versionLabel}, and every save adds a revision instead of overwriting the last one."
+msgstr "約定の前に書いてください。{versionLabel} と照合され、保存のたびに改訂が追加され、前の内容は上書きされません。"
+
+#: src/app/screens/SystemView.tsx:178
+msgid "Write rules"
+msgstr "ルールを書く"
+
+#: src/app/screens/SystemView.tsx:73
+#~ msgid "Write the rules you trade by on the map, follow them trade by trade, and let the results tell you which rules to keep."
+#~ msgstr ""
+
+#: src/lib/system.ts:299
+msgid "Write v1.0"
+msgstr "v1.0 を書く"
+
+#: src/components/system-map/FollowPlan.tsx:301
+msgid "Written after the fact"
+msgstr "事後の記録"
+
+#: src/components/system-map/EvidenceTimeline.tsx:50
+#: src/lib/system.ts:234
+msgid "Wrong"
+msgstr "誤り"
+
+#: src/lib/system.ts:150
+msgid "Wrong → exit; finished → take at least half; not working past time stop → exit."
+msgstr "誤り→決済；完了→少なくとも半分利確；時間超過で機能せず→決済。"
+
+#: src/lib/system.ts:144
+msgid "Wrong = close under the stop structure; not working = flat past planned hold with no follow-through."
+msgstr "誤り＝ストップ構造下で終値；機能せず＝予定保有を過ぎて追随なしの横ばい。"
+
+#: src/lib/system.ts:143
+msgid "Wrong, still working, not working, or finished — how do I tell them apart?"
+msgstr "誤り・まだ機能・機能せず・完了——どう見分ける？"
+
+#: src/components/TradeSystemCard.tsx:121
+msgid "Yes"
+msgstr "はい"
+
+#: src/app/screens/SystemView.tsx:239
+msgid "Your draft has edits that aren't saved. Leaving now discards them."
+msgstr "下書きに未保存の編集があります。今離れると破棄されます。"
+
+#: src/app/screens/SystemView.tsx:238
+msgid "Your plan has edits that aren't saved as a revision. Leaving now discards them."
+msgstr "計画の編集はまだ改訂として保存されていません。離れると破棄されます。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:86
+msgid "Your rule"
+msgstr "あなたのルール"
+
+#: src/components/system-map/FollowTradeInspector.tsx:86
+msgid "Your rules"
+msgstr "あなたのルール"
+
+#: src/app/drawers/NewNoteDrawer.tsx:197
 msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
 msgstr "今週の数字と、うまくいったこと・いかなかったこと・来週の重点。"
