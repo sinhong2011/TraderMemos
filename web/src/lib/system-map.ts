@@ -6,6 +6,8 @@ export type MapNodeId = "market" | "entry" | "risk" | "holding" | "review";
 
 export type RuleClarity = "empty" | "needs_clarity" | "self_clear";
 
+export type MapEdgeKind = "flow" | "branch" | "feedback";
+
 export interface MapNodeDef {
   id: MapNodeId;
   decisions: DecisionId[];
@@ -25,28 +27,85 @@ export const MAP_NODES: MapNodeDef[] = [
   { id: "review", decisions: ["measure", "review", "adjust"] },
 ];
 
-export const MAP_EDGES: { id: string; source: MapNodeId; target: MapNodeId; labelKey?: string }[] =
-  [
-    { id: "e-market-entry", source: "market", target: "entry" },
-    { id: "e-entry-risk", source: "entry", target: "risk" },
-    { id: "e-risk-holding", source: "risk", target: "holding" },
-    { id: "e-holding-review", source: "holding", target: "review" },
-    {
-      id: "e-entry-watch",
-      source: "entry",
-      target: "entry",
-      labelKey: "keep_watching",
-    },
-  ];
+export const MAP_EDGES: {
+  id: string;
+  source: MapNodeId;
+  target: MapNodeId;
+  kind: MapEdgeKind;
+  labelKey?: "confirm_trigger" | "keep_watching" | "feedback";
+  /** React Flow handle ids — vertical spine uses bottom→top. */
+  sourceHandle?: string;
+  targetHandle?: string;
+}[] = [
+  {
+    id: "e-market-entry",
+    source: "market",
+    target: "entry",
+    kind: "flow",
+    sourceHandle: "bottom",
+    targetHandle: "top",
+  },
+  {
+    id: "e-entry-risk",
+    source: "entry",
+    target: "risk",
+    kind: "flow",
+    labelKey: "confirm_trigger",
+    sourceHandle: "bottom",
+    targetHandle: "top",
+  },
+  {
+    id: "e-risk-holding",
+    source: "risk",
+    target: "holding",
+    kind: "flow",
+    sourceHandle: "bottom",
+    targetHandle: "top",
+  },
+  {
+    id: "e-holding-review",
+    source: "holding",
+    target: "review",
+    kind: "flow",
+    sourceHandle: "bottom",
+    targetHandle: "top",
+  },
+  {
+    id: "e-entry-watch",
+    source: "entry",
+    target: "entry",
+    kind: "branch",
+    labelKey: "keep_watching",
+    sourceHandle: "right",
+    targetHandle: "left",
+  },
+  {
+    id: "e-review-feedback",
+    source: "review",
+    target: "market",
+    kind: "feedback",
+    labelKey: "feedback",
+    sourceHandle: "left",
+    targetHandle: "left",
+  },
+];
 
-/** Fixed desktop layout positions (React Flow coords). */
+/** Branch node rendered beside Entry (not a selectable MapNodeId). */
+export const WATCH_NODE_ID = "watch" as const;
+
+/**
+ * Fixed desktop layout — vertical spine matching the product draft
+ * (Market → Entry → Risk → Holding → Review), with Keep-watching to the right.
+ */
 export const MAP_POSITIONS: Record<MapNodeId, { x: number; y: number }> = {
-  market: { x: 40, y: 40 },
-  entry: { x: 280, y: 40 },
-  risk: { x: 520, y: 40 },
-  holding: { x: 280, y: 220 },
-  review: { x: 520, y: 220 },
+  market: { x: 72, y: 16 },
+  entry: { x: 72, y: 148 },
+  risk: { x: 72, y: 280 },
+  holding: { x: 72, y: 412 },
+  review: { x: 72, y: 544 },
 };
+
+export const WATCH_POSITION = { x: 420, y: 168 };
 
 export function isMapNodeId(v: string | null | undefined): v is MapNodeId {
   return MAP_NODES.some((n) => n.id === v);
@@ -90,6 +149,18 @@ export function nodeClarity(
     if (c === "empty") worst = "empty";
   }
   return any ? worst : "empty";
+}
+
+/** First non-empty rule text on the node, for the map card subtitle. */
+export function nodeSummaryLine(
+  nodeId: MapNodeId,
+  rules: Partial<Record<DecisionId, Rule>> | undefined,
+): string {
+  for (const d of decisionsForNode(nodeId)) {
+    const text = rules?.[d]?.text?.trim();
+    if (text) return text;
+  }
+  return "";
 }
 
 /** Four starter prompts for an empty system (entry, risk, exit, pause). */

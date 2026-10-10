@@ -13,11 +13,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/TradeSystemCard.tsx:92
 #: src/components/TradeSystemCard.tsx:106
-#: src/components/TradeSystemCard.tsx:118
-#: src/components/TradeSystemCard.tsx:152
+#: src/components/TradeSystemCard.tsx:120
+#: src/components/TradeSystemCard.tsx:132
 #: src/components/TradeSystemCard.tsx:166
+#: src/components/TradeSystemCard.tsx:180
 msgid "—"
 msgstr ""
 
@@ -39,7 +39,7 @@ msgid "{0} win rate"
 msgstr "勝率 {0}"
 
 #. placeholder {0}: n.decisions.length
-#: src/components/system-map/SystemMap.tsx:59
+#: src/components/system-map/SystemMap.tsx:95
 msgid "{filled} of {0} written"
 msgstr ""
 
@@ -63,8 +63,8 @@ msgstr ""
 msgid "Action"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:327
-#: src/app/screens/SystemView.tsx:619
+#: src/app/screens/SystemView.tsx:336
+#: src/app/screens/SystemView.tsx:623
 msgid "Activate"
 msgstr ""
 
@@ -81,15 +81,15 @@ msgstr ""
 msgid "Add only when relative strength makes a new high with the index; trim when the thesis is intact but time is half gone."
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:142
+#: src/app/screens/SystemReviewPanel.tsx:136
 msgid "Adequate"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:161
+#: src/components/TradeSystemCard.tsx:175
 msgid "Adherence"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:61
+#: src/app/screens/SystemReviewPanel.tsx:51
 msgid "Adherence rate"
 msgstr ""
 
@@ -149,11 +149,11 @@ msgstr "備份已逾期"
 msgid "Best day"
 msgstr "最佳交易日"
 
-#: src/app/screens/SystemReviewPanel.tsx:84
+#: src/app/screens/SystemReviewPanel.tsx:72
 msgid "Broke rules · lost"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:83
+#: src/app/screens/SystemReviewPanel.tsx:71
 msgid "Broke rules · won"
 msgstr ""
 
@@ -161,27 +161,27 @@ msgstr ""
 msgid "Buy only on a break and hold above the pivot with volume above the 50-day average."
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:116
+#: src/app/screens/SystemReviewPanel.tsx:104
 msgid "By adherence"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:113
+#: src/app/screens/SystemReviewPanel.tsx:101
 msgid "By exit state"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:111
+#: src/app/screens/SystemReviewPanel.tsx:99
 msgid "By market"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:112
+#: src/app/screens/SystemReviewPanel.tsx:100
 msgid "By setup"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:114
+#: src/app/screens/SystemReviewPanel.tsx:102
 msgid "By trade type"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:115
+#: src/app/screens/SystemReviewPanel.tsx:103
 msgid "By version"
 msgstr ""
 
@@ -189,11 +189,11 @@ msgstr ""
 #~ msgid "Calendar"
 #~ msgstr "日曆"
 
-#: src/app/screens/SystemView.tsx:604
+#: src/app/screens/SystemView.tsx:608
 msgid "Cancel"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:318
+#: src/app/screens/SystemView.tsx:324
 msgid "Cancel edits"
 msgstr ""
 
@@ -201,12 +201,12 @@ msgstr ""
 msgid "Card past or backtest trades against the rules; note ambiguous, conflicting or missing cases."
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:57
+#: src/app/screens/SystemReviewPanel.tsx:47
 msgid "Carded"
 msgstr ""
 
 #. placeholder {0}: Math.round(review.streak.chance * 100)
-#: src/app/screens/SystemReviewPanel.tsx:91
+#: src/app/screens/SystemReviewPanel.tsx:79
 msgid "Chance of this run given recent win rate: {0}%."
 msgstr ""
 
@@ -218,7 +218,12 @@ msgstr ""
 msgid "Checking…"
 msgstr "檢查中…"
 
-#: src/app/screens/SystemReviewPanel.tsx:56
+#: src/components/system-map/SystemMap.tsx:64
+#: src/components/system-map/SystemNode.tsx:55
+msgid "Clear"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:46
 msgid "Closed"
 msgstr ""
 
@@ -226,33 +231,41 @@ msgstr ""
 msgid "Concentration, correlation, gap, liquidity and slippage across all positions."
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:112
+#: src/components/system-map/SystemMap.tsx:42
+msgid "Conditions not met"
+msgstr ""
+
+#: src/components/system-map/SystemMapList.tsx:95
 msgid "Conditions not met → keep watching is a branch of Entry, not a failure."
+msgstr ""
+
+#: src/components/system-map/SystemMap.tsx:40
+msgid "Confirm trigger"
 msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
 msgstr "穩定性"
 
-#: src/app/screens/SystemView.tsx:480
+#: src/app/screens/SystemView.tsx:487
 msgid "Could not activate"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:339
+#: src/app/screens/SystemView.tsx:348
 msgid "Could not discard"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:30
+#: src/app/screens/SystemReviewPanel.tsx:28
 msgid "Could not load the review"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:98
+#: src/app/screens/SystemView.tsx:93
 msgid "Could not load the system"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:310
-#: src/app/screens/SystemView.tsx:457
-#: src/components/TradeSystemCard.tsx:74
+#: src/app/screens/SystemView.tsx:316
+#: src/app/screens/SystemView.tsx:463
+#: src/components/TradeSystemCard.tsx:88
 msgid "Could not save"
 msgstr ""
 
@@ -260,16 +273,16 @@ msgstr ""
 msgid "Could not save regime"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:220
-#: src/app/screens/SystemView.tsx:290
+#: src/app/screens/SystemView.tsx:149
+#: src/app/screens/SystemView.tsx:296
 msgid "Could not start"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:71
+#: src/app/screens/SystemReviewPanel.tsx:59
 msgid "Counted in range only — not in the adherence rate (no version on misses yet)."
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:54
+#: src/app/screens/SystemReviewPanel.tsx:44
 msgid "Coverage"
 msgstr ""
 
@@ -310,27 +323,27 @@ msgstr ""
 msgid "Directory"
 msgstr "目錄"
 
-#: src/app/screens/SystemView.tsx:515
+#: src/app/screens/SystemView.tsx:521
 msgid "Discard"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:343
+#: src/app/screens/SystemView.tsx:352
 msgid "Discard draft"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:335
+#: src/app/screens/SystemView.tsx:344
 msgid "Discard this draft? This cannot be undone."
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:337
+#: src/app/screens/SystemView.tsx:346
 msgid "Draft discarded"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:308
+#: src/app/screens/SystemView.tsx:314
 msgid "Draft saved"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:219
+#: src/app/screens/SystemView.tsx:147
 msgid "Draft started"
 msgstr ""
 
@@ -338,7 +351,7 @@ msgstr ""
 msgid "Dynamic adjustment"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:377
+#: src/app/screens/SystemView.tsx:387
 msgid "Edit the selected node."
 msgstr ""
 
@@ -350,9 +363,12 @@ msgstr "編輯每週回顧"
 msgid "Entered at a level planned beforehand"
 msgstr ""
 
-#: src/components/system-map/SystemNode.tsx:21
 #: src/lib/system.ts:62
 msgid "Entry"
+msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:38
+msgid "Entry conditions"
 msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:162
@@ -367,7 +383,7 @@ msgstr ""
 msgid "Exit"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:147
+#: src/components/TradeSystemCard.tsx:161
 msgid "Exit state"
 msgstr ""
 
@@ -388,7 +404,11 @@ msgstr "失敗"
 msgid "Failed {0}"
 msgstr "失敗（{0}）"
 
-#: src/app/screens/SystemView.tsx:352
+#: src/components/system-map/SystemMap.tsx:44
+msgid "Feedback to rules"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:361
 msgid "fill these first; the rest can wait."
 msgstr ""
 
@@ -396,23 +416,23 @@ msgstr ""
 msgid "Finished"
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:30
+#: src/components/system-map/SystemMap.tsx:54
 msgid "Fit"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:82
+#: src/app/screens/SystemReviewPanel.tsx:70
 msgid "Followed · lost"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:81
+#: src/app/screens/SystemReviewPanel.tsx:69
 msgid "Followed · won"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:237
+#: src/app/screens/SystemView.tsx:242
 msgid "Four-week plan"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:78
+#: src/app/screens/SystemReviewPanel.tsx:66
 msgid "Full adherence vs partial/none, against win vs loss. Wrong-but-won is the dangerous cell."
 msgstr ""
 
@@ -428,24 +448,28 @@ msgstr ""
 msgid "Green days"
 msgstr "獲利日"
 
-#: src/app/screens/SystemReviewPanel.tsx:171
+#: src/app/screens/SystemReviewPanel.tsx:169
 msgid "Group"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:69
+#: src/app/screens/SystemReviewPanel.tsx:57
 msgid "Hesitated misses"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:377
+#: src/app/screens/SystemView.tsx:387
 msgid "Historical versions are read-only."
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:419
+#: src/app/screens/SystemView.tsx:426
 msgid "History"
 msgstr ""
 
 #: src/components/system-map/SystemNode.tsx:25
-msgid "Holding"
+#~ msgid "Holding"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:42
+msgid "Holding decisions"
 msgstr ""
 
 #: src/lib/system.ts:161
@@ -468,7 +492,7 @@ msgstr ""
 msgid "Index above the 200-day and the 50-day rising = normal; below the 200-day = defensive; more new lows than highs for two weeks = paused."
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:140
+#: src/app/screens/SystemReviewPanel.tsx:134
 msgid "Indicative"
 msgstr ""
 
@@ -488,8 +512,12 @@ msgstr "可能已過期，或者已被擁有者撤銷。"
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "以 <0>TraderMemos</0> 記錄 — 自架交易日誌"
 
-#: src/app/screens/SystemView.tsx:512
+#: src/app/screens/SystemView.tsx:518
 msgid "Keep editing"
+msgstr ""
+
+#: src/components/system-map/SystemMap.tsx:119
+msgid "Keep watching"
 msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:257
@@ -520,7 +548,7 @@ msgstr "最新檔案"
 msgid "Left for a reason outside the system."
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:195
+#: src/components/TradeSystemCard.tsx:209
 msgid "Lesson"
 msgstr ""
 
@@ -537,7 +565,7 @@ msgid "Longest red streak"
 msgstr "最長虧損連續"
 
 #. placeholder {0}: review.streak.length
-#: src/app/screens/SystemReviewPanel.tsx:90
+#: src/app/screens/SystemReviewPanel.tsx:78
 msgid "Losing streak ({0})"
 msgstr ""
 
@@ -550,14 +578,15 @@ msgid "Manual only"
 msgstr "僅限手動"
 
 #: src/components/system-map/SystemNode.tsx:19
-msgid "Market"
-msgstr ""
+#~ msgid "Market"
+#~ msgstr ""
 
+#: src/components/system-map/SystemNode.tsx:36
 #: src/lib/system.ts:76
 msgid "Market environment"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:87
+#: src/components/TradeSystemCard.tsx:101
 msgid "Market regime"
 msgstr ""
 
@@ -581,11 +610,11 @@ msgstr ""
 msgid "Most traded"
 msgstr "最常交易"
 
-#: src/app/screens/SystemReviewPanel.tsx:172
+#: src/app/screens/SystemReviewPanel.tsx:170
 msgid "N"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:109
+#: src/components/TradeSystemCard.tsx:123
 msgid "N/A"
 msgstr ""
 
@@ -593,11 +622,12 @@ msgstr ""
 msgid "Narrow when this rule or setup may be used."
 msgstr ""
 
-#: src/components/system-map/SystemNode.tsx:36
+#: src/components/system-map/SystemMap.tsx:68
+#: src/components/system-map/SystemNode.tsx:53
 msgid "Needs clarity"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:174
+#: src/app/screens/SystemReviewPanel.tsx:172
 msgid "Net"
 msgstr ""
 
@@ -625,11 +655,11 @@ msgstr ""
 #~ msgid "New Trade"
 #~ msgstr "新增交易"
 
-#: src/components/TradeSystemCard.tsx:108
+#: src/components/TradeSystemCard.tsx:122
 msgid "No"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:60
+#: src/components/TradeSystemCard.tsx:74
 msgid "No active version stamped yet."
 msgstr ""
 
@@ -637,7 +667,7 @@ msgstr ""
 msgid "No backup yet"
 msgstr "尚未備份"
 
-#: src/app/screens/SystemReviewPanel.tsx:182
+#: src/app/screens/SystemReviewPanel.tsx:180
 msgid "No data in this range."
 msgstr ""
 
@@ -645,7 +675,7 @@ msgstr ""
 msgid "No more than two names in the same theme; skip if the open gap risk on the book exceeds 3%."
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:211
+#: src/app/screens/SystemView.tsx:139
 msgid "No rules yet"
 msgstr ""
 
@@ -661,6 +691,10 @@ msgstr ""
 msgid "Normal and Defensive allow trading; Paused means stand aside."
 msgstr ""
 
+#: src/components/system-map/SystemMap.tsx:120
+msgid "Not a failure — wait for the trigger"
+msgstr ""
+
 #: src/lib/system.ts:240
 msgid "Not followed"
 msgstr ""
@@ -673,11 +707,12 @@ msgstr ""
 msgid "Not working"
 msgstr ""
 
-#: src/components/system-map/SystemNode.tsx:34
+#: src/components/system-map/SystemMap.tsx:72
+#: src/components/system-map/SystemNode.tsx:51
 msgid "Not written"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:587
+#: src/app/screens/SystemView.tsx:591
 msgid "Note (optional)"
 msgstr ""
 
@@ -716,7 +751,7 @@ msgstr "每筆"
 msgid "Per-trade risk"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:127
+#: src/components/TradeSystemCard.tsx:141
 msgid "Planned hold (days)"
 msgstr ""
 
@@ -736,11 +771,11 @@ msgstr ""
 msgid "Position sizing"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:177
+#: src/components/TradeSystemCard.tsx:191
 msgid "Post-trade checklist"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:77
+#: src/app/screens/SystemReviewPanel.tsx:65
 msgid "Process × outcome"
 msgstr ""
 
@@ -748,11 +783,11 @@ msgstr ""
 msgid "Profit factor"
 msgstr "獲利因子"
 
-#: src/app/screens/SystemView.tsx:238
+#: src/app/screens/SystemView.tsx:243
 msgid "Progress is derived from your data — not a checklist you tick."
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:279
+#: src/app/screens/SystemView.tsx:284
 msgid "Read-only"
 msgstr ""
 
@@ -761,21 +796,24 @@ msgid "Red days"
 msgstr "虧損日"
 
 #: src/app/screens/SystemReviewPanel.tsx:27
-#: src/app/screens/SystemView.tsx:61
+#: src/app/screens/SystemView.tsx:56
 #: src/components/MarketRegimeCard.tsx:39
-#: src/components/TradeSystemCard.tsx:75
+#: src/components/TradeSystemCard.tsx:89
 msgid "Request failed"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:102
+#: src/app/screens/SystemView.tsx:97
 msgid "Retry"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:88
-#: src/components/system-map/SystemNode.tsx:27
+#: src/app/screens/SystemView.tsx:83
 #: src/lib/system.ts:68
 #: src/lib/system.ts:160
 msgid "Review"
+msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:44
+msgid "Review & adjust"
 msgstr ""
 
 #: src/app/screens/NotesView.tsx:61
@@ -786,9 +824,13 @@ msgstr "回顧"
 msgid "Revise the version"
 msgstr ""
 
-#: src/components/system-map/SystemNode.tsx:23
-msgid "Risk & size"
+#: src/components/system-map/SystemNode.tsx:40
+msgid "Risk & position"
 msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:23
+#~ msgid "Risk & size"
+#~ msgstr ""
 
 #: src/lib/system.ts:100
 msgid "Risk budget"
@@ -798,8 +840,8 @@ msgstr ""
 msgid "Risk too high"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:87
-#: src/app/screens/SystemView.tsx:376
+#: src/app/screens/SystemView.tsx:82
+#: src/app/screens/SystemView.tsx:385
 msgid "Rules"
 msgstr ""
 
@@ -807,7 +849,7 @@ msgstr ""
 msgid "Run it live"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:175
+#: src/app/screens/SystemReviewPanel.tsx:173
 msgid "Sample"
 msgstr ""
 
@@ -816,9 +858,9 @@ msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setu
 msgstr "於市場時區週六 09:00，把本週的盈虧、勝率、R、策略、違規次數和錯過的交易整理成一篇待填寫的回顧筆記。"
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
-#: src/app/screens/SystemView.tsx:315
-#: src/app/screens/SystemView.tsx:518
-#: src/components/TradeSystemCard.tsx:81
+#: src/app/screens/SystemView.tsx:321
+#: src/app/screens/SystemView.tsx:524
+#: src/components/TradeSystemCard.tsx:95
 msgid "Save"
 msgstr "儲存"
 
@@ -826,7 +868,7 @@ msgstr "儲存"
 msgid "Save changes"
 msgstr "儲存變更"
 
-#: src/app/screens/SystemView.tsx:507
+#: src/app/screens/SystemView.tsx:513
 msgid "Save, discard, or keep editing before leaving this node or version."
 msgstr ""
 
@@ -835,8 +877,8 @@ msgid "Scheduled backups are off"
 msgstr "排程備份已關閉"
 
 #: src/components/system-map/SystemNode.tsx:38
-msgid "Self-checked clear"
-msgstr ""
+#~ msgid "Self-checked clear"
+#~ msgstr ""
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
@@ -854,7 +896,7 @@ msgstr "分享的績效紀錄"
 msgid "Shares = (equity × risk%) / (entry − stop). Size follows risk, never the other way round."
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:203
+#: src/components/TradeSystemCard.tsx:217
 msgid "Should this change a rule?"
 msgstr ""
 
@@ -894,19 +936,19 @@ msgstr ""
 msgid "Start here"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:295
+#: src/app/screens/SystemView.tsx:301
 msgid "Start next version"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:225
+#: src/app/screens/SystemView.tsx:154
 msgid "Start v1.0"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:212
+#: src/app/screens/SystemView.tsx:140
 msgid "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:351
+#: src/app/screens/SystemView.tsx:360
 msgid "Starter prompts:"
 msgstr ""
 
@@ -926,20 +968,19 @@ msgstr ""
 msgid "Stop and target were set before entry"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:56
+#: src/components/TradeSystemCard.tsx:72
 msgid "System card"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:71
+#: src/components/TradeSystemCard.tsx:85
 msgid "System card saved"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:357
-#: src/components/system-map/SystemMapList.tsx:19
+#: src/components/system-map/SystemMapList.tsx:50
 msgid "System map"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:83
+#: src/app/screens/SystemView.tsx:78
 msgid "System view"
 msgstr ""
 
@@ -979,11 +1020,11 @@ msgstr "節奏"
 msgid "The rule was fine; I didn't follow it. Fix the process."
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:140
+#: src/components/TradeSystemCard.tsx:154
 msgid "Thesis"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:138
+#: src/app/screens/SystemReviewPanel.tsx:132
 msgid "Thin"
 msgstr ""
 
@@ -1011,7 +1052,7 @@ msgstr ""
 msgid "Trade the system at normal risk."
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:113
+#: src/components/TradeSystemCard.tsx:127
 msgid "Trade type"
 msgstr ""
 
@@ -1027,7 +1068,7 @@ msgstr ""
 msgid "Trades per month."
 msgstr "每月交易次數。"
 
-#: src/app/screens/SystemView.tsx:76
+#: src/app/screens/SystemView.tsx:71
 msgid "Trading system"
 msgstr ""
 
@@ -1035,7 +1076,7 @@ msgstr ""
 msgid "Trigger"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:101
+#: src/components/TradeSystemCard.tsx:115
 msgid "Trigger met"
 msgstr ""
 
@@ -1043,11 +1084,11 @@ msgstr ""
 msgid "Type of trade, expected move, holding time, core hypothesis."
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:164
+#: src/app/screens/SystemReviewPanel.tsx:162
 msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:505
+#: src/app/screens/SystemView.tsx:511
 msgid "Unsaved changes"
 msgstr ""
 
@@ -1059,16 +1100,16 @@ msgstr ""
 msgid "Vague wording — make it objective:"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:268
+#: src/app/screens/SystemView.tsx:273
 msgid "Version"
 msgstr ""
 
-#. placeholder {0}: cardQ.data.version_label
-#: src/components/TradeSystemCard.tsx:59
+#. placeholder {0}: card.version_label
+#: src/components/TradeSystemCard.tsx:74
 msgid "Version {0}"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:477
+#: src/app/screens/SystemView.tsx:484
 msgid "Version activated"
 msgstr ""
 
@@ -1135,15 +1176,15 @@ msgstr "勝率"
 msgid "Win rate, average win/loss, expectancy in R, results by regime and by setup."
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:173
+#: src/app/screens/SystemReviewPanel.tsx:171
 msgid "Win%"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:59
+#: src/app/screens/SystemReviewPanel.tsx:49
 msgid "With adherence"
 msgstr ""
 
-#: src/app/screens/SystemReviewPanel.tsx:58
+#: src/app/screens/SystemReviewPanel.tsx:48
 msgid "With regime"
 msgstr ""
 
@@ -1151,7 +1192,7 @@ msgstr ""
 msgid "Worst day"
 msgstr "最差交易日"
 
-#: src/app/screens/SystemView.tsx:78
+#: src/app/screens/SystemView.tsx:73
 msgid "Write the rules you trade by on the map, follow them trade by trade, and let the results tell you which rules to keep."
 msgstr ""
 
@@ -1175,7 +1216,7 @@ msgstr ""
 msgid "Wrong, still working, not working, or finished — how do I tell them apart?"
 msgstr ""
 
-#: src/components/TradeSystemCard.tsx:107
+#: src/components/TradeSystemCard.tsx:121
 msgid "Yes"
 msgstr ""
 

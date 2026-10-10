@@ -362,9 +362,9 @@ function VersionEditor({
         </p>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <Card title={t`System map`} flush>
-          <div className="hidden p-3 md:block">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.9fr)] lg:items-start">
+        <Card flush fill>
+          <div className="hidden md:block">
             <SystemMap
               rules={draftBody.rules}
               openQuestions={draftBody.open_questions}

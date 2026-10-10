@@ -14,8 +14,7 @@ const BASE_URL = process.env.TM_E2E_BASE_URL || "http://127.0.0.1:5173";
 // in-flight state. See the final report for the sysqa@example.com login check.
 const EMAIL = "system-map-e2e@example.com";
 const PASSWORD = "password123";
-const SHOT_DIR =
-  process.env.TM_E2E_SHOT_DIR || path.join(__dirname, "../e2e-artifacts/system-map");
+const SHOT_DIR = process.env.TM_E2E_SHOT_DIR || path.join(__dirname, "../e2e-artifacts/system-map");
 
 if (!fs.existsSync(SHOT_DIR)) fs.mkdirSync(SHOT_DIR, { recursive: true });
 
@@ -147,10 +146,14 @@ async function main() {
     // ================= Case 2: after Start v1.0 =================
     await startBtn.click();
     await page.getByRole("heading", { name: "Four-week plan" }).waitFor({ timeout: 10000 });
-    const mapVisible = await page.getByRole("heading", { name: "System map" }).isVisible();
+    const mapVisible = await page
+      .locator(".react-flow")
+      .first()
+      .isVisible()
+      .catch(() => false);
     const marketNodeVisible = await page
       .locator(".react-flow__node")
-      .filter({ hasText: "Market" })
+      .filter({ hasText: "Market environment" })
       .first()
       .isVisible()
       .catch(() => false);
@@ -158,7 +161,7 @@ async function main() {
     record(
       "2-started",
       mapVisible && marketNodeVisible,
-      `map card visible=${mapVisible}, Market node visible=${marketNodeVisible}`,
+      `react-flow visible=${mapVisible}, Market environment node visible=${marketNodeVisible}`,
     );
 
     // ================= Case 3: Entry node, fill Trigger, toggle, Save =================

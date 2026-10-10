@@ -3,7 +3,9 @@ import { changedDecisions, DECISIONS, emptyRule, vagueWords } from "./system";
 import {
   decisionClarity,
   isMapNodeId,
+  MAP_EDGES,
   MAP_NODES,
+  MAP_POSITIONS,
   nodeClarity,
   nodeForDecision,
   STARTER_DECISIONS,
@@ -41,6 +43,13 @@ describe("system-map", () => {
     expect(isMapNodeId("nope")).toBe(false);
     expect(nodeForDecision("trigger")).toBe("entry");
     expect(STARTER_DECISIONS).toHaveLength(4);
+  });
+
+  it("lays out a vertical spine with watch branch and feedback", () => {
+    const ys = MAP_NODES.map((n) => MAP_POSITIONS[n.id].y);
+    expect(ys).toEqual([...ys].sort((a, b) => a - b));
+    expect(MAP_EDGES.some((e) => e.kind === "branch" && e.labelKey === "keep_watching")).toBe(true);
+    expect(MAP_EDGES.some((e) => e.kind === "feedback")).toBe(true);
   });
 
   it("ranks clarity needs_clarity > empty > self_clear", () => {
