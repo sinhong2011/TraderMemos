@@ -18,7 +18,7 @@ export function InspectorFrame({
   return (
     <section
       className={cn(
-        "flex h-full min-h-0 flex-col overflow-hidden bg-card/90 backdrop-blur-sm",
+        "flex h-full min-h-0 flex-col overflow-hidden rounded-xl bg-card/95 shadow-lg/5 backdrop-blur-sm",
         className,
       )}
     >

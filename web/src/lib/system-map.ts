@@ -105,7 +105,7 @@ export const MAP_POSITIONS: Record<MapNodeId, { x: number; y: number }> = {
   review: { x: 72, y: 544 },
 };
 
-export const WATCH_POSITION = { x: 420, y: 168 };
+export const WATCH_POSITION = { x: 480, y: 168 };
 
 /** Client-only layout prefs — separate from version rules / API data. */
 const LAYOUT_STORAGE_PREFIX = "tm-system-map-layout-v1:";

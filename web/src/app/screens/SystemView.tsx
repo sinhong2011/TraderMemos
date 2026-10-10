@@ -49,7 +49,6 @@ import {
   CHANGE_REASONS,
   changedDecisions,
   changeReasonCopy,
-  decisionCopy,
   DECISIONS,
   emptyRule,
   planStepCopy,
@@ -569,7 +568,7 @@ function VersionEditor({
             />
           </div>
         </div>
-        <div className="min-h-[320px] min-w-0 border-t border-border/40 lg:min-h-0 lg:border-s lg:border-t-0">
+        <div className="min-h-[320px] min-w-0 p-3 lg:min-h-0 lg:ps-0">
           {mode === "follow" ? (
             <SystemInspector panelKey={`follow-${node}`}>
               <FollowTradeInspector node={node} version={followVersion} onEditDraft={onEditDraft} />
@@ -579,10 +578,8 @@ function VersionEditor({
               title={systemNodeTitle(node)}
               subtitle={
                 readonly
-                  ? t`Historical versions are read-only.`
-                  : decisions[0]
-                    ? t`Decision · ${decisionCopy(decisions[0]).title}`
-                    : t`Edit the selected node.`
+                  ? t`${selectedVersion.label} · read-only`
+                  : t`${selectedVersion.label} · ${decisions.length} decisions`
               }
             >
               <SystemInspector panelKey={node}>

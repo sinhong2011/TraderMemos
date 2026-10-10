@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { AlertTriangle, CheckSquare2, Circle, FileText, Info, Pencil, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DecisionId, Rule, SystemVersion } from "@/lib/api/system";
-import { decisionCopy, DECISIONS, emptyRule } from "@/lib/system";
+import { DECISIONS, emptyRule } from "@/lib/system";
 import type { MapNodeId } from "@/lib/system-map";
 import { decisionsForNode } from "@/lib/system-map";
 import { systemNodeTitle } from "./SystemNode";
@@ -25,7 +25,6 @@ export function FollowTradeInspector({
   const decisions = decisionsForNode(node);
   const primary = decisions[0];
   const rule: Rule = (primary && version?.rules?.[primary]) || emptyRule();
-  const copy = primary ? decisionCopy(primary) : null;
   const hasRule = Boolean(rule.text.trim());
   const label = version?.label ?? "—";
 
@@ -33,8 +32,8 @@ export function FollowTradeInspector({
     <InspectorFrame
       title={systemNodeTitle(node)}
       subtitle={
-        primary && copy
-          ? t`Decision ${decisionIndex(primary)} · ${copy.title}`
+        primary
+          ? t`Following ${label} · decision ${decisionIndex(primary)}`
           : t`Select a node on the map`
       }
       footer={
