@@ -261,6 +261,53 @@ export interface PlanCandidate extends PlanTrade {
   opened_before_plan: boolean;
 }
 
+export type EvidenceStance = "support" | "weaken" | "uncertain";
+export type EvidenceState = "wrong" | "still_working" | "not_working" | "finished";
+export type EvidenceAction = "hold" | "add" | "trim" | "take_profit" | "exit";
+
+export interface EvidenceRevision {
+  id: string;
+  seq: number;
+  decision_id: DecisionId;
+  stance: EvidenceStance;
+  body: string;
+  state: EvidenceState;
+  action: EvidenceAction;
+  source: PlanSource;
+  occurred_at: string | null;
+  recorded_at: string;
+}
+
+export interface EvidenceEntry {
+  id: string;
+  withdrawn_at: string | null;
+  withdraw_reason: string;
+  created_at: string;
+  latest: EvidenceRevision | null;
+  revisions: EvidenceRevision[];
+}
+
+export interface EvidencePrompt {
+  kind: "time_stop" | "planned_hold";
+  due_at: string;
+}
+
+export interface PlanEvidenceList {
+  entries: EvidenceEntry[];
+  scaling_rule: string;
+  prompt: EvidencePrompt | null;
+}
+
+export interface EvidenceBody {
+  decision_id: DecisionId;
+  stance: EvidenceStance;
+  body: string;
+  state: EvidenceState;
+  action: EvidenceAction;
+  source: PlanSource;
+  occurred_at?: string | null;
+}
+
 export interface PlanRevisionBody {
   setup: string;
   thesis: string;
@@ -343,4 +390,20 @@ export const systemApi = {
       body: JSON.stringify({ reason }),
     }),
   planTrades: (id: string) => apiFetch<PlanCandidate[]>(`/system/plans/${id}/trades`),
+  planEvidence: (id: string) => apiFetch<PlanEvidenceList>(`/system/plans/${id}/evidence`),
+  createPlanEvidence: (id: string, body: EvidenceBody) =>
+    apiFetch<PlanEvidenceList>(`/system/plans/${id}/evidence`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  addEvidenceRevision: (id: string, evidenceId: string, body: EvidenceBody) =>
+    apiFetch<PlanEvidenceList>(`/system/plans/${id}/evidence/${evidenceId}/revisions`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  withdrawPlanEvidence: (id: string, evidenceId: string, reason: string) =>
+    apiFetch<PlanEvidenceList>(`/system/plans/${id}/evidence/${evidenceId}/withdraw`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    }),
 };

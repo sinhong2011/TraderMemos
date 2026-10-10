@@ -32,6 +32,16 @@ func TestPlanSemantics(t *testing.T) {
 
 	steps = Plan(PlanInput{Executable: 16, Activated: 2, HistoryTrades: 10, LiveTrades: 10})
 	require.True(t, steps[3].Done)
+
+	steps = Plan(PlanInput{Executable: 1, Activated: 2})
+	require.Equal(t, 1, steps[3].Progress)
+	require.False(t, steps[3].Done, "a second activation does not finish revise while earlier weeks are open")
+
+	steps = Plan(PlanInput{Executable: 16, Activated: 2, HistoryTrades: 10})
+	require.True(t, steps[0].Done)
+	require.True(t, steps[1].Done)
+	require.False(t, steps[2].Done)
+	require.False(t, steps[3].Done, "revise waits for the live run")
 }
 
 func TestSampleBandIsAdequateNotReliable(t *testing.T) {

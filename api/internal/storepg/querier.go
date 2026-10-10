@@ -28,6 +28,8 @@ type Querier interface {
 	CreateSystemChange(ctx context.Context, arg CreateSystemChangeParams) (SystemChange, error)
 	CreateSystemPlan(ctx context.Context, arg CreateSystemPlanParams) (SystemPlan, error)
 	CreateSystemPlanEvent(ctx context.Context, arg CreateSystemPlanEventParams) (SystemPlanEvent, error)
+	CreateSystemPlanEvidence(ctx context.Context, arg CreateSystemPlanEvidenceParams) (SystemPlanEvidence, error)
+	CreateSystemPlanEvidenceRevision(ctx context.Context, arg CreateSystemPlanEvidenceRevisionParams) (SystemPlanEvidenceRevision, error)
 	CreateSystemPlanRevision(ctx context.Context, arg CreateSystemPlanRevisionParams) (SystemPlanRevision, error)
 	CreateSystemVersion(ctx context.Context, arg CreateSystemVersionParams) (SystemVersion, error)
 	CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error)
@@ -95,6 +97,7 @@ type Querier interface {
 	GetShareLinkByToken(ctx context.Context, token string) (ShareLink, error)
 	GetSystemPlan(ctx context.Context, arg GetSystemPlanParams) (SystemPlan, error)
 	GetSystemPlanByTrade(ctx context.Context, arg GetSystemPlanByTradeParams) (SystemPlan, error)
+	GetSystemPlanEvidence(ctx context.Context, arg GetSystemPlanEvidenceParams) (SystemPlanEvidence, error)
 	GetSystemVersion(ctx context.Context, arg GetSystemVersionParams) (SystemVersion, error)
 	GetTrade(ctx context.Context, arg GetTradeParams) (Trade, error)
 	GetTradeIDForExecution(ctx context.Context, executionID string) (string, error)
@@ -151,6 +154,8 @@ type Querier interface {
 	ListSystemChanges(ctx context.Context, userID string) ([]SystemChange, error)
 	ListSystemChangesForVersion(ctx context.Context, arg ListSystemChangesForVersionParams) ([]SystemChange, error)
 	ListSystemPlanEvents(ctx context.Context, arg ListSystemPlanEventsParams) ([]SystemPlanEvent, error)
+	ListSystemPlanEvidence(ctx context.Context, arg ListSystemPlanEvidenceParams) ([]SystemPlanEvidence, error)
+	ListSystemPlanEvidenceRevisions(ctx context.Context, arg ListSystemPlanEvidenceRevisionsParams) ([]SystemPlanEvidenceRevision, error)
 	ListSystemPlanRevisions(ctx context.Context, arg ListSystemPlanRevisionsParams) ([]SystemPlanRevision, error)
 	ListSystemPlans(ctx context.Context, userID string) ([]SystemPlan, error)
 	ListSystemVersions(ctx context.Context, userID string) ([]SystemVersion, error)
@@ -171,6 +176,7 @@ type Querier interface {
 	ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error)
 	ListUsers(ctx context.Context) ([]User, error)
 	MarkWeeklyReviewSent(ctx context.Context, arg MarkWeeklyReviewSentParams) error
+	MaxSystemPlanEvidenceRevisionSeq(ctx context.Context, arg MaxSystemPlanEvidenceRevisionSeqParams) (int64, error)
 	MaxSystemPlanRevisionSeq(ctx context.Context, arg MaxSystemPlanRevisionSeqParams) (int64, error)
 	MoveRoutineChecks(ctx context.Context, arg MoveRoutineChecksParams) error
 	PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error
@@ -223,6 +229,7 @@ type Querier interface {
 	UpsertTradeSystemCard(ctx context.Context, arg UpsertTradeSystemCardParams) (TradeSystemCard, error)
 	UpsertUserPreferences(ctx context.Context, arg UpsertUserPreferencesParams) (UserPreference, error)
 	UpsertWeeklyReviewNote(ctx context.Context, arg UpsertWeeklyReviewNoteParams) error
+	WithdrawSystemPlanEvidence(ctx context.Context, arg WithdrawSystemPlanEvidenceParams) (SystemPlanEvidence, error)
 }
 
 var _ Querier = (*Queries)(nil)

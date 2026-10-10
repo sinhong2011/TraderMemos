@@ -156,6 +156,22 @@ func (p *PG) CreateSystemPlanEvent(ctx context.Context, arg CreateSystemPlanEven
 	return SystemPlanEvent(v), nil
 }
 
+func (p *PG) CreateSystemPlanEvidence(ctx context.Context, arg CreateSystemPlanEvidenceParams) (SystemPlanEvidence, error) {
+	v, err := p.q.CreateSystemPlanEvidence(ctx, storepg.CreateSystemPlanEvidenceParams(arg))
+	if err != nil {
+		return SystemPlanEvidence{}, err
+	}
+	return SystemPlanEvidence(v), nil
+}
+
+func (p *PG) CreateSystemPlanEvidenceRevision(ctx context.Context, arg CreateSystemPlanEvidenceRevisionParams) (SystemPlanEvidenceRevision, error) {
+	v, err := p.q.CreateSystemPlanEvidenceRevision(ctx, storepg.CreateSystemPlanEvidenceRevisionParams(arg))
+	if err != nil {
+		return SystemPlanEvidenceRevision{}, err
+	}
+	return SystemPlanEvidenceRevision(v), nil
+}
+
 func (p *PG) CreateSystemPlanRevision(ctx context.Context, arg CreateSystemPlanRevisionParams) (SystemPlanRevision, error) {
 	v, err := p.q.CreateSystemPlanRevision(ctx, storepg.CreateSystemPlanRevisionParams(arg))
 	if err != nil {
@@ -542,6 +558,14 @@ func (p *PG) GetSystemPlanByTrade(ctx context.Context, arg GetSystemPlanByTradeP
 		return SystemPlan{}, err
 	}
 	return SystemPlan(v), nil
+}
+
+func (p *PG) GetSystemPlanEvidence(ctx context.Context, arg GetSystemPlanEvidenceParams) (SystemPlanEvidence, error) {
+	v, err := p.q.GetSystemPlanEvidence(ctx, storepg.GetSystemPlanEvidenceParams(arg))
+	if err != nil {
+		return SystemPlanEvidence{}, err
+	}
+	return SystemPlanEvidence(v), nil
 }
 
 func (p *PG) GetSystemVersion(ctx context.Context, arg GetSystemVersionParams) (SystemVersion, error) {
@@ -995,6 +1019,22 @@ func (p *PG) ListSystemPlanEvents(ctx context.Context, arg ListSystemPlanEventsP
 	return func() []SystemPlanEvent { in := v; out := make([]SystemPlanEvent, len(in)); for i := range in { out[i] = SystemPlanEvent(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListSystemPlanEvidence(ctx context.Context, arg ListSystemPlanEvidenceParams) ([]SystemPlanEvidence, error) {
+	v, err := p.q.ListSystemPlanEvidence(ctx, storepg.ListSystemPlanEvidenceParams(arg))
+	if err != nil {
+		return nil, err
+	}
+	return func() []SystemPlanEvidence { in := v; out := make([]SystemPlanEvidence, len(in)); for i := range in { out[i] = SystemPlanEvidence(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListSystemPlanEvidenceRevisions(ctx context.Context, arg ListSystemPlanEvidenceRevisionsParams) ([]SystemPlanEvidenceRevision, error) {
+	v, err := p.q.ListSystemPlanEvidenceRevisions(ctx, storepg.ListSystemPlanEvidenceRevisionsParams(arg))
+	if err != nil {
+		return nil, err
+	}
+	return func() []SystemPlanEvidenceRevision { in := v; out := make([]SystemPlanEvidenceRevision, len(in)); for i := range in { out[i] = SystemPlanEvidenceRevision(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListSystemPlanRevisions(ctx context.Context, arg ListSystemPlanRevisionsParams) ([]SystemPlanRevision, error) {
 	v, err := p.q.ListSystemPlanRevisions(ctx, storepg.ListSystemPlanRevisionsParams(arg))
 	if err != nil {
@@ -1101,6 +1141,10 @@ func (p *PG) ListUsers(ctx context.Context) ([]User, error) {
 
 func (p *PG) MarkWeeklyReviewSent(ctx context.Context, arg MarkWeeklyReviewSentParams) error {
 	return p.q.MarkWeeklyReviewSent(ctx, storepg.MarkWeeklyReviewSentParams(arg))
+}
+
+func (p *PG) MaxSystemPlanEvidenceRevisionSeq(ctx context.Context, arg MaxSystemPlanEvidenceRevisionSeqParams) (int64, error) {
+	return p.q.MaxSystemPlanEvidenceRevisionSeq(ctx, storepg.MaxSystemPlanEvidenceRevisionSeqParams(arg))
 }
 
 func (p *PG) MaxSystemPlanRevisionSeq(ctx context.Context, arg MaxSystemPlanRevisionSeqParams) (int64, error) {
@@ -1413,4 +1457,12 @@ func (p *PG) UpsertUserPreferences(ctx context.Context, arg UpsertUserPreference
 
 func (p *PG) UpsertWeeklyReviewNote(ctx context.Context, arg UpsertWeeklyReviewNoteParams) error {
 	return p.q.UpsertWeeklyReviewNote(ctx, storepg.UpsertWeeklyReviewNoteParams(arg))
+}
+
+func (p *PG) WithdrawSystemPlanEvidence(ctx context.Context, arg WithdrawSystemPlanEvidenceParams) (SystemPlanEvidence, error) {
+	v, err := p.q.WithdrawSystemPlanEvidence(ctx, storepg.WithdrawSystemPlanEvidenceParams(arg))
+	if err != nil {
+		return SystemPlanEvidence{}, err
+	}
+	return SystemPlanEvidence(v), nil
 }

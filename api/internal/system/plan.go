@@ -32,8 +32,9 @@ type Step struct {
 // Plan scores the four weeks: write v1.0, test on past trades, run it live
 // (follow-ability), then revise by activating the next version.
 //
-// Week 4 is version revision after a live run — activating a second version —
-// not "first full review". Saved review decisions land in a later stage.
+// Week 4 is a revision after the write, the history test, and a live run.
+// Activating a second version while those are still open does not finish it.
+// Saved review decisions land in a later stage.
 func Plan(in PlanInput) []Step {
 	clamp := func(v, hi int) int { return max(0, min(v, hi)) }
 	steps := []Step{
@@ -44,9 +45,9 @@ func Plan(in PlanInput) []Step {
 		{Week: 4, Key: "revise", Progress: clamp(in.Activated-1, 1), Target: 1},
 	}
 	steps[0].Done = in.Activated > 0 && steps[0].Progress == steps[0].Target
-	for i := range steps[1:] {
-		s := &steps[i+1]
-		s.Done = s.Progress >= s.Target
+	for i := 1; i <= 2; i++ {
+		steps[i].Done = steps[i].Progress >= steps[i].Target
 	}
+	steps[3].Done = steps[3].Progress >= steps[3].Target && steps[0].Done && steps[1].Done && steps[2].Done
 	return steps
 }

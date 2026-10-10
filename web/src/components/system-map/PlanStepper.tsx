@@ -63,7 +63,7 @@ export function PlanStepper({ plan }: { plan: PlanStep[] }) {
                   <span
                     className={cn(
                       "flex size-7 shrink-0 items-center justify-center rounded-full text-2xs font-semibold tabular-nums transition-colors",
-                      state === "done" && "bg-primary text-primary-foreground",
+                      state === "done" && "bg-success/15 text-success-foreground",
                       state === "current" && "bg-primary/15 text-primary ring-2 ring-primary",
                       state === "upcoming" && "bg-muted text-muted-foreground",
                     )}
@@ -100,7 +100,7 @@ export function PlanStepper({ plan }: { plan: PlanStep[] }) {
                   aria-hidden
                   className={cn(
                     "mx-2 hidden h-0.5 min-w-4 flex-1 rounded-full md:block",
-                    state === "done" ? "bg-primary" : "bg-foreground/15",
+                    state === "done" ? "bg-success/50" : "bg-foreground/15",
                   )}
                 />
               )}

@@ -1759,6 +1759,96 @@ paths:
       responses:
         "200":
           description: Candidate trades
+  /api/v1/system/plans/{id}/evidence:
+    get:
+      tags: [Trading system]
+      summary: Evidence recorded while holding
+      description: >
+        Notes on a plan, newest first. Each note's revisions are oldest first
+        and are never rewritten. `prompt` is a due time stop or planned hold
+        to confirm — it does not create a note or close the trade. `scaling_rule`
+        is the text of the version the plan was written under.
+      operationId: listSystemPlanEvidence
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Evidence timeline
+        "404":
+          description: Plan not found
+    post:
+      tags: [Trading system]
+      summary: Record evidence while holding
+      description: >
+        Requires a taken plan. `retrospective` notes need `occurred_at`.
+        An action is the author's record, not a broker order.
+      operationId: createSystemPlanEvidence
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SystemPlanEvidenceInput"
+      responses:
+        "201":
+          description: Evidence timeline
+        "400":
+          description: Invalid note
+        "409":
+          description: Plan has no linked trade (`plan_not_taken`)
+  /api/v1/system/plans/{id}/evidence/{eid}/revisions:
+    post:
+      tags: [Trading system]
+      summary: Correct an evidence note
+      description: Appends a revision. The earlier wording stays readable. A withdrawn note cannot be corrected.
+      operationId: addSystemPlanEvidenceRevision
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+        - name: eid
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SystemPlanEvidenceInput"
+      responses:
+        "201":
+          description: Evidence timeline
+        "409":
+          description: Note is withdrawn (`evidence_withdrawn`) or plan is not taken
+  /api/v1/system/plans/{id}/evidence/{eid}/withdraw:
+    post:
+      tags: [Trading system]
+      summary: Withdraw an evidence note
+      description: Keeps every revision and records why the note was withdrawn. Needs a reason.
+      operationId: withdrawSystemPlanEvidence
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+        - name: eid
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, maxLength: 500 }
+      responses:
+        "200":
+          description: Evidence timeline
+        "400":
+          description: Reason missing
+        "409":
+          description: Already withdrawn
   /api/v1/system/regimes/{day}:
     get:
       tags: [Trading system]
@@ -2365,6 +2455,20 @@ components:
           example: tradermemos-20261004-031500Z.db
         size_bytes: { type: integer, format: int64 }
         created_at: { type: string, format: date-time }
+    SystemPlanEvidenceInput:
+      type: object
+      required: [decision_id, stance, body, state, action]
+      properties:
+        decision_id: { type: string }
+        stance: { type: string, enum: [support, weaken, uncertain] }
+        body: { type: string, maxLength: 2000 }
+        state: { type: string, enum: [wrong, still_working, not_working, finished] }
+        action: { type: string, enum: [hold, add, trim, take_profit, exit] }
+        source: { type: string, enum: [live, retrospective], default: live }
+        occurred_at:
+          type: [string, "null"]
+          format: date-time
+          description: When the author says it happened. Required for retrospective notes. Cannot be in the future.
     SystemPlanRevisionInput:
       type: object
       properties:

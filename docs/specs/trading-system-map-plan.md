@@ -1,7 +1,7 @@
 # Trading System Map — 實作計畫
 
 日期：2026-10-10  
-狀態：階段 A 完成；階段 B（規則地圖）已實作並對齊垂直草稿（含繼續觀察分支、feedback 邊），腳本化 E2E 案例已完成。跟交易／看回顧模式仍屬 C–E。  
+狀態：階段 A、B 完成。階段 C（跟交易：事前計畫、修訂、狀態、確認連結）已實作，只剩舊卡片標成 legacy / retrospective 未做。階段 D（持倉證據時間線）已實作。階段 E（回顧閉環）未做。  
 工作分支：`cursor/trading-system-map-f936`
 
 延續 [Trading System Builder](trading-system-builder.md)，將規則、交易決策與回顧放到同一張可操作的系統地圖。既有 API + web 階段 1–3 已有實作，但完整端到端驗收仍未完成；mobile 位於另一 worktree，不在本次 web 實作範圍。
@@ -132,11 +132,11 @@ web/src/app/screens/SystemView.tsx         # 模式、context、版本協調
 
 ### D. 持倉證據與決策時間線
 
-- [ ] 每則記錄包含 decision_id、支持／削弱／不確定、證據文字、state、action、記錄與事件時間。
-- [ ] state：wrong / still_working / not_working / finished；action：hold / add / trim / take_profit / exit。行動記錄不等於 broker order。
-- [ ] 允許回顧補記，清楚標示來源；更正以 revision／撤回紀錄保留歷史。
-- [ ] 加減倉顯示當時版本的 scaling 規則；不自動把合理例外當違規。
-- [ ] planned hold / time stop 到期顯示待確認問題，不自動診斷或離場。
+- [x] 每則記錄包含 decision_id、支持／削弱／不確定、證據文字、state、action、記錄與事件時間。
+- [x] state：wrong / still_working / not_working / finished；action：hold / add / trim / take_profit / exit。行動記錄不等於 broker order。
+- [x] 允許回顧補記，清楚標示來源；更正以 revision／撤回紀錄保留歷史。
+- [x] 加減倉顯示當時版本的 scaling 規則；不自動把合理例外當違規。
+- [x] planned hold / time stop 到期顯示待確認問題，不自動診斷或離場。
 
 完成條件：新增、取消、更正、重開讀回以及所有狀態的可用轉換經真實點擊驗證。
 

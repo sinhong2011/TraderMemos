@@ -79,6 +79,7 @@ import {
   type PlanDraft,
 } from "@/lib/system-plan";
 import { FollowTradeInspector } from "./FollowTradeInspector";
+import { EvidenceTimeline } from "./EvidenceTimeline";
 import { InspectorFrame, InspectorSection } from "./InspectorFrame";
 import { directionLabel, LinkTradeDialog, NewPlanDialog, ReasonDialog } from "./PlanDialogs";
 import { SystemInspector } from "./SystemInspector";
@@ -1104,6 +1105,10 @@ function PlanInspector({
             </p>
           )}
         </InspectorSection>
+      ) : null}
+
+      {node === "review" ? (
+        <EvidenceTimeline planId={plan.id} taken={plan.status === "taken"} />
       ) : null}
 
       {node === "review" ? (

@@ -27,6 +27,10 @@ func (s *Server) systemPlanRoutes(g *echo.Group) {
 	g.POST("/system/plans/:id/link", s.handleLinkSystemPlan)
 	g.POST("/system/plans/:id/unlink", s.handleUnlinkSystemPlan)
 	g.GET("/system/plans/:id/trades", s.handleListSystemPlanTrades)
+	g.GET("/system/plans/:id/evidence", s.handleListSystemPlanEvidence)
+	g.POST("/system/plans/:id/evidence", s.handleCreateSystemPlanEvidence)
+	g.POST("/system/plans/:id/evidence/:eid/revisions", s.handleAddSystemPlanEvidenceRevision)
+	g.POST("/system/plans/:id/evidence/:eid/withdraw", s.handleWithdrawSystemPlanEvidence)
 }
 
 const (

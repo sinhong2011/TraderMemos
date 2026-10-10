@@ -312,7 +312,7 @@ export function planStepCopy(key: PlanStep["key"]): { title: string; detail: str
     case "revise":
       return {
         title: t`Revise the version`,
-        detail: t`Activate the next version after the live run. A saved review decision comes later — this step only tracks that you revised.`,
+        detail: t`Finishes only after the write, the history test, and a live run, once you activate the next version. Activating early does not complete it.`,
       };
   }
 }

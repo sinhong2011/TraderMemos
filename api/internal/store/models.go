@@ -366,6 +366,30 @@ type SystemPlanEvent struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
+type SystemPlanEvidence struct {
+	ID             string       `json:"id"`
+	PlanID         string       `json:"plan_id"`
+	UserID         string       `json:"user_id"`
+	WithdrawnAt    sql.NullTime `json:"withdrawn_at"`
+	WithdrawReason string       `json:"withdraw_reason"`
+	CreatedAt      time.Time    `json:"created_at"`
+}
+
+type SystemPlanEvidenceRevision struct {
+	ID         string       `json:"id"`
+	EvidenceID string       `json:"evidence_id"`
+	UserID     string       `json:"user_id"`
+	Seq        int64        `json:"seq"`
+	DecisionID string       `json:"decision_id"`
+	Stance     string       `json:"stance"`
+	Body       string       `json:"body"`
+	State      string       `json:"state"`
+	Action     string       `json:"action"`
+	Source     string       `json:"source"`
+	OccurredAt sql.NullTime `json:"occurred_at"`
+	RecordedAt time.Time    `json:"recorded_at"`
+}
+
 type SystemPlanRevision struct {
 	ID           string          `json:"id"`
 	PlanID       string          `json:"plan_id"`

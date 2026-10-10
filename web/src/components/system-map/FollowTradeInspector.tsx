@@ -129,7 +129,7 @@ export function FollowTradeInspector({
 
       <InspectorSection title={t`Evidence at the time`}>
         <p className="text-sm text-muted-foreground">
-          {t`Nothing recorded yet. Screenshots and notes captured while following a trade land here.`}
+          {t`Open a plan and link the trade. Notes you write while holding show up on Review.`}
         </p>
       </InspectorSection>
     </InspectorFrame>

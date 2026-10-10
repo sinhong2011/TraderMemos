@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   type ChangeBody,
   type CreatePlanBody,
+  type EvidenceBody,
+  type PlanEvidenceList,
   type PlanRevisionBody,
   type PlanStatus,
   type SystemPlanDetail,
@@ -174,6 +176,49 @@ export function useUnlinkPlanTrade() {
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
       systemApi.unlinkPlan(id, reason),
+    onSuccess: settled,
+  });
+}
+
+const evidenceKey = (planId: string) => [...PLANS_KEY, "evidence", planId] as const;
+
+export function usePlanEvidence(planId: string | null) {
+  return useQuery({
+    queryKey: planId ? evidenceKey(planId) : [...PLANS_KEY, "evidence", "none"],
+    queryFn: () => systemApi.planEvidence(planId!),
+    enabled: Boolean(planId),
+  });
+}
+
+function useEvidenceSettled(planId: string) {
+  const qc = useQueryClient();
+  return (list: PlanEvidenceList) => {
+    qc.setQueryData(evidenceKey(planId), list);
+  };
+}
+
+export function useCreatePlanEvidence(planId: string) {
+  const settled = useEvidenceSettled(planId);
+  return useMutation({
+    mutationFn: (body: EvidenceBody) => systemApi.createPlanEvidence(planId, body),
+    onSuccess: settled,
+  });
+}
+
+export function useAddEvidenceRevision(planId: string) {
+  const settled = useEvidenceSettled(planId);
+  return useMutation({
+    mutationFn: ({ evidenceId, body }: { evidenceId: string; body: EvidenceBody }) =>
+      systemApi.addEvidenceRevision(planId, evidenceId, body),
+    onSuccess: settled,
+  });
+}
+
+export function useWithdrawPlanEvidence(planId: string) {
+  const settled = useEvidenceSettled(planId);
+  return useMutation({
+    mutationFn: ({ evidenceId, reason }: { evidenceId: string; reason: string }) =>
+      systemApi.withdrawPlanEvidence(planId, evidenceId, reason),
     onSuccess: settled,
   });
 }
