@@ -82,3 +82,15 @@ sides of the boundary, so the right one drops out.
 State plainly what was tapped and what was not. "Renders correctly" is not "works" —
 if a path could not be exercised, name it as unverified rather than letting a green
 `check`/`lint` imply coverage it does not have.
+
+## Cursor Cloud specific instructions
+
+The image already has Go 1.27.0, Node 24.18.0, pnpm 12.7.0, `air`, and `sqlc` on `PATH`. Do not use the image's older `/usr/bin/go` (1.22) or `/exec-daemon/node` (22). Mobile is pinned to Node 25.6.1 — prepend it before any `mobile/` command:
+
+```
+export PATH="/usr/local/lib/node-25/bin:$PATH"
+```
+
+SQLite is the dev database. `api/.env` is copied from `api/.env.example` on install (insecure JWT allowed for local dev only). Boot starts the API with `air` on `:8080` and the web app with `pnpm run dev -- --host 0.0.0.0 --port 5173`. Vite proxies `/api` to the API. First visit is the setup wizard.
+
+Validate from the repo root with `make check` and `make test`. Marketing, from `marketing/`: `pnpm run lint`, `pnpm run types:check`, `pnpm run build`. This image has no Android SDK or iOS simulator, so mobile native builds are out of scope; `pnpm run check` and `pnpm run lint` in `mobile/` are the cloud checks.
