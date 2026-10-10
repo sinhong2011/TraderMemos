@@ -73,7 +73,8 @@ describe("system-map", () => {
         },
         {},
       ),
-    ).toBe("empty");
+    ).toBe("needs_clarity");
+    expect(nodeClarity("entry", {}, {})).toBe("empty");
     expect(
       nodeClarity(
         "entry",

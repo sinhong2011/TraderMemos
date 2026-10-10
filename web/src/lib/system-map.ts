@@ -188,16 +188,12 @@ export function nodeClarity(
   rules: Partial<Record<DecisionId, Rule>> | undefined,
   openQuestions?: Partial<Record<SystemPart, string>>,
 ): RuleClarity {
-  const decisions = decisionsForNode(nodeId);
-  let worst: RuleClarity = "self_clear";
-  let any = false;
-  for (const d of decisions) {
-    any = true;
-    const c = decisionClarity(rules?.[d], openQuestions?.[partOf(d)]);
-    if (c === "needs_clarity") return "needs_clarity";
-    if (c === "empty") worst = "empty";
-  }
-  return any ? worst : "empty";
+  const states = decisionsForNode(nodeId).map((d) =>
+    decisionClarity(rules?.[d], openQuestions?.[partOf(d)]),
+  );
+  if (states.every((c) => c === "empty")) return "empty";
+  if (states.every((c) => c === "self_clear")) return "self_clear";
+  return "needs_clarity";
 }
 
 /** First non-empty rule text on the node, for the map card subtitle. */
