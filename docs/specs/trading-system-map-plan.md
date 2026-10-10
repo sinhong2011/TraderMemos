@@ -119,14 +119,14 @@ web/src/app/screens/SystemView.tsx         # 模式、context、版本協調
 
 ### C. 跟交易：事前計畫與條件確認
 
-- [ ] 新增獨立於 trade 的 opportunity / plan，允許成交前記錄，再由用戶確認連結匯入交易。
-- [ ] 計畫保存 system_version_id、symbol、direction、setup、適用條件、假設、觸發、失效條件與已有的 sizing 資料。
-- [ ] 不可變的計畫 revision：保存 server recorded_at、用戶 reported occurred_at、source；修改追加 revision，不能覆寫原快照。
-- [ ] 狀態 planned / waiting / taken / skipped / cancelled；明確允許的轉換與原因。編輯取消不等於取消機會。
-- [ ] 条件採未回答／是／否／不適用，保留依據及記錄時間；區分作者判斷與可由已知資料驗證的項目。
-- [ ] 成交連結需確認；不能只用 symbol 自動配對。解除／重新連結保留歷史並限制擁有權。
+- [x] 新增獨立於 trade 的 opportunity / plan，允許成交前記錄，再由用戶確認連結匯入交易。
+- [x] 計畫保存 system_version_id、symbol、direction、setup、適用條件、假設、觸發、失效條件與已有的 sizing 資料。
+- [x] 不可變的計畫 revision：保存 server recorded_at、用戶 reported occurred_at、source；修改追加 revision，不能覆寫原快照。
+- [x] 狀態 planned / waiting / taken / skipped / cancelled；明確允許的轉換與原因。編輯取消不等於取消機會。
+- [x] 条件採未回答／是／否／不適用，保留依據及記錄時間。答案一律是作者判斷，不從已知資料自動填。
+- [x] 成交連結需確認；不能只用 symbol 自動配對。解除／重新連結保留歷史並限制擁有權。
 - [ ] 舊卡片來源標記為 legacy / retrospective，未知事前狀態不補造。
-- [ ] API、SQLite/Postgres migrations、OpenAPI、web types 一起更新；編號實作前檢查，避免與其他 worktree 衝突。
+- [x] API、SQLite/Postgres migrations、OpenAPI、web types 一起更新；編號實作前檢查，避免與其他 worktree 衝突。
 
 完成條件：無成交也可保存計畫、等待或放棄；成交後連結、讀回、解除與重新連結正確；事後修改不改寫原計畫證據。
 

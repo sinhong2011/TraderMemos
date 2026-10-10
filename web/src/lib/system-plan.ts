@@ -64,7 +64,7 @@ export function planStatusTone(s: PlanStatus): { pill: string; dot: string } {
 export function answerLabel(a: ConditionAnswer): string {
   switch (a) {
     case "":
-      return t`Unanswered`;
+      return t`No answer`;
     case "yes":
       return t`Met`;
     case "no":

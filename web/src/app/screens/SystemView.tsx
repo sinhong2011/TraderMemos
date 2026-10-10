@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Compass, History, Lock, Pencil, Plus, Rocket, Save, Sparkles, Trash2 } from "lucide-react";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useState } from "react";
 import { Route, type SystemMode } from "@/routes/system";
 import {
   Dialog,
@@ -101,9 +101,12 @@ export function SystemView() {
   const sys = systemQ.data;
   const mode: SystemMode = search.mode ?? "rules";
   const hasWorkspace = Boolean(sys && (sys.active || sys.draft || sys.history.length > 0));
-  const shownVersion = sys?.draft ?? sys?.active ?? sys?.history[0] ?? null;
+  const shownVersion =
+    mode === "follow"
+      ? (sys?.active ?? sys?.draft ?? sys?.history[0] ?? null)
+      : (sys?.draft ?? sys?.active ?? sys?.history[0] ?? null);
 
-  /** Rules and Follow share one mounted editor; anything else remounts it and drops edits. */
+  /** Rules and Follow each mount their own editor, so leaving either drops unsaved work. */
   const guardLeave = (go: () => void) => {
     if (editorDirty || planDirty) setPendingLeave(() => go);
     else go();
@@ -116,8 +119,8 @@ export function SystemView() {
         replace: true,
       });
     if (next === mode) return;
-    // Plan edits live only in Follow; rules edits survive a Rules ⇄ Follow switch.
-    if (next === "review" || (mode === "follow" && planDirty)) guardLeave(go);
+    const dirtyHere = (mode === "rules" && editorDirty) || (mode === "follow" && planDirty);
+    if (dirtyHere) guardLeave(go);
     else go();
   };
 
@@ -443,7 +446,7 @@ function VersionEditor({
     return JSON.stringify(draftBody) !== JSON.stringify(versionToBody(selectedVersion));
   }, [draftBody, selectedVersion, readonly]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     onDirtyChange(dirty);
   }, [dirty, onDirtyChange]);
 

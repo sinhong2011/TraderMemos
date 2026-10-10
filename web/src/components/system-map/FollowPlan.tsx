@@ -15,7 +15,7 @@ import {
   SkipForward,
   Unlink,
 } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useState } from "react";
 import { AmountInput } from "@/components/AmountInput";
 import {
   Dialog,
@@ -176,7 +176,7 @@ export function FollowPlanWorkspace({
     setDraftState((s) => ({ ...s, draft: { ...s.draft, ...patch } }));
   const discardEdits = () => setDraftState({ key: baseKey, draft: saved });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     onDirtyChange(dirty);
   }, [dirty, onDirtyChange]);
   useEffect(() => () => onDirtyChange(false), [onDirtyChange]);
@@ -697,7 +697,7 @@ function ConditionRow({
             }
             tones={{ yes: "pos", no: "neg" }}
             options={[
-              { value: "open", label: t`Open` },
+              { value: "open", label: t`No answer` },
               { value: "yes", label: t`Met` },
               { value: "no", label: t`Not met` },
               { value: "na", label: t`N/A` },
@@ -1106,6 +1106,10 @@ function PlanInspector({
         </InspectorSection>
       ) : null}
 
+      {node === "review" ? (
+        <PlanHistory plan={plan} viewingSeq={viewing?.seq ?? null} onView={onView} />
+      ) : null}
+
       <InspectorSection title={t`Check against ${version.label}`}>
         <ul className="flex flex-col gap-2">
           {decisions.map((d) => {
@@ -1126,10 +1130,6 @@ function PlanInspector({
           })}
         </ul>
       </InspectorSection>
-
-      {node === "review" ? (
-        <PlanHistory plan={plan} viewingSeq={viewing?.seq ?? null} onView={onView} />
-      ) : null}
 
       {!hasFields && node !== "review" ? (
         <p className="flex items-start gap-1.5 text-2xs leading-snug text-muted-foreground">
