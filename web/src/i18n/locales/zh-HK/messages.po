@@ -39,7 +39,7 @@ msgid "{0} win rate"
 msgstr "勝率 {0}"
 
 #. placeholder {0}: n.decisions.length
-#: src/components/system-map/SystemMap.tsx:96
+#: src/components/system-map/SystemMap.tsx:118
 msgid "{filled} of {0} written"
 msgstr ""
 
@@ -64,12 +64,12 @@ msgid "Action"
 msgstr ""
 
 #: src/app/screens/SystemView.tsx:486
-#: src/app/screens/SystemView.tsx:762
+#: src/app/screens/SystemView.tsx:763
 msgid "Activate"
 msgstr ""
 
 #. placeholder {0}: draft?.label ?? ""
-#: src/app/screens/SystemView.tsx:698
+#: src/app/screens/SystemView.tsx:699
 msgid "Activate {0}"
 msgstr ""
 
@@ -193,7 +193,7 @@ msgstr ""
 #~ msgid "Calendar"
 #~ msgstr "日曆"
 
-#: src/app/screens/SystemView.tsx:747
+#: src/app/screens/SystemView.tsx:748
 msgid "Cancel"
 msgstr ""
 
@@ -222,7 +222,7 @@ msgstr ""
 msgid "Checking…"
 msgstr "檢查中…"
 
-#: src/components/system-map/SystemMap.tsx:65
+#: src/components/system-map/SystemMap.tsx:68
 #: src/components/system-map/SystemNode.tsx:55
 msgid "Clear"
 msgstr ""
@@ -235,7 +235,7 @@ msgstr ""
 msgid "Concentration, correlation, gap, liquidity and slippage across all positions."
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:43
+#: src/components/system-map/SystemMap.tsx:46
 msgid "Conditions not met"
 msgstr ""
 
@@ -243,7 +243,7 @@ msgstr ""
 msgid "Conditions not met → keep watching is a branch of Entry, not a failure."
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:41
+#: src/components/system-map/SystemMap.tsx:44
 msgid "Confirm trigger"
 msgstr ""
 
@@ -255,7 +255,7 @@ msgstr ""
 msgid "Consistency"
 msgstr "穩定性"
 
-#: src/app/screens/SystemView.tsx:626
+#: src/app/screens/SystemView.tsx:627
 msgid "Could not activate"
 msgstr ""
 
@@ -272,7 +272,7 @@ msgid "Could not load the system"
 msgstr ""
 
 #: src/app/screens/SystemView.tsx:466
-#: src/app/screens/SystemView.tsx:602
+#: src/app/screens/SystemView.tsx:603
 #: src/components/TradeSystemCard.tsx:88
 msgid "Could not save"
 msgstr ""
@@ -319,7 +319,7 @@ msgstr ""
 msgid "days in a row"
 msgstr "連續日數"
 
-#: src/app/screens/SystemView.tsx:542
+#: src/app/screens/SystemView.tsx:543
 msgid "Decision"
 msgstr ""
 
@@ -335,7 +335,7 @@ msgstr ""
 msgid "Directory"
 msgstr "目錄"
 
-#: src/app/screens/SystemView.tsx:660
+#: src/app/screens/SystemView.tsx:661
 msgid "Discard"
 msgstr ""
 
@@ -363,11 +363,15 @@ msgstr ""
 msgid "Draft started"
 msgstr ""
 
+#: src/components/system-map/SystemMap.tsx:78
+msgid "Drag nodes to rearrange"
+msgstr ""
+
 #: src/lib/system.ts:124
 msgid "Dynamic adjustment"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:543
+#: src/app/screens/SystemView.tsx:544
 msgid "Edit the selected node."
 msgstr ""
 
@@ -420,7 +424,7 @@ msgstr "失敗"
 msgid "Failed {0}"
 msgstr "失敗（{0}）"
 
-#: src/components/system-map/SystemMap.tsx:45
+#: src/components/system-map/SystemMap.tsx:48
 msgid "Feedback to rules"
 msgstr ""
 
@@ -432,7 +436,7 @@ msgstr ""
 msgid "Finished"
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:55
+#: src/components/system-map/SystemMap.tsx:58
 msgid "Fit"
 msgstr ""
 
@@ -464,7 +468,7 @@ msgstr ""
 msgid "Fully followed"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:701
+#: src/app/screens/SystemView.tsx:702
 msgid "Give a reason for each changed decision. The previous active version becomes read-only history."
 msgstr ""
 
@@ -480,7 +484,7 @@ msgstr ""
 msgid "Hesitated misses"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:540
+#: src/app/screens/SystemView.tsx:541
 msgid "Historical versions are read-only."
 msgstr ""
 
@@ -540,11 +544,11 @@ msgstr "可能已過期，或者已被擁有者撤銷。"
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "以 <0>TraderMemos</0> 記錄 — 自架交易日誌"
 
-#: src/app/screens/SystemView.tsx:657
+#: src/app/screens/SystemView.tsx:658
 msgid "Keep editing"
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:120
+#: src/components/system-map/SystemMap.tsx:142
 msgid "Keep watching"
 msgstr ""
 
@@ -650,7 +654,7 @@ msgstr ""
 msgid "Narrow when this rule or setup may be used."
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:69
+#: src/components/system-map/SystemMap.tsx:72
 #: src/components/system-map/SystemNode.tsx:53
 msgid "Needs clarity"
 msgstr ""
@@ -723,7 +727,7 @@ msgstr ""
 msgid "Normal and Defensive allow trading; Paused means stand aside."
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:121
+#: src/components/system-map/SystemMap.tsx:143
 msgid "Not a failure — wait for the trigger"
 msgstr ""
 
@@ -739,12 +743,12 @@ msgstr ""
 msgid "Not working"
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:73
+#: src/components/system-map/SystemMap.tsx:76
 #: src/components/system-map/SystemNode.tsx:51
 msgid "Not written"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:730
+#: src/app/screens/SystemView.tsx:731
 msgid "Note (optional)"
 msgstr ""
 
@@ -842,6 +846,10 @@ msgstr "虧損日"
 msgid "Request failed"
 msgstr ""
 
+#: src/components/system-map/SystemMap.tsx:260
+msgid "Reset layout"
+msgstr ""
+
 #: src/app/screens/SystemView.tsx:71
 msgid "Retired"
 msgstr ""
@@ -903,7 +911,7 @@ msgstr "於市場時區週六 09:00，把本週的盈虧、勝率、R、策略�
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
 #: src/app/screens/SystemView.tsx:471
-#: src/app/screens/SystemView.tsx:663
+#: src/app/screens/SystemView.tsx:664
 #: src/components/TradeSystemCard.tsx:95
 msgid "Save"
 msgstr "儲存"
@@ -912,7 +920,7 @@ msgstr "儲存"
 msgid "Save changes"
 msgstr "儲存變更"
 
-#: src/app/screens/SystemView.tsx:652
+#: src/app/screens/SystemView.tsx:653
 msgid "Save, discard, or keep editing before leaving this node or version."
 msgstr ""
 
@@ -1076,7 +1084,7 @@ msgstr ""
 msgid "Thin"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:702
+#: src/app/screens/SystemView.tsx:703
 msgid "This becomes the active system. You can revise later with a new draft."
 msgstr ""
 
@@ -1136,7 +1144,7 @@ msgstr ""
 msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:650
+#: src/app/screens/SystemView.tsx:651
 msgid "Unsaved changes"
 msgstr ""
 
@@ -1157,7 +1165,7 @@ msgstr ""
 msgid "Version {0}"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:623
+#: src/app/screens/SystemView.tsx:624
 msgid "Version activated"
 msgstr ""
 

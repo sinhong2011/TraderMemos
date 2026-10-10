@@ -38,3 +38,11 @@
 .system-map-flow .react-flow__edge-text {
   fill: var(--color-muted-foreground);
 }
+
+.system-map-flow .react-flow__node {
+  cursor: grab;
+}
+
+.system-map-flow .react-flow__node.dragging {
+  cursor: grabbing;
+}

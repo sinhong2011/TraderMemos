@@ -107,6 +107,55 @@ export const MAP_POSITIONS: Record<MapNodeId, { x: number; y: number }> = {
 
 export const WATCH_POSITION = { x: 420, y: 168 };
 
+/** Client-only layout prefs — separate from version rules / API data. */
+const LAYOUT_STORAGE_PREFIX = "tm-system-map-layout-v1:";
+
+export type MapLayoutPositions = Record<string, { x: number; y: number }>;
+
+export function defaultMapLayout(): MapLayoutPositions {
+  const out: MapLayoutPositions = { [WATCH_NODE_ID]: { ...WATCH_POSITION } };
+  for (const n of MAP_NODES) out[n.id] = { ...MAP_POSITIONS[n.id] };
+  return out;
+}
+
+export function loadMapLayout(systemId: string): MapLayoutPositions {
+  const fallback = defaultMapLayout();
+  if (typeof localStorage === "undefined" || !systemId) return fallback;
+  try {
+    const raw = localStorage.getItem(LAYOUT_STORAGE_PREFIX + systemId);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== "object") return fallback;
+    const next = { ...fallback };
+    for (const [id, pos] of Object.entries(parsed as Record<string, unknown>)) {
+      if (!(id in fallback)) continue;
+      if (!pos || typeof pos !== "object") continue;
+      const x = (pos as { x?: unknown }).x;
+      const y = (pos as { y?: unknown }).y;
+      if (
+        typeof x === "number" &&
+        typeof y === "number" &&
+        Number.isFinite(x) &&
+        Number.isFinite(y)
+      ) {
+        next[id] = { x, y };
+      }
+    }
+    return next;
+  } catch {
+    return fallback;
+  }
+}
+
+export function saveMapLayout(systemId: string, positions: MapLayoutPositions): void {
+  if (typeof localStorage === "undefined" || !systemId) return;
+  try {
+    localStorage.setItem(LAYOUT_STORAGE_PREFIX + systemId, JSON.stringify(positions));
+  } catch {
+    // quota / private mode — layout is best-effort
+  }
+}
+
 export function isMapNodeId(v: string | null | undefined): v is MapNodeId {
   return MAP_NODES.some((n) => n.id === v);
 }

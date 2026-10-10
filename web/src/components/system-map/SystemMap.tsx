@@ -6,21 +6,24 @@ import {
   ReactFlowProvider,
   type Edge,
   type Node,
+  type NodeChange,
   type NodeTypes,
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import "./system-map.css";
 import { t } from "@lingui/core/macro";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { DecisionId, Rule, SystemPart } from "@/lib/api/system";
 import {
   MAP_EDGES,
   MAP_NODES,
-  MAP_POSITIONS,
   WATCH_NODE_ID,
-  WATCH_POSITION,
+  defaultMapLayout,
+  loadMapLayout,
+  saveMapLayout,
+  type MapLayoutPositions,
   type MapNodeId,
   nodeClarity,
   nodeSummaryLine,
@@ -72,22 +75,41 @@ function MapLegend() {
         <span className="size-2 rounded-full bg-muted-foreground/50" />
         {t`Not written`}
       </li>
+      <li className="text-muted-foreground/80">{t`Drag nodes to rearrange`}</li>
     </ul>
   );
 }
 
+function positionsFromNodes(nodes: Node[]): MapLayoutPositions {
+  const out: MapLayoutPositions = {};
+  for (const n of nodes) out[n.id] = { x: n.position.x, y: n.position.y };
+  return out;
+}
+
 function MapInner({
+  systemId,
   rules,
   openQuestions,
   selected,
   onSelect,
 }: {
+  systemId: string;
   rules: Partial<Record<DecisionId, Rule>> | undefined;
   openQuestions: Partial<Record<SystemPart, string>> | undefined;
   selected: MapNodeId | null;
   onSelect: (id: MapNodeId) => void;
 }) {
   const { fitView } = useReactFlow();
+  const [layout, setLayout] = useState<MapLayoutPositions>(() => loadMapLayout(systemId));
+  const layoutRef = useRef(layout);
+  layoutRef.current = layout;
+  const didInitialFit = useRef(false);
+
+  useEffect(() => {
+    setLayout(loadMapLayout(systemId));
+    didInitialFit.current = false;
+  }, [systemId]);
+
   const nodes: Node[] = useMemo(() => {
     const systemNodes: SystemMapNode[] = MAP_NODES.map((n) => {
       const clarity = nodeClarity(n.id, rules, openQuestions);
@@ -97,7 +119,7 @@ function MapInner({
       return {
         id: n.id,
         type: "system",
-        position: MAP_POSITIONS[n.id],
+        position: layout[n.id] ?? defaultMapLayout()[n.id],
         data: {
           nodeId: n.id,
           title: systemNodeTitle(n.id),
@@ -106,7 +128,7 @@ function MapInner({
           selected: selected === n.id,
         },
         selected: selected === n.id,
-        draggable: false,
+        draggable: true,
         connectable: false,
         deletable: false,
       };
@@ -115,19 +137,19 @@ function MapInner({
     const watch: WatchMapNode = {
       id: WATCH_NODE_ID,
       type: "watch",
-      position: WATCH_POSITION,
+      position: layout[WATCH_NODE_ID] ?? defaultMapLayout()[WATCH_NODE_ID],
       data: {
         title: t`Keep watching`,
         detail: t`Not a failure — wait for the trigger`,
       },
-      draggable: false,
+      draggable: true,
       connectable: false,
       deletable: false,
-      selectable: false,
+      selectable: true,
     };
 
     return [...systemNodes, watch];
-  }, [rules, openQuestions, selected]);
+  }, [rules, openQuestions, selected, layout]);
 
   const edges: Edge[] = useMemo(
     () =>
@@ -168,9 +190,39 @@ function MapInner({
   );
 
   useEffect(() => {
-    const id = requestAnimationFrame(() => fitView({ padding: 0.16 }));
+    if (didInitialFit.current) return;
+    const id = requestAnimationFrame(() => {
+      fitView({ padding: 0.16 });
+      didInitialFit.current = true;
+    });
     return () => cancelAnimationFrame(id);
-  }, [fitView]);
+  }, [fitView, systemId]);
+
+  const onNodesChange = (changes: NodeChange[]) => {
+    const moved = changes.filter(
+      (c): c is NodeChange & { type: "position"; position?: { x: number; y: number } } =>
+        c.type === "position",
+    );
+    if (!moved.length) return;
+    setLayout((prev) => {
+      const next = { ...prev };
+      for (const c of moved) {
+        if (c.position) next[c.id] = { x: c.position.x, y: c.position.y };
+      }
+      return next;
+    });
+  };
+
+  const persistLayout = (next: MapLayoutPositions) => {
+    setLayout(next);
+    saveMapLayout(systemId, next);
+  };
+
+  const resetLayout = () => {
+    const next = defaultMapLayout();
+    persistLayout(next);
+    requestAnimationFrame(() => fitView({ padding: 0.16 }));
+  };
 
   return (
     <div className="relative h-[min(640px,70vh)] w-full overflow-hidden rounded-lg bg-muted/20">
@@ -178,6 +230,10 @@ function MapInner({
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
+        onNodeDragStop={(_, _node, all) => {
+          persistLayout({ ...layoutRef.current, ...positionsFromNodes(all) });
+        }}
         onNodeClick={(_, n) => {
           if (n.id === WATCH_NODE_ID) {
             onSelect("entry");
@@ -185,7 +241,7 @@ function MapInner({
           }
           onSelect(n.id as MapNodeId);
         }}
-        nodesDraggable={false}
+        nodesDraggable
         nodesConnectable={false}
         elementsSelectable
         panOnDrag
@@ -199,7 +255,10 @@ function MapInner({
         <Background gap={22} size={1} color="var(--color-border)" />
         <Controls showInteractive={false} showFitView={false} position="bottom-left" />
       </ReactFlow>
-      <div className="absolute end-3 top-3 z-10">
+      <div className="absolute end-3 top-3 z-10 flex flex-wrap items-center gap-2">
+        <Button type="button" variant="ghost" size="sm" onClick={resetLayout}>
+          {t`Reset layout`}
+        </Button>
         <FitButton />
       </div>
       <MapLegend />
@@ -208,6 +267,7 @@ function MapInner({
 }
 
 export function SystemMap(props: {
+  systemId: string;
   rules: Partial<Record<DecisionId, Rule>> | undefined;
   openQuestions: Partial<Record<SystemPart, string>> | undefined;
   selected: MapNodeId | null;

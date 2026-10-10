@@ -516,6 +516,7 @@ function VersionEditor({
         <Card flush fill>
           <div className="hidden md:block">
             <SystemMap
+              systemId={sys.id}
               rules={draftBody.rules}
               openQuestions={draftBody.open_questions}
               selected={node}

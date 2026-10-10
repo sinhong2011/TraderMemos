@@ -2,13 +2,17 @@ import { describe, expect, it } from "vite-plus/test";
 import { changedDecisions, DECISIONS, emptyRule, vagueWords } from "./system";
 import {
   decisionClarity,
+  defaultMapLayout,
   isMapNodeId,
+  loadMapLayout,
   MAP_EDGES,
   MAP_NODES,
   MAP_POSITIONS,
   nodeClarity,
   nodeForDecision,
+  saveMapLayout,
   STARTER_DECISIONS,
+  WATCH_NODE_ID,
 } from "./system-map";
 
 describe("vagueWords", () => {
@@ -81,5 +85,15 @@ describe("system-map", () => {
         {},
       ),
     ).toBe("needs_clarity");
+  });
+
+  it("persists free-arranged map layout in localStorage", () => {
+    const id = "sys-layout-test";
+    localStorage.removeItem(`tm-system-map-layout-v1:${id}`);
+    const base = defaultMapLayout();
+    expect(base[WATCH_NODE_ID]).toBeTruthy();
+    saveMapLayout(id, { ...base, market: { x: 12, y: 34 } });
+    expect(loadMapLayout(id).market).toEqual({ x: 12, y: 34 });
+    expect(loadMapLayout(id).entry).toEqual(base.entry);
   });
 });
