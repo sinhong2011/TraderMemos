@@ -11,7 +11,7 @@ export function SystemInspector({ panelKey, children }: { panelKey: string; chil
         animate={{ opacity: 1, y: 0 }}
         exit={reduce ? undefined : { opacity: 0, y: -4 }}
         transition={{ duration: 0.15 }}
-        className="min-w-0"
+        className="flex h-full min-h-0 min-w-0 flex-col"
       >
         {children}
       </motion.div>

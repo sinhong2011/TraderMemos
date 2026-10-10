@@ -231,7 +231,7 @@ function MapInner({
   };
 
   return (
-    <div className="relative h-[min(640px,70vh)] w-full overflow-hidden rounded-lg bg-muted/20">
+    <div className="relative h-full min-h-[min(520px,60vh)] w-full overflow-hidden bg-transparent">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -257,9 +257,11 @@ function MapInner({
         minZoom={0.45}
         maxZoom={1.4}
         proOptions={{ hideAttribution: true }}
-        className="system-map-flow"
+        className="system-map-flow bg-transparent"
+        style={{ background: "transparent" }}
       >
-        <Background gap={22} size={1} color="var(--color-border)" />
+        {/* Dot grid is painted by .system-workspace so map + inspector share one void. */}
+        <Background gap={20} size={0} color="transparent" />
         <Controls showInteractive={false} showFitView={false} position="bottom-left" />
       </ReactFlow>
       <div className="absolute end-3 top-3 z-10 flex flex-wrap items-center gap-2">

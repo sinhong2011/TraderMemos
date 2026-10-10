@@ -20,6 +20,8 @@ import { Skeleton } from "@/components/Skeleton";
 import { useToastManager } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { FollowTradeInspector } from "@/components/system-map/FollowTradeInspector";
+import { InspectorFrame } from "@/components/system-map/InspectorFrame";
 import { RuleEditor } from "@/components/system-map/RuleEditor";
 import { SystemInspector } from "@/components/system-map/SystemInspector";
 import { SystemMap } from "@/components/system-map/SystemMap";
@@ -160,20 +162,10 @@ export function SystemView() {
         />
       ) : null}
 
-      {sys && mode === "follow" ? (
-        <EmptyState
-          icon={<Compass />}
-          title={t`Follow trade comes next`}
-          hint={t`Phase C–E will attach a live opportunity or trade to this map: condition checks, evidence timeline, and confirm-trigger on the Entry node. Write rules first.`}
-          actions={
-            <Button type="button" onClick={() => setMode("rules")}>
-              {t`Back to write rules`}
-            </Button>
-          }
-        />
-      ) : null}
       {sys && mode === "review" ? <SystemReviewPanel /> : null}
-      {sys && mode === "rules" ? <SystemMapWorkspace systemId={sys.id} /> : null}
+      {sys && (mode === "rules" || mode === "follow") ? (
+        <SystemMapWorkspace systemId={sys.id} mode={mode} onEditDraft={() => setMode("rules")} />
+      ) : null}
 
       {sys ? (
         <VersionHistoryDialog
@@ -245,7 +237,15 @@ function VersionHistoryDialog({
   );
 }
 
-function SystemMapWorkspace({ systemId }: { systemId: string }) {
+function SystemMapWorkspace({
+  systemId,
+  mode,
+  onEditDraft,
+}: {
+  systemId: string;
+  mode: "rules" | "follow";
+  onEditDraft: () => void;
+}) {
   const toast = useToastManager();
   const systemQ = useTradingSystem();
   const sys = systemQ.data!;
@@ -299,12 +299,14 @@ function SystemMapWorkspace({ systemId }: { systemId: string }) {
 
   return (
     <VersionEditor
-      key={`${selectedVersion.id}:${selectedVersion.updated_at}`}
+      key={`${selectedVersion.id}:${selectedVersion.updated_at}:${mode}`}
       selectedVersion={selectedVersion}
       versions={versions}
       sys={sys}
       search={search}
       navigate={navigate}
+      mode={mode}
+      onEditDraft={onEditDraft}
     />
   );
 }
@@ -325,12 +327,16 @@ function VersionEditor({
   sys,
   search,
   navigate,
+  mode,
+  onEditDraft,
 }: {
   selectedVersion: SystemVersion;
   versions: SystemVersion[];
   sys: NonNullable<ReturnType<typeof useTradingSystem>["data"]>;
   search: { mode?: SystemMode; node?: MapNodeId; version?: string };
   navigate: ReturnType<typeof Route.useNavigate>;
+  mode: "rules" | "follow";
+  onEditDraft: () => void;
 }) {
   const toast = useToastManager();
   const start = useStartSystemVersion();
@@ -375,210 +381,245 @@ function VersionEditor({
   const resetDraft = () => setDraftBody(versionToBody(selectedVersion));
   const decisions = decisionsForNode(node);
 
+  const followVersion = sys.active ?? selectedVersion;
+
   return (
     <>
-      <Card
-        title={t`Four-week plan`}
-        description={t`Progress is derived from your data — not a checklist you tick.`}
-      >
-        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:items-stretch">
-          {sys.plan.map((step) => {
-            const copy = planStepCopy(step.key);
-            const pct = Math.min(100, (100 * step.progress) / Math.max(1, step.target));
-            return (
-              <li
-                key={step.key}
-                className="flex h-full flex-col gap-2 rounded-lg bg-muted/40 px-3 py-2.5"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium">{copy.title}</span>
-                  <span className="text-2xs tabular-nums text-muted-foreground">
-                    {step.progress}/{step.target}
-                  </span>
-                </div>
-                <p className="flex-1 text-2xs leading-snug text-muted-foreground">{copy.detail}</p>
-                <div
-                  className="h-2 overflow-hidden rounded-full bg-foreground/15"
-                  role="progressbar"
-                  aria-valuenow={step.progress}
-                  aria-valuemin={0}
-                  aria-valuemax={step.target}
-                  aria-label={copy.title}
-                >
-                  <div
-                    className="h-full rounded-full bg-primary transition-[width] duration-200"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      </Card>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <NativeSelect
-          value={selectedVersion.id}
-          onChange={(e) => setVersion(e.target.value)}
-          aria-label={t`Version`}
-        >
-          {versions.map((v) => (
-            <NativeSelectOption key={v.id} value={v.id}>
-              {v.label} · {v.status}
-            </NativeSelectOption>
-          ))}
-        </NativeSelect>
-        {readonly ? (
-          <span className="inline-flex items-center gap-1 text-2xs text-muted-foreground">
-            <Lock className="size-3.5" />
-            {t`Read-only`}
+      {mode === "follow" ? (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm">
+          <span className="font-medium text-foreground">{t`No trade selected`}</span>
+          <span className="rounded-md bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground">
+            {t`Demo shell`}
           </span>
-        ) : null}
-        {!sys.draft ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={start.isPending}
-            onClick={() =>
-              start.mutate(undefined, {
-                onError: (e) =>
-                  toast.add({ title: t`Could not start`, description: failMessage(e) }),
-              })
-            }
-          >
-            <Plus className="size-4" />
-            {t`Start next version`}
-          </Button>
-        ) : null}
-        {sys.draft && selectedVersion.id === sys.draft.id ? (
-          <>
-            <Button
-              type="button"
-              size="sm"
-              disabled={!dirty || save.isPending}
-              onClick={() =>
-                save.mutate(
-                  { id: sys.draft!.id, body: draftBody },
-                  {
-                    onSuccess: () => toast.add({ title: t`Draft saved` }),
-                    onError: (e) =>
-                      toast.add({ title: t`Could not save`, description: failMessage(e) }),
-                  },
-                )
-              }
-            >
-              {t`Save`}
-            </Button>
-            <Button type="button" variant="ghost" size="sm" disabled={!dirty} onClick={resetDraft}>
-              {t`Cancel edits`}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={activate.isPending}
-              onClick={() => {
-                setActivateSeed((n) => n + 1);
-                setActivateOpen(true);
-              }}
-            >
-              {t`Activate`}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={discard.isPending}
-              onClick={() => {
-                if (!confirm(t`Discard this draft? This cannot be undone.`)) return;
-                discard.mutate(sys.draft!.id, {
-                  onSuccess: () => toast.add({ title: t`Draft discarded` }),
-                  onError: (e) =>
-                    toast.add({ title: t`Could not discard`, description: failMessage(e) }),
-                });
-              }}
-            >
-              {t`Discard draft`}
-            </Button>
-          </>
-        ) : null}
-      </div>
-
-      {!sys.active && sys.draft ? (
-        <p className="text-2xs text-muted-foreground">
-          {t`Starter prompts:`} {STARTER_DECISIONS.map((d) => d).join(", ")} —{" "}
-          {t`fill these first; the rest can wait.`}
-        </p>
+          <span className="text-2xs text-muted-foreground">
+            {t`Attach an opportunity in Phase C — layout matches the follow inspector now.`}
+          </span>
+        </div>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.9fr)] lg:items-start">
-        <Card flush fill>
-          <div className="hidden md:block">
+      {mode === "rules" ? (
+        <>
+          <Card
+            title={t`Four-week plan`}
+            description={t`Progress is derived from your data — not a checklist you tick.`}
+          >
+            <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:items-stretch">
+              {sys.plan.map((step) => {
+                const copy = planStepCopy(step.key);
+                const pct = Math.min(100, (100 * step.progress) / Math.max(1, step.target));
+                return (
+                  <li
+                    key={step.key}
+                    className="flex h-full flex-col gap-2 rounded-lg bg-muted/40 px-3 py-2.5"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-medium">{copy.title}</span>
+                      <span className="text-2xs tabular-nums text-muted-foreground">
+                        {step.progress}/{step.target}
+                      </span>
+                    </div>
+                    <p className="flex-1 text-2xs leading-snug text-muted-foreground">
+                      {copy.detail}
+                    </p>
+                    <div
+                      className="h-2 overflow-hidden rounded-full bg-foreground/15"
+                      role="progressbar"
+                      aria-valuenow={step.progress}
+                      aria-valuemin={0}
+                      aria-valuemax={step.target}
+                      aria-label={copy.title}
+                    >
+                      <div
+                        className="h-full rounded-full bg-primary transition-[width] duration-200"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </Card>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <NativeSelect
+              value={selectedVersion.id}
+              onChange={(e) => setVersion(e.target.value)}
+              aria-label={t`Version`}
+            >
+              {versions.map((v) => (
+                <NativeSelectOption key={v.id} value={v.id}>
+                  {v.label} · {v.status}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+            {readonly ? (
+              <span className="inline-flex items-center gap-1 text-2xs text-muted-foreground">
+                <Lock className="size-3.5" />
+                {t`Read-only`}
+              </span>
+            ) : null}
+            {!sys.draft ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={start.isPending}
+                onClick={() =>
+                  start.mutate(undefined, {
+                    onError: (e) =>
+                      toast.add({ title: t`Could not start`, description: failMessage(e) }),
+                  })
+                }
+              >
+                <Plus className="size-4" />
+                {t`Start next version`}
+              </Button>
+            ) : null}
+            {sys.draft && selectedVersion.id === sys.draft.id ? (
+              <>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!dirty || save.isPending}
+                  onClick={() =>
+                    save.mutate(
+                      { id: sys.draft!.id, body: draftBody },
+                      {
+                        onSuccess: () => toast.add({ title: t`Draft saved` }),
+                        onError: (e) =>
+                          toast.add({ title: t`Could not save`, description: failMessage(e) }),
+                      },
+                    )
+                  }
+                >
+                  {t`Save`}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={!dirty}
+                  onClick={resetDraft}
+                >
+                  {t`Cancel edits`}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={activate.isPending}
+                  onClick={() => {
+                    setActivateSeed((n) => n + 1);
+                    setActivateOpen(true);
+                  }}
+                >
+                  {t`Activate`}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={discard.isPending}
+                  onClick={() => {
+                    if (!confirm(t`Discard this draft? This cannot be undone.`)) return;
+                    discard.mutate(sys.draft!.id, {
+                      onSuccess: () => toast.add({ title: t`Draft discarded` }),
+                      onError: (e) =>
+                        toast.add({ title: t`Could not discard`, description: failMessage(e) }),
+                    });
+                  }}
+                >
+                  {t`Discard draft`}
+                </Button>
+              </>
+            ) : null}
+          </div>
+
+          {!sys.active && sys.draft ? (
+            <p className="text-2xs text-muted-foreground">
+              {t`Starter prompts:`} {STARTER_DECISIONS.map((d) => d).join(", ")} —{" "}
+              {t`fill these first; the rest can wait.`}
+            </p>
+          ) : null}
+        </>
+      ) : null}
+
+      {/* Map + inspector share one dotted surface (same level as the draft). */}
+      <div className="system-workspace grid min-h-[min(640px,70vh)] overflow-hidden rounded-lg lg:grid-cols-[minmax(0,1fr)_minmax(300px,380px)]">
+        <div className="relative min-h-[min(520px,55vh)] min-w-0 lg:min-h-0">
+          <div className="absolute inset-0 hidden md:block">
             <SystemMap
               systemId={sys.id}
-              rules={draftBody.rules}
-              openQuestions={draftBody.open_questions}
+              rules={mode === "follow" ? followVersion.rules : draftBody.rules}
+              openQuestions={
+                mode === "follow" ? followVersion.open_questions : draftBody.open_questions
+              }
               selected={node}
               onSelect={setNode}
             />
           </div>
           <div className="p-3 md:hidden">
             <SystemMapList
-              rules={draftBody.rules}
-              openQuestions={draftBody.open_questions}
+              rules={mode === "follow" ? followVersion.rules : draftBody.rules}
+              openQuestions={
+                mode === "follow" ? followVersion.open_questions : draftBody.open_questions
+              }
               selected={node}
               onSelect={setNode}
             />
           </div>
-        </Card>
-        <Card
-          title={
-            <div className="min-w-0">
-              <h2 className="text-base font-semibold text-foreground">{systemNodeTitle(node)}</h2>
-              <p className="mt-0.5 text-2xs text-muted-foreground">
-                {readonly
+        </div>
+        <div className="min-h-[320px] min-w-0 border-t border-border/40 lg:min-h-0 lg:border-s lg:border-t-0">
+          {mode === "follow" ? (
+            <SystemInspector panelKey={`follow-${node}`}>
+              <FollowTradeInspector node={node} version={followVersion} onEditDraft={onEditDraft} />
+            </SystemInspector>
+          ) : (
+            <InspectorFrame
+              title={systemNodeTitle(node)}
+              subtitle={
+                readonly
                   ? t`Historical versions are read-only.`
                   : decisions[0]
-                    ? `${t`Decision`} · ${decisionCopy(decisions[0]).title}`
-                    : t`Edit the selected node.`}
-              </p>
-            </div>
-          }
-        >
-          <SystemInspector panelKey={node}>
-            <RuleEditor
-              decisions={decisions}
-              rules={draftBody.rules}
-              openQuestions={draftBody.open_questions}
-              regimes={draftBody.regimes}
-              tradeTypes={draftBody.trade_types}
-              readonly={readonly}
-              version={selectedVersion}
-              onRuleChange={(id, patch) =>
-                setDraftBody((b) => ({
-                  ...b,
-                  rules: { ...b.rules, [id]: { ...emptyRule(), ...b.rules[id], ...patch } },
-                }))
+                    ? t`Decision · ${decisionCopy(decisions[0]).title}`
+                    : t`Edit the selected node.`
               }
-              onOpenQuestion={(part: SystemPart, text) =>
-                setDraftBody((b) => ({
-                  ...b,
-                  open_questions: { ...b.open_questions, [part]: text },
-                }))
-              }
-              onRegimeLabel={(stance: Stance, label) =>
-                setDraftBody((b) => ({ ...b, regimes: { ...b.regimes, [stance]: label } }))
-              }
-              onTradeTypeLabel={(key, label) =>
-                setDraftBody((b) => ({
-                  ...b,
-                  trade_types: { ...b.trade_types, [key]: label },
-                }))
-              }
-            />
-          </SystemInspector>
-        </Card>
+            >
+              <SystemInspector panelKey={node}>
+                <RuleEditor
+                  decisions={decisions}
+                  rules={draftBody.rules}
+                  openQuestions={draftBody.open_questions}
+                  regimes={draftBody.regimes}
+                  tradeTypes={draftBody.trade_types}
+                  readonly={readonly}
+                  version={selectedVersion}
+                  onRuleChange={(id, patch) =>
+                    setDraftBody((b) => ({
+                      ...b,
+                      rules: { ...b.rules, [id]: { ...emptyRule(), ...b.rules[id], ...patch } },
+                    }))
+                  }
+                  onOpenQuestion={(part: SystemPart, text) =>
+                    setDraftBody((b) => ({
+                      ...b,
+                      open_questions: { ...b.open_questions, [part]: text },
+                    }))
+                  }
+                  onRegimeLabel={(stance: Stance, label) =>
+                    setDraftBody((b) => ({ ...b, regimes: { ...b.regimes, [stance]: label } }))
+                  }
+                  onTradeTypeLabel={(key, label) =>
+                    setDraftBody((b) => ({
+                      ...b,
+                      trade_types: { ...b.trade_types, [key]: label },
+                    }))
+                  }
+                />
+              </SystemInspector>
+            </InspectorFrame>
+          )}
+        </div>
       </div>
 
       <DirtyDialog
