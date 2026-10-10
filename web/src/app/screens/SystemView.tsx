@@ -242,22 +242,36 @@ function VersionEditor({
         title={t`Four-week plan`}
         description={t`Progress is derived from your data — not a checklist you tick.`}
       >
-        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:items-stretch">
           {sys.plan.map((step) => {
             const copy = planStepCopy(step.key);
+            const pct = Math.min(100, (100 * step.progress) / Math.max(1, step.target));
             return (
-              <li key={step.key} className="rounded-lg bg-muted/40 px-3 py-2">
+              <li
+                key={step.key}
+                className="flex h-full flex-col gap-2 rounded-lg bg-muted/40 px-3 py-2.5"
+              >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-medium">{copy.title}</span>
                   <span className="text-2xs tabular-nums text-muted-foreground">
                     {step.progress}/{step.target}
                   </span>
                 </div>
-                <p className="mt-1 text-2xs text-muted-foreground">{copy.detail}</p>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                <p className="flex-1 text-2xs leading-snug text-muted-foreground">{copy.detail}</p>
+                <div
+                  className="h-2 overflow-hidden rounded-full bg-background ring-1 ring-border/60"
+                  role="progressbar"
+                  aria-valuenow={step.progress}
+                  aria-valuemin={0}
+                  aria-valuemax={step.target}
+                  aria-label={copy.title}
+                >
                   <div
-                    className={cn("h-full bg-primary transition-all", step.done && "bg-primary")}
-                    style={{ width: `${Math.min(100, (100 * step.progress) / step.target)}%` }}
+                    className={cn(
+                      "h-full rounded-full bg-primary transition-[width] duration-200",
+                      pct === 0 && "opacity-0",
+                    )}
+                    style={{ width: `${pct}%` }}
                   />
                 </div>
               </li>

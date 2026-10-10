@@ -10,6 +10,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import "./system-map.css";
 import { t } from "@lingui/core/macro";
 import { useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
