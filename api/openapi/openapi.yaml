@@ -30,6 +30,7 @@ tags:
   - name: Notes
   - name: Routines
   - name: Missed trades
+  - name: Trading system
   - name: Alerts
   - name: Admin
 paths:
@@ -1498,6 +1499,148 @@ paths:
       responses:
         "204":
           description: Deleted
+
+  /api/v1/system:
+    get:
+      tags: [Trading system]
+      summary: Trading system overview
+      description: >
+        The user's written trading system — active and draft versions, history,
+        and four-week plan progress. Creates an empty system row on first call.
+      operationId: getTradingSystem
+      responses:
+        "200":
+          description: System overview
+  /api/v1/system/versions:
+    post:
+      tags: [Trading system]
+      summary: Start the next draft version
+      operationId: startSystemVersion
+      responses:
+        "201":
+          description: Draft created
+        "409":
+          description: A draft already exists
+  /api/v1/system/versions/{id}:
+    get:
+      tags: [Trading system]
+      summary: Get a system version
+      operationId: getSystemVersion
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Version
+    put:
+      tags: [Trading system]
+      summary: Save a draft version
+      operationId: saveSystemVersion
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Saved
+    delete:
+      tags: [Trading system]
+      summary: Discard a draft version
+      operationId: discardSystemDraft
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Discarded
+  /api/v1/system/versions/{id}/activate:
+    post:
+      tags: [Trading system]
+      summary: Activate a draft version
+      description: >
+        Retires the previous active version. When decisions changed, each
+        changed decision needs a reason in the body.
+      operationId: activateSystemVersion
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Activated
+  /api/v1/system/changes:
+    get:
+      tags: [Trading system]
+      summary: Change log
+      operationId: listSystemChanges
+      responses:
+        "200":
+          description: Change log entries
+  /api/v1/system/regimes/{day}:
+    get:
+      tags: [Trading system]
+      summary: Market regime for a day
+      operationId: getMarketRegime
+      parameters:
+        - name: day
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Regime (empty regime when unset)
+    put:
+      tags: [Trading system]
+      summary: Set market regime for a day
+      operationId: putMarketRegime
+      parameters:
+        - name: day
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Saved
+  /api/v1/trades/{id}/system-card:
+    get:
+      tags: [Trading system]
+      summary: Per-trade system card
+      operationId: getTradeSystemCard
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Card (empty defaults when none saved)
+    put:
+      tags: [Trading system]
+      summary: Save per-trade system card
+      operationId: putTradeSystemCard
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Saved
+  /api/v1/analytics/system-review:
+    get:
+      tags: [Trading system]
+      summary: System review analytics
+      description: >
+        Coverage, process×outcome quadrant, breakdowns by regime/setup/exit/
+        type/version/adherence with sample-size bands, and streak diagnosis.
+        Hesitated misses are counted separately and do not dilute adherence_rate.
+        Mixed-currency portfolios return 400 mixed_currencies.
+      operationId: systemReview
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+        - name: version_id
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Review
+        "400":
+          description: Mixed currencies or bad filters
 
   /api/v1/me/preferences:
     get:

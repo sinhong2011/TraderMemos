@@ -28,6 +28,14 @@ func NewPGFromDBTX(db DBTX) *PG {
 
 var _ Querier = (*PG)(nil)
 
+func (p *PG) ActivateSystemVersion(ctx context.Context, arg ActivateSystemVersionParams) (SystemVersion, error) {
+	v, err := p.q.ActivateSystemVersion(ctx, storepg.ActivateSystemVersionParams(arg))
+	if err != nil {
+		return SystemVersion{}, err
+	}
+	return SystemVersion(v), nil
+}
+
 func (p *PG) ArchiveRoutineItem(ctx context.Context, arg ArchiveRoutineItemParams) (int64, error) {
 	return p.q.ArchiveRoutineItem(ctx, storepg.ArchiveRoutineItemParams(arg))
 }
@@ -124,12 +132,36 @@ func (p *PG) CreateShareLink(ctx context.Context, arg CreateShareLinkParams) (Sh
 	return ShareLink(v), nil
 }
 
+func (p *PG) CreateSystemChange(ctx context.Context, arg CreateSystemChangeParams) (SystemChange, error) {
+	v, err := p.q.CreateSystemChange(ctx, storepg.CreateSystemChangeParams(arg))
+	if err != nil {
+		return SystemChange{}, err
+	}
+	return SystemChange(v), nil
+}
+
+func (p *PG) CreateSystemVersion(ctx context.Context, arg CreateSystemVersionParams) (SystemVersion, error) {
+	v, err := p.q.CreateSystemVersion(ctx, storepg.CreateSystemVersionParams(arg))
+	if err != nil {
+		return SystemVersion{}, err
+	}
+	return SystemVersion(v), nil
+}
+
 func (p *PG) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error) {
 	v, err := p.q.CreateTag(ctx, storepg.CreateTagParams(arg))
 	if err != nil {
 		return Tag{}, err
 	}
 	return Tag(v), nil
+}
+
+func (p *PG) CreateTradingSystem(ctx context.Context, arg CreateTradingSystemParams) (TradingSystem, error) {
+	v, err := p.q.CreateTradingSystem(ctx, storepg.CreateTradingSystemParams(arg))
+	if err != nil {
+		return TradingSystem{}, err
+	}
+	return TradingSystem(v), nil
 }
 
 func (p *PG) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -196,6 +228,10 @@ func (p *PG) DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams)
 	return p.q.DeleteJournalNote(ctx, storepg.DeleteJournalNoteParams(arg))
 }
 
+func (p *PG) DeleteMarketRegimeDay(ctx context.Context, arg DeleteMarketRegimeDayParams) (int64, error) {
+	return p.q.DeleteMarketRegimeDay(ctx, storepg.DeleteMarketRegimeDayParams(arg))
+}
+
 func (p *PG) DeleteMediaFile(ctx context.Context, arg DeleteMediaFileParams) (int64, error) {
 	return p.q.DeleteMediaFile(ctx, storepg.DeleteMediaFileParams(arg))
 }
@@ -214,6 +250,10 @@ func (p *PG) DeleteRoutineCheck(ctx context.Context, arg DeleteRoutineCheckParam
 
 func (p *PG) DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error) {
 	return p.q.DeleteSetup(ctx, storepg.DeleteSetupParams(arg))
+}
+
+func (p *PG) DeleteSystemVersion(ctx context.Context, arg DeleteSystemVersionParams) (int64, error) {
+	return p.q.DeleteSystemVersion(ctx, storepg.DeleteSystemVersionParams(arg))
 }
 
 func (p *PG) DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error) {
@@ -268,6 +308,14 @@ func (p *PG) GetAccountByIDAny(ctx context.Context, id string) (Account, error) 
 	return Account(v), nil
 }
 
+func (p *PG) GetActiveSystemVersion(ctx context.Context, userID string) (SystemVersion, error) {
+	v, err := p.q.GetActiveSystemVersion(ctx, userID)
+	if err != nil {
+		return SystemVersion{}, err
+	}
+	return SystemVersion(v), nil
+}
+
 func (p *PG) GetAlertChannel(ctx context.Context, arg GetAlertChannelParams) (AlertChannel, error) {
 	v, err := p.q.GetAlertChannel(ctx, storepg.GetAlertChannelParams(arg))
 	if err != nil {
@@ -314,6 +362,14 @@ func (p *PG) GetCoachSettings(ctx context.Context) (CoachSetting, error) {
 		return CoachSetting{}, err
 	}
 	return CoachSetting(v), nil
+}
+
+func (p *PG) GetDraftSystemVersion(ctx context.Context, userID string) (SystemVersion, error) {
+	v, err := p.q.GetDraftSystemVersion(ctx, userID)
+	if err != nil {
+		return SystemVersion{}, err
+	}
+	return SystemVersion(v), nil
 }
 
 func (p *PG) GetEconomicEventsLastFetch(ctx context.Context, provider string) (string, error) {
@@ -374,6 +430,14 @@ func (p *PG) GetMarketBarsCache(ctx context.Context, cacheKey string) (MarketBar
 		return MarketBarsCache{}, err
 	}
 	return MarketBarsCache(v), nil
+}
+
+func (p *PG) GetMarketRegimeDay(ctx context.Context, arg GetMarketRegimeDayParams) (MarketRegimeDay, error) {
+	v, err := p.q.GetMarketRegimeDay(ctx, storepg.GetMarketRegimeDayParams(arg))
+	if err != nil {
+		return MarketRegimeDay{}, err
+	}
+	return MarketRegimeDay(v), nil
 }
 
 func (p *PG) GetMediaFile(ctx context.Context, arg GetMediaFileParams) (MediaFile, error) {
@@ -440,6 +504,14 @@ func (p *PG) GetShareLinkByToken(ctx context.Context, token string) (ShareLink, 
 	return ShareLink(v), nil
 }
 
+func (p *PG) GetSystemVersion(ctx context.Context, arg GetSystemVersionParams) (SystemVersion, error) {
+	v, err := p.q.GetSystemVersion(ctx, storepg.GetSystemVersionParams(arg))
+	if err != nil {
+		return SystemVersion{}, err
+	}
+	return SystemVersion(v), nil
+}
+
 func (p *PG) GetTrade(ctx context.Context, arg GetTradeParams) (Trade, error) {
 	v, err := p.q.GetTrade(ctx, storepg.GetTradeParams(arg))
 	if err != nil {
@@ -458,6 +530,22 @@ func (p *PG) GetTradeJournal(ctx context.Context, arg GetTradeJournalParams) (Tr
 		return TradeJournal{}, err
 	}
 	return TradeJournal(v), nil
+}
+
+func (p *PG) GetTradeSystemCard(ctx context.Context, arg GetTradeSystemCardParams) (TradeSystemCard, error) {
+	v, err := p.q.GetTradeSystemCard(ctx, storepg.GetTradeSystemCardParams(arg))
+	if err != nil {
+		return TradeSystemCard{}, err
+	}
+	return TradeSystemCard(v), nil
+}
+
+func (p *PG) GetTradingSystemByUser(ctx context.Context, userID string) (TradingSystem, error) {
+	v, err := p.q.GetTradingSystemByUser(ctx, userID)
+	if err != nil {
+		return TradingSystem{}, err
+	}
+	return TradingSystem(v), nil
 }
 
 func (p *PG) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -601,6 +689,14 @@ func (p *PG) ListAlertEvents(ctx context.Context, arg ListAlertEventsParams) ([]
 		return nil, err
 	}
 	return func() []AlertEvent { in := v; out := make([]AlertEvent, len(in)); for i := range in { out[i] = AlertEvent(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListAllMarketRegimeDays(ctx context.Context, userID string) ([]MarketRegimeDay, error) {
+	v, err := p.q.ListAllMarketRegimeDays(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []MarketRegimeDay { in := v; out := make([]MarketRegimeDay, len(in)); for i := range in { out[i] = MarketRegimeDay(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListAttachmentsForAccount(ctx context.Context, arg ListAttachmentsForAccountParams) ([]TradeAttachment, error) {
@@ -827,6 +923,30 @@ func (p *PG) ListShareLinksByUser(ctx context.Context, userID string) ([]ShareLi
 	return func() []ShareLink { in := v; out := make([]ShareLink, len(in)); for i := range in { out[i] = ShareLink(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListSystemChanges(ctx context.Context, userID string) ([]SystemChange, error) {
+	v, err := p.q.ListSystemChanges(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []SystemChange { in := v; out := make([]SystemChange, len(in)); for i := range in { out[i] = SystemChange(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListSystemChangesForVersion(ctx context.Context, arg ListSystemChangesForVersionParams) ([]SystemChange, error) {
+	v, err := p.q.ListSystemChangesForVersion(ctx, storepg.ListSystemChangesForVersionParams(arg))
+	if err != nil {
+		return nil, err
+	}
+	return func() []SystemChange { in := v; out := make([]SystemChange, len(in)); for i := range in { out[i] = SystemChange(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListSystemVersions(ctx context.Context, userID string) ([]SystemVersion, error) {
+	v, err := p.q.ListSystemVersions(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []SystemVersion { in := v; out := make([]SystemVersion, len(in)); for i := range in { out[i] = SystemVersion(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListTags(ctx context.Context, userID string) ([]Tag, error) {
 	v, err := p.q.ListTags(ctx, userID)
 	if err != nil {
@@ -849,6 +969,14 @@ func (p *PG) ListTradeJournalsForUser(ctx context.Context, userID string) ([]Tra
 		return nil, err
 	}
 	return func() []TradeJournal { in := v; out := make([]TradeJournal, len(in)); for i := range in { out[i] = TradeJournal(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListTradeSystemCards(ctx context.Context, userID string) ([]TradeSystemCard, error) {
+	v, err := p.q.ListTradeSystemCards(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []TradeSystemCard { in := v; out := make([]TradeSystemCard, len(in)); for i := range in { out[i] = TradeSystemCard(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTradeTagsForUserRow, error) {
@@ -909,6 +1037,10 @@ func (p *PG) PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesP
 
 func (p *PG) RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error {
 	return p.q.RecordAccessTokenUse(ctx, storepg.RecordAccessTokenUseParams(arg))
+}
+
+func (p *PG) RetireSystemVersion(ctx context.Context, arg RetireSystemVersionParams) (int64, error) {
+	return p.q.RetireSystemVersion(ctx, storepg.RetireSystemVersionParams(arg))
 }
 
 func (p *PG) RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error) {
@@ -1019,6 +1151,14 @@ func (p *PG) UpdateSetup(ctx context.Context, arg UpdateSetupParams) error {
 	return p.q.UpdateSetup(ctx, storepg.UpdateSetupParams(arg))
 }
 
+func (p *PG) UpdateSystemVersion(ctx context.Context, arg UpdateSystemVersionParams) (SystemVersion, error) {
+	v, err := p.q.UpdateSystemVersion(ctx, storepg.UpdateSystemVersionParams(arg))
+	if err != nil {
+		return SystemVersion{}, err
+	}
+	return SystemVersion(v), nil
+}
+
 func (p *PG) UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error) {
 	return p.q.UpdateTag(ctx, storepg.UpdateTagParams(arg))
 }
@@ -1103,6 +1243,14 @@ func (p *PG) UpsertMarketBarsCache(ctx context.Context, arg UpsertMarketBarsCach
 	return p.q.UpsertMarketBarsCache(ctx, storepg.UpsertMarketBarsCacheParams(arg))
 }
 
+func (p *PG) UpsertMarketRegimeDay(ctx context.Context, arg UpsertMarketRegimeDayParams) (MarketRegimeDay, error) {
+	v, err := p.q.UpsertMarketRegimeDay(ctx, storepg.UpsertMarketRegimeDayParams(arg))
+	if err != nil {
+		return MarketRegimeDay{}, err
+	}
+	return MarketRegimeDay(v), nil
+}
+
 func (p *PG) UpsertOcrSettings(ctx context.Context, arg UpsertOcrSettingsParams) (OcrSetting, error) {
 	v, err := p.q.UpsertOcrSettings(ctx, storepg.UpsertOcrSettingsParams(arg))
 	if err != nil {
@@ -1133,6 +1281,14 @@ func (p *PG) UpsertTrade(ctx context.Context, arg UpsertTradeParams) error {
 
 func (p *PG) UpsertTradeJournal(ctx context.Context, arg UpsertTradeJournalParams) error {
 	return p.q.UpsertTradeJournal(ctx, storepg.UpsertTradeJournalParams(arg))
+}
+
+func (p *PG) UpsertTradeSystemCard(ctx context.Context, arg UpsertTradeSystemCardParams) (TradeSystemCard, error) {
+	v, err := p.q.UpsertTradeSystemCard(ctx, storepg.UpsertTradeSystemCardParams(arg))
+	if err != nil {
+		return TradeSystemCard{}, err
+	}
+	return TradeSystemCard(v), nil
 }
 
 func (p *PG) UpsertUserPreferences(ctx context.Context, arg UpsertUserPreferencesParams) (UserPreference, error) {

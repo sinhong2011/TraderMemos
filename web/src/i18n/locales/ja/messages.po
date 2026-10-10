@@ -13,6 +13,14 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/components/TradeSystemCard.tsx:92
+#: src/components/TradeSystemCard.tsx:106
+#: src/components/TradeSystemCard.tsx:118
+#: src/components/TradeSystemCard.tsx:152
+#: src/components/TradeSystemCard.tsx:166
+msgid "—"
+msgstr ""
+
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:198
 msgid "{0} days in the market"
@@ -30,17 +38,80 @@ msgstr "{0}件のトレード"
 msgid "{0} win rate"
 msgstr "勝率 {0}"
 
+#. placeholder {0}: n.decisions.length
+#: src/components/system-map/SystemMap.tsx:59
+msgid "{filled} of {0} written"
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:223
 msgid "1.0 = break-even"
 msgstr "1.0 = 損益分岐"
+
+#: src/lib/system.ts:108
+msgid "1% of equity per trade at full size; 0.5% when the setup is only a B."
+msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:94
 msgid "A backup is already running"
 msgstr "バックアップはすでに実行中です"
 
+#: src/lib/system.ts:90
+msgid "A base of at least 3 weeks after a 30% advance, the last pullback under 10% on falling volume."
+msgstr ""
+
+#: src/lib/system.ts:148
+msgid "Action"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:327
+#: src/app/screens/SystemView.tsx:619
+msgid "Activate"
+msgstr ""
+
+#. placeholder {0}: draft?.label ?? ""
+#: src/app/screens/SystemView.tsx:559
+msgid "Activate {0}"
+msgstr ""
+
+#: src/lib/system.ts:301
+msgid "Activate the next version after the live run. A saved review decision comes later — this step only tracks that you revised."
+msgstr ""
+
+#: src/lib/system.ts:126
+msgid "Add only when relative strength makes a new high with the index; trim when the thesis is intact but time is half gone."
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:142
+msgid "Adequate"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:161
+msgid "Adherence"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:61
+msgid "Adherence rate"
+msgstr ""
+
+#: src/lib/system.ts:166
+msgid "Adjust"
+msgstr ""
+
+#: src/lib/system.ts:277
+msgid "Another reason — say which evidence."
+msgstr ""
+
+#: src/lib/system.ts:286
+msgid "Answer all 16 decisions so someone else would decide the same, then activate."
+msgstr ""
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "適用"
+
+#: src/lib/system.ts:102
+msgid "At most 6% open risk; cut to 3% in defensive markets."
+msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:149
 msgid "Back up now"
@@ -78,17 +149,129 @@ msgstr "バックアップが遅れています"
 msgid "Best day"
 msgstr "最高の日"
 
+#: src/app/screens/SystemReviewPanel.tsx:84
+msgid "Broke rules · lost"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:83
+msgid "Broke rules · won"
+msgstr ""
+
+#: src/lib/system.ts:96
+msgid "Buy only on a break and hold above the pivot with volume above the 50-day average."
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:116
+msgid "By adherence"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:113
+msgid "By exit state"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:111
+msgid "By market"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:112
+msgid "By setup"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:114
+msgid "By trade type"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:115
+msgid "By version"
+msgstr ""
+
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "カレンダー"
+
+#: src/app/screens/SystemView.tsx:604
+msgid "Cancel"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:318
+msgid "Cancel edits"
+msgstr ""
+
+#: src/lib/system.ts:291
+msgid "Card past or backtest trades against the rules; note ambiguous, conflicting or missing cases."
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:57
+msgid "Carded"
+msgstr ""
+
+#. placeholder {0}: Math.round(review.streak.chance * 100)
+#: src/app/screens/SystemReviewPanel.tsx:91
+msgid "Chance of this run given recent win rate: {0}%."
+msgstr ""
+
+#: src/lib/system.ts:168
+msgid "Change a rule only with enough trades behind it; a single normal loss changes nothing."
+msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:158
 msgid "Checking…"
 msgstr "確認中…"
 
+#: src/app/screens/SystemReviewPanel.tsx:56
+msgid "Closed"
+msgstr ""
+
+#: src/lib/system.ts:119
+msgid "Concentration, correlation, gap, liquidity and slippage across all positions."
+msgstr ""
+
+#: src/components/system-map/SystemMap.tsx:112
+msgid "Conditions not met → keep watching is a branch of Entry, not a failure."
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
 msgstr "一貫性"
+
+#: src/app/screens/SystemView.tsx:480
+msgid "Could not activate"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:339
+msgid "Could not discard"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:30
+msgid "Could not load the review"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:98
+msgid "Could not load the system"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:310
+#: src/app/screens/SystemView.tsx:457
+#: src/components/TradeSystemCard.tsx:74
+msgid "Could not save"
+msgstr ""
+
+#: src/components/MarketRegimeCard.tsx:38
+msgid "Could not save regime"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:220
+#: src/app/screens/SystemView.tsx:290
+msgid "Could not start"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:71
+msgid "Counted in range only — not in the adherence rate (no version on misses yet)."
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:54
+msgid "Coverage"
+msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:272
 msgid "Cumulative net P&L over the shared period."
@@ -102,6 +285,10 @@ msgstr "累積損益曲線"
 msgid "Cumulative P&L shape — amounts are not shared."
 msgstr "累積損益の形状 — 金額は共有されていません。"
 
+#: src/lib/system.ts:138
+msgid "Daily close under the 10-day and sector lagging for two sessions weakens the thesis."
+msgstr ""
+
 #: src/components/AppNav.tsx:31
 #~ msgid "Dashboard"
 #~ msgstr "ダッシュボード"
@@ -111,17 +298,82 @@ msgstr "累積損益の形状 — 金額は共有されていません。"
 msgid "days in a row"
 msgstr "連続日数"
 
+#: src/lib/system.ts:189
+msgid "Defensive"
+msgstr ""
+
+#: src/lib/system.ts:255
+msgid "Did not move or remove the stop or target off-plan"
+msgstr ""
+
 #: src/app/screens/settings/backups-section.tsx:207
 msgid "Directory"
 msgstr "保存先"
 
-#: src/app/drawers/NewNoteDrawer.tsx:187
+#: src/app/screens/SystemView.tsx:515
+msgid "Discard"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:343
+msgid "Discard draft"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:335
+msgid "Discard this draft? This cannot be undone."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:337
+msgid "Draft discarded"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:308
+msgid "Draft saved"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:219
+msgid "Draft started"
+msgstr ""
+
+#: src/lib/system.ts:124
+msgid "Dynamic adjustment"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:377
+msgid "Edit the selected node."
+msgstr ""
+
+#: src/app/drawers/NewNoteDrawer.tsx:189
 msgid "Edit weekly review"
 msgstr "週次レビューを編集"
+
+#: src/lib/system.ts:247
+msgid "Entered at a level planned beforehand"
+msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:21
+#: src/lib/system.ts:62
+msgid "Entry"
+msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
 msgstr "{interval}ごと"
+
+#: src/lib/system.ts:263
+msgid "Execution error"
+msgstr ""
+
+#: src/lib/system.ts:66
+msgid "Exit"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:147
+msgid "Exit state"
+msgstr ""
+
+#: src/lib/system.ts:253
+msgid "Exited by the plan, not by emotion"
+msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:250
 msgid "Expectancy"
@@ -136,13 +388,89 @@ msgstr "失敗"
 msgid "Failed {0}"
 msgstr "失敗（{0}）"
 
+#: src/app/screens/SystemView.tsx:352
+msgid "fill these first; the rest can wait."
+msgstr ""
+
+#: src/lib/system.ts:227
+msgid "Finished"
+msgstr ""
+
+#: src/components/system-map/SystemMap.tsx:30
+msgid "Fit"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:82
+msgid "Followed · lost"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:81
+msgid "Followed · won"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:237
+msgid "Four-week plan"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:78
+msgid "Full adherence vs partial/none, against win vs loss. Wrong-but-won is the dangerous cell."
+msgstr ""
+
+#: src/lib/system.ts:236
+msgid "Fully followed"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:562
+msgid "Give a reason for each changed decision. The previous active version becomes read-only history."
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
 msgstr "プラスの日"
 
+#: src/app/screens/SystemReviewPanel.tsx:171
+msgid "Group"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:69
+msgid "Hesitated misses"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:377
+msgid "Historical versions are read-only."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:419
+msgid "History"
+msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:25
+msgid "Holding"
+msgstr ""
+
+#: src/lib/system.ts:161
+msgid "How do I judge process apart from outcome?"
+msgstr ""
+
+#: src/lib/system.ts:64
+msgid "How much risk each trade and the book carry."
+msgstr ""
+
+#: src/lib/system.ts:66
+msgid "How you read the trade after entry and what you do."
+msgstr ""
+
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
 #~ msgstr "インポート"
+
+#: src/lib/system.ts:78
+msgid "Index above the 200-day and the 50-day rising = normal; below the 200-day = defensive; more new lows than highs for two weeks = paused."
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:140
+msgid "Indicative"
+msgstr ""
 
 #: src/app/screens/settings/settings-sections.tsx:1170
 #~ msgid "Interface language"
@@ -159,6 +487,10 @@ msgstr "期限切れか、所有者によって取り消された可能性があ
 #: src/app/screens/PublicShareView.tsx:387
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "<0>TraderMemos</0> で記録 — セルフホストのトレードジャーナル"
+
+#: src/app/screens/SystemView.tsx:512
+msgid "Keep editing"
+msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:257
 msgid "Kelly"
@@ -184,6 +516,18 @@ msgstr "前回のバックアップに失敗しました"
 msgid "Latest file"
 msgstr "最新ファイル"
 
+#: src/lib/system.ts:229
+msgid "Left for a reason outside the system."
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:195
+msgid "Lesson"
+msgstr ""
+
+#: src/lib/system.ts:84
+msgid "Liquid names above $10 with average volume over 1M; no biotech binary events."
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
 msgstr "最長プラス連続"
@@ -192,13 +536,70 @@ msgstr "最長プラス連続"
 msgid "Longest red streak"
 msgstr "最長マイナス連続"
 
+#. placeholder {0}: review.streak.length
+#: src/app/screens/SystemReviewPanel.tsx:90
+msgid "Losing streak ({0})"
+msgstr ""
+
+#: src/lib/system.ts:274
+msgid "Losses were too large too often. Change the sizing rules."
+msgstr ""
+
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Manual only"
 msgstr "手動のみ"
 
+#: src/components/system-map/SystemNode.tsx:19
+msgid "Market"
+msgstr ""
+
+#: src/lib/system.ts:76
+msgid "Market environment"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:87
+msgid "Market regime"
+msgstr ""
+
+#: src/components/MarketRegimeCard.tsx:19
+msgid "Market today"
+msgstr ""
+
+#: src/lib/system.ts:154
+msgid "Measure"
+msgstr ""
+
+#: src/lib/system.ts:68
+msgid "Measure, judge process apart from outcome, adjust."
+msgstr ""
+
+#: src/lib/system.ts:132
+msgid "Momentum swing, 2–3 weeks, targeting the measured move of the base."
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
 msgstr "最多取引"
+
+#: src/app/screens/SystemReviewPanel.tsx:172
+msgid "N"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:109
+msgid "N/A"
+msgstr ""
+
+#: src/lib/system.ts:269
+msgid "Narrow when this rule or setup may be used."
+msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:36
+msgid "Needs clarity"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:174
+msgid "Net"
+msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:182
 msgid "Net P&L"
@@ -207,6 +608,10 @@ msgstr "純損益"
 #: src/app/screens/settings/backups-section.tsx:176
 msgid "Never"
 msgstr "なし"
+
+#: src/lib/system.ts:136
+msgid "New evidence"
+msgstr ""
 
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
@@ -220,13 +625,61 @@ msgstr "なし"
 #~ msgid "New Trade"
 #~ msgstr "新規トレード"
 
+#: src/components/TradeSystemCard.tsx:108
+msgid "No"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:60
+msgid "No active version stamped yet."
+msgstr ""
+
 #: src/app/screens/settings/backups-section.tsx:128
 msgid "No backup yet"
 msgstr "まだバックアップはありません"
 
+#: src/app/screens/SystemReviewPanel.tsx:182
+msgid "No data in this range."
+msgstr ""
+
+#: src/lib/system.ts:120
+msgid "No more than two names in the same theme; skip if the open gap risk on the book exceeds 3%."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:211
+msgid "No rules yet"
+msgstr ""
+
 #: src/app/screens/settings/backups-section.tsx:198
 msgid "None"
 msgstr "なし"
+
+#: src/lib/system.ts:187
+msgid "Normal"
+msgstr ""
+
+#: src/components/MarketRegimeCard.tsx:20
+msgid "Normal and Defensive allow trading; Paused means stand aside."
+msgstr ""
+
+#: src/lib/system.ts:240
+msgid "Not followed"
+msgstr ""
+
+#: src/lib/system.ts:224
+msgid "Not proven wrong, but never followed through — time and opportunity cost."
+msgstr ""
+
+#: src/lib/system.ts:223
+msgid "Not working"
+msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:34
+msgid "Not written"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:587
+msgid "Note (optional)"
+msgstr ""
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:285
@@ -234,31 +687,138 @@ msgstr "なし"
 msgid "of {0} trading days"
 msgstr "取引日 {0}日中"
 
+#: src/lib/system.ts:268
+msgid "Only works in some markets"
+msgstr ""
+
+#: src/components/system-map/RuleEditor.tsx:121
+msgid "Open questions ({part}) — ambiguous, conflicting or missing cases"
+msgstr ""
+
+#: src/lib/system.ts:229
+#: src/lib/system.ts:277
+msgid "Other"
+msgstr ""
+
+#: src/lib/system.ts:238
+msgid "Partly followed"
+msgstr ""
+
+#: src/lib/system.ts:191
+msgid "Paused"
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:252
 msgid "per trade"
 msgstr "1トレードあたり"
+
+#: src/lib/system.ts:106
+msgid "Per-trade risk"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:127
+msgid "Planned hold (days)"
+msgstr ""
 
 #: src/components/AppNav.tsx:38
 #~ msgid "Playbook"
 #~ msgstr "プレイブック"
 
+#: src/lib/system.ts:118
+msgid "Portfolio check"
+msgstr ""
+
+#: src/lib/system.ts:112
+msgid "Position size"
+msgstr ""
+
+#: src/lib/system.ts:64
+msgid "Position sizing"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:177
+msgid "Post-trade checklist"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:77
+msgid "Process × outcome"
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:208
 msgid "Profit factor"
 msgstr "プロフィットファクター"
+
+#: src/app/screens/SystemView.tsx:238
+msgid "Progress is derived from your data — not a checklist you tick."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:279
+msgid "Read-only"
+msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:289
 msgid "Red days"
 msgstr "マイナスの日"
 
+#: src/app/screens/SystemReviewPanel.tsx:27
+#: src/app/screens/SystemView.tsx:61
+#: src/components/MarketRegimeCard.tsx:39
+#: src/components/TradeSystemCard.tsx:75
+msgid "Request failed"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:102
+msgid "Retry"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:88
+#: src/components/system-map/SystemNode.tsx:27
+#: src/lib/system.ts:68
+#: src/lib/system.ts:160
+msgid "Review"
+msgstr ""
+
 #: src/app/screens/NotesView.tsx:61
 msgid "Reviews"
 msgstr "レビュー"
+
+#: src/lib/system.ts:300
+msgid "Revise the version"
+msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:23
+msgid "Risk & size"
+msgstr ""
+
+#: src/lib/system.ts:100
+msgid "Risk budget"
+msgstr ""
+
+#: src/lib/system.ts:273
+msgid "Risk too high"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:87
+#: src/app/screens/SystemView.tsx:376
+msgid "Rules"
+msgstr ""
+
+#: src/lib/system.ts:295
+msgid "Run it live"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:175
+msgid "Sample"
+msgstr ""
 
 #: src/app/screens/settings/alerts-section.tsx:323
 msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
 msgstr "マーケットタイムゾーンの土曜 09:00 に、その週の損益・勝率・R・セットアップ・ルール違反・見送ったトレードを、記入用のレビューメモにまとめて届けます。"
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
+#: src/app/screens/SystemView.tsx:315
+#: src/app/screens/SystemView.tsx:518
+#: src/components/TradeSystemCard.tsx:81
 msgid "Save"
 msgstr "保存"
 
@@ -266,17 +826,49 @@ msgstr "保存"
 msgid "Save changes"
 msgstr "変更を保存"
 
+#: src/app/screens/SystemView.tsx:507
+msgid "Save, discard, or keep editing before leaving this node or version."
+msgstr ""
+
 #: src/app/screens/settings/backups-section.tsx:131
 msgid "Scheduled backups are off"
 msgstr "定期バックアップはオフです"
+
+#: src/components/system-map/SystemNode.tsx:38
+msgid "Self-checked clear"
+msgstr ""
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "設定"
 
+#: src/lib/system.ts:88
+msgid "Setup"
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:129
 msgid "Shared performance record"
 msgstr "共有された成績記録"
+
+#: src/lib/system.ts:114
+msgid "Shares = (equity × risk%) / (entry − stop). Size follows risk, never the other way round."
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:203
+msgid "Should this change a rule?"
+msgstr ""
+
+#: src/lib/system.ts:251
+msgid "Size and risk matched the plan"
+msgstr ""
+
+#: src/lib/system.ts:113
+msgid "Size worked out from entry, stop and per-trade risk."
+msgstr ""
+
+#: src/lib/system.ts:200
+msgid "Smaller size, fewer trades."
+msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:186
 msgid "Snapshots kept"
@@ -286,13 +878,82 @@ msgstr "保持中のスナップショット"
 msgid "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
 msgstr "データベースのスナップショットをサーバー上のフォルダに書き出します。このフォルダはオフサイトに同期してください — 同じディスク上のコピーはディスク障害を乗り越えられません。"
 
+#: src/components/system-map/RuleEditor.tsx:64
+msgid "Someone else would decide the same"
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:261
 msgid "SQN"
 msgstr "SQN"
 
+#: src/lib/system.ts:202
+msgid "Stand aside and watch."
+msgstr ""
+
+#: src/components/system-map/RuleEditor.tsx:58
+msgid "Start here"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:295
+msgid "Start next version"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:225
+msgid "Start v1.0"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:212
+msgid "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:351
+msgid "Starter prompts:"
+msgstr ""
+
+#: src/lib/system.ts:142
+msgid "State diagnosis"
+msgstr ""
+
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "統計"
+
+#: src/lib/system.ts:82
+msgid "Stock selection"
+msgstr ""
+
+#: src/lib/system.ts:249
+msgid "Stop and target were set before entry"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:56
+msgid "System card"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:71
+msgid "System card saved"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:357
+#: src/components/system-map/SystemMapList.tsx:19
+msgid "System map"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:83
+msgid "System view"
+msgstr ""
+
+#: src/lib/system.ts:227
+msgid "Target reached, or the edge was fading."
+msgstr ""
+
+#: src/lib/system.ts:290
+msgid "Test on past trades"
+msgstr ""
+
+#: src/lib/system.ts:220
+msgid "The core hypothesis was broken — cut."
+msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:268
 msgid "The curve"
@@ -302,9 +963,33 @@ msgstr "曲線"
 msgid "The edge"
 msgstr "エッジ"
 
+#: src/lib/system.ts:107
+msgid "The most one trade may risk, and how risk is split between better and worse odds."
+msgstr ""
+
+#: src/lib/system.ts:101
+msgid "The most planned risk the whole account carries at once, and when that grows or shrinks."
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:326
 msgid "The rhythm"
 msgstr "リズム"
+
+#: src/lib/system.ts:264
+msgid "The rule was fine; I didn't follow it. Fix the process."
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:140
+msgid "Thesis"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:138
+msgid "Thin"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:563
+msgid "This becomes the active system. You can revise later with a new draft."
+msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:153
 msgid "This link isn't available"
@@ -314,6 +999,26 @@ msgstr "このリンクは利用できません"
 msgid "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
 msgstr "このサーバーは Postgres で動作しています。組み込みバックアップは SQLite のみ対応です — Postgres は pg_dump またはプロバイダーのスナップショットでバックアップしてください。"
 
+#: src/lib/system.ts:130
+msgid "Trade definition"
+msgstr ""
+
+#: src/lib/system.ts:296
+msgid "Trade it live with a card on each trade. The question is \"can I follow it?\", not \"does it make money?\". Progress counts carded live trades — not a small-size check."
+msgstr ""
+
+#: src/lib/system.ts:198
+msgid "Trade the system at normal risk."
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:113
+msgid "Trade type"
+msgstr ""
+
+#: src/components/system-map/RuleEditor.tsx:105
+msgid "Trade type: {key}"
+msgstr ""
+
 #: src/components/AppNav.tsx:32
 #~ msgid "Trades"
 #~ msgstr "トレード"
@@ -321,6 +1026,51 @@ msgstr "このサーバーは Postgres で動作しています。組み込み�
 #: src/app/screens/PublicShareView.tsx:349
 msgid "Trades per month."
 msgstr "月あたりのトレード数。"
+
+#: src/app/screens/SystemView.tsx:76
+msgid "Trading system"
+msgstr ""
+
+#: src/lib/system.ts:94
+msgid "Trigger"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:101
+msgid "Trigger met"
+msgstr ""
+
+#: src/lib/system.ts:131
+msgid "Type of trade, expected move, holding time, core hypothesis."
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:164
+msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:505
+msgid "Unsaved changes"
+msgstr ""
+
+#: src/lib/system.ts:162
+msgid "Use the process × outcome quadrant; wrong-but-won is the most dangerous cell."
+msgstr ""
+
+#: src/components/system-map/RuleEditor.tsx:82
+msgid "Vague wording — make it objective:"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:268
+msgid "Version"
+msgstr ""
+
+#. placeholder {0}: cardQ.data.version_label
+#: src/components/TradeSystemCard.tsx:59
+msgid "Version {0}"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:477
+msgid "Version activated"
+msgstr ""
 
 #: src/app/drawers/NewNoteDrawer.tsx:92
 #: src/app/screens/NotesView.tsx:71
@@ -332,19 +1082,103 @@ msgstr "週次レビュー"
 msgid "Weekly review alerts"
 msgstr "週次レビューのアラート"
 
-#: src/app/drawers/NewNoteDrawer.tsx:110
+#: src/app/drawers/NewNoteDrawer.tsx:112
 msgid "Weekly review updated"
 msgstr "週次レビューを更新しました"
+
+#: src/lib/system.ts:83
+msgid "What qualifies? What will I never trade, even if it is going up?"
+msgstr ""
+
+#: src/lib/system.ts:149
+msgid "What to do in each state: hold, trim, take profit, stop out, exit."
+msgstr ""
+
+#: src/lib/system.ts:137
+msgid "What to watch after entry: structure, relative strength, sector, levels, catalysts."
+msgstr ""
+
+#: src/lib/system.ts:62
+msgid "When and what you trade."
+msgstr ""
+
+#: src/lib/system.ts:77
+msgid "When do I trade actively, cut risk, or stop trading?"
+msgstr ""
+
+#: src/lib/system.ts:167
+msgid "Which lessons are worth a rule change, and which are just normal variance?"
+msgstr ""
+
+#: src/lib/system.ts:125
+msgid "Which new evidence justifies adding, and which justifies trimming?"
+msgstr ""
+
+#: src/lib/system.ts:155
+msgid "Which numbers tell me the system is working — by market, setup and adherence?"
+msgstr ""
+
+#: src/lib/system.ts:95
+msgid "Which objective event makes me actually buy? Before it happens, do I know I do nothing?"
+msgstr ""
+
+#: src/lib/system.ts:89
+msgid "Which price structure must exist before I prepare a trade?"
+msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
 msgid "Win rate"
 msgstr "勝率"
 
+#: src/lib/system.ts:156
+msgid "Win rate, average win/loss, expectancy in R, results by regime and by setup."
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:173
+msgid "Win%"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:59
+msgid "With adherence"
+msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:58
+msgid "With regime"
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:315
 msgid "Worst day"
 msgstr "最悪の日"
 
-#: src/app/drawers/NewNoteDrawer.tsx:195
+#: src/app/screens/SystemView.tsx:78
+msgid "Write the rules you trade by on the map, follow them trade by trade, and let the results tell you which rules to keep."
+msgstr ""
+
+#: src/lib/system.ts:285
+msgid "Write v1.0"
+msgstr ""
+
+#: src/lib/system.ts:220
+msgid "Wrong"
+msgstr ""
+
+#: src/lib/system.ts:150
+msgid "Wrong → exit; finished → take at least half; not working past time stop → exit."
+msgstr ""
+
+#: src/lib/system.ts:144
+msgid "Wrong = close under the stop structure; not working = flat past planned hold with no follow-through."
+msgstr ""
+
+#: src/lib/system.ts:143
+msgid "Wrong, still working, not working, or finished — how do I tell them apart?"
+msgstr ""
+
+#: src/components/TradeSystemCard.tsx:107
+msgid "Yes"
+msgstr ""
+
+#: src/app/drawers/NewNoteDrawer.tsx:197
 msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
 msgstr "今週の数字と、うまくいったこと・いかなかったこと・来週の重点。"
