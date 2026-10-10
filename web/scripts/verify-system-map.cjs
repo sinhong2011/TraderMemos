@@ -41,9 +41,9 @@ async function shot(page, name) {
 async function findDecisionContainer(page, title) {
   return page.evaluateHandle((title) => {
     const headings = Array.from(document.querySelectorAll("h3"));
-    const h = headings.find((h) => h.textContent.trim().startsWith(title));
+    const h = headings.find((h) => h.textContent.trim().endsWith(title));
     if (!h) return null;
-    return h.closest("div.flex.flex-col.gap-2");
+    return h.closest("section");
   }, title);
 }
 
@@ -59,8 +59,8 @@ async function scrollTriggerIntoView(page) {
   await page
     .evaluate(() => {
       const headings = Array.from(document.querySelectorAll("h3"));
-      const h = headings.find((h) => h.textContent.trim().startsWith("Trigger"));
-      const container = h?.closest("div.flex.flex-col.gap-2");
+      const h = headings.find((h) => h.textContent.trim().endsWith("Trigger"));
+      const container = h?.closest("section");
       container?.scrollIntoView({ block: "center" });
     })
     .catch(() => {});
@@ -166,7 +166,7 @@ async function main() {
 
     // ================= Case 3: Entry node, fill Trigger, toggle, Save =================
     await clickMapNode(page, "Entry");
-    await page.getByRole("heading", { name: "Trigger" }).waitFor({ timeout: 5000 });
+    await page.getByRole("heading", { name: /· Trigger$/ }).waitFor({ timeout: 5000 });
 
     const triggerText = "Buy only on a close above the 20-day high with volume above average.";
     const triggerTextarea = await getTextareaFor(page, "Trigger");
@@ -199,7 +199,7 @@ async function main() {
 
     // ================= Case 4: hard reload /system?node=entry, read back =================
     await page.goto(`${BASE_URL}/system?node=entry`, { waitUntil: "networkidle" });
-    await page.getByRole("heading", { name: "Trigger" }).waitFor({ timeout: 10000 });
+    await page.getByRole("heading", { name: /· Trigger$/ }).waitFor({ timeout: 10000 });
     const reloadedTextarea = await getTextareaFor(page, "Trigger");
     const reloadedText = await reloadedTextarea.inputValue();
     const reloadedSwitch = await getSwitchFor(page, "Trigger");
@@ -257,12 +257,12 @@ async function main() {
     if (dirtyDialogVisible) {
       await dirtyDialog.getByRole("button", { name: "Discard" }).click();
     }
-    await page.getByRole("heading", { name: "Risk budget" }).waitFor({ timeout: 5000 });
+    await page.getByRole("heading", { name: /· Risk budget$/ }).waitFor({ timeout: 5000 });
     await shot(page, "system-07a-dirty-discard-on-risk.png");
 
     // Reopen Entry — should show the saved text, not the abandoned edit.
     await clickMapNode(page, "Entry");
-    await page.getByRole("heading", { name: "Trigger" }).waitFor({ timeout: 5000 });
+    await page.getByRole("heading", { name: /· Trigger$/ }).waitFor({ timeout: 5000 });
     const reopenedTextarea = await getTextareaFor(page, "Trigger");
     const reopenedText = await reopenedTextarea.inputValue();
     await scrollTriggerIntoView(page);
@@ -310,11 +310,11 @@ async function main() {
     await page.getByRole("button", { name: "Save", exact: true }).waitFor({ timeout: 10000 });
 
     const v2Label = await selectedVersionLabel();
-    const newDraftCreated = v2Label !== v1Label && v2Label.includes("draft");
+    const newDraftCreated = v2Label !== v1Label && /draft/i.test(v2Label);
 
     // Market node holds the "market environment" rule text.
     await clickMapNode(page, "Market");
-    await page.getByRole("heading", { name: "Market environment" }).waitFor({ timeout: 5000 });
+    await page.getByRole("heading", { name: /· Market environment$/ }).waitFor({ timeout: 5000 });
     const marketTextarea = await getTextareaFor(page, "Market environment");
     const originalMarketText = await marketTextarea.inputValue();
     const newMarketText =
@@ -349,7 +349,7 @@ async function main() {
       .catch(() => {});
     await page.getByText("Read-only", { exact: true }).waitFor({ timeout: 5000 });
     const v2ActiveLabel = await selectedVersionLabel();
-    const v2NowActive = v2ActiveLabel.includes("active") && v2ActiveLabel !== v1Label;
+    const v2NowActive = v2ActiveLabel.includes("In use") && v2ActiveLabel !== v1Label;
     await shot(page, "system-09-next-version.png");
     record(
       "9-next-version",
@@ -376,6 +376,114 @@ async function main() {
       allNodesOpened,
       `allNodesOpenedWithVisibleHeading=${allNodesOpened}`,
     );
+
+    // ================= Case 11: unsaved edits survive Rules ↔ Follow =================
+    await page.getByRole("button", { name: "Start next version" }).click();
+    await page.getByRole("button", { name: "Save", exact: true }).waitFor({ timeout: 10000 });
+    await clickMapNode(page, "Entry");
+    await page.getByRole("heading", { name: /· Trigger$/ }).waitFor({ timeout: 5000 });
+    const keepText = "Buy the first pullback after a 20-day high close.";
+    await (await getTextareaFor(page, "Trigger")).fill(keepText);
+    const unsavedShown = await page.getByText("Unsaved changes", { exact: true }).isVisible();
+    await page.getByRole("button", { name: "Follow trade", exact: true }).click();
+    await page.getByText("No trade linked yet").waitFor({ timeout: 5000 });
+    await shot(page, "system-11a-follow.png");
+    await page.getByRole("button", { name: "Write rules", exact: true }).click();
+    await page.getByRole("heading", { name: /· Trigger$/ }).waitFor({ timeout: 5000 });
+    const survived = await (await getTextareaFor(page, "Trigger")).inputValue();
+    await scrollTriggerIntoView(page);
+    await shot(page, "system-11b-back-to-rules.png");
+    record(
+      "11-rules-follow-keeps-edits",
+      unsavedShown && survived === keepText,
+      `unsavedChip=${unsavedShown}, text="${survived}"`,
+    );
+
+    // ================= Case 12: leaving for Review is guarded =================
+    const clickMode = (name) => page.getByRole("button", { name, exact: true }).click();
+    await clickMode("Review");
+    const leaveDialog = page.getByRole("dialog", { name: "Unsaved changes" });
+    await leaveDialog.waitFor({ timeout: 5000 });
+    await shot(page, "system-12a-leave-guard.png");
+    await leaveDialog.getByRole("button", { name: "Keep editing" }).click();
+    await page.waitForTimeout(300);
+    const stayedText = await (await getTextareaFor(page, "Trigger")).inputValue();
+    const stillRules = !page.url().includes("mode=review");
+    await clickMode("Review");
+    await leaveDialog.getByRole("button", { name: "Discard and leave" }).click();
+    await page.waitForURL(/mode=review/, { timeout: 5000 });
+    await shot(page, "system-12b-review.png");
+    await clickMode("Write rules");
+    await page.getByRole("heading", { name: /· Trigger$/ }).waitFor({ timeout: 5000 });
+    const afterLeave = await (await getTextareaFor(page, "Trigger")).inputValue();
+    record(
+      "12-review-guard",
+      stayedText === keepText && stillRules && afterLeave !== keepText,
+      `keptOnStay=${stayedText === keepText}, stayedInRules=${stillRules}, droppedAfterDiscard=${afterLeave !== keepText}`,
+    );
+
+    // ================= Case 13: discard draft dialog (cancel, then confirm) =================
+    await page.getByRole("button", { name: "Discard draft" }).click();
+    const discardDialog = page.getByRole("dialog", { name: /Discard v/ });
+    await discardDialog.waitFor({ timeout: 5000 });
+    await shot(page, "system-13a-discard-dialog.png");
+    await discardDialog.getByRole("button", { name: "Keep draft" }).click();
+    await page.waitForTimeout(300);
+    const draftKept = /draft/i.test(await selectedVersionLabel());
+    await page.getByRole("button", { name: "Discard draft" }).click();
+    await discardDialog.getByRole("button", { name: "Discard draft" }).click();
+    await page.getByRole("button", { name: "Start next version" }).waitFor({ timeout: 5000 });
+    const backToActive = (await selectedVersionLabel()).includes("In use");
+    await shot(page, "system-13b-discarded.png");
+    record(
+      "13-discard-dialog",
+      draftKept && backToActive,
+      `keptOnCancel=${draftKept}, activeAfterDiscard=${backToActive}`,
+    );
+
+    // ================= Case 14: drag a node, Reset layout =================
+    const resetBtn = page.getByRole("button", { name: "Reset layout" });
+    const resetDisabledAtStart = await resetBtn.isDisabled();
+    const riskNode = page
+      .locator(".react-flow__node")
+      .filter({ hasText: "Risk & position" })
+      .first();
+    const before = await riskNode.boundingBox();
+    await page.mouse.move(before.x + 40, before.y + 20);
+    await page.mouse.down();
+    await page.mouse.move(before.x + 200, before.y + 60, { steps: 12 });
+    await page.mouse.up();
+    await page.waitForTimeout(250);
+    const moved = await riskNode.boundingBox();
+    const resetEnabledAfterDrag = await resetBtn.isEnabled();
+    await shot(page, "system-14a-dragged.png");
+    await resetBtn.click();
+    await page.waitForTimeout(500);
+    const resetDisabledAfter = await resetBtn.isDisabled();
+    await shot(page, "system-14b-reset.png");
+    record(
+      "14-drag-reset",
+      resetDisabledAtStart &&
+        Math.abs(moved.x - before.x) > 60 &&
+        resetEnabledAfterDrag &&
+        resetDisabledAfter,
+      `disabledAtStart=${resetDisabledAtStart}, dx=${Math.round(moved.x - before.x)}, enabledAfterDrag=${resetEnabledAfterDrag}, disabledAfterReset=${resetDisabledAfter}`,
+    );
+
+    // ================= Case 15: keyboard selection =================
+    const holdingNode = page
+      .locator(".react-flow__node")
+      .filter({ hasText: "Holding decisions" })
+      .first();
+    await holdingNode.focus();
+    await page.keyboard.press("Enter");
+    const kbHeading = page.getByRole("heading", { level: 2, name: "Holding decisions" });
+    const kbSelected = await kbHeading
+      .waitFor({ timeout: 3000 })
+      .then(() => true)
+      .catch(() => false);
+    await shot(page, "system-15-keyboard.png");
+    record("15-keyboard-select", kbSelected, `inspectorShowsHolding=${kbSelected}`);
   } catch (err) {
     console.error("FATAL ERROR:", err);
     await shot(page, "system-ERROR.png").catch(() => {});
