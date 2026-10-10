@@ -95,12 +95,14 @@ export function SystemNode({ data }: NodeProps<SystemMapNode>) {
         id="top"
         className="!size-2 !border-border !bg-muted-foreground/50"
       />
-      <Handle
-        type="target"
-        position={Position.Left}
-        id="left"
-        className="!size-2 !border-border !bg-muted-foreground/50"
-      />
+      {data.nodeId === "market" ? (
+        <Handle
+          type="target"
+          position={Position.Left}
+          id="left"
+          className="!size-2 !border-border !bg-muted-foreground/50"
+        />
+      ) : null}
       <div className="flex items-start gap-2.5">
         <span
           className={cn(
@@ -129,18 +131,22 @@ export function SystemNode({ data }: NodeProps<SystemMapNode>) {
         id="bottom"
         className="!size-2 !border-border !bg-muted-foreground/50"
       />
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="right"
-        className="!size-2 !border-border !bg-muted-foreground/50"
-      />
-      <Handle
-        type="source"
-        position={Position.Left}
-        id="left-source"
-        className="!size-2 !border-border !bg-muted-foreground/50"
-      />
+      {data.nodeId === "entry" ? (
+        <Handle
+          type="source"
+          position={Position.Right}
+          id="right"
+          className="!size-2 !border-border !bg-muted-foreground/50"
+        />
+      ) : null}
+      {data.nodeId === "review" ? (
+        <Handle
+          type="source"
+          position={Position.Left}
+          id="left-source"
+          className="!size-2 !border-border !bg-muted-foreground/50"
+        />
+      ) : null}
     </div>
   );
 }

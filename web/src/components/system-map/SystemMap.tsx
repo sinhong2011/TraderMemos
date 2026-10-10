@@ -5,6 +5,7 @@ import {
   ReactFlow,
   ReactFlowProvider,
   type Edge,
+  type EdgeTypes,
   type Node,
   type NodeChange,
   type NodeTypes,
@@ -28,6 +29,7 @@ import {
   nodeClarity,
   nodeSummaryLine,
 } from "@/lib/system-map";
+import { FeedbackEdge } from "./FeedbackEdge";
 import {
   SystemNode,
   WatchNode,
@@ -37,6 +39,7 @@ import {
 } from "./SystemNode";
 
 const nodeTypes: NodeTypes = { system: SystemNode, watch: WatchNode };
+const edgeTypes: EdgeTypes = { feedback: FeedbackEdge };
 
 function edgeLabel(key: (typeof MAP_EDGES)[number]["labelKey"]): string | undefined {
   switch (key) {
@@ -165,9 +168,12 @@ function MapInner({
           target,
           sourceHandle,
           targetHandle: e.targetHandle,
-          type: isFeedback ? "default" : "smoothstep",
+          type: isFeedback ? "feedback" : "smoothstep",
           animated: false,
-          label,
+          // Feedback uses EdgeLabelRenderer inside FeedbackEdge — avoid the
+          // default SVG label sitting on the collapsed left spine.
+          label: isFeedback ? undefined : label,
+          data: isFeedback ? { label } : undefined,
           labelStyle: { fill: "var(--color-muted-foreground)", fontSize: 11 },
           labelBgStyle: { fill: "var(--color-card)", fillOpacity: 0.92 },
           labelBgPadding: [6, 4] as [number, number],
@@ -230,6 +236,7 @@ function MapInner({
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onNodeDragStop={(_, _node, all) => {
           persistLayout({ ...layoutRef.current, ...positionsFromNodes(all) });
