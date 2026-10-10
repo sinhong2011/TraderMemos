@@ -53,6 +53,7 @@
   --color-invert: var(--invert);
   --color-invert-foreground: var(--invert-foreground);
 
+  --color-chart-accent: var(--chart-accent);
   --color-heading: var(--heading);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -279,24 +280,11 @@
   }
 }
 
-/* Auth brand panel — equity line draws in, memos pin on, cursor blinks. */
-@keyframes auth-equity-draw {
+/* Auth brand panel — candles rise left to right, then the note is pinned. */
+@keyframes auth-candle-in {
   from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes auth-cursor-blink {
-  0%,
-  55% {
-    opacity: 1;
-  }
-  56%,
-  100% {
-    opacity: 0.25;
+    opacity: 0;
+    transform: translateY(14px);
   }
 }
 
