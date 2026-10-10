@@ -196,7 +196,7 @@ function MapInner({
         className="system-map-flow"
       >
         <Background gap={22} size={1} color="var(--color-border)" />
-        <Controls showInteractive={false} position="bottom-left" />
+        <Controls showInteractive={false} showFitView={false} position="bottom-left" />
       </ReactFlow>
       <div className="absolute end-3 top-3 z-10">
         <FitButton />
