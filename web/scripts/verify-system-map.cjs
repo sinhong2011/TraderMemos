@@ -444,6 +444,8 @@ async function main() {
     // ================= Case 14: drag a node, Reset layout =================
     const resetBtn = page.getByRole("button", { name: "Reset layout" });
     const resetDisabledAtStart = await resetBtn.isDisabled();
+    const inspectorTitle = () => page.locator(".system-workspace section h2").first().innerText();
+    const titleBeforeDrag = await inspectorTitle();
     const riskNode = page
       .locator(".react-flow__node")
       .filter({ hasText: "Risk & position" })
@@ -456,7 +458,12 @@ async function main() {
     await page.waitForTimeout(250);
     const moved = await riskNode.boundingBox();
     const resetEnabledAfterDrag = await resetBtn.isEnabled();
+    const titleAfterDrag = await inspectorTitle();
     await shot(page, "system-14a-dragged.png");
+    await page.reload({ waitUntil: "networkidle" });
+    await riskNode.waitFor();
+    await page.waitForTimeout(500);
+    const persistedEnabled = await resetBtn.isEnabled();
     await resetBtn.click();
     await page.waitForTimeout(500);
     const resetDisabledAfter = await resetBtn.isDisabled();
@@ -466,8 +473,10 @@ async function main() {
       resetDisabledAtStart &&
         Math.abs(moved.x - before.x) > 60 &&
         resetEnabledAfterDrag &&
+        titleAfterDrag === titleBeforeDrag &&
+        persistedEnabled &&
         resetDisabledAfter,
-      `disabledAtStart=${resetDisabledAtStart}, dx=${Math.round(moved.x - before.x)}, enabledAfterDrag=${resetEnabledAfterDrag}, disabledAfterReset=${resetDisabledAfter}`,
+      `disabledAtStart=${resetDisabledAtStart}, dx=${Math.round(moved.x - before.x)}, enabledAfterDrag=${resetEnabledAfterDrag}, inspectorKept=${titleAfterDrag === titleBeforeDrag} (${titleBeforeDrag}), persistedAfterReload=${persistedEnabled}, disabledAfterReset=${resetDisabledAfter}`,
     );
 
     // ================= Case 15: keyboard selection =================
@@ -484,6 +493,87 @@ async function main() {
       .catch(() => false);
     await shot(page, "system-15-keyboard.png");
     record("15-keyboard-select", kbSelected, `inspectorShowsHolding=${kbSelected}`);
+
+    // ================= Case 16–18: name a version =================
+    const versionPill = () => page.locator("header span.rounded-full").first().innerText();
+    await page.getByRole("button", { name: "Name this version" }).click();
+    const renameDialog = page.getByRole("dialog", { name: /^Name v/ });
+    await renameDialog.waitFor({ timeout: 5000 });
+    const saveNameDisabledEmpty = await renameDialog
+      .getByRole("button", { name: "Save name" })
+      .isDisabled();
+    await renameDialog.getByRole("textbox").fill("  Trend   pullbacks ");
+    await shot(page, "system-16a-name-dialog.png");
+    await renameDialog.getByRole("button", { name: "Save name" }).click();
+    await page.getByText("Version named").waitFor({ timeout: 5000 });
+    await page.waitForTimeout(300);
+    const optAfterName = await selectedVersionLabel();
+    const pillAfterName = await versionPill();
+    await shot(page, "system-16b-named.png");
+    record(
+      "16-name-version",
+      saveNameDisabledEmpty &&
+        optAfterName.includes("· Trend pullbacks ·") &&
+        pillAfterName.includes("Trend pullbacks"),
+      `saveDisabledWhenUnchanged=${saveNameDisabledEmpty}, option="${optAfterName}", pill="${pillAfterName}"`,
+    );
+
+    await page.getByRole("button", { name: "Rename this version" }).click();
+    const renameDialog2 = page.getByRole("dialog", { name: /^Rename v/ });
+    await renameDialog2.waitFor({ timeout: 5000 });
+    const reentryValue = await renameDialog2.getByRole("textbox").inputValue();
+    await renameDialog2.getByRole("textbox").fill("Something abandoned");
+    await renameDialog2.getByRole("button", { name: "Cancel" }).click();
+    await page.waitForTimeout(400);
+    const optAfterCancel = await selectedVersionLabel();
+    await page.getByRole("button", { name: "Rename this version" }).click();
+    await renameDialog2.waitFor({ timeout: 5000 });
+    const reopenValue = await renameDialog2.getByRole("textbox").inputValue();
+    await shot(page, "system-17-rename-reentry.png");
+    record(
+      "17-rename-cancel-reentry",
+      reentryValue === "Trend pullbacks" &&
+        optAfterCancel.includes("Trend pullbacks") &&
+        reopenValue === "Trend pullbacks",
+      `firstOpen="${reentryValue}", afterCancel="${optAfterCancel}", reopen="${reopenValue}"`,
+    );
+
+    await renameDialog2.getByRole("textbox").fill("");
+    await renameDialog2.getByRole("button", { name: "Save name" }).click();
+    await page.getByText("Name removed").waitFor({ timeout: 5000 });
+    await page.waitForTimeout(300);
+    const optAfterClear = await selectedVersionLabel();
+    const nameBtnBack = await page.getByRole("button", { name: "Name this version" }).isVisible();
+    await shot(page, "system-18-name-cleared.png");
+    record(
+      "18-clear-name",
+      /^v\d+\.\d+ · In use$/.test(optAfterClear) && nameBtnBack,
+      `option="${optAfterClear}", nameButtonBack=${nameBtnBack}`,
+    );
+
+    // ================= Case 19: naming a draft keeps unsaved rule edits =================
+    await page.getByRole("button", { name: "Start next version" }).click();
+    await page.getByRole("button", { name: "Save", exact: true }).waitFor({ timeout: 10000 });
+    await clickMapNode(page, "Entry");
+    await page.getByRole("heading", { name: /· Trigger$/ }).waitFor({ timeout: 5000 });
+    const pendingEdit = "Unsaved trigger edit while naming.";
+    await (await getTextareaFor(page, "Trigger")).fill(pendingEdit);
+    await page.getByRole("button", { name: "Name this version" }).click();
+    const draftNameDialog = page.getByRole("dialog", { name: /^Name v/ });
+    await draftNameDialog.getByRole("textbox").fill("Draft idea");
+    await draftNameDialog.getByRole("button", { name: "Save name" }).click();
+    await page.getByText("Version named").last().waitFor({ timeout: 5000 });
+    await page.waitForTimeout(400);
+    const editKept = await (await getTextareaFor(page, "Trigger")).inputValue();
+    const draftOpt = await selectedVersionLabel();
+    const stillDirty = await page.getByText("Unsaved changes", { exact: true }).isVisible();
+    await scrollTriggerIntoView(page);
+    await shot(page, "system-19-name-draft-keeps-edits.png");
+    record(
+      "19-name-draft-keeps-edits",
+      editKept === pendingEdit && draftOpt.includes("Draft idea") && stillDirty,
+      `text="${editKept}", option="${draftOpt}", unsavedChip=${stillDirty}`,
+    );
   } catch (err) {
     console.error("FATAL ERROR:", err);
     await shot(page, "system-ERROR.png").catch(() => {});
