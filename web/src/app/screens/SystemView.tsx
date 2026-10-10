@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Compass, History, Lock, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Route } from "@/routes/system";
+import { Route, type SystemMode } from "@/routes/system";
 import { Card } from "@/components/Card";
 import {
   Dialog,
@@ -24,6 +24,7 @@ import { RuleEditor } from "@/components/system-map/RuleEditor";
 import { SystemInspector } from "@/components/system-map/SystemInspector";
 import { SystemMap } from "@/components/system-map/SystemMap";
 import { SystemMapList } from "@/components/system-map/SystemMapList";
+import { systemNodeTitle } from "@/components/system-map/SystemNode";
 import type {
   ChangeBody,
   ChangeReason,
@@ -46,6 +47,7 @@ import {
   CHANGE_REASONS,
   changedDecisions,
   changeReasonCopy,
+  decisionCopy,
   DECISIONS,
   emptyRule,
   planStepCopy,
@@ -59,27 +61,85 @@ function emptyRules(): Record<DecisionId, Rule> {
   return Object.fromEntries(DECISIONS.map((d) => [d, emptyRule()])) as Record<DecisionId, Rule>;
 }
 
+function versionStatusLabel(status: SystemVersion["status"]): string {
+  switch (status) {
+    case "active":
+      return t`In use`;
+    case "draft":
+      return t`Draft`;
+    case "retired":
+      return t`Retired`;
+  }
+}
+
 export function SystemView() {
   const systemQ = useTradingSystem();
-  const [tab, setTab] = useState<"map" | "review">("map");
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [historyOpen, setHistoryOpen] = useState(false);
   const sys = systemQ.data;
+  const mode: SystemMode = search.mode ?? "rules";
+  const hasWorkspace = Boolean(sys && (sys.active || sys.draft || sys.history.length > 0));
+  const shownVersion = sys?.draft ?? sys?.active ?? sys?.history[0] ?? null;
+
+  const setMode = (next: SystemMode) => {
+    void navigate({
+      search: (prev) => ({ ...prev, mode: next === "rules" ? undefined : next }),
+      replace: true,
+    });
+  };
 
   return (
     <Page fill>
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-lg font-semibold">{t`Trading system`}</h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            {t`Write the rules you trade by on the map, follow them trade by trade, and let the results tell you which rules to keep.`}
-          </p>
+      <header className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-lg font-semibold">{t`Trading system`}</h1>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+              {t`Connect rules, decisions, and evidence.`}
+            </p>
+          </div>
+          {shownVersion ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full bg-muted/60 px-2.5 py-1 text-2xs font-medium",
+                  shownVersion.status === "active" && "text-foreground",
+                  shownVersion.status === "draft" && "text-muted-foreground",
+                )}
+              >
+                <span
+                  className={cn(
+                    "size-1.5 rounded-full",
+                    shownVersion.status === "active" && "bg-success",
+                    shownVersion.status === "draft" && "bg-primary",
+                    shownVersion.status === "retired" && "bg-muted-foreground",
+                  )}
+                  aria-hidden
+                />
+                {shownVersion.label} · {versionStatusLabel(shownVersion.status)}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setHistoryOpen(true)}
+              >
+                <History className="size-3.5" />
+                {t`Version history`}
+              </Button>
+            </div>
+          ) : null}
         </div>
-        {sys && (sys.active || sys.draft) ? (
+
+        {hasWorkspace ? (
           <SegmentedControl
-            ariaLabel={t`System view`}
-            value={tab}
-            onChange={(v) => setTab(v as "map" | "review")}
+            ariaLabel={t`System mode`}
+            value={mode}
+            onChange={(v) => setMode(v as SystemMode)}
             options={[
-              { value: "map", label: t`Rules` },
+              { value: "rules", label: t`Write rules` },
+              { value: "follow", label: t`Follow trade` },
               { value: "review", label: t`Review` },
             ]}
           />
@@ -100,9 +160,88 @@ export function SystemView() {
         />
       ) : null}
 
-      {sys && tab === "review" ? <SystemReviewPanel /> : null}
-      {sys && tab === "map" ? <SystemMapWorkspace systemId={sys.id} /> : null}
+      {sys && mode === "follow" ? (
+        <EmptyState
+          icon={<Compass />}
+          title={t`Follow trade comes next`}
+          hint={t`Phase C–E will attach a live opportunity or trade to this map: condition checks, evidence timeline, and confirm-trigger on the Entry node. Write rules first.`}
+          actions={
+            <Button type="button" onClick={() => setMode("rules")}>
+              {t`Back to write rules`}
+            </Button>
+          }
+        />
+      ) : null}
+      {sys && mode === "review" ? <SystemReviewPanel /> : null}
+      {sys && mode === "rules" ? <SystemMapWorkspace systemId={sys.id} /> : null}
+
+      {sys ? (
+        <VersionHistoryDialog
+          open={historyOpen}
+          onOpenChange={setHistoryOpen}
+          versions={[
+            ...(sys.draft ? [sys.draft] : []),
+            ...(sys.active ? [sys.active] : []),
+            ...sys.history,
+          ]}
+          onSelect={(id) => {
+            setHistoryOpen(false);
+            setMode("rules");
+            void navigate({
+              search: (prev) => ({ ...prev, version: id, mode: undefined }),
+              replace: true,
+            });
+          }}
+        />
+      ) : null}
     </Page>
+  );
+}
+
+function VersionHistoryDialog({
+  open,
+  onOpenChange,
+  versions,
+  onSelect,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  versions: SystemVersion[];
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t`Version history`}</DialogTitle>
+          <DialogDescription>
+            {t`Open a version on the map. Active and retired versions are read-only.`}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+          {versions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t`No versions yet.`}</p>
+          ) : (
+            <ul className="flex flex-col gap-1">
+              {versions.map((v) => (
+                <li key={v.id}>
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-start hover:bg-accent"
+                    onClick={() => onSelect(v.id)}
+                  >
+                    <span className="text-sm font-medium">{v.label}</span>
+                    <span className="text-2xs text-muted-foreground">
+                      {versionStatusLabel(v.status)}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -190,7 +329,7 @@ function VersionEditor({
   selectedVersion: SystemVersion;
   versions: SystemVersion[];
   sys: NonNullable<ReturnType<typeof useTradingSystem>["data"]>;
-  search: { node?: MapNodeId; version?: string };
+  search: { mode?: SystemMode; node?: MapNodeId; version?: string };
   navigate: ReturnType<typeof Route.useNavigate>;
 }) {
   const toast = useToastManager();
@@ -393,9 +532,17 @@ function VersionEditor({
           </div>
         </Card>
         <Card
-          title={t`Rules`}
-          description={
-            readonly ? t`Historical versions are read-only.` : t`Edit the selected node.`
+          title={
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold text-foreground">{systemNodeTitle(node)}</h2>
+              <p className="mt-0.5 text-2xs text-muted-foreground">
+                {readonly
+                  ? t`Historical versions are read-only.`
+                  : decisions[0]
+                    ? `${t`Decision`} · ${decisionCopy(decisions[0]).title}`
+                    : t`Edit the selected node.`}
+              </p>
+            </div>
           }
         >
           <SystemInspector panelKey={node}>
@@ -432,25 +579,6 @@ function VersionEditor({
           </SystemInspector>
         </Card>
       </div>
-
-      {sys.history.length > 0 ? (
-        <Card title={t`History`} action={<History className="size-4 text-muted-foreground" />}>
-          <ul className="flex flex-col gap-1 text-sm">
-            {sys.history.map((v) => (
-              <li key={v.id}>
-                <button
-                  type="button"
-                  className="rounded-md px-2 py-1.5 hover:bg-accent"
-                  onClick={() => setVersion(v.id)}
-                >
-                  {v.label}
-                  <span className="ms-2 text-2xs text-muted-foreground">{v.status}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ) : null}
 
       <DirtyDialog
         open={dirtyPrompt != null}
