@@ -21,6 +21,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import type { DecisionId, Rule, SystemPart } from "@/lib/api/system";
+import { checkLabel, checkTone, type CheckState, type NodeCheck } from "@/lib/system-plan";
 import {
   MAP_EDGES,
   MAP_NODES,
@@ -67,15 +68,25 @@ const FIT_OPTIONS = {
   maxZoom: 1,
 } as const;
 
-function MapLegend() {
-  const items: RuleClarity[] = ["self_clear", "needs_clarity", "empty"];
+function MapLegend({ checks }: { checks: boolean }) {
+  const items: { key: string; dot: string; label: string }[] = checks
+    ? (["met", "not_met", "open"] as CheckState[]).map((c) => ({
+        key: c,
+        dot: checkTone(c).dot,
+        label: checkLabel(c),
+      }))
+    : (["self_clear", "needs_clarity", "empty"] as RuleClarity[]).map((c) => ({
+        key: c,
+        dot: clarityTone(c).dot,
+        label: clarityLabel(c),
+      }));
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center px-14">
       <ul className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1 rounded-full bg-card/85 px-3 py-1.5 text-2xs text-muted-foreground shadow-sm backdrop-blur-sm">
         {items.map((c) => (
-          <li key={c} className="inline-flex items-center gap-1.5">
-            <span className={cn("size-1.5 rounded-full", clarityTone(c).dot)} aria-hidden />
-            {clarityLabel(c)}
+          <li key={c.key} className="inline-flex items-center gap-1.5">
+            <span className={cn("size-1.5 rounded-full", c.dot)} aria-hidden />
+            {c.label}
           </li>
         ))}
         <li className="hidden items-center gap-1.5 text-muted-foreground/80 lg:inline-flex">
@@ -104,17 +115,21 @@ function buildNodes(
   rules: Partial<Record<DecisionId, Rule>> | undefined,
   openQuestions: Partial<Record<SystemPart, string>> | undefined,
   selected: MapNodeId | null,
+  checks: Record<MapNodeId, NodeCheck> | undefined,
 ): Node[] {
   const fallback = defaultMapLayout();
   const systemNodes: SystemMapNode[] = MAP_NODES.map((n) => {
     const clarity = nodeClarity(n.id, rules, openQuestions);
     const filled = n.decisions.filter((d) => (rules?.[d]?.text ?? "").trim()).length;
     const title = systemNodeTitle(n.id);
+    const check = checks?.[n.id];
     return {
       id: n.id,
       type: "system",
       position: layout[n.id] ?? fallback[n.id]!,
-      ariaLabel: t`${title}: ${clarityLabel(clarity)}, ${filled} of ${n.decisions.length} written`,
+      ariaLabel: check
+        ? t`${title}: ${checkLabel(check.state)}, ${check.answered} of ${check.total} checked`
+        : t`${title}: ${clarityLabel(clarity)}, ${filled} of ${n.decisions.length} written`,
       data: {
         nodeId: n.id,
         title,
@@ -123,6 +138,7 @@ function buildNodes(
         total: n.decisions.length,
         clarity,
         selected: selected === n.id,
+        check,
       },
       selected: selected === n.id,
       draggable: true,
@@ -149,27 +165,30 @@ function MapInner({
   openQuestions,
   selected,
   onSelect,
+  checks,
 }: {
   systemId: string;
   rules: Partial<Record<DecisionId, Rule>> | undefined;
   openQuestions: Partial<Record<SystemPart, string>> | undefined;
   selected: MapNodeId | null;
   onSelect: (id: MapNodeId) => void;
+  checks?: Record<MapNodeId, NodeCheck>;
 }) {
   const { fitView } = useReactFlow();
   const reduceMotion = useReducedMotion();
   const [nodes, setNodes] = useState<Node[]>(() =>
-    buildNodes(loadMapLayout(systemId), rules, openQuestions, selected),
+    buildNodes(loadMapLayout(systemId), rules, openQuestions, selected, checks),
   );
-  const [synced, setSynced] = useState({ rules, openQuestions, selected });
+  const [synced, setSynced] = useState({ rules, openQuestions, selected, checks });
   if (
     synced.rules !== rules ||
     synced.openQuestions !== openQuestions ||
-    synced.selected !== selected
+    synced.selected !== selected ||
+    synced.checks !== checks
   ) {
-    setSynced({ rules, openQuestions, selected });
+    setSynced({ rules, openQuestions, selected, checks });
     setNodes((prev) => {
-      const fresh = buildNodes(positionsFromNodes(prev), rules, openQuestions, selected);
+      const fresh = buildNodes(positionsFromNodes(prev), rules, openQuestions, selected, checks);
       return prev.map((n) => {
         const next = fresh.find((f) => f.id === n.id)!;
         return { ...n, data: next.data, selected: next.selected, ariaLabel: next.ariaLabel };
@@ -290,7 +309,7 @@ function MapInner({
           {t`Fit`}
         </Button>
       </div>
-      <MapLegend />
+      <MapLegend checks={checks != null} />
     </div>
   );
 }
@@ -301,6 +320,7 @@ export function SystemMap(props: {
   openQuestions: Partial<Record<SystemPart, string>> | undefined;
   selected: MapNodeId | null;
   onSelect: (id: MapNodeId) => void;
+  checks?: Record<MapNodeId, NodeCheck>;
 }) {
   return (
     <ReactFlowProvider>

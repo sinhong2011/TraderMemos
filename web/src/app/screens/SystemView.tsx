@@ -19,13 +19,14 @@ import { Skeleton } from "@/components/Skeleton";
 import { useToastManager } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { FollowTradeInspector } from "@/components/system-map/FollowTradeInspector";
+import { FollowPlanWorkspace } from "@/components/system-map/FollowPlan";
 import { InspectorFrame } from "@/components/system-map/InspectorFrame";
 import { PlanStepper } from "@/components/system-map/PlanStepper";
 import { RuleEditor } from "@/components/system-map/RuleEditor";
 import { SystemInspector } from "@/components/system-map/SystemInspector";
 import { SystemMap } from "@/components/system-map/SystemMap";
 import { SystemMapList } from "@/components/system-map/SystemMapList";
+import { WorkspaceGrid } from "@/components/system-map/WorkspaceGrid";
 import {
   ClarityPill,
   NodeProgress,
@@ -95,6 +96,7 @@ export function SystemView() {
   const navigate = Route.useNavigate();
   const [historyOpen, setHistoryOpen] = useState(false);
   const [editorDirty, setEditorDirty] = useState(false);
+  const [planDirty, setPlanDirty] = useState(false);
   const [pendingLeave, setPendingLeave] = useState<null | (() => void)>(null);
   const sys = systemQ.data;
   const mode: SystemMode = search.mode ?? "rules";
@@ -103,7 +105,7 @@ export function SystemView() {
 
   /** Rules and Follow share one mounted editor; anything else remounts it and drops edits. */
   const guardLeave = (go: () => void) => {
-    if (editorDirty) setPendingLeave(() => go);
+    if (editorDirty || planDirty) setPendingLeave(() => go);
     else go();
   };
 
@@ -113,7 +115,9 @@ export function SystemView() {
         search: (prev) => ({ ...prev, mode: next === "rules" ? undefined : next }),
         replace: true,
       });
-    if (next === "review") guardLeave(go);
+    if (next === mode) return;
+    // Plan edits live only in Follow; rules edits survive a Rules ⇄ Follow switch.
+    if (next === "review" || (mode === "follow" && planDirty)) guardLeave(go);
     else go();
   };
 
@@ -196,6 +200,7 @@ export function SystemView() {
           mode={mode}
           onEditDraft={() => setMode("rules")}
           onDirtyChange={setEditorDirty}
+          onPlanDirtyChange={setPlanDirty}
         />
       ) : null}
 
@@ -226,7 +231,9 @@ export function SystemView() {
           <DialogHeader className="flex-col items-start gap-1.5 pr-12">
             <DialogTitle>{t`Unsaved changes`}</DialogTitle>
             <DialogDescription className="text-left leading-relaxed">
-              {t`Your draft has edits that aren't saved. Leaving now discards them.`}
+              {planDirty
+                ? t`Your plan has edits that aren't saved as a revision. Leaving now discards them.`
+                : t`Your draft has edits that aren't saved. Leaving now discards them.`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -240,6 +247,7 @@ export function SystemView() {
                 const go = pendingLeave;
                 setPendingLeave(null);
                 setEditorDirty(false);
+                setPlanDirty(false);
                 go?.();
               }}
             >
@@ -308,10 +316,12 @@ function SystemMapWorkspace({
   mode,
   onEditDraft,
   onDirtyChange,
+  onPlanDirtyChange,
 }: {
   mode: "rules" | "follow";
   onEditDraft: () => void;
   onDirtyChange: (dirty: boolean) => void;
+  onPlanDirtyChange: (dirty: boolean) => void;
 }) {
   const toast = useToastManager();
   const systemQ = useTradingSystem();
@@ -374,6 +384,7 @@ function SystemMapWorkspace({
       mode={mode}
       onEditDraft={onEditDraft}
       onDirtyChange={onDirtyChange}
+      onPlanDirtyChange={onPlanDirtyChange}
     />
   );
 }
@@ -401,15 +412,17 @@ function VersionEditor({
   mode,
   onEditDraft,
   onDirtyChange,
+  onPlanDirtyChange,
 }: {
   selectedVersion: SystemVersion;
   versions: SystemVersion[];
   sys: NonNullable<ReturnType<typeof useTradingSystem>["data"]>;
-  search: { mode?: SystemMode; node?: MapNodeId; version?: string };
+  search: { mode?: SystemMode; node?: MapNodeId; version?: string; plan?: string };
   navigate: ReturnType<typeof Route.useNavigate>;
   mode: "rules" | "follow";
   onEditDraft: () => void;
   onDirtyChange: (dirty: boolean) => void;
+  onPlanDirtyChange: (dirty: boolean) => void;
 }) {
   const toast = useToastManager();
   const start = useStartSystemVersion();
@@ -472,14 +485,28 @@ function VersionEditor({
 
   const followVersion = sys.active ?? selectedVersion;
 
+  if (mode === "follow") {
+    return (
+      <FollowPlanWorkspace
+        sys={sys}
+        versions={versions}
+        fallbackVersion={followVersion}
+        node={node}
+        onNodeChange={(next) =>
+          void navigate({ search: (prev) => ({ ...prev, node: next }), replace: true })
+        }
+        planParam={search.plan}
+        onPlanChange={(id) =>
+          void navigate({ search: (prev) => ({ ...prev, plan: id }), replace: true })
+        }
+        onEditDraft={onEditDraft}
+        onDirtyChange={onPlanDirtyChange}
+      />
+    );
+  }
+
   return (
     <>
-      {mode === "follow" ? (
-        <p className="text-sm text-muted-foreground">
-          {t`Walk the map one decision at a time and check each against the active rules.`}
-        </p>
-      ) : null}
-
       {mode === "rules" ? (
         <>
           <PlanStepper plan={sys.plan} />
@@ -610,92 +637,79 @@ function VersionEditor({
         </>
       ) : null}
 
-      {/* Map + inspector share one dotted surface (same level as the draft). */}
-      <div className="system-workspace grid min-h-[min(640px,70vh)] flex-1 overflow-hidden rounded-lg lg:grid-cols-[minmax(0,1fr)_minmax(300px,380px)]">
-        <div className="relative min-h-[min(520px,55vh)] min-w-0 lg:min-h-0">
-          <div className="absolute inset-0 hidden md:block">
-            <SystemMap
-              systemId={sys.id}
-              rules={mode === "follow" ? followVersion.rules : draftBody.rules}
-              openQuestions={
-                mode === "follow" ? followVersion.open_questions : draftBody.open_questions
-              }
-              selected={node}
-              onSelect={setNode}
-            />
-          </div>
-          <div className="p-3 md:hidden">
-            <SystemMapList
-              rules={mode === "follow" ? followVersion.rules : draftBody.rules}
-              openQuestions={
-                mode === "follow" ? followVersion.open_questions : draftBody.open_questions
-              }
-              selected={node}
-              onSelect={setNode}
-            />
-          </div>
-        </div>
-        <div className="min-h-[320px] min-w-0 p-3 lg:min-h-0 lg:ps-0">
-          {mode === "follow" ? (
-            <SystemInspector panelKey={`follow-${node}`}>
-              <FollowTradeInspector node={node} version={followVersion} onEditDraft={onEditDraft} />
-            </SystemInspector>
-          ) : (
-            <InspectorFrame
-              title={systemNodeTitle(node)}
-              subtitle={
-                readonly
-                  ? t`${selectedVersion.label} · read-only`
-                  : t`${selectedVersion.label} · draft`
-              }
-              icon={<NodeIcon id={node} className="size-4.5" />}
-              meta={
-                <>
-                  <ClarityPill
-                    clarity={nodeClarity(node, draftBody.rules, draftBody.open_questions)}
-                  />
-                  <NodeProgress
-                    filled={decisions.filter((d) => draftBody.rules[d]?.text.trim()).length}
-                    total={decisions.length}
-                  />
-                </>
-              }
-            >
-              <SystemInspector panelKey={node}>
-                <RuleEditor
-                  decisions={decisions}
-                  rules={draftBody.rules}
-                  openQuestions={draftBody.open_questions}
-                  regimes={draftBody.regimes}
-                  tradeTypes={draftBody.trade_types}
-                  readonly={readonly}
-                  onRuleChange={(id, patch) =>
-                    setDraftBody((b) => ({
-                      ...b,
-                      rules: { ...b.rules, [id]: { ...emptyRule(), ...b.rules[id], ...patch } },
-                    }))
-                  }
-                  onOpenQuestion={(part: SystemPart, text) =>
-                    setDraftBody((b) => ({
-                      ...b,
-                      open_questions: { ...b.open_questions, [part]: text },
-                    }))
-                  }
-                  onRegimeLabel={(stance: Stance, label) =>
-                    setDraftBody((b) => ({ ...b, regimes: { ...b.regimes, [stance]: label } }))
-                  }
-                  onTradeTypeLabel={(key, label) =>
-                    setDraftBody((b) => ({
-                      ...b,
-                      trade_types: { ...b.trade_types, [key]: label },
-                    }))
-                  }
+      <WorkspaceGrid
+        map={
+          <SystemMap
+            systemId={sys.id}
+            rules={draftBody.rules}
+            openQuestions={draftBody.open_questions}
+            selected={node}
+            onSelect={setNode}
+          />
+        }
+        list={
+          <SystemMapList
+            rules={draftBody.rules}
+            openQuestions={draftBody.open_questions}
+            selected={node}
+            onSelect={setNode}
+          />
+        }
+        inspector={
+          <InspectorFrame
+            title={systemNodeTitle(node)}
+            subtitle={
+              readonly
+                ? t`${selectedVersion.label} · read-only`
+                : t`${selectedVersion.label} · draft`
+            }
+            icon={<NodeIcon id={node} className="size-4.5" />}
+            meta={
+              <>
+                <ClarityPill
+                  clarity={nodeClarity(node, draftBody.rules, draftBody.open_questions)}
                 />
-              </SystemInspector>
-            </InspectorFrame>
-          )}
-        </div>
-      </div>
+                <NodeProgress
+                  filled={decisions.filter((d) => draftBody.rules[d]?.text.trim()).length}
+                  total={decisions.length}
+                />
+              </>
+            }
+          >
+            <SystemInspector panelKey={node}>
+              <RuleEditor
+                decisions={decisions}
+                rules={draftBody.rules}
+                openQuestions={draftBody.open_questions}
+                regimes={draftBody.regimes}
+                tradeTypes={draftBody.trade_types}
+                readonly={readonly}
+                onRuleChange={(id, patch) =>
+                  setDraftBody((b) => ({
+                    ...b,
+                    rules: { ...b.rules, [id]: { ...emptyRule(), ...b.rules[id], ...patch } },
+                  }))
+                }
+                onOpenQuestion={(part: SystemPart, text) =>
+                  setDraftBody((b) => ({
+                    ...b,
+                    open_questions: { ...b.open_questions, [part]: text },
+                  }))
+                }
+                onRegimeLabel={(stance: Stance, label) =>
+                  setDraftBody((b) => ({ ...b, regimes: { ...b.regimes, [stance]: label } }))
+                }
+                onTradeTypeLabel={(key, label) =>
+                  setDraftBody((b) => ({
+                    ...b,
+                    trade_types: { ...b.trade_types, [key]: label },
+                  }))
+                }
+              />
+            </SystemInspector>
+          </InspectorFrame>
+        }
+      />
 
       <DirtyDialog
         open={dirtyPrompt != null}

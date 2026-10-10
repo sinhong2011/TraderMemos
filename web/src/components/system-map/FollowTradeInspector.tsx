@@ -1,5 +1,5 @@
 import { t } from "@lingui/core/macro";
-import { Info, NotebookPen, Pencil, Square } from "lucide-react";
+import { Info, Pencil, Plus, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DecisionId, SystemVersion } from "@/lib/api/system";
 import { decisionCopy, DECISIONS } from "@/lib/system";
@@ -24,10 +24,13 @@ export function FollowTradeInspector({
   node,
   version,
   onEditDraft,
+  onNewPlan,
 }: {
   node: MapNodeId;
   version: SystemVersion | null;
   onEditDraft: () => void;
+  /** Absent when no version is active, so there is nothing to plan against. */
+  onNewPlan?: () => void;
 }) {
   const decisions = decisionsForNode(node);
   const written = decisions.filter((d) => version?.rules?.[d]?.text.trim());
@@ -54,12 +57,12 @@ export function FollowTradeInspector({
             </Button>
             <Button
               type="button"
-              variant="secondary"
-              disabled
-              title={t`Link a trade first to record evidence against it`}
+              disabled={!onNewPlan}
+              title={onNewPlan ? undefined : t`Activate a version before planning trades`}
+              onClick={onNewPlan}
             >
-              <NotebookPen className="size-4" aria-hidden />
-              {t`Record evidence`}
+              <Plus className="size-4" aria-hidden />
+              {t`New plan`}
             </Button>
           </div>
           <p className="text-2xs leading-snug text-muted-foreground">
@@ -71,9 +74,11 @@ export function FollowTradeInspector({
       <div className="flex items-start gap-2.5 rounded-lg bg-info/10 px-3 py-2.5">
         <Info className="mt-0.5 size-4 shrink-0 text-info-foreground" aria-hidden />
         <div className="min-w-0">
-          <div className="text-sm font-medium text-foreground">{t`No trade linked yet`}</div>
+          <div className="text-sm font-medium text-foreground">{t`No plan open`}</div>
           <p className="mt-0.5 text-2xs leading-snug text-muted-foreground">
-            {t`The map still shows where this decision sits. Linking a trade to check it against these rules is on the way.`}
+            {onNewPlan
+              ? t`Write a plan before the fill: setup, trigger, prices, and an answer for each rule. Link the trade once it fills.`
+              : t`Activate a version first — plans are checked against the rules in use.`}
           </p>
         </div>
       </div>

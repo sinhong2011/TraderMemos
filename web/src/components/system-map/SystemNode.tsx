@@ -10,9 +10,11 @@ import {
   Eye,
   Gauge,
   RefreshCcw,
+  XCircle,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { checkLabel, checkTone, type CheckState, type NodeCheck } from "@/lib/system-plan";
 import type { MapNodeId, RuleClarity } from "@/lib/system-map";
 
 export type SystemMapNodeData = {
@@ -23,6 +25,8 @@ export type SystemMapNodeData = {
   total: number;
   clarity: RuleClarity;
   selected: boolean;
+  /** Present while following a plan: the plan's answers replace rule clarity. */
+  check?: NodeCheck;
 };
 
 export type SystemMapNode = Node<SystemMapNodeData, "system">;
@@ -93,6 +97,27 @@ export function StatusIcon({ clarity, className }: { clarity: RuleClarity; class
   return <CircleDashed className={cls} aria-hidden />;
 }
 
+export function CheckIcon({ state, className }: { state: CheckState; className?: string }) {
+  const cls = cn("size-3.5 shrink-0", checkTone(state).text, className);
+  if (state === "met") return <CheckCircle2 className={cls} aria-hidden />;
+  if (state === "not_met") return <XCircle className={cls} aria-hidden />;
+  return <CircleDashed className={cls} aria-hidden />;
+}
+
+export function CheckPill({ check }: { check: NodeCheck }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium",
+        checkTone(check.state).pill,
+      )}
+    >
+      <CheckIcon state={check.state} className="size-3" />
+      {checkLabel(check.state)}
+    </span>
+  );
+}
+
 export function ClarityPill({ clarity }: { clarity: RuleClarity }) {
   return (
     <span
@@ -151,17 +176,38 @@ export function SystemNode({ data }: NodeProps<SystemMapNode>) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <div className="truncate text-sm font-semibold text-foreground">{data.title}</div>
-            <NodeProgress filled={data.filled} total={data.total} />
-          </div>
-          <div
-            className={cn(
-              "mt-0.5 flex items-center gap-1.5 text-2xs font-medium",
-              clarityTone(data.clarity).text,
+            {data.check ? (
+              <span
+                className="text-2xs font-medium tabular-nums text-muted-foreground"
+                aria-label={t`${data.check.answered} of ${data.check.total} checked`}
+              >
+                {data.check.answered}/{data.check.total}
+              </span>
+            ) : (
+              <NodeProgress filled={data.filled} total={data.total} />
             )}
-          >
-            <StatusIcon clarity={data.clarity} />
-            <span>{clarityLabel(data.clarity)}</span>
           </div>
+          {data.check ? (
+            <div
+              className={cn(
+                "mt-0.5 flex items-center gap-1.5 text-2xs font-medium",
+                checkTone(data.check.state).text,
+              )}
+            >
+              <CheckIcon state={data.check.state} />
+              <span>{checkLabel(data.check.state)}</span>
+            </div>
+          ) : (
+            <div
+              className={cn(
+                "mt-0.5 flex items-center gap-1.5 text-2xs font-medium",
+                clarityTone(data.clarity).text,
+              )}
+            >
+              <StatusIcon clarity={data.clarity} />
+              <span>{clarityLabel(data.clarity)}</span>
+            </div>
+          )}
           <p
             className={cn(
               "mt-1.5 line-clamp-2 text-2xs leading-snug",

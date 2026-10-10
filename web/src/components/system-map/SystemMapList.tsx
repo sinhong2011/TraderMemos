@@ -2,7 +2,9 @@ import { t } from "@lingui/core/macro";
 import { cn } from "@/lib/cn";
 import type { DecisionId, Rule, SystemPart } from "@/lib/api/system";
 import { MAP_NODES, type MapNodeId, nodeClarity, nodeSummaryLine } from "@/lib/system-map";
+import { checkLabel, checkTone, type NodeCheck } from "@/lib/system-plan";
 import {
+  CheckIcon,
   clarityLabel,
   clarityTone,
   NodeProgress,
@@ -16,11 +18,13 @@ export function SystemMapList({
   openQuestions,
   selected,
   onSelect,
+  checks,
 }: {
   rules: Partial<Record<DecisionId, Rule>> | undefined;
   openQuestions: Partial<Record<SystemPart, string>> | undefined;
   selected: MapNodeId | null;
   onSelect: (id: MapNodeId) => void;
+  checks?: Record<MapNodeId, NodeCheck>;
 }) {
   return (
     <ul className="flex flex-col gap-1.5" role="listbox" aria-label={t`System map`}>
@@ -29,6 +33,7 @@ export function SystemMapList({
         const active = selected === n.id;
         const line = nodeSummaryLine(n.id, rules);
         const filled = n.decisions.filter((d) => (rules?.[d]?.text ?? "").trim()).length;
+        const check = checks?.[n.id];
         return (
           <li key={n.id}>
             <button
@@ -54,17 +59,35 @@ export function SystemMapList({
               <span className="min-w-0 flex-1">
                 <span className="flex items-center justify-between gap-2">
                   <span className="truncate text-sm font-semibold">{systemNodeTitle(n.id)}</span>
-                  <NodeProgress filled={filled} total={n.decisions.length} />
-                </span>
-                <span
-                  className={cn(
-                    "mt-0.5 flex items-center gap-1.5 text-2xs font-medium",
-                    clarityTone(clarity).text,
+                  {check ? (
+                    <span className="text-2xs font-medium tabular-nums text-muted-foreground">
+                      {check.answered}/{check.total}
+                    </span>
+                  ) : (
+                    <NodeProgress filled={filled} total={n.decisions.length} />
                   )}
-                >
-                  <StatusIcon clarity={clarity} />
-                  {clarityLabel(clarity)}
                 </span>
+                {check ? (
+                  <span
+                    className={cn(
+                      "mt-0.5 flex items-center gap-1.5 text-2xs font-medium",
+                      checkTone(check.state).text,
+                    )}
+                  >
+                    <CheckIcon state={check.state} />
+                    {checkLabel(check.state)}
+                  </span>
+                ) : (
+                  <span
+                    className={cn(
+                      "mt-0.5 flex items-center gap-1.5 text-2xs font-medium",
+                      clarityTone(clarity).text,
+                    )}
+                  >
+                    <StatusIcon clarity={clarity} />
+                    {clarityLabel(clarity)}
+                  </span>
+                )}
                 {line ? (
                   <span className="mt-1 line-clamp-2 block text-2xs text-muted-foreground">
                     {line}

@@ -189,6 +189,97 @@ export interface SystemReview {
   adherence_rate: number | null;
 }
 
+export type PlanStatus = "planned" | "waiting" | "taken" | "skipped" | "cancelled";
+export type PlanSource = "live" | "retrospective";
+export type PlanStage = "before_fill" | "after_fill";
+export type ConditionAnswer = "" | "yes" | "no" | "na";
+
+export interface PlanCondition {
+  answer: ConditionAnswer;
+  note: string;
+}
+
+export interface PlanRevision {
+  id: string;
+  seq: number;
+  stage: PlanStage;
+  setup: string;
+  thesis: string;
+  trigger: string;
+  invalidation: string;
+  entry_price: number | null;
+  stop_price: number | null;
+  target_price: number | null;
+  conditions: Partial<Record<DecisionId, PlanCondition>>;
+  occurred_at: string | null;
+  recorded_at: string;
+}
+
+export interface PlanTrade {
+  id: string;
+  symbol: string;
+  direction: "long" | "short";
+  status: string;
+  opened_at: string;
+  closed_at: string | null;
+  net_pnl: number | null;
+  pnl_currency: string;
+}
+
+export interface PlanEvent {
+  id: string;
+  kind: "status" | "link" | "unlink";
+  from_status: PlanStatus | "";
+  to_status: PlanStatus | "";
+  trade_id: string;
+  reason: string;
+  created_at: string;
+}
+
+export interface SystemPlan {
+  id: string;
+  version_id: string | null;
+  version_label: string;
+  symbol: string;
+  direction: "long" | "short";
+  status: PlanStatus;
+  source: PlanSource;
+  trade_id: string | null;
+  trade: PlanTrade | null;
+  latest: PlanRevision | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SystemPlanDetail extends SystemPlan {
+  revisions: PlanRevision[];
+  events: PlanEvent[];
+}
+
+export interface PlanCandidate extends PlanTrade {
+  linked_plan_id: string | null;
+  opened_before_plan: boolean;
+}
+
+export interface PlanRevisionBody {
+  setup: string;
+  thesis: string;
+  trigger: string;
+  invalidation: string;
+  entry_price: number | null;
+  stop_price: number | null;
+  target_price: number | null;
+  conditions: Partial<Record<DecisionId, PlanCondition>>;
+  occurred_at?: string | null;
+}
+
+export interface CreatePlanBody {
+  symbol: string;
+  direction: "long" | "short";
+  source: PlanSource;
+  revision: PlanRevisionBody;
+}
+
 const filterQs = (f: Filters & { version_id?: string }) =>
   qs(f as Record<string, string | undefined>);
 
@@ -227,4 +318,29 @@ export const systemApi = {
     }),
   review: (f: Filters & { version_id?: string }) =>
     apiFetch<SystemReview>(`/analytics/system-review${filterQs(f)}`),
+  plans: () => apiFetch<SystemPlan[]>("/system/plans"),
+  getPlan: (id: string) => apiFetch<SystemPlanDetail>(`/system/plans/${id}`),
+  createPlan: (body: CreatePlanBody) =>
+    apiFetch<SystemPlanDetail>("/system/plans", { method: "POST", body: JSON.stringify(body) }),
+  addPlanRevision: (id: string, body: PlanRevisionBody) =>
+    apiFetch<SystemPlanDetail>(`/system/plans/${id}/revisions`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  setPlanStatus: (id: string, status: PlanStatus, reason: string) =>
+    apiFetch<SystemPlanDetail>(`/system/plans/${id}/status`, {
+      method: "POST",
+      body: JSON.stringify({ status, reason }),
+    }),
+  linkPlan: (id: string, tradeId: string) =>
+    apiFetch<SystemPlanDetail>(`/system/plans/${id}/link`, {
+      method: "POST",
+      body: JSON.stringify({ trade_id: tradeId }),
+    }),
+  unlinkPlan: (id: string, reason: string) =>
+    apiFetch<SystemPlanDetail>(`/system/plans/${id}/unlink`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    }),
+  planTrades: (id: string) => apiFetch<PlanCandidate[]>(`/system/plans/${id}/trades`),
 };
