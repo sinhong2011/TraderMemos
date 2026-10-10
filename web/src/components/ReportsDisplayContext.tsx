@@ -44,7 +44,7 @@ export function useReportsMoney() {
   const locale = intlLocale();
   // Privacy-bound formatters: their identity changes when privacy flips, so the
   // returned `money` object does too and every consumer's memo cache misses.
-  const { privacy, fmtSignedMoney, fmtSignedMoneyCompact } = useMoneyFormatters();
+  const { privacy, fmtMoney, fmtSignedMoney, fmtSignedMoneyCompact } = useMoneyFormatters();
   const pctEnabled = d.denominator > 0;
   const usePct = d.unitMode === "pct" && pctEnabled;
 
@@ -62,6 +62,11 @@ export function useReportsMoney() {
     usePct
       ? fmtPct((rawPnl * d.fxRate) / d.denominator, locale)
       : fmtSignedMoney(rawPnl * d.fxRate, d.currency, locale);
+  // Unsigned, for amounts that are a size rather than a gain or loss (fees).
+  const formatAmount = (raw: number) =>
+    usePct
+      ? fmtPct((raw * d.fxRate) / d.denominator, locale)
+      : fmtMoney(raw * d.fxRate, d.currency, locale);
   const formatCompact = (rawPnl: number) =>
     usePct
       ? fmtPct((rawPnl * d.fxRate) / d.denominator, locale)
@@ -79,6 +84,7 @@ export function useReportsMoney() {
     tradePnl,
     display,
     format,
+    formatAmount,
     formatCompact,
     formatAxis,
   };

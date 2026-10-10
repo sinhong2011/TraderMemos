@@ -52,6 +52,7 @@ Added with the same pattern as [shadcn “Adding New Tokens”](https://ui.shadc
 | `loss` | Negative P&L, short side, "bad" tone (`text-loss`). `destructive` is for errors and delete actions only — red-500 is 3.8:1 on white and fails AA as small text |
 | `flat` | Zero / flat P&L |
 | `heat-profit` / `heat-loss` | P&L ink on a calendar heatmap wash (`heatInk()`, `WinLossRecord onWash`). Deeper than `profit`/`loss` in light mode so it clears 4.5:1 on the tint |
+| `heading` | Section titles and eyebrows (`text-heading`): deep teal in light, amber in dark, mirroring mobile. Not `chart-3`, and not for warnings — those use `warning` / `warning-foreground` |
 
 ### Surfaces
 
@@ -62,6 +63,8 @@ Added with the same pattern as [shadcn “Adding New Tokens”](https://ui.shadc
 | `card` | Card blocks. Light mode reads cards as white blocks on the tinted canvas, no borders |
 
 ### Charts
+
+- Series honor `prefers-reduced-motion`: pass `isAnimationActive={useChartAnimation()}` (from `ChartFrame.tsx`) on every recharts series.
 
 - Recharts takes tokens straight from `chartTheme` (`ChartFrame.tsx`): axis `muted-foreground`, grid `border`, cursor `accent`, series `chart-accent`. No hex or rgba literals in chart props.
 - `chart-accent` is brand blue in light and `blue-500` in dark, where the brand blue falls under 3:1 against the card.
@@ -144,3 +147,4 @@ vocabulary, codified from the sign-in screen:
 | 2026-10-04 | Add `canvas`; light `profit`/`loss` to L 0.50; P&L text uses `loss`, not `destructive` | Light mode had `card` = `background` = white, so borderless cards vanished; red P&L text measured 3.8:1. Mobile already pairs a grouped background with white cards |
 | 2026-10-04 | 11px text floor (`text-2xs`) | 150+ arbitrary 9–10px sizes made filter pills, eyebrows and chart axes hard to read, often in muted grey |
 | 2026-10-04 | Charts read theme tokens; violet equity curve → `chart-accent` | Grid lines and axis labels were hardcoded for dark mode (invisible or 2.9:1 in light); violet was off-brand |
+| 2026-10-04 | Fees render unsigned and neutral; `heading` token; segment items ≥ 24px | Fees showed as red `+$505` on Reports and red `-$15` on Day while Home showed neutral `$505`; eyebrows borrowed `chart-3`, so warnings went teal in light mode |

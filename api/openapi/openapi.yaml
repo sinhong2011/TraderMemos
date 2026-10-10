@@ -1053,6 +1053,124 @@ paths:
         "200":
           description: Edge Score with per-component scores, weights and raw inputs
 
+  /api/v1/analytics/setup-scorecard:
+    get:
+      tags: [Analytics]
+      summary: Setup scorecard
+      description: >-
+        Scores each playbook setup on the filtered closed trades, grouped by the
+        trade's main setup. Stats are in R when at least 60% of a setup's trades
+        carry an initial risk (`basis: r`), else in account currency. `ci_low` /
+        `ci_high` are a 95% interval on the mean; `clean_mean` excludes every
+        trade the mistake tax charges (mistake tags, broken risk rules, revenge
+        and oversized entries). `verdict` is one of edge, execution, promising,
+        watch, unproven or bleeding. Trades with no setup come back as `none`.
+      operationId: analyticsSetupScorecard
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
+      responses:
+        "200":
+          description: Scored setups (sorted by verdict, then mean) and the no-setup bucket
+
+  /api/v1/analytics/mistake-tax:
+    get:
+      tags: [Analytics]
+      summary: Mistake tax
+      description: >-
+        Prices the filtered closed trades that came from a mistake — a mistake
+        tag, a broken risk rule (over max risk, past the daily loss limit, over
+        the daily trade limit, past the losing-streak limit) or a detected
+        revenge / overconfidence entry. `total_cost` counts each flagged trade's
+        loss once; winners among them are reported as `lucky_wins`, never
+        netted against the cost. `sources` total each reason (a trade counts
+        under every reason it has). `series` trends the cost by week for ranges
+        up to about three months, else by month, in market time.
+        `unreviewed_ids` are losers with no flag and no note.
+      operationId: analyticsMistakeTax
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+        - $ref: "#/components/parameters/SideQuery"
+        - $ref: "#/components/parameters/DurationQuery"
+        - $ref: "#/components/parameters/DateBasisQuery"
+      responses:
+        "200":
+          description: Total cost, per-source rows with trade ids, and a cost series
+
+  /api/v1/reviews/inbox:
+    get:
+      tags: [Analytics]
+      summary: Review inbox
+      description: >-
+        Closed trades with no execution grade (`trade_quality`) from the last
+        `window_days` (default 14, max 90), newest first, as list trades. A
+        trade counts as reviewed once it has a grade. `backlog` counts older
+        ungraded trades that close after any dismissed cutoff.
+      operationId: reviewInbox
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - name: window_days
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 90 }
+      responses:
+        "200":
+          description: "`{items, window_days, backlog}`"
+
+  /api/v1/reviews/dismiss-backlog:
+    post:
+      tags: [Analytics]
+      summary: Dismiss review backlog
+      description: >-
+        Stops counting every ungraded trade older than the window (nothing is
+        graded). Stored as the `reviewBacklogCutoff` preference.
+      operationId: dismissReviewBacklog
+      parameters:
+        - name: window_days
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 90 }
+      responses:
+        "200":
+          description: "`{cutoff}`"
+
+  /api/v1/focus/current:
+    get:
+      tags: [Notes]
+      summary: This week's focus
+      description: >-
+        The bullet items (max 3) under "Focus for next week" in the latest
+        weekly review note dated before this week's Monday (market timezone),
+        looking back two weeks. `items` is empty when no review set a focus.
+      operationId: currentFocus
+      responses:
+        "200":
+          description: "`{week_start, items, note_id, note_title}`"
+
+  /api/v1/focus/history:
+    get:
+      tags: [Notes]
+      summary: Focus kept, week by week
+      description: >-
+        Each weekly review's "Last week's focus" checklist, scored: a ticked
+        box is kept, an unticked one is not. One entry per week (the latest
+        review in it), newest first, for reviews dated between `from` and `to`
+        — every review when neither is given. Reviews without that
+        checklist are not scored weeks.
+      operationId: focusHistory
+      parameters:
+        - { name: from, in: query, schema: { type: string, format: date-time } }
+        - { name: to, in: query, schema: { type: string, format: date-time } }
+      responses:
+        "200":
+          description: "`{weeks: [{week_start, items: [{text, kept}], note_id, note_title}], items_total, items_kept, weeks_all_kept}`"
+
   /api/v1/tags:
     get:
       tags: [Tags]

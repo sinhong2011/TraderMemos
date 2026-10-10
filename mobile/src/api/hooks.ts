@@ -55,11 +55,13 @@ import type {
   MarketBarsResponse,
   Me,
   PropSettings,
+  ReviewInbox,
   Setup,
   Tag,
   Trade,
   TradeAttachment,
   TradeDetail,
+  WeeklyFocus,
 } from './types';
 
 /** All breakdown dimensions GET /analytics/breakdown accepts (breakdown_handler.go). */
@@ -90,6 +92,9 @@ export const queryKeys = {
   tags: () => ['tags'] as const,
   notes: (filters: Pick<Filters, 'from' | 'to'>) => ['notes', filters] as const,
   note: (id: string) => ['notes', id] as const,
+  // Under 'notes' so a saved note (every note screen invalidates ['notes'])
+  // refreshes it — the focus is read from the weekly review note.
+  weeklyFocus: () => ['notes', 'focus', 'current'] as const,
   economicEvents: (from: string, to: string) => ['economic-events', from, to] as const,
   fxRate: (from: string, to: string) => ['market', 'fx', from, to] as const,
   marketBars: (symbol: string, instrumentType: string, interval: string, from: string, to: string) =>
@@ -124,6 +129,7 @@ export const queryKeys = {
   imports: () => ['imports'] as const,
   health: () => ['health'] as const,
   systemInfo: () => ['system-info'] as const,
+  reviewInbox: () => ['reviews', 'inbox'] as const,
 };
 
 /** The two LLM integrations share one settings shape and endpoint family. */
@@ -259,6 +265,25 @@ export function useAnnualGoal(year: number) {
 
 export function useRiskRules() {
   return useApiQuery<RiskRules>(queryKeys.riskRules(), '/settings/risk-rules');
+}
+
+/**
+ * Closed trades still waiting for an execution grade (the web /review queue).
+ * staleTime 0: a grade saved anywhere — web, another device — must drop the
+ * count on the next mount, and the MMKV persister would otherwise answer.
+ */
+export function useReviewInbox(options?: { enabled?: boolean }) {
+  return useApiQuery<ReviewInbox>(queryKeys.reviewInbox(), '/reviews/inbox', undefined, {
+    enabled: options?.enabled,
+    staleTime: 0,
+  });
+}
+
+/** This week's focus, from the last weekly review note's bullets. */
+export function useWeeklyFocus() {
+  return useApiQuery<WeeklyFocus>(queryKeys.weeklyFocus(), '/focus/current', undefined, {
+    staleTime: 0,
+  });
 }
 
 export function useAlertSettings() {

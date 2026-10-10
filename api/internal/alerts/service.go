@@ -156,17 +156,26 @@ func (s *Service) EvaluateUser(ctx context.Context, userID string) error {
 	}
 
 	if cfg.UnreviewedEnabled && cfg.UnreviewedDays > 0 {
-		cutoff := now.AddDate(0, 0, -cfg.UnreviewedDays)
-		count := 0
+		var cutoff *time.Time
+		prefs, perr := s.q.GetUserPreferences(ctx, userID)
+		if perr != nil && !errors.Is(perr, sql.ErrNoRows) {
+			return perr
+		}
+		if perr == nil {
+			cutoff = ReviewCutoff(prefs.Prefs)
+		}
+		review := make([]ReviewTrade, 0, len(rows))
 		for _, t := range rows {
-			if !t.ClosedAt.Valid || t.ClosedAt.Time.After(cutoff) {
+			if !t.ClosedAt.Valid {
 				continue
 			}
-			j, ok := journalByTrade[t.ID]
-			if !ok || (j.Notes == "" && !j.TradeQuality.Valid) {
-				count++
-			}
+			j := journalByTrade[t.ID]
+			review = append(review, ReviewTrade{
+				ClosedAt: t.ClosedAt.Time,
+				Graded:   Graded(j.TradeQuality.Valid, j.TradeQuality.Int64),
+			})
 		}
+		count := CountUnreviewed(review, now.AddDate(0, 0, -cfg.UnreviewedDays), cutoff)
 		events = append(events, Unreviewed(count, cfg.UnreviewedDays, now, loc)...)
 	}
 

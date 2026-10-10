@@ -33,7 +33,7 @@ export function StatTile({
           className={cn(
             "m-0 mt-1 truncate text-[17px] font-semibold tabular-nums tracking-tight",
             tone === "warn"
-              ? "text-chart-3"
+              ? "text-warning-foreground"
               : tone === "destructive"
                 ? "text-destructive"
                 : "text-foreground",

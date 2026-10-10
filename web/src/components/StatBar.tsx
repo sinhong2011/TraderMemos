@@ -6,7 +6,7 @@ const TONE_VALUE: Record<PillTone, string> = {
   pos: "text-profit",
   neg: "text-loss",
   accent: "text-primary",
-  amber: "text-chart-3",
+  amber: "text-warning-foreground",
   muted: "text-foreground",
 };
 

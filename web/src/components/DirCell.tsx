@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 export const DIR_TONE_CLASS: Record<TradeDirectionView["tone"], string> = {
   profit: "text-profit",
   loss: "text-loss",
-  signal: "text-chart-3",
+  signal: "text-heading",
   muted: "text-muted-foreground",
 };
 

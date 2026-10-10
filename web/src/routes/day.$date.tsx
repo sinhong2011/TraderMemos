@@ -11,7 +11,7 @@ import type { MissedTrade } from "@/lib/api/missedTrades";
 import { accountBaseCurrency, wallClockToIso } from "@/lib/displayPrefs";
 import { normalizeFilterDate, useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
-import { useBehavior, useCompliance, useSummary } from "@/lib/hooks/useAnalytics";
+import { useBehavior, useMistakeTax, useCompliance, useSummary } from "@/lib/hooks/useAnalytics";
 import {
   useDeleteMissedTrade,
   useMissedTrades,
@@ -22,8 +22,12 @@ import { useNotes } from "@/lib/hooks/useNotes";
 import { useCheckRoutine, useRoutineDay, useRoutineItems } from "@/lib/hooks/useRoutines";
 import { useSetups } from "@/lib/hooks/useSetups";
 import { useTrades } from "@/lib/hooks/useTrades";
+import { useReviewInbox } from "@/lib/hooks/useReviewInbox";
 import { useMarketToday } from "@/lib/today";
 import { useUI } from "@/lib/ui";
+import { WeeklyFocusCard } from "@/components/WeeklyFocusCard";
+import { notesApi } from "@/lib/api/notes";
+import { useWeeklyFocus } from "@/lib/hooks/useWeeklyFocus";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -78,6 +82,8 @@ function DayReviewPage() {
   const summaryQ = useSummary(dayFilters);
   const complianceQ = useCompliance(dayFilters);
   const behaviorQ = useBehavior(dayFilters);
+  const mistakeTaxQ = useMistakeTax(dayFilters);
+  const reviewQ = useReviewInbox(filters.account_id);
   const notesQ = useNotes({ from: dayFilters.from, to: dayFilters.to });
   const accountsQ = useAccounts();
   const baseCurrency = accountBaseCurrency(accountsQ.data ?? [], accountIds);
@@ -90,6 +96,8 @@ function DayReviewPage() {
 
   // Routine ticks are keyed by the market trading day, like everything else on
   // this page, so a post-session tick after local midnight still lands here.
+  const focusQ = useWeeklyFocus();
+  const openNoteEdit = useUI((s) => s.openNoteEdit);
   const routineItemsQ = useRoutineItems(date);
   const routineDayQ = useRoutineDay(date);
   const checkRoutine = useCheckRoutine();
@@ -196,6 +204,28 @@ function DayReviewPage() {
         date={date}
         isToday={isToday}
         onToday={() => goToDay(today)}
+        focus={
+          date === today && focusQ.data ? (
+            <WeeklyFocusCard
+              items={focusQ.data.items}
+              onOpenReview={
+                focusQ.data.note_id
+                  ? async () => {
+                      const note = await notesApi.get(focusQ.data!.note_id);
+                      openNoteEdit({
+                        id: note.id,
+                        type: note.type ?? "weekly_review",
+                        occurredAt: note.occurred_at,
+                        title: note.title,
+                        body: note.body,
+                        symbols: note.symbols ?? [],
+                      });
+                    }
+                  : undefined
+              }
+            />
+          ) : null
+        }
         routine={routine}
         desk={desk}
         missed={missed}
@@ -206,6 +236,8 @@ function DayReviewPage() {
         summaryLoading={summaryQ.isLoading}
         compliance={complianceQ.data}
         behavior={behaviorQ.data}
+        mistakeTax={mistakeTaxQ.data}
+        reviewCount={reviewQ.data?.items.length}
         notes={notesQ.data ?? []}
         notesLoading={notesQ.isLoading}
         currency={currency}

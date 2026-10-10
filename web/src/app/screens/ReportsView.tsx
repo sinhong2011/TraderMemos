@@ -14,6 +14,8 @@ import {
 } from "recharts";
 import { AnnualGoalCard } from "@/components/AnnualGoalCard";
 import { BehaviorLossAversionCard } from "@/components/BehaviorLossAversionCard";
+import { FocusHistoryCard } from "@/components/FocusHistoryCard";
+import type { FocusHistory } from "@/lib/api/focus";
 import { BehaviorOverconfidenceCard } from "@/components/BehaviorOverconfidenceCard";
 import { BehaviorRevengeCard } from "@/components/BehaviorRevengeCard";
 import { Card } from "@/components/Card";
@@ -23,6 +25,7 @@ import {
   chartTheme,
   chartTooltipStyle,
   pnlTooltipValue,
+  useChartAnimation,
 } from "@/components/ChartFrame";
 import { DataTable } from "@/components/DataTable";
 import { DayTradesDrawer } from "@/components/DayTradesDrawer";
@@ -56,6 +59,7 @@ import { ReportsSummaryBento } from "@/components/ReportsSummaryBento";
 import { ReportsMetricEvolution } from "@/components/ReportsMetricEvolution";
 import { ReportsMonteCarlo } from "@/components/ReportsMonteCarlo";
 import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
+import { ReportsMistakeTax } from "@/components/ReportsMistakeTax";
 import { ReportsRuleCompliance } from "@/components/ReportsRuleCompliance";
 import { ReportsRMultiplePerformance } from "@/components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "@/components/ReportsRollingWinRate";
@@ -72,9 +76,10 @@ import type {
   BehaviorReport,
   BreakGroup,
   ComplianceReport,
-  EquityCurve,
   EdgeScore,
+  EquityCurve,
   ExecScoreReport,
+  MistakeTaxReport,
   MonteCarloResult,
   RSummary,
   Summary,
@@ -165,12 +170,20 @@ export interface ReportsViewProps {
   qualityBreakdown: BreakGroup[];
   qualityBreakdownLoading: boolean;
   qualityBreakdownError: boolean;
+  mistakeTax?: MistakeTaxReport;
+  mistakeTaxLoading?: boolean;
+  mistakeTaxError?: boolean;
   compliance?: ComplianceReport;
   complianceLoading?: boolean;
   complianceError?: boolean;
   behavior?: BehaviorReport;
   behaviorLoading?: boolean;
   behaviorError?: boolean;
+  focusHistory?: FocusHistory;
+  focusHistoryLoading?: boolean;
+  focusHistoryError?: boolean;
+  /** Opens a weekly review note (the focus history links each week to it). */
+  onOpenNote?: (noteId: string) => void;
   monteCarlo?: MonteCarloResult;
   monteCarloLoading?: boolean;
   monteCarloError?: boolean;
@@ -244,7 +257,7 @@ function BentoTitle({
       className={cn(
         "self-start text-left text-[11px] font-semibold tracking-[0.06em] uppercase sm:text-[12px]",
         tone === "signal"
-          ? "text-chart-3"
+          ? "text-heading"
           : "font-medium normal-case tracking-wide text-muted-foreground",
         className,
       )}
@@ -289,6 +302,7 @@ function SummaryMetricsGrid({
   onSaveGoal: (amount: number) => Promise<void>;
   onClearGoal: () => Promise<void>;
 }) {
+  const animate = useChartAnimation();
   const { fmtMoney, fmtMoneyCompact } = useMoneyFormatters();
   useDisplayTimePrefs();
   const locale = intlLocale();
@@ -358,6 +372,7 @@ function SummaryMetricsGrid({
                       cursor={{ fill: chartTheme.cursorFill }}
                     />
                     <Area
+                      isAnimationActive={animate}
                       type="monotone"
                       dataKey="equity"
                       stroke={chartTheme.accentStroke}
@@ -534,6 +549,7 @@ interface PnlBarChartProps {
 
 /** Playbook & Leaks bar chart — P&L series honors net/gross + $/% via useReportsMoney. */
 export function PnlBarChart({ data }: PnlBarChartProps) {
+  const animate = useChartAnimation();
   const money = useReportsMoney();
   const chartData = data.map((g) => ({
     key: g.key,
@@ -566,7 +582,7 @@ export function PnlBarChart({ data }: PnlBarChartProps) {
             ]}
             cursor={{ fill: chartTheme.cursorFill }}
           />
-          <Bar dataKey="pnl" radius={[2, 2, 0, 0]}>
+          <Bar isAnimationActive={animate} dataKey="pnl" radius={[2, 2, 0, 0]}>
             {chartData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
@@ -619,12 +635,19 @@ export function ReportsView({
   qualityBreakdown,
   qualityBreakdownLoading,
   qualityBreakdownError,
+  mistakeTax,
+  mistakeTaxLoading = false,
+  mistakeTaxError = false,
   compliance,
   complianceLoading = false,
   complianceError = false,
   behavior,
   behaviorLoading = false,
   behaviorError = false,
+  focusHistory,
+  focusHistoryLoading = false,
+  focusHistoryError = false,
+  onOpenNote,
   monteCarlo,
   monteCarloLoading = false,
   monteCarloError = false,
@@ -713,6 +736,17 @@ export function ReportsView({
   // store decides which of these render, and in what order, per tab.
   const cardNodes: Record<ReportsTab, Record<string, ReactNode>> = {
     overview: {
+      "mistake-tax": (
+        <ReportsMistakeTax
+          report={mistakeTax}
+          loading={mistakeTaxLoading}
+          error={mistakeTaxError}
+          trades={trades}
+          currency={displayCurrency}
+          fxRate={fxRate}
+          onSelectTradeId={onSelectTradeId}
+        />
+      ),
       summary: summaryLoading ? (
         <Skeleton height="120px" />
       ) : summaryError ? (
@@ -899,6 +933,14 @@ export function ReportsView({
       ),
     },
     behavior: {
+      focus: (
+        <FocusHistoryCard
+          history={focusHistory}
+          loading={focusHistoryLoading}
+          error={focusHistoryError}
+          onOpenNote={onOpenNote}
+        />
+      ),
       revenge: (
         <BehaviorRevengeCard
           report={behavior}

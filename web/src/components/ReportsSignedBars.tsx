@@ -12,7 +12,13 @@ import {
 import type { BreakGroup } from "@/lib/api/types";
 import { formatHourKeyLabel, useDisplayTimePrefs } from "@/lib/displayPrefs";
 import { ChartCard } from "./ChartCard";
-import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
+import {
+  ChartFrame,
+  chartTheme,
+  chartTooltipStyle,
+  pnlTooltipValue,
+  useChartAnimation,
+} from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { SegmentedControl } from "./SegmentedControl";
@@ -43,6 +49,7 @@ export function ReportsSignedBars({
   loading,
   error,
 }: ReportsSignedBarsProps) {
+  const animate = useChartAnimation();
   useDisplayTimePrefs();
   const money = useReportsMoney();
   const [dim, setDim] = useState<Dim>("hour");
@@ -113,6 +120,7 @@ export function ReportsSignedBars({
             />
             <ReferenceLine y={0} stroke={chartTheme.axisColor} strokeOpacity={0.4} />
             <Bar
+              isAnimationActive={animate}
               dataKey="wins"
               stackId="pnl"
               fill={POS_COLOR}
@@ -120,6 +128,7 @@ export function ReportsSignedBars({
               radius={[2, 2, 0, 0]}
             />
             <Bar
+              isAnimationActive={animate}
               dataKey="losses"
               stackId="pnl"
               fill={NEG_COLOR}

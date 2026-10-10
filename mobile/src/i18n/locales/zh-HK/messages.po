@@ -310,6 +310,14 @@ msgstr "{0}勝 · {1}負"
 msgid "{0}W {1}L"
 msgstr "{0}勝 {1}負"
 
+#: src/app/quick-journal.tsx:262
+#~ msgid "{backlog} older trades are still ungraded — clear or dismiss them on the web review page."
+#~ msgstr "另有 {backlog} 筆較舊的交易未評分——請到網頁版覆盤頁處理或略過。"
+
+#: src/app/quick-journal.tsx:265
+msgid "{backlog} older trades are still ungraded — grade or dismiss them on the web review page."
+msgstr "另有 {backlog} 筆較舊的交易未評分——請到網頁版覆盤頁評分或略過。"
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:125
 msgid "{charts} charts"
 msgstr "{charts} 張圖表"
@@ -322,6 +330,10 @@ msgstr "{charts} 張圖表"
 #: src/app/(tabs)/(trades)/index.tsx:492
 msgid "{count} trades"
 msgstr "{count} 筆交易"
+
+#: src/components/review-inbox-row.tsx:25
+msgid "{count} trades to review"
+msgstr "{count} 筆交易待覆盤"
 
 #~ msgid "{daysTraded} days"
 #~ msgstr "{daysTraded} 日"
@@ -369,12 +381,20 @@ msgstr "仍有 {pending} 筆未填結果。"
 msgid "{pendingSyncs} offline changes haven't synced yet and will be discarded."
 msgstr "有 {pendingSyncs} 項離線變更尚未同步，將會被捨棄。"
 
+#: src/app/quick-journal.tsx:256
+msgid "{reviewed} trades reviewed."
+msgstr "已覆盤 {reviewed} 筆交易。"
+
 #: src/app/trade-preview.tsx:203
 msgid "{screenshots} screenshots upload after saving."
 msgstr "儲存後會上載 {screenshots} 張截圖。"
 
 #~ msgid "{shown} of {total} events"
 #~ msgstr "{total} 項中的 {shown} 項"
+
+#: src/app/quick-journal.tsx:260
+msgid "{skipped} skipped trades stay in the inbox."
+msgstr "略過的 {skipped} 筆交易仍留在待覆盤清單。"
 
 #: src/app/replay.tsx:391
 msgid "{symbol} replay"
@@ -466,7 +486,7 @@ msgstr "還有 {0} 個"
 msgid "+{0} more trades in this file."
 msgstr "此檔案還有 {0} 筆交易。"
 
-#: src/components/trade-summary.tsx:175
+#: src/components/trade-summary.tsx:179
 msgid "+{hidden} more fills"
 msgstr "還有 {hidden} 筆成交"
 
@@ -523,9 +543,17 @@ msgstr "廿分之一機會差過 {0}"
 msgid "1 offline change hasn't synced yet and will be discarded."
 msgstr "有 1 項離線變更尚未同步，將會被捨棄。"
 
+#: src/app/quick-journal.tsx:263
+msgid "1 older trade is still ungraded — grade or dismiss it on the web review page."
+msgstr "另有 1 筆較舊的交易未評分——請到網頁版覆盤頁評分或略過。"
+
 #: src/app/trade-preview.tsx:202
 msgid "1 screenshot uploads after saving."
 msgstr "儲存後會上載 1 張截圖。"
+
+#: src/app/quick-journal.tsx:258
+msgid "1 skipped trade stays in the inbox."
+msgstr "略過的 1 筆交易仍留在待覆盤清單。"
 
 #: src/components/trade-scan-overlay.tsx:362
 msgid "1 symbol found"
@@ -537,6 +565,14 @@ msgstr "找到 1 個代號"
 #: src/app/(tabs)/(calendar)/index.tsx:1687
 msgid "1 trade"
 msgstr "1 筆"
+
+#: src/app/quick-journal.tsx:256
+msgid "1 trade reviewed."
+msgstr "已覆盤 1 筆交易。"
+
+#: src/components/review-inbox-row.tsx:25
+msgid "1 trade to review"
+msgstr "1 筆交易待覆盤"
 
 #: src/app/share-reports-link.tsx:31
 msgid "1 year"
@@ -670,7 +706,7 @@ msgstr "存取權杖 API 整合 webhook"
 #: src/components/account-pill.tsx:42
 #: src/components/account-pill.tsx:55
 #: src/components/account-pill.tsx:59
-#: src/components/trade-form.tsx:680
+#: src/components/trade-form.tsx:689
 msgid "Account"
 msgstr "帳戶"
 
@@ -788,7 +824,7 @@ msgstr "請為 {label} 加入至少一筆有數量與價格的成交。"
 msgid "Add at least one fill with quantity and price."
 msgstr "請至少新增一筆已填寫數量與價格的成交。"
 
-#: src/components/trade-form.tsx:447
+#: src/components/trade-form.tsx:456
 msgid "Add fill"
 msgstr "新增成交"
 
@@ -798,7 +834,7 @@ msgstr "新增成交"
 #~ msgid "Add gap"
 #~ msgstr "新增缺口"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:242
+#: src/app/(tabs)/(dashboard)/checklist.tsx:244
 msgid "Add item"
 msgstr "新增項目"
 
@@ -816,7 +852,7 @@ msgstr "新增截圖"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:553
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:695
 #: src/components/note-form.tsx:268
-#: src/components/trade-form.tsx:717
+#: src/components/trade-form.tsx:726
 msgid "Add symbol"
 msgstr "新增代號"
 
@@ -948,7 +984,7 @@ msgstr "全部"
 msgid "All accounts"
 msgstr "所有帳戶"
 
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:76
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:74
 #: src/components/checklist-card.tsx:53
 msgid "All done"
 msgstr "全部完成"
@@ -975,7 +1011,7 @@ msgstr "請喺iOS設定入面允許TraderMemos通知，並使用實體裝置。"
 #~ msgid "Allow Reminders for TraderMemos in Settings → Privacy to mirror the checklist."
 #~ msgstr "在「設定」→「私隱」中允許 TraderMemos 存取提醒事項，即可同步檢查清單。"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:74
+#: src/app/(tabs)/(dashboard)/checklist.tsx:76
 msgid "Allow Reminders for TraderMemos in Settings → Privacy to mirror the routine."
 msgstr "請在「設定 → 私隱」允許 TraderMemos 使用提醒事項，以同步例行清單。"
 
@@ -993,7 +1029,7 @@ msgstr "固定為「{0}」"
 
 #: src/app/(tabs)/(settings)/display.tsx:103
 #: src/app/cash-form.tsx:189
-#: src/components/trade-form.tsx:588
+#: src/components/trade-form.tsx:597
 msgid "Amount"
 msgstr "金額"
 
@@ -1159,12 +1195,12 @@ msgid "avg / traded week"
 msgstr "平均 / 交易週"
 
 #: src/components/trade-result-card.tsx:48
-#: src/components/trade-summary.tsx:196
+#: src/components/trade-summary.tsx:200
 msgid "Avg entry"
 msgstr "平均開倉價"
 
 #: src/components/trade-result-card.tsx:53
-#: src/components/trade-summary.tsx:204
+#: src/components/trade-summary.tsx:208
 msgid "Avg exit"
 msgstr "平均平倉價"
 
@@ -1439,8 +1475,8 @@ msgid "Busiest month: {0} with {1} trades."
 msgstr "最活躍月份：{0}（{1} 筆）。"
 
 #: src/app/replay.tsx:903
-#: src/components/trade-form.tsx:116
-#: src/components/trade-summary.tsx:84
+#: src/components/trade-form.tsx:125
+#: src/components/trade-summary.tsx:88
 msgid "Buy"
 msgstr "買入"
 
@@ -1458,7 +1494,7 @@ msgid "Calendar not configured"
 msgstr "未設定日曆"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:291
-#: src/components/trade-form.tsx:291
+#: src/components/trade-form.tsx:300
 #: src/components/trade-row.tsx:61
 msgid "Call"
 msgstr "認購 (Call)"
@@ -1589,7 +1625,7 @@ msgstr "伺服器 更改 網址 執行個體 主機 位址 自行架設 連線"
 msgid "Changing it signs out your other devices — this one stays signed in."
 msgstr "更改後你的其他裝置會被登出 — 這部裝置維持登入。"
 
-#: src/app/routine-item.tsx:74
+#: src/app/routine-item.tsx:75
 msgid "Changing the stage or days applies from today; past days keep what they were."
 msgstr "更改階段或日子由今天起生效，過去的日子保持不變。"
 
@@ -1608,7 +1644,7 @@ msgstr "圖表"
 #~ msgid "Charts aren't on Android yet"
 #~ msgstr ""
 
-#: src/lib/checklist.ts:34
+#: src/lib/checklist.ts:40
 msgid "Check news events"
 msgstr "檢查重要新聞事件"
 
@@ -1777,7 +1813,7 @@ msgstr "佣金"
 msgid "Commissions and fees were {pct}% of gross — that materially changes the outcome. Fewer legs or lower-cost fills would help."
 msgstr "佣金與費用佔毛利 {pct}% — 足以改變結果。減少分批或降低成交成本會有幫助。"
 
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:171
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:169
 msgid "Completion"
 msgstr "完成率"
 
@@ -1795,7 +1831,7 @@ msgstr "設定檔只包含此裝置的應用程式偏好 — 不含交易或登�
 #~ msgid "Confirm before signing out"
 #~ msgstr "登出前確認"
 
-#: src/lib/checklist.ts:33
+#: src/lib/checklist.ts:39
 msgid "Confirm market bias"
 msgstr "確認今日市場偏向"
 
@@ -1810,7 +1846,7 @@ msgstr "確認新密碼"
 msgid "Confirm password"
 msgstr "確認密碼"
 
-#: src/lib/checklist.ts:38
+#: src/lib/checklist.ts:44
 msgid "Confirm trade rules"
 msgstr "確認交易規則"
 
@@ -1890,8 +1926,8 @@ msgid "consistency rule at risk"
 msgstr "一致性規則告急"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:297
-#: src/components/trade-form.tsx:356
-#: src/components/trade-form.tsx:359
+#: src/components/trade-form.tsx:365
+#: src/components/trade-form.tsx:368
 msgid "Contract"
 msgstr "合約"
 
@@ -2066,7 +2102,7 @@ msgstr "無法撤銷權杖"
 msgid "Could not roll back"
 msgstr "無法還原"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:81
+#: src/app/(tabs)/(dashboard)/checklist.tsx:83
 #: src/app/(tabs)/(settings)/account-form.tsx:143
 #: src/app/(tabs)/(settings)/account-form.tsx:172
 #: src/app/(tabs)/(settings)/account-form.tsx:176
@@ -2091,12 +2127,12 @@ msgstr "無法還原"
 #: src/app/new-note.tsx:61
 #: src/app/new-setup.tsx:117
 #: src/app/new-setup.tsx:143
-#: src/app/quick-journal.tsx:84
+#: src/app/quick-journal.tsx:106
 #: src/app/replay.tsx:396
 #: src/app/replay.tsx:775
-#: src/app/routine-item.tsx:44
+#: src/app/routine-item.tsx:45
 #: src/lib/save-trades.ts:71
-#: src/lib/use-checklist-run.ts:70
+#: src/lib/use-checklist-run.ts:72
 msgid "Could not save"
 msgstr "無法儲存"
 
@@ -2194,7 +2230,7 @@ msgstr "會為你的日誌建立。之後可在設定中更改。"
 #: src/app/(tabs)/(dashboard)/backtest.tsx:85
 #: src/app/(tabs)/(trades)/index.tsx:319
 #: src/components/symbol-journal.tsx:305
-#: src/components/trade-form.tsx:281
+#: src/components/trade-form.tsx:290
 msgid "Crypto"
 msgstr "加密貨幣"
 
@@ -2343,7 +2379,7 @@ msgstr "資料與備份"
 
 #: src/app/(tabs)/(trades)/index.tsx:412
 #: src/app/cash-form.tsx:192
-#: src/components/trade-form.tsx:595
+#: src/components/trade-form.tsx:604
 msgid "Date"
 msgstr "日期"
 
@@ -2379,11 +2415,11 @@ msgstr "日在前"
 msgid "Day of week"
 msgstr "星期"
 
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:174
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:172
 msgid "Day streak"
 msgstr "連續日數"
 
-#: src/app/routine-item.tsx:94
+#: src/app/routine-item.tsx:95
 msgid "Days"
 msgstr "日子"
 
@@ -2525,7 +2561,7 @@ msgstr "開發者"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:324
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:602
-#: src/components/trade-form.tsx:348
+#: src/components/trade-form.tsx:357
 msgid "Direction"
 msgstr "方向"
 
@@ -2572,7 +2608,7 @@ msgstr "資產曲線相對近期高點的回落幅度。"
 #~ msgid "Distance from the running equity peak, as a percentage."
 #~ msgstr "與資金曲線高位的距離百分比。"
 
-#: src/components/trade-form.tsx:585
+#: src/components/trade-form.tsx:594
 #: src/lib/cash.ts:14
 msgid "Dividend"
 msgstr "股息"
@@ -2593,6 +2629,7 @@ msgstr "金額"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:234
 #: src/app/(tabs)/(settings)/import-trades.tsx:301
 #: src/app/manage-tags.tsx:68
+#: src/app/quick-journal.tsx:286
 #: src/components/time-picker.tsx:100
 msgid "Done"
 msgstr "完成"
@@ -2626,11 +2663,11 @@ msgstr "觸及回撤下限"
 msgid "Drawdown model"
 msgstr "回撤模式"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:265
+#: src/app/(tabs)/(dashboard)/checklist.tsx:267
 msgid "Due at"
 msgstr "到期時間"
 
-#: src/components/trade-form.tsx:187
+#: src/components/trade-form.tsx:196
 msgid "Duplicate fill"
 msgstr "複製成交"
 
@@ -2662,11 +2699,11 @@ msgstr "例如：FOMO"
 msgid "e.g. Main Account"
 msgstr "例如：主帳戶"
 
-#: src/app/routine-item.tsx:81
+#: src/app/routine-item.tsx:82
 msgid "e.g. Mark key levels"
 msgstr "例如：標記關鍵價位"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:253
+#: src/app/(tabs)/(dashboard)/checklist.tsx:255
 msgid "Each item becomes a reminder in your TraderMemos list, repeating on its own days. Completing one there ticks it here, and ticking it here completes it there."
 msgstr "每項會成為 TraderMemos 清單中的提醒，按各自的日子重複。在提醒事項完成會同步勾選這裡，在這裡勾選亦會完成該提醒。"
 
@@ -2713,7 +2750,7 @@ msgstr "編輯"
 #~ msgid "Edit checklist"
 #~ msgstr "編輯清單"
 
-#: src/app/routine-item.tsx:67
+#: src/app/routine-item.tsx:68
 msgid "Edit item"
 msgstr "編輯項目"
 
@@ -2728,7 +2765,7 @@ msgid "Edit note"
 msgstr "編輯筆記"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:104
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:41
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:39
 #: src/app/(tabs)/(settings)/_layout.tsx:88
 msgid "Edit routine"
 msgstr "編輯例行清單"
@@ -2756,7 +2793,7 @@ msgstr "編輯交易"
 
 #: src/app/(tabs)/(trades)/[id].tsx:767
 #: src/app/manage-tags.tsx:116
-#: src/components/trade-form.tsx:503
+#: src/components/trade-form.tsx:512
 msgid "Emotion"
 msgstr "情緒"
 
@@ -2775,6 +2812,10 @@ msgstr "結束日期"
 #: src/components/tools-menu.tsx:103
 msgid "End Lock Screen session"
 msgstr "結束鎖定畫面時段"
+
+#: src/app/quick-journal.tsx:279
+msgid "End of the queue"
+msgstr "已到清單尾"
 
 #: src/app/(tabs)/(settings)/trading-journal.tsx:84
 msgid "Enter a number of 1 or more."
@@ -2909,8 +2950,8 @@ msgid "Entry price"
 msgstr "入場價"
 
 #: src/app/(tabs)/(trades)/[id].tsx:781
-#: src/app/quick-journal.tsx:96
-#: src/components/trade-form.tsx:538
+#: src/app/quick-journal.tsx:125
+#: src/components/trade-form.tsx:547
 msgid "Entry reason"
 msgstr "入場原因"
 
@@ -2932,7 +2973,7 @@ msgstr "收市移動 — 每日收市時上調"
 msgid "Equity"
 msgstr "權益"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:154
+#: src/app/(tabs)/(dashboard)/index.tsx:156
 #: src/components/equity-card.tsx:79
 #: src/components/equity-card.tsx:96
 msgid "Equity curve"
@@ -2949,9 +2990,13 @@ msgstr "預估淨損益"
 
 #: src/app/trade-preview.tsx:134
 #: src/components/trade-result-card.tsx:58
-#: src/components/trade-summary.tsx:212
+#: src/components/trade-summary.tsx:216
 msgid "Est. P&L"
 msgstr "預估盈虧"
+
+#: src/app/quick-journal.tsx:282
+msgid "Every closed trade from the last two weeks has a grade."
+msgstr "過去兩星期已平倉的交易都已評分。"
 
 #: src/lib/routines.ts:49
 msgid "Every day"
@@ -2961,7 +3006,7 @@ msgstr "每天"
 msgid "Every field stays editable in the form — check quantities and times against your broker before saving."
 msgstr "所有欄位都可以在表單中修改 — 儲存前請對照券商紀錄核對數量和時間。"
 
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:66
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:64
 msgid "Every item is set for other days."
 msgstr "所有項目都設定在其他日子。"
 
@@ -2986,7 +3031,7 @@ msgid "Exec {grade}"
 msgstr "執行 {grade}"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:47
-#: src/components/trade-form.tsx:142
+#: src/components/trade-form.tsx:151
 msgid "Executed at"
 msgstr "成交時間"
 
@@ -2997,9 +3042,9 @@ msgstr "執行評級"
 
 #: src/app/(tabs)/(trades)/[id].tsx:778
 #: src/app/manage-tags.tsx:139
-#: src/app/quick-journal.tsx:108
-#: src/components/trade-form.tsx:548
-#: src/components/trade-form.tsx:550
+#: src/app/quick-journal.tsx:137
+#: src/components/trade-form.tsx:557
+#: src/components/trade-form.tsx:559
 msgid "Execution rating"
 msgstr "執行評分"
 
@@ -3024,7 +3069,7 @@ msgid "Exit ladder"
 msgstr "出場階梯"
 
 #: src/app/(tabs)/(trades)/[id].tsx:782
-#: src/components/trade-form.tsx:570
+#: src/components/trade-form.tsx:579
 msgid "Exit reason"
 msgstr "出場原因"
 
@@ -3074,7 +3119,7 @@ msgstr "到期 {0}"
 #~ msgstr "到期 {expires} · 最後使用 {lastUsed}"
 
 #: src/app/new-token.tsx:139
-#: src/components/trade-form.tsx:377
+#: src/components/trade-form.tsx:386
 msgid "Expiry"
 msgstr "到期日"
 
@@ -3153,13 +3198,13 @@ msgstr "費用"
 #: src/app/trade-preview.tsx:154
 #: src/components/performance-card.tsx:75
 #: src/components/reports/overview-section.tsx:220
-#: src/components/trade-form.tsx:168
+#: src/components/trade-form.tsx:177
 msgid "Fees"
 msgstr "手續費"
 
 #. placeholder {0}: formatCurrency(preview.feesTotal, currency)
 #: src/components/trade-result-card.tsx:83
-#: src/components/trade-summary.tsx:239
+#: src/components/trade-summary.tsx:243
 msgid "Fees {0}"
 msgstr "費用 {0}"
 
@@ -3195,7 +3240,7 @@ msgid "File import"
 msgstr "檔案匯入"
 
 #. placeholder {0}: index + 1
-#: src/components/trade-form.tsx:123
+#: src/components/trade-form.tsx:132
 msgid "Fill {0}"
 msgstr "成交 {0}"
 
@@ -3219,7 +3264,7 @@ msgstr "成交價與圖表不符 — 重播途中的盈虧以圖表計價，可�
 #~ msgstr "成交價與行情不符 — 平倉前的重播盈虧只屬約數。"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:385
-#: src/components/trade-form.tsx:414
+#: src/components/trade-form.tsx:423
 msgid "Fills"
 msgstr "成交"
 
@@ -3278,7 +3323,7 @@ msgstr "預測"
 #: src/app/(tabs)/(dashboard)/backtest.tsx:86
 #: src/app/(tabs)/(trades)/index.tsx:321
 #: src/components/symbol-journal.tsx:306
-#: src/components/trade-form.tsx:283
+#: src/components/trade-form.tsx:292
 msgid "Forex"
 msgstr "外匯"
 
@@ -3361,7 +3406,7 @@ msgstr "全凱利"
 msgid "Full marks: {0}"
 msgstr "滿分：{0}"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:266
+#: src/app/(tabs)/(dashboard)/index.tsx:275
 msgid "Full reports"
 msgstr "完整報告"
 
@@ -3372,7 +3417,7 @@ msgstr "資金"
 #: src/app/(tabs)/(dashboard)/backtest.tsx:87
 #: src/app/(tabs)/(trades)/index.tsx:320
 #: src/components/symbol-journal.tsx:307
-#: src/components/trade-form.tsx:282
+#: src/components/trade-form.tsx:291
 msgid "Futures"
 msgstr "期貨"
 
@@ -3677,6 +3722,10 @@ msgstr "匯入 批次 還原 同步 紀錄"
 #~ msgid "in progress"
 #~ msgstr "進行中"
 
+#: src/app/quick-journal.tsx:280
+msgid "Inbox zero"
+msgstr "全部覆盤完成"
+
 #: src/app/trade-preview.tsx:199
 msgid "Includes a dividend entry."
 msgstr "包含股息紀錄。"
@@ -3736,7 +3785,7 @@ msgstr "將同時從此筆記和伺服器刪除。"
 #~ msgid "It may have been deleted on another device."
 #~ msgstr "可能已在其他裝置上刪除。"
 
-#: src/app/routine-item.tsx:77
+#: src/app/routine-item.tsx:78
 msgid "Item"
 msgstr "項目"
 
@@ -3745,7 +3794,7 @@ msgstr "項目"
 #: src/app/(tabs)/(trades)/[id].tsx:788
 #: src/components/swipeable-trade-row.tsx:72
 #: src/components/tools-menu.tsx:116
-#: src/components/trade-form.tsx:485
+#: src/components/trade-form.tsx:494
 msgid "Journal"
 msgstr "交易日誌"
 
@@ -3812,7 +3861,7 @@ msgstr "最大虧損"
 msgid "Largest win"
 msgstr "最大盈利"
 
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:167
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:165
 msgid "Last 13 weeks"
 msgstr "最近 13 週"
 
@@ -3948,7 +3997,7 @@ msgstr "正在載入交易記錄"
 msgid "Loading win/loss report"
 msgstr "正在載入勝負報告"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:96
+#: src/app/(tabs)/(dashboard)/index.tsx:98
 msgid "Loading your dashboard"
 msgstr "正在載入儀表板"
 
@@ -3964,7 +4013,7 @@ msgstr "正在載入策略手冊"
 msgid "Loading your recap"
 msgstr "載入緊你嘅年度回顧"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:231
+#: src/app/(tabs)/(dashboard)/checklist.tsx:233
 #: src/app/(tabs)/(settings)/account-form.tsx:70
 #: src/app/(tabs)/(settings)/ai.tsx:71
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:90
@@ -3992,7 +4041,7 @@ msgstr "日誌"
 msgid "Log a missed trade"
 msgstr "記錄錯過的交易"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:134
+#: src/app/(tabs)/(dashboard)/index.tsx:136
 msgid "Log a trade from the Trades tab, or import from Settings → Import trades."
 msgstr "在交易分頁記錄交易，或在設定 → 匯入交易匯入紀錄。"
 
@@ -4014,14 +4063,14 @@ msgstr "日誌"
 #: src/app/missed-trade-form.tsx:142
 #: src/app/new-setup.tsx:165
 #: src/components/reports-filter-menu.tsx:40
-#: src/components/trade-form.tsx:286
+#: src/components/trade-form.tsx:295
 #: src/components/trade-row.tsx:64
-#: src/components/trade-summary.tsx:160
+#: src/components/trade-summary.tsx:164
 msgid "Long"
 msgstr "做多"
 
 #: src/app/(tabs)/(trades)/[id].tsx:213
-#: src/app/quick-journal.tsx:159
+#: src/app/quick-journal.tsx:193
 #: src/app/replay.tsx:506
 #: src/components/share-card.tsx:231
 msgid "LONG"
@@ -4143,14 +4192,14 @@ msgstr "對應欄位"
 msgid "Margin"
 msgstr "保證金"
 
-#: src/lib/checklist.ts:35
+#: src/lib/checklist.ts:41
 msgid "Mark key S/R levels"
 msgstr "標記關鍵支撐阻力位"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:142
 #: src/app/(tabs)/(trades)/index.tsx:435
-#: src/components/trade-form.tsx:331
-#: src/components/trade-form.tsx:334
+#: src/components/trade-form.tsx:340
+#: src/components/trade-form.tsx:343
 msgid "Market"
 msgstr "市場"
 
@@ -4259,7 +4308,7 @@ msgstr "加入日期"
 msgid "Members see only their own trades. Owners can also add and remove accounts here."
 msgstr "成員只看到自己的交易；擁有者還可以在這裡新增和移除帳戶。"
 
-#: src/lib/checklist.ts:37
+#: src/lib/checklist.ts:43
 msgid "Mental state self-score"
 msgstr "心態自我評分 1-10"
 
@@ -4293,7 +4342,7 @@ msgstr "分"
 #~ msgid "Mirror the checklist into the system Reminders app, so it reaches you on the lock screen, the Watch and Siri."
 #~ msgstr "將清單同步至系統「提醒事項」App，讓你在鎖定畫面、Apple Watch 和 Siri 上收到提醒。"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:254
+#: src/app/(tabs)/(dashboard)/checklist.tsx:256
 msgid "Mirror the routine into the system Reminders app, so it reaches you on the lock screen, the Watch and Siri."
 msgstr "把例行清單同步到系統提醒事項，在鎖定畫面、Apple Watch 和 Siri 上提示你。"
 
@@ -4320,8 +4369,8 @@ msgid "Mistake"
 msgstr "錯誤"
 
 #: src/app/manage-tags.tsx:89
-#: src/app/quick-journal.tsx:117
-#: src/components/trade-form.tsx:557
+#: src/app/quick-journal.tsx:146
+#: src/components/trade-form.tsx:566
 msgid "Mistake type"
 msgstr "錯誤類型"
 
@@ -4395,7 +4444,7 @@ msgstr "虧損交易離場前多次加倉 — 典型溝貨行為。預先決定�
 msgid "Multiple fills increase fee drag and slippage. Make sure each add had a defined reason."
 msgstr "成交次數多會增加費用與滑價。確保每次加倉都有明確理由。"
 
-#: src/components/trade-form.tsx:389
+#: src/components/trade-form.tsx:398
 msgid "Multiplier"
 msgstr "乘數"
 
@@ -4492,7 +4541,7 @@ msgstr "新增帳戶"
 msgid "New daily log"
 msgstr "新增每日日誌"
 
-#: src/app/routine-item.tsx:67
+#: src/app/routine-item.tsx:68
 msgid "New item"
 msgstr "新項目"
 
@@ -4554,6 +4603,10 @@ msgstr "下一天"
 #: src/app/(tabs)/(calendar)/index.tsx:1076
 msgid "Next decade"
 msgstr "下一個十年"
+
+#: src/app/quick-journal.tsx:322
+msgid "Next trade"
+msgstr "下一筆交易"
 
 #: src/components/checklist-card.tsx:53
 msgid "Next up"
@@ -4669,7 +4722,7 @@ msgstr "唔使匯出。"
 msgid "no IP"
 msgstr "沒有 IP"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:234
+#: src/app/(tabs)/(dashboard)/checklist.tsx:236
 msgid "No items yet"
 msgstr "尚未有項目"
 
@@ -4677,7 +4730,7 @@ msgstr "尚未有項目"
 msgid "No limit"
 msgstr "無限制"
 
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:172
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:170
 msgid "No list yet"
 msgstr "尚無清單"
 
@@ -4738,7 +4791,7 @@ msgstr "未設定風險規則 — 設定每筆最大風險及單日最大虧損�
 #~ msgid "No risk rules yet"
 #~ msgstr "尚未有風險規則"
 
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:57
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:55
 msgid "No routine yet"
 msgstr "尚未建立例行清單"
 
@@ -4796,7 +4849,7 @@ msgstr "尚未有權杖"
 msgid "No trades"
 msgstr "無交易"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:253
+#: src/app/(tabs)/(dashboard)/index.tsx:262
 #: src/components/reports/detailed-section.tsx:174
 #: src/components/reports/detailed-section.tsx:207
 #: src/components/reports/detailed-section.tsx:237
@@ -4817,7 +4870,7 @@ msgstr "沒有符合「{search}」的交易"
 msgid "No trades on this day."
 msgstr "這天沒有交易。"
 
-#: src/app/quick-journal.tsx:201
+#: src/app/quick-journal.tsx:361
 msgid "No trades to review yet"
 msgstr "尚無可覆盤的交易"
 
@@ -4825,7 +4878,7 @@ msgstr "尚無可覆盤的交易"
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "沒有可得知初始風險的交易 — 設定止蝕即可解鎖 R 分析。"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:132
+#: src/app/(tabs)/(dashboard)/index.tsx:134
 msgid "No trades yet"
 msgstr "尚無交易"
 
@@ -4847,9 +4900,9 @@ msgstr "找不到可寫入的提醒事項列表。"
 
 #: src/app/trade-preview.tsx:187
 #: src/components/insights-card.tsx:99
-#: src/components/trade-form.tsx:290
+#: src/components/trade-form.tsx:299
 #: src/components/trade-result-card.tsx:50
-#: src/components/trade-summary.tsx:199
+#: src/components/trade-summary.tsx:203
 msgid "None"
 msgstr "無"
 
@@ -4915,7 +4968,7 @@ msgstr "不是有效的 JSON。"
 #: src/app/(tabs)/(dashboard)/notes.tsx:40
 #: src/app/cash-form.tsx:201
 #: src/components/note-form.tsx:83
-#: src/components/trade-form.tsx:601
+#: src/components/trade-form.tsx:610
 #: src/lib/outbox.ts:506
 msgid "Note"
 msgstr "筆記"
@@ -4929,7 +4982,7 @@ msgid "Note not found"
 msgstr "找不到筆記"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:93
-#: src/app/(tabs)/(dashboard)/index.tsx:217
+#: src/app/(tabs)/(dashboard)/index.tsx:226
 #: src/app/(tabs)/(dashboard)/notes.tsx:204
 #: src/app/(tabs)/(dashboard)/notes.tsx:256
 #: src/app/(tabs)/(trades)/[id].tsx:819
@@ -4961,7 +5014,7 @@ msgstr "未有任何記錄。趁記憶清晰，記低形態同入場理由。"
 #~ msgid "Nothing matches the filters this week."
 #~ msgstr "本週沒有符合篩選條件的項目。"
 
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:64
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:62
 msgid "Nothing scheduled today"
 msgstr "今天沒有安排"
 
@@ -4969,6 +5022,10 @@ msgstr "今天沒有安排"
 #: src/app/replay.tsx:219
 msgid "Nothing to replay."
 msgstr "沒有可重播的內容。"
+
+#: src/app/quick-journal.tsx:277
+msgid "Nothing to review"
+msgstr "沒有待覆盤的交易"
 
 #: src/app/(tabs)/(trades)/[id].tsx:346
 msgid "Notional"
@@ -5054,14 +5111,14 @@ msgstr "上限內只容納最先的 {0} 個檔案。"
 #: src/app/(tabs)/(trades)/[id].tsx:232
 #: src/app/(tabs)/(trades)/[id].tsx:339
 #: src/app/(tabs)/(trades)/index.tsx:294
-#: src/app/quick-journal.tsx:155
+#: src/app/quick-journal.tsx:189
 #: src/app/trade-preview.tsx:147
 #: src/components/performance-card.tsx:99
-#: src/components/trade-form.tsx:135
+#: src/components/trade-form.tsx:144
 #: src/components/trade-result-card.tsx:55
 #: src/components/trade-result-card.tsx:66
 #: src/components/trade-row.tsx:30
-#: src/components/trade-summary.tsx:207
+#: src/components/trade-summary.tsx:211
 msgid "Open"
 msgstr "持倉中"
 
@@ -5071,7 +5128,7 @@ msgid "OPEN"
 msgstr "持倉中"
 
 #. placeholder {0}: preview.positionQty
-#: src/components/trade-summary.tsx:230
+#: src/components/trade-summary.tsx:234
 msgid "Open · {0} left"
 msgstr "未平倉 · 剩餘 {0}"
 
@@ -5114,11 +5171,11 @@ msgid "Opens your password manager or whichever authenticator you use. Nothing i
 msgstr "開啟你的密碼管理器或所用的驗證器 App。在下方輸入驗證碼前不會儲存任何內容。"
 
 #: src/app/(tabs)/(trades)/index.tsx:318
-#: src/components/trade-form.tsx:280
+#: src/components/trade-form.tsx:289
 msgid "Option"
 msgstr "期權"
 
-#: src/components/trade-form.tsx:604
+#: src/components/trade-form.tsx:613
 msgid "Optional"
 msgstr "可留空"
 
@@ -5425,7 +5482,7 @@ msgstr "揀你交易嘅券商,我哋帶你行最快嘅入數方法。"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:659
 #: src/app/new-setup.tsx:208
-#: src/components/trade-form.tsx:461
+#: src/components/trade-form.tsx:470
 msgid "Plan"
 msgstr "計劃"
 
@@ -5449,7 +5506,7 @@ msgid "Playback speed"
 msgstr "播放速度"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:106
-#: src/app/(tabs)/(dashboard)/index.tsx:227
+#: src/app/(tabs)/(dashboard)/index.tsx:236
 #: src/app/(tabs)/(dashboard)/playbook.tsx:176
 #: src/app/(tabs)/(dashboard)/playbook.tsx:226
 #: src/components/tools-menu.tsx:65
@@ -5469,7 +5526,7 @@ msgstr "已交易策略"
 #~ "Origin only — /api/v1 is added automatically."
 #~ msgstr "連接你自己的 TraderMemos 伺服器。"
 
-#: src/components/trade-form.tsx:386
+#: src/components/trade-form.tsx:395
 msgid "Point value"
 msgstr "點值"
 
@@ -5532,7 +5589,7 @@ msgstr "前值"
 
 #: src/app/(tabs)/(settings)/display.tsx:100
 #: src/app/new-trade.tsx:142
-#: src/components/trade-form.tsx:707
+#: src/components/trade-form.tsx:716
 msgid "Preview"
 msgstr "預覽"
 
@@ -5560,7 +5617,7 @@ msgid "Previous year"
 msgstr "上一年"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:46
-#: src/components/trade-form.tsx:159
+#: src/components/trade-form.tsx:168
 msgid "Price"
 msgstr "價格"
 
@@ -5695,7 +5752,7 @@ msgid "Push unavailable"
 msgstr "無法使用推送"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:292
-#: src/components/trade-form.tsx:292
+#: src/components/trade-form.tsx:301
 #: src/components/trade-row.tsx:61
 msgid "Put"
 msgstr "認沽 (Put)"
@@ -5709,7 +5766,7 @@ msgid "Qty"
 msgstr "數量"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:45
-#: src/components/trade-form.tsx:152
+#: src/components/trade-form.tsx:161
 msgid "Quantity"
 msgstr "數量"
 
@@ -5760,7 +5817,7 @@ msgstr "R 倍數"
 msgid "Raise the cap under Settings → Display to queue more."
 msgstr "要加入更多，請在設定 → 顯示調高上限。"
 
-#: src/components/trade-form.tsx:582
+#: src/components/trade-form.tsx:591
 msgid "Rate how you executed, not how it paid — a disciplined trade can still lose."
 msgstr "評的是執行質素，唔係盈虧——守紀律嘅交易一樣可以蝕錢。"
 
@@ -5823,7 +5880,7 @@ msgstr "最近違規日"
 msgid "Recent events"
 msgstr "最近事件"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:238
+#: src/app/(tabs)/(dashboard)/index.tsx:247
 msgid "Recent trades"
 msgstr "最近交易"
 
@@ -5863,11 +5920,11 @@ msgstr "剩餘數量"
 msgid "Remind me"
 msgstr "設定提醒"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:250
+#: src/app/(tabs)/(dashboard)/checklist.tsx:252
 msgid "Reminders"
 msgstr "提醒事項"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:72
+#: src/app/(tabs)/(dashboard)/checklist.tsx:74
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:755
 msgid "Reminders access needed"
 msgstr "需要提醒事項存取權"
@@ -5876,11 +5933,11 @@ msgstr "需要提醒事項存取權"
 msgid "Reminders need a rebuild"
 msgstr "提醒事項需要重新建置"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:72
+#: src/app/(tabs)/(dashboard)/checklist.tsx:74
 msgid "Reminders unavailable"
 msgstr "無法使用提醒事項"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:201
+#: src/app/(tabs)/(dashboard)/checklist.tsx:203
 #: src/app/(tabs)/(settings)/flex-sync.tsx:105
 #: src/app/(tabs)/(settings)/funding.tsx:62
 #: src/app/(tabs)/(settings)/funding.tsx:153
@@ -5908,7 +5965,7 @@ msgstr "要刪除 {0} 嗎？"
 msgid "Remove check"
 msgstr "移除檢查項"
 
-#: src/components/trade-form.tsx:198
+#: src/components/trade-form.tsx:207
 msgid "Remove fill"
 msgstr "刪除成交"
 
@@ -5956,7 +6013,7 @@ msgstr "移除截圖？"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:554
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:696
 #: src/components/note-form.tsx:269
-#: src/components/trade-form.tsx:718
+#: src/components/trade-form.tsx:727
 msgid "Remove symbol"
 msgstr "移除代號"
 
@@ -6090,11 +6147,22 @@ msgstr "報復性交易"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:38
 #: src/app/(tabs)/(trades)/[id].tsx:748
-#: src/app/quick-journal.tsx:90
-#: src/app/quick-journal.tsx:210
-#: src/components/trade-form.tsx:546
+#: src/app/quick-journal.tsx:113
+#: src/app/quick-journal.tsx:247
+#: src/app/quick-journal.tsx:370
+#: src/components/trade-form.tsx:555
+#: src/components/weekly-focus-card.tsx:29
 msgid "Review"
 msgstr "覆盤"
+
+#. placeholder {0}: queue.position
+#. placeholder {0}: step.position
+#. placeholder {1}: queue.total
+#. placeholder {1}: step.total
+#: src/app/quick-journal.tsx:113
+#: src/app/quick-journal.tsx:308
+msgid "Review {0} of {1}"
+msgstr "覆盤 {0}/{1}"
 
 #: src/app/trade-preview.tsx:108
 msgid "Review & save"
@@ -6105,8 +6173,8 @@ msgid "Review import"
 msgstr "檢視匯入內容"
 
 #: src/app/(tabs)/(trades)/[id].tsx:783
-#: src/app/quick-journal.tsx:100
-#: src/components/trade-form.tsx:576
+#: src/app/quick-journal.tsx:129
+#: src/components/trade-form.tsx:585
 msgid "Review notes"
 msgstr "檢討筆記"
 
@@ -6218,7 +6286,7 @@ msgid "routine checklist morning pre-market process rules"
 msgstr "例行 清單 早上 開市前 流程 規則"
 
 #. placeholder {0}: percent(history.completion_rate ?? 0)
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:182
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:180
 msgid "Routine history, {0} complete"
 msgstr "例行記錄，完成率 {0}"
 
@@ -6313,6 +6381,10 @@ msgstr "儲存"
 msgid "Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties."
 msgstr "儲存範例檔即可了解預期格式。檔案只會留在你的伺服器，不會傳送給第三方。"
 
+#: src/app/quick-journal.tsx:115
+msgid "Save and next"
+msgstr "儲存並下一筆"
+
 #~ msgid "Save changes"
 #~ msgstr "儲存變更"
 
@@ -6405,7 +6477,7 @@ msgid "Screenshot upload failed ({0})"
 msgstr "截圖上載失敗（{0}）"
 
 #: src/components/attachments-card.tsx:160
-#: src/components/trade-form.tsx:611
+#: src/components/trade-form.tsx:620
 msgid "Screenshots"
 msgstr "截圖"
 
@@ -6501,8 +6573,8 @@ msgid "Self-hosted — your trade data stays on your stack."
 msgstr "自行架設 — 交易數據保存在你自己的伺服器。"
 
 #: src/app/replay.tsx:904
-#: src/components/trade-form.tsx:117
-#: src/components/trade-summary.tsx:84
+#: src/components/trade-form.tsx:126
+#: src/components/trade-summary.tsx:88
 msgid "Sell"
 msgstr "賣出"
 
@@ -6538,7 +6610,7 @@ msgstr "伺服器 URL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:762
 #: src/components/tools-menu.tsx:100
-#: src/components/trade-form.tsx:496
+#: src/components/trade-form.tsx:505
 msgid "Session"
 msgstr "時段"
 
@@ -6564,7 +6636,7 @@ msgstr "交易時段"
 msgid "Sessions follow the New York clock."
 msgstr "交易時段以紐約時間為準。"
 
-#: src/lib/checklist.ts:36
+#: src/lib/checklist.ts:42
 msgid "Set stop loss targets"
 msgstr "設定止損目標"
 
@@ -6618,13 +6690,13 @@ msgstr "已複製設定金鑰"
 
 #: src/app/(tabs)/(trades)/[id].tsx:777
 #: src/app/manage-tags.tsx:126
-#: src/components/trade-form.tsx:516
-#: src/components/trade-form.tsx:518
+#: src/components/trade-form.tsx:525
+#: src/components/trade-form.tsx:527
 msgid "Setup rating"
 msgstr "策略評分"
 
 #: src/app/manage-tags.tsx:102
-#: src/components/trade-form.tsx:488
+#: src/components/trade-form.tsx:497
 msgid "Setups"
 msgstr "策略設定"
 
@@ -6704,14 +6776,14 @@ msgstr "股數"
 #: src/app/missed-trade-form.tsx:143
 #: src/app/new-setup.tsx:166
 #: src/components/reports-filter-menu.tsx:41
-#: src/components/trade-form.tsx:287
+#: src/components/trade-form.tsx:296
 #: src/components/trade-row.tsx:64
-#: src/components/trade-summary.tsx:160
+#: src/components/trade-summary.tsx:164
 msgid "Short"
 msgstr "做空"
 
 #: src/app/(tabs)/(trades)/[id].tsx:213
-#: src/app/quick-journal.tsx:159
+#: src/app/quick-journal.tsx:193
 #: src/app/replay.tsx:506
 #: src/components/share-card.tsx:231
 msgid "SHORT"
@@ -6751,7 +6823,7 @@ msgstr "在鎖定畫面顯示時段"
 #: src/app/(tabs)/(settings)/import-trades.tsx:44
 #: src/app/missed-trade-form.tsx:138
 #: src/components/reports-filter-menu.tsx:36
-#: src/components/trade-form.tsx:138
+#: src/components/trade-form.tsx:147
 msgid "Side"
 msgstr "方向"
 
@@ -6796,6 +6868,10 @@ msgstr "倉位 ×{0}"
 #~ msgid "sk-…"
 #~ msgstr "sk-…"
 
+#: src/app/quick-journal.tsx:161
+msgid "Skip for now"
+msgstr "暫時略過"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:265
 msgid "Skipped (duplicates)"
 msgstr "略過（重複）"
@@ -6825,7 +6901,7 @@ msgstr "部分離線變更未能同步"
 msgid "Something went wrong"
 msgstr "發生問題"
 
-#: src/app/routine-item.tsx:75
+#: src/app/routine-item.tsx:76
 msgid "Something you do every session, ticked off on Home."
 msgstr "每節交易都會做的事，在首頁勾選。"
 
@@ -6878,7 +6954,7 @@ msgid "Step forward"
 msgstr "下一根"
 
 #. placeholder {0}: rows.length - done
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:76
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:74
 msgid "Still to do: {0}"
 msgstr "尚餘：{0}"
 
@@ -6886,7 +6962,7 @@ msgstr "尚餘：{0}"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:281
 #: src/app/(tabs)/(trades)/index.tsx:317
 #: src/components/symbol-journal.tsx:304
-#: src/components/trade-form.tsx:279
+#: src/components/trade-form.tsx:288
 msgid "Stock"
 msgstr "股票"
 
@@ -6900,12 +6976,12 @@ msgstr "股票 / 期權"
 #: src/app/missed-trade-form.tsx:165
 #: src/app/new-setup.tsx:228
 #: src/app/tool-position-size.tsx:87
-#: src/components/trade-form.tsx:471
+#: src/components/trade-form.tsx:480
 msgid "Stop"
 msgstr "止損價"
 
 #. placeholder {0}: formatCurrency(stop, currency)
-#: src/components/trade-summary.tsx:41
+#: src/components/trade-summary.tsx:42
 msgid "Stop {0}"
 msgstr "止蝕 {0}"
 
@@ -6949,7 +7025,7 @@ msgstr "金鑰只儲存在你的伺服器，不會留在這部手機。"
 msgid "Strength"
 msgstr "優點"
 
-#: src/components/trade-form.tsx:368
+#: src/components/trade-form.tsx:377
 msgid "Strike"
 msgstr "行使價"
 
@@ -6971,7 +7047,7 @@ msgstr "+{r}R 的強勁結果"
 #~ msgid "Suggested"
 #~ msgstr "建議項目"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:158
+#: src/app/(tabs)/(dashboard)/checklist.tsx:160
 msgid "Suggested items"
 msgstr "建議項目"
 
@@ -7027,8 +7103,8 @@ msgstr "正在切換…"
 #: src/app/missed-trade-form.tsx:129
 #: src/app/new-setup.tsx:214
 #: src/components/breakdown-card.tsx:27
-#: src/components/trade-form.tsx:341
-#: src/components/trade-form.tsx:408
+#: src/components/trade-form.tsx:350
+#: src/components/trade-form.tsx:417
 msgid "Symbol"
 msgstr "代號"
 
@@ -7039,7 +7115,7 @@ msgstr "代號"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:248
 #: src/app/new-trade.tsx:106
 #: src/components/note-form.tsx:264
-#: src/components/trade-form.tsx:714
+#: src/components/trade-form.tsx:723
 msgid "Symbol {0}"
 msgstr "代號 {0}"
 
@@ -7100,7 +7176,7 @@ msgstr "同步已關"
 msgid "Sync on"
 msgstr "同步已開"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:258
+#: src/app/(tabs)/(dashboard)/checklist.tsx:260
 msgid "Sync to Reminders"
 msgstr "同步至提醒事項"
 
@@ -7124,7 +7200,7 @@ msgstr "系統"
 #: src/app/(tabs)/(trades)/[id].tsx:807
 #: src/app/manage-tags.tsx:75
 #: src/components/reports/detailed-section.tsx:306
-#: src/components/trade-form.tsx:525
+#: src/components/trade-form.tsx:534
 msgid "Tags"
 msgstr "標籤"
 
@@ -7167,7 +7243,7 @@ msgstr "按＋寫下你第一個交易計劃，之後可在交易表單連結它
 #~ msgid "Tap a token to revoke it."
 #~ msgstr "點一下權杖即可撤銷。"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:186
+#: src/app/(tabs)/(dashboard)/checklist.tsx:188
 msgid "Tap an item to rename it or change its days, swipe to remove it from today on, drag to reorder."
 msgstr "點按可改名或改日子，滑動可由今天起移除，拖曳可重新排序。"
 
@@ -7179,7 +7255,7 @@ msgstr "點一下目前的評分即可清除。"
 msgid "Tap the file to swap it for another one."
 msgstr "點一下檔案即可更換另一個檔案。"
 
-#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:59
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:57
 msgid "Tap the pencil to add what you do before, during and after a session."
 msgstr "點鉛筆加入交易前、交易中和交易後要做的事。"
 
@@ -7193,12 +7269,12 @@ msgstr "點鉛筆加入交易前、交易中和交易後要做的事。"
 #: src/app/(tabs)/(trades)/[id].tsx:698
 #: src/app/missed-trade-form.tsx:170
 #: src/app/new-setup.tsx:222
-#: src/components/trade-form.tsx:464
+#: src/components/trade-form.tsx:473
 msgid "Target"
 msgstr "目標價"
 
 #. placeholder {0}: formatCurrency(target, currency)
-#: src/components/trade-summary.tsx:40
+#: src/components/trade-summary.tsx:41
 msgid "Target {0}"
 msgstr "目標價 {0}"
 
@@ -7406,7 +7482,7 @@ msgstr "這個帳戶已不存在。"
 msgid "This also deletes every account, trade, note and screenshot they own. There is no undo."
 msgstr "同時會刪除他們的所有帳戶、交易、筆記和截圖，無法復原。"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:75
+#: src/app/(tabs)/(dashboard)/checklist.tsx:77
 msgid "This build can't reach the Reminders app. Rebuild the dev client and try again."
 msgstr "此版本無法連接提醒事項 App。請重新建置開發版本。"
 
@@ -7462,6 +7538,10 @@ msgstr "此交易已有 {0} 張截圖 — 在設定 → 顯示調高上限。"
 #: src/app/(tabs)/(trades)/index.tsx:299
 msgid "This week"
 msgstr "本週"
+
+#: src/components/weekly-focus-card.tsx:25
+msgid "This week's focus"
+msgstr "本週重點"
 
 #: src/app/(tabs)/(trades)/index.tsx:302
 msgid "This year"
@@ -7628,7 +7708,8 @@ msgid "Trade lands on"
 msgstr "交易歸屬日"
 
 #: src/app/edit-trade.tsx:120
-#: src/app/quick-journal.tsx:215
+#: src/app/quick-journal.tsx:319
+#: src/app/quick-journal.tsx:375
 #: src/app/replay.tsx:163
 #: src/app/share-trade.tsx:98
 msgid "Trade not found"
@@ -7827,7 +7908,7 @@ msgstr "單位"
 msgid "Unknown client"
 msgstr "未知的用戶端"
 
-#: src/components/trade-summary.tsx:156
+#: src/components/trade-summary.tsx:160
 msgid "Unknown symbol"
 msgstr "未知代號"
 
@@ -7856,7 +7937,7 @@ msgstr "未命名"
 msgid "Upload failed ({0})"
 msgstr "上載失敗（{0}）"
 
-#: src/components/trade-form.tsx:616
+#: src/components/trade-form.tsx:625
 msgid "Uploaded to this symbol's trade when it saves. Tap a thumbnail to remove it."
 msgstr "儲存時會上載到此標的的交易。點一下縮圖即可移除。"
 
@@ -7921,7 +8002,7 @@ msgstr "版本"
 msgid "version build server licence"
 msgstr "版本 組建 伺服器 授權"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:244
+#: src/app/(tabs)/(dashboard)/index.tsx:253
 msgid "View all"
 msgstr "查看全部"
 
@@ -8047,12 +8128,12 @@ msgstr "今日點樣？"
 msgid "What has to be happening for this play to be on? Where is it wrong?"
 msgstr "這個形態成立需要什麼條件？什麼情況下就算失效？"
 
-#: src/app/quick-journal.tsx:104
-#: src/components/trade-form.tsx:579
+#: src/app/quick-journal.tsx:133
+#: src/components/trade-form.tsx:588
 msgid "What would you do differently?"
 msgstr "下次會如何改進？"
 
-#: src/app/routine-item.tsx:86
+#: src/app/routine-item.tsx:87
 msgid "When"
 msgstr "時段"
 
@@ -8068,11 +8149,11 @@ msgstr "看到的時間"
 msgid "Which account does it feed?"
 msgstr "入落邊個帳戶?"
 
-#: src/components/trade-form.tsx:541
+#: src/components/trade-form.tsx:550
 msgid "Why did you enter?"
 msgstr "為何入場？"
 
-#: src/components/trade-form.tsx:573
+#: src/components/trade-form.tsx:582
 msgid "Why did you exit?"
 msgstr "為何出場？"
 

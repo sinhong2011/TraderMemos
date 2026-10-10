@@ -29,7 +29,7 @@ export function HomeAccountContribution({
   return (
     <section className="rounded-lg bg-card">
       <header className="px-4 py-3">
-        <h2 className="text-2xs font-semibold tracking-wide text-chart-3">Account contribution</h2>
+        <h2 className="text-2xs font-semibold tracking-wide text-heading">Account contribution</h2>
       </header>
       <div className="overflow-x-auto px-2 pb-3">
         <table className="w-full min-w-[420px] border-collapse text-left text-[12px]">

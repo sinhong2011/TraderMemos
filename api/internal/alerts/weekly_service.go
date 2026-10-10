@@ -57,6 +57,9 @@ func (s *Service) WeeklyReview(ctx context.Context, userID string, now time.Time
 	if err != nil {
 		return false, err
 	}
+	if stats.LastFocus, _, err = PreviousFocus(ctx, s.q, userID, start); err != nil {
+		return false, err
+	}
 
 	// Reuse the note a previous (interrupted) run created, unless the owner
 	// has since deleted it.

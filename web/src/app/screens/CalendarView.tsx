@@ -356,7 +356,7 @@ export function CalendarView({
               options={[...VIEW_OPTS]}
               value={mode}
               onChange={(v) => changeMode(v as CalendarMode)}
-              className="h-8 justify-self-start [&_button]:px-2 sm:h-7 sm:[&_button]:px-2.5"
+              className="justify-self-start [&_button]:px-2 sm:[&_button]:px-2.5"
             />
 
             <div className="flex min-w-0 justify-center">

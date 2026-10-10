@@ -12,6 +12,7 @@ export interface ReportCardDef {
  */
 export const REPORT_CARDS: Record<ReportsTab, ReportCardDef[]> = {
   overview: [
+    { id: "mistake-tax", label: "Mistake tax" },
     { id: "summary", label: "Summary metrics" },
     { id: "period-returns", label: "Period returns" },
     { id: "edge-score", label: "Edge Score" },
@@ -40,6 +41,7 @@ export const REPORT_CARDS: Record<ReportsTab, ReportCardDef[]> = {
     { id: "rule-compliance", label: "Rule compliance" },
   ],
   behavior: [
+    { id: "focus", label: "Weekly focus" },
     { id: "revenge", label: "Revenge trading" },
     { id: "overconfidence", label: "Overconfidence" },
     { id: "loss-aversion", label: "Loss aversion" },

@@ -178,7 +178,7 @@ export function AnnualGoalCard({
   // Passed as a node rather than a plain string so the home page's amber section
   // heading survives the move onto Card (whose string titles are muted grey).
   const cardTitle = (
-    <h2 className="m-0 text-[12px] font-semibold tracking-wide text-chart-3">
+    <h2 className="m-0 text-[12px] font-semibold tracking-wide text-heading">
       Annual P&L Goal · {year}
     </h2>
   );

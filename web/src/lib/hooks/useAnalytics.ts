@@ -68,6 +68,20 @@ export function useEdgeScore(filters: Filters) {
   });
 }
 
+export function useSetupScorecard(filters: Filters) {
+  return useQuery({
+    queryKey: ["analytics", "setup-scorecard", filters],
+    queryFn: () => analyticsApi.setupScorecard(filters),
+  });
+}
+
+export function useMistakeTax(filters: Filters) {
+  return useQuery({
+    queryKey: ["analytics", "mistake-tax", filters],
+    queryFn: () => analyticsApi.mistakeTax(filters),
+  });
+}
+
 export function useExecutionScore(filters: Filters, bucket: "week" | "month") {
   return useQuery({
     queryKey: ["analytics", "execution-score", bucket, filters],

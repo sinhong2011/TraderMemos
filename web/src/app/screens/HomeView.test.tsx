@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import type { Summary, Trade } from "@/lib/api/types";
 import { filterTradesByStatus, type TradeStatusFilter } from "@/lib/tradeFilters";
 import { HomeView } from "./HomeView";
+import { looseName } from "@/test/a11y";
 
 vi.mock("../../components/Toast", () => ({
   useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
@@ -223,25 +224,25 @@ describe("HomeView", () => {
   it("keeps baseline card statistics while switching and clearing outcomes", async () => {
     const user = userEvent.setup();
     render(<OutcomeHome baselineTrades={OUTCOME_TRADES} />);
-    const open = screen.getByRole("button", { name: "Open 3 25%" });
+    const open = screen.getByRole("button", { name: looseName("Open 3 25%") });
     for (const [name, symbols] of [
       ["Open 3 25%", ["OUTCOME9", "OUTCOME10", "OUTCOME11"]],
       ["Wins 3 33%", ["OUTCOME0", "OUTCOME3", "OUTCOME6"]],
       ["Losses 3 33%", ["OUTCOME1", "OUTCOME4", "OUTCOME7"]],
       ["Wash 3 33%", ["OUTCOME2", "OUTCOME5", "OUTCOME8"]],
     ] as const) {
-      const card = screen.getByRole("button", { name });
+      const card = screen.getByRole("button", { name: looseName(name) });
       await user.click(card);
       expect(card).toHaveAttribute("aria-pressed", "true");
       expect(open).toHaveTextContent("25%");
       for (const label of ["Wins 3 33%", "Losses 3 33%", "Wash 3 33%"])
-        expect(screen.getByRole("button", { name: label })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: looseName(label) })).toBeInTheDocument();
       const table = within(screen.getByRole("table"));
       expect(table.getAllByRole("row")).toHaveLength(4);
       for (const symbol of symbols) expect(table.getByText(symbol)).toBeInTheDocument();
     }
-    await user.click(screen.getByRole("button", { name: "Wash 3 33%" }));
-    expect(screen.getByRole("button", { name: "Wash 3 33%" })).toHaveAttribute(
+    await user.click(screen.getByRole("button", { name: looseName("Wash 3 33%") }));
+    expect(screen.getByRole("button", { name: looseName("Wash 3 33%") })).toHaveAttribute(
       "aria-pressed",
       "false",
     );
@@ -265,10 +266,10 @@ describe("HomeView", () => {
         }}
       />,
     );
-    const losses = screen.getByRole("button", { name: "Losses 0 0%" });
+    const losses = screen.getByRole("button", { name: looseName("Losses 0 0%") });
     await user.click(losses);
     expect(losses).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Open 3 100%" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: looseName("Open 3 100%") })).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
     expect(screen.queryByText("No trades yet")).not.toBeInTheDocument();
     await user.click(losses);
@@ -283,7 +284,7 @@ describe("HomeView", () => {
     const streakTile = () =>
       screen.getByText("Best streak").closest("section, div")!.parentElement!;
     expect(streakTile()).toHaveTextContent(/Best streak\s*1/);
-    await user.click(screen.getByRole("button", { name: "Wins 3 33%" }));
+    await user.click(screen.getByRole("button", { name: looseName("Wins 3 33%") }));
     // Filtered to wins alone this would read 3.
     expect(streakTile()).toHaveTextContent(/Best streak\s*1/);
   });
@@ -291,14 +292,14 @@ describe("HomeView", () => {
   it("refreshes the baseline after the base scope changes", async () => {
     const user = userEvent.setup();
     const { rerender } = render(<OutcomeHome baselineTrades={OUTCOME_TRADES} />);
-    await user.click(screen.getByRole("button", { name: "Open 3 25%" }));
+    await user.click(screen.getByRole("button", { name: looseName("Open 3 25%") }));
     rerender(<OutcomeHome baselineTrades={OUTCOME_TRADES.slice(6)} />);
-    expect(screen.getByRole("button", { name: "Open 3 50%" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: looseName("Open 3 50%") })).toHaveAttribute(
       "aria-pressed",
       "true",
     );
     rerender(<OutcomeHome baselineTrades={OUTCOME_TRADES} />);
-    expect(screen.getByRole("button", { name: "Open 3 25%" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: looseName("Open 3 25%") })).toHaveAttribute(
       "aria-pressed",
       "true",
     );

@@ -9,7 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, useChartAnimation } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { Skeleton } from "./Skeleton";
 import type { RBucket } from "@/lib/api/types";
@@ -36,6 +36,7 @@ export function ReportsRDistributionChart({
   loading,
   error,
 }: ReportsRDistributionChartProps) {
+  const animate = useChartAnimation();
   return (
     <Card
       title="R-Multiple Distribution"
@@ -78,7 +79,7 @@ export function ReportsRDistributionChart({
                   formatter={(value) => [String(value), "Trades"]}
                   cursor={{ fill: chartTheme.cursorFill }}
                 />
-                <Bar dataKey="count" radius={[2, 2, 0, 0]}>
+                <Bar isAnimationActive={animate} dataKey="count" radius={[2, 2, 0, 0]}>
                   {distribution.map((b) => (
                     <Cell key={b.label} fill={b.from < 0 ? NEG : POS} fillOpacity={0.85} />
                   ))}

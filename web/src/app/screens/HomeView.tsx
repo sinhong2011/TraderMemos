@@ -13,7 +13,12 @@ import { AnnualGoalCard } from "@/components/AnnualGoalCard";
 import { DailyLossCard } from "@/components/DailyLossCard";
 import { PropStatusCard } from "@/components/PropStatusCard";
 import { Card } from "@/components/Card";
-import { ChartFrame, chartTheme, chartTooltipStyle } from "@/components/ChartFrame";
+import {
+  ChartFrame,
+  chartTheme,
+  chartTooltipStyle,
+  useChartAnimation,
+} from "@/components/ChartFrame";
 import { HomeAccountContribution } from "@/components/HomeAccountContribution";
 import { type HomeBreakdownDim, HomeBreakdownChart } from "@/components/HomeBreakdownChart";
 import { HomeInsightBento } from "@/components/HomeInsightBento";
@@ -122,6 +127,7 @@ function EquityCurveChart({
   fxRate?: number;
   range: string;
 }) {
+  const animate = useChartAnimation();
   const { fmtMoney, fmtMoneyCompact } = useMoneyFormatters();
   useDisplayTimePrefs();
   const cutoff = rangeCutoff(range);
@@ -183,6 +189,7 @@ function EquityCurveChart({
               cursor={{ fill: chartTheme.cursorFill }}
             />
             <Area
+              isAnimationActive={animate}
               type="monotone"
               dataKey="equity"
               stroke={chartTheme.accentStroke}

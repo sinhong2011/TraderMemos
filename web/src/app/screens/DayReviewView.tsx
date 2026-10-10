@@ -29,6 +29,7 @@ import type {
   BehaviorReport,
   ComplianceReport,
   JournalNote,
+  MistakeTaxReport,
   Summary,
   Trade,
 } from "@/lib/api/types";
@@ -48,6 +49,10 @@ export interface DayReviewViewProps {
   summaryLoading: boolean;
   compliance?: ComplianceReport;
   behavior?: BehaviorReport;
+  /** The day's mistake tax — losses on trades that broke the process. */
+  mistakeTax?: MistakeTaxReport;
+  /** Closed trades waiting in the review inbox (today only). */
+  reviewCount?: number;
   notes: JournalNote[];
   notesLoading: boolean;
   currency: string;
@@ -62,6 +67,8 @@ export interface DayReviewViewProps {
   isToday?: boolean;
   /** Jump back to today; shown only on other days. */
   onToday?: () => void;
+  /** This week's focus from the last weekly review; today only. */
+  focus?: ReactNode;
   /** The day's routine checklist — the session opens with it. */
   routine?: ReactNode;
   /** Live session guardrails (daily loss, open positions); today only. */
@@ -176,6 +183,8 @@ export function DayReviewView({
   summaryLoading,
   compliance,
   behavior,
+  mistakeTax,
+  reviewCount,
   notes,
   notesLoading,
   currency,
@@ -188,11 +197,12 @@ export function DayReviewView({
   onNewNote,
   isToday = false,
   onToday,
+  focus,
   routine,
   desk,
   missed,
 }: DayReviewViewProps) {
-  const { fmtSignedMoney } = useMoneyFormatters();
+  const { fmtMoney, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const day = compliance?.days.find((d) => d.date === date);
   const netPnl = (summary?.net_pnl ?? 0) * fxRate;
@@ -245,6 +255,7 @@ export function DayReviewView({
         </div>
       </div>
 
+      {focus}
       {routine}
       {desk}
 
@@ -266,7 +277,7 @@ export function DayReviewView({
               />
               <StatCard
                 label="Fees"
-                value={fmtSignedMoney(-(summary?.total_fees ?? 0) * fxRate, currency, locale)}
+                value={fmtMoney((summary?.total_fees ?? 0) * fxRate, currency, locale)}
               />
             </div>
             {compliance?.rules_configured && (
@@ -325,6 +336,28 @@ export function DayReviewView({
                   </Link>
                 </div>
               )}
+            {isToday && (reviewCount ?? 0) > 0 ? (
+              <Link
+                to="/review"
+                className="self-start text-[12px] font-medium text-primary hover:underline"
+              >
+                {reviewCount} trade{reviewCount === 1 ? "" : "s"} to review →
+              </Link>
+            ) : null}
+            {mistakeTax != null && (summary?.total_trades ?? 0) > 0 ? (
+              <p className="m-0 text-[12px] text-muted-foreground tabular-nums">
+                Mistake tax:{" "}
+                <span className="font-semibold text-foreground">
+                  {fmtMoney(mistakeTax.total_cost * fxRate, currency, locale)}
+                </span>
+                {mistakeTax.sources[0]
+                  ? ` · ${mistakeTax.sources
+                      .map((s) => s.label)
+                      .slice(0, 2)
+                      .join(", ")}`
+                  : " · clean session"}
+              </p>
+            ) : null}
           </div>
         )}
       </Card>

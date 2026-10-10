@@ -23,6 +23,7 @@ import {
   useBehavior,
   useBreakdown,
   useCompliance,
+  useMistakeTax,
   useEdgeScore,
   useEquityCurve,
   useExecutionScore,
@@ -33,6 +34,9 @@ import {
 import { useAnnualGoal, useClearAnnualGoal, useSaveAnnualGoal } from "@/lib/hooks/useAnnualGoal";
 import { useCash } from "@/lib/hooks/useCash";
 import { useTrades } from "@/lib/hooks/useTrades";
+import { useFocusHistory } from "@/lib/hooks/useWeeklyFocus";
+import { notesApi } from "@/lib/api/notes";
+import { useUI } from "@/lib/ui";
 import { netDeposits } from "@/lib/headerStats";
 import { resolvePresetRange, type ReportsViewPreset } from "@/lib/reportsPresets";
 import { useReportsView } from "@/lib/reportsView";
@@ -153,7 +157,10 @@ function ReportsPage() {
   const sessionBreakdownQ = useBreakdown("session", analyticsFilters);
   const qualityBreakdownQ = useBreakdown("trade_quality", analyticsFilters);
   const complianceQ = useCompliance(analyticsFilters);
+  const mistakeTaxQ = useMistakeTax(analyticsFilters);
   const behaviorQ = useBehavior(analyticsFilters);
+  const focusHistoryQ = useFocusHistory(filters);
+  const openNoteEdit = useUI((s) => s.openNoteEdit);
   const monteCarloQ = useMonteCarlo(analyticsFilters, tab === "risk");
   const [execScoreBucket, setExecScoreBucket] = useState<ExecScoreBucket>("week");
   const execScoreQ = useExecutionScore(analyticsFilters, execScoreBucket);
@@ -207,12 +214,29 @@ function ReportsPage() {
         qualityBreakdown={qualityBreakdownQ.data ?? []}
         qualityBreakdownLoading={qualityBreakdownQ.isLoading}
         qualityBreakdownError={qualityBreakdownQ.isError}
+        mistakeTax={mistakeTaxQ.data}
+        mistakeTaxLoading={mistakeTaxQ.isLoading}
+        mistakeTaxError={mistakeTaxQ.isError}
         compliance={complianceQ.data}
         complianceLoading={complianceQ.isLoading}
         complianceError={complianceQ.isError}
         behavior={behaviorQ.data}
         behaviorLoading={behaviorQ.isLoading}
         behaviorError={behaviorQ.isError}
+        focusHistory={focusHistoryQ.data}
+        focusHistoryLoading={focusHistoryQ.isLoading}
+        focusHistoryError={focusHistoryQ.isError}
+        onOpenNote={async (id) => {
+          const note = await notesApi.get(id);
+          openNoteEdit({
+            id: note.id,
+            type: note.type ?? "weekly_review",
+            occurredAt: note.occurred_at,
+            title: note.title,
+            body: note.body,
+            symbols: note.symbols ?? [],
+          });
+        }}
         monteCarlo={monteCarloQ.data}
         monteCarloLoading={monteCarloQ.isLoading}
         monteCarloError={monteCarloQ.isError}

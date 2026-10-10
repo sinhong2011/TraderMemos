@@ -295,7 +295,7 @@ export function AboutTab() {
                   <>
                     {content.updateReleasePublished} {fmtDateTime(remote.publishedAt)}
                     {remote.prerelease ? (
-                      <span className="ml-1.5 text-2xs uppercase tracking-wide text-chart-3">
+                      <span className="ml-1.5 text-2xs uppercase tracking-wide text-warning-foreground">
                         pre
                       </span>
                     ) : null}
@@ -309,11 +309,11 @@ export function AboutTab() {
             <span
               className={cn(
                 "inline-flex items-center gap-1.5 text-[12px] font-medium",
-                attention ? "text-chart-3" : "text-profit",
+                attention ? "text-warning-foreground" : "text-profit",
               )}
             >
               <span
-                className={cn("size-1.5 rounded-full", attention ? "bg-chart-3" : "bg-profit")}
+                className={cn("size-1.5 rounded-full", attention ? "bg-warning" : "bg-profit")}
                 aria-hidden
               />
               {updateStatus}

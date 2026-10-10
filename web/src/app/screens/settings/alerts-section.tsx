@@ -298,7 +298,7 @@ export function AlertsSection() {
             </SettingsGroupRow>
             <SettingsGroupRow
               label="Unreviewed trades"
-              detail="A weekly nudge when closed trades older than this have no journal notes."
+              detail="A weekly nudge when closed trades older than this have no execution grade."
             >
               <span className="flex items-center gap-3">
                 <IntInput

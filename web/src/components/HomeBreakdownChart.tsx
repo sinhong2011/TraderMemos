@@ -13,7 +13,13 @@ import type { BreakGroup } from "@/lib/api/types";
 
 import { intlLocale } from "@/lib/locale";
 import { useMoneyFormatters } from "@/lib/useMoneyFormatters";
-import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
+import {
+  ChartFrame,
+  chartTheme,
+  chartTooltipStyle,
+  pnlTooltipValue,
+  useChartAnimation,
+} from "./ChartFrame";
 import { SegmentedControl } from "./SegmentedControl";
 import { Skeleton } from "./Skeleton";
 import { Button } from "./ui/button";
@@ -50,6 +56,7 @@ export function HomeBreakdownChart({
   fxRate = 1,
   onOpenReports,
 }: HomeBreakdownChartProps) {
+  const animate = useChartAnimation();
   const { fmtMoneyCompact, fmtSignedMoney } = useMoneyFormatters();
   const locale = intlLocale();
   const chartData = breakdown.slice(0, 8).map((g) => ({
@@ -61,7 +68,7 @@ export function HomeBreakdownChart({
   return (
     <section className="flex h-full flex-col rounded-lg bg-card">
       <header className="flex flex-wrap items-start justify-between gap-3 px-4 py-3">
-        <h2 className="text-2xs font-semibold tracking-wide text-chart-3">Breakdown</h2>
+        <h2 className="text-2xs font-semibold tracking-wide text-heading">Breakdown</h2>
         <SegmentedControl
           ariaLabel="Breakdown dimension"
           options={DIM_OPTIONS}
@@ -110,7 +117,7 @@ export function HomeBreakdownChart({
                     ]}
                     cursor={{ fill: chartTheme.cursorFill }}
                   />
-                  <Bar dataKey="net_pnl" radius={[2, 2, 0, 0]}>
+                  <Bar isAnimationActive={animate} dataKey="net_pnl" radius={[2, 2, 0, 0]}>
                     {chartData.map((entry) => (
                       <Cell
                         key={entry.fullKey}

@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
 	"github.com/tradermemos/api/internal/auth"
+	"github.com/tradermemos/api/internal/store"
 )
 
 // handleBehavior runs the behavioral-pattern detectors over closed trades.
@@ -32,6 +33,12 @@ func (s *Server) handleBehavior(c *echo.Context) error {
 		}
 	}
 
+	trades := behaviorTrades(rows, mfeByTrade)
+	return c.JSON(http.StatusOK, analytics.Behavior(trades, analytics.DefaultBehaviorConfig(), f.Loc))
+}
+
+// behaviorTrades maps closed trades into the behavior detectors' input.
+func behaviorTrades(rows []store.Trade, mfeByTrade map[string]float64) []analytics.BehaviorTrade {
 	trades := make([]analytics.BehaviorTrade, 0, len(rows))
 	for _, t := range rows {
 		if !t.NetPnl.Valid || !t.ClosedAt.Valid {
@@ -55,5 +62,5 @@ func (s *Server) handleBehavior(c *echo.Context) error {
 		}
 		trades = append(trades, bt)
 	}
-	return c.JSON(http.StatusOK, analytics.Behavior(trades, analytics.DefaultBehaviorConfig(), f.Loc))
+	return trades
 }

@@ -11,7 +11,13 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
+import {
+  ChartFrame,
+  chartTheme,
+  chartTooltipStyle,
+  pnlTooltipValue,
+  useChartAnimation,
+} from "./ChartFrame";
 import { DataTable } from "./DataTable";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
@@ -50,6 +56,7 @@ export function ReportsBreakdownCard({
   orientation = "vertical",
   tableColumns,
 }: ReportsBreakdownCardProps) {
+  const animate = useChartAnimation();
   const money = useReportsMoney();
   const [view, setView] = useState<"chart" | "table">("chart");
   const horizontal = orientation === "horizontal";
@@ -134,7 +141,11 @@ export function ReportsBreakdownCard({
                 ]}
                 cursor={{ fill: chartTheme.cursorFill }}
               />
-              <Bar dataKey="net_pnl" radius={horizontal ? [0, 2, 2, 0] : [2, 2, 0, 0]}>
+              <Bar
+                isAnimationActive={animate}
+                dataKey="net_pnl"
+                radius={horizontal ? [0, 2, 2, 0] : [2, 2, 0, 0]}
+              >
                 {breakdown.map((g) => (
                   <Cell
                     key={g.key}

@@ -338,6 +338,78 @@ export interface RBucket {
   to: number;
 }
 
+export type SetupVerdict = "edge" | "execution" | "promising" | "watch" | "unproven" | "bleeding";
+
+/** One row of GET /analytics/setup-scorecard (Go: analytics.SetupScore). */
+export interface SetupScore {
+  /** "" for the no-setup bucket. */
+  setup_id: string;
+  name: string;
+  trades: number;
+  wins: number;
+  losses: number;
+  win_rate: number;
+  net_pnl: number;
+  /** Currency per trade. */
+  expectancy: number;
+  profit_factor: number;
+  r_trades: number;
+  r_coverage: number;
+  expectancy_r: number | null;
+  avg_win_r: number | null;
+  avg_loss_r: number | null;
+  distribution: RBucket[];
+  /** Unit of mean / ci_* / clean_mean: R when enough trades carry a risk. */
+  basis: "r" | "currency";
+  mean: number;
+  ci_low: number | null;
+  ci_high: number | null;
+  clean_trades: number;
+  clean_mean: number | null;
+  verdict: SetupVerdict;
+  stale: boolean;
+  last_trade_at: string;
+}
+
+/** Payload of GET /analytics/setup-scorecard. */
+export interface SetupScorecard {
+  setups: SetupScore[];
+  none: SetupScore | null;
+}
+
+/** One reason row of GET /analytics/mistake-tax (Go: analytics.MistakeSourceRow). */
+export interface MistakeTaxSource {
+  key: string;
+  kind: "tag" | "rule" | "behavior";
+  label: string;
+  trades: number;
+  /** Losses only, positive. */
+  cost: number;
+  cost_r: number;
+  r_trades: number;
+  /** Profit on these trades — never netted against the cost. */
+  lucky: number;
+  trade_ids: string[];
+}
+
+/** Payload of GET /analytics/mistake-tax (Go: analytics.MistakeTaxReport). */
+export interface MistakeTaxReport {
+  period_net: number;
+  gross_loss: number;
+  total_cost: number;
+  total_cost_r: number;
+  r_trades: number;
+  flagged_trades: number;
+  share_of_losses: number;
+  lucky_wins: number;
+  net_without: number;
+  sources: MistakeTaxSource[];
+  bucket: "week" | "month";
+  series: { period: string; cost: number }[];
+  unreviewed_losses: number;
+  unreviewed_ids: string[];
+}
+
 /** R-mode summary — dollar fields are in R units when from /analytics/r-summary. */
 export interface RSummary extends Summary {
   excluded: number;

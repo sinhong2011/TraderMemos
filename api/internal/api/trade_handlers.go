@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -33,70 +34,9 @@ func (s *Server) handleListTrades(c *echo.Context) error {
 	if err != nil {
 		return failLoad(err, "could not list trades")
 	}
-	risks, err := s.deps.Store.ListJournalRisks(ctx, uid)
+	out, err := s.decorateTrades(ctx, uid, rows)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load risk", nil)
-	}
-	riskByTrade := make(map[string]float64, len(risks))
-	for _, r := range risks {
-		if r.InitialRisk.Valid {
-			riskByTrade[r.TradeID] = r.InitialRisk.Float64
-		}
-	}
-	tagRows, err := s.deps.Store.ListTradeTagsForUser(ctx, uid)
-	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load tags", nil)
-	}
-	journals, err := s.deps.Store.ListTradeJournalsForUser(ctx, uid)
-	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load journals", nil)
-	}
-	journalByTrade := make(map[string]store.TradeJournal, len(journals))
-	for _, j := range journals {
-		journalByTrade[j.TradeID] = j
-	}
-	tagsByTrade := make(map[string][]store.Tag)
-	for _, r := range tagRows {
-		tagsByTrade[r.TradeID] = append(tagsByTrade[r.TradeID], store.Tag{
-			ID: r.ID, UserID: r.UserID, Name: r.Name, Color: r.Color,
-			Description: r.Description, Kind: r.Kind,
-		})
-	}
-	optionRows, err := s.deps.Store.ListOptionExecutionDetailsForUser(ctx, uid)
-	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load option contracts", nil)
-	}
-	rightByTrade := optionContractsByTrade(optionRows)
-	out := make([]tradeDTO, 0, len(rows))
-	for _, t := range rows {
-		dto := toTradeDTO(t, tagsByTrade[t.ID])
-		if c, ok := rightByTrade[t.ID]; ok {
-			if c.Right != "" {
-				right := c.Right
-				dto.OptionRight = &right
-			}
-			if c.Strike != "" {
-				strike := c.Strike
-				dto.OptionStrike = &strike
-			}
-			if c.Expiry != "" {
-				expiry := c.Expiry
-				dto.OptionExpiry = &expiry
-			}
-		}
-		if risk, ok := riskByTrade[t.ID]; ok {
-			dto.InitialRisk = &risk
-		}
-		if j, ok := journalByTrade[t.ID]; ok {
-			if j.SetupID.Valid {
-				setupID := j.SetupID.String
-				dto.SetupID = &setupID
-			}
-			dto.EmotionalState = j.EmotionalState
-			dto.Confidence = iptr(j.Confidence)
-			dto.TradeQuality = iptr(j.TradeQuality)
-		}
-		out = append(out, dto)
+		return err
 	}
 	return c.JSON(http.StatusOK, out)
 }
@@ -381,4 +321,75 @@ func (s *Server) handleRegroup(c *echo.Context) error {
 		return Fail(http.StatusInternalServerError, "internal", "could not regroup", nil)
 	}
 	return c.NoContent(http.StatusNoContent)
+}
+
+// decorateTrades turns trade rows into list DTOs: tags, option contract,
+// initial risk, setup, emotion and grades from the journal.
+func (s *Server) decorateTrades(ctx context.Context, uid string, rows []store.Trade) ([]tradeDTO, error) {
+	risks, err := s.deps.Store.ListJournalRisks(ctx, uid)
+	if err != nil {
+		return nil, Fail(http.StatusInternalServerError, "internal", "could not load risk", nil)
+	}
+	riskByTrade := make(map[string]float64, len(risks))
+	for _, r := range risks {
+		if r.InitialRisk.Valid {
+			riskByTrade[r.TradeID] = r.InitialRisk.Float64
+		}
+	}
+	tagRows, err := s.deps.Store.ListTradeTagsForUser(ctx, uid)
+	if err != nil {
+		return nil, Fail(http.StatusInternalServerError, "internal", "could not load tags", nil)
+	}
+	journals, err := s.deps.Store.ListTradeJournalsForUser(ctx, uid)
+	if err != nil {
+		return nil, Fail(http.StatusInternalServerError, "internal", "could not load journals", nil)
+	}
+	journalByTrade := make(map[string]store.TradeJournal, len(journals))
+	for _, j := range journals {
+		journalByTrade[j.TradeID] = j
+	}
+	tagsByTrade := make(map[string][]store.Tag)
+	for _, r := range tagRows {
+		tagsByTrade[r.TradeID] = append(tagsByTrade[r.TradeID], store.Tag{
+			ID: r.ID, UserID: r.UserID, Name: r.Name, Color: r.Color,
+			Description: r.Description, Kind: r.Kind,
+		})
+	}
+	optionRows, err := s.deps.Store.ListOptionExecutionDetailsForUser(ctx, uid)
+	if err != nil {
+		return nil, Fail(http.StatusInternalServerError, "internal", "could not load option contracts", nil)
+	}
+	rightByTrade := optionContractsByTrade(optionRows)
+	out := make([]tradeDTO, 0, len(rows))
+	for _, t := range rows {
+		dto := toTradeDTO(t, tagsByTrade[t.ID])
+		if c, ok := rightByTrade[t.ID]; ok {
+			if c.Right != "" {
+				right := c.Right
+				dto.OptionRight = &right
+			}
+			if c.Strike != "" {
+				strike := c.Strike
+				dto.OptionStrike = &strike
+			}
+			if c.Expiry != "" {
+				expiry := c.Expiry
+				dto.OptionExpiry = &expiry
+			}
+		}
+		if risk, ok := riskByTrade[t.ID]; ok {
+			dto.InitialRisk = &risk
+		}
+		if j, ok := journalByTrade[t.ID]; ok {
+			if j.SetupID.Valid {
+				setupID := j.SetupID.String
+				dto.SetupID = &setupID
+			}
+			dto.EmotionalState = j.EmotionalState
+			dto.Confidence = iptr(j.Confidence)
+			dto.TradeQuality = iptr(j.TradeQuality)
+		}
+		out = append(out, dto)
+	}
+	return out, nil
 }

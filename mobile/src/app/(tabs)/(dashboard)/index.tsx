@@ -17,6 +17,8 @@ import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { BreakdownCard } from '@/components/breakdown-card';
 import { ChecklistCard } from '@/components/checklist-card';
+import { ReviewInboxRow } from '@/components/review-inbox-row';
+import { WeeklyFocusCard } from '@/components/weekly-focus-card';
 import { DailyLossCard } from '@/components/daily-loss-card';
 import { DashboardCard } from '@/components/dashboard-card';
 import { EquityCard } from '@/components/equity-card';
@@ -158,9 +160,16 @@ export default function DashboardScreen() {
         <EquityCard curve={equity.data} currency={currency} fxRate={fxRate} />
       ) : null}
 
-      {/* Today's discipline sits right under the curve: the checklist is the
-          first thing to clear, before any of the aggregates below. */}
+      {/* Today's discipline sits right under the curve: the week's focus says
+          how to trade, the checklist is the first thing to clear, both before
+          any of the aggregates below. */}
+      <WeeklyFocusCard />
+
       <ChecklistCard />
+
+      {/* Closed trades still waiting for a grade — the other half of the
+          day's discipline, so it sits with the routine. */}
+      <ReviewInboxRow />
 
       <PerformanceCard
         summary={summary.data}
