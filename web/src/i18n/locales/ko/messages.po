@@ -16,14 +16,20 @@ msgstr "—"
 #~ msgstr ""
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:730
+#: src/app/screens/SystemView.tsx:649
 msgid "{0} · draft"
 msgstr "{0} · 초안"
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:729
+#: src/app/screens/SystemView.tsx:648
 msgid "{0} · read-only"
 msgstr "{0} · 읽기 전용"
+
+#. placeholder {0}: step.progress
+#. placeholder {1}: step.target
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "{0} / {1}"
+msgstr ""
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:198
@@ -41,6 +47,18 @@ msgstr "{0}건의 거래"
 #: src/app/screens/PublicShareView.tsx:197
 msgid "{0} win rate"
 msgstr "승률 {0}"
+
+#. placeholder {0}: copy.title
+#. placeholder {1}: step.progress
+#. placeholder {2}: step.target
+#: src/components/system-map/PlanStepper.tsx:60
+msgid "{0}: {1} of {2}"
+msgstr ""
+
+#. placeholder {0}: plan.length
+#: src/components/system-map/PlanStepper.tsx:45
+msgid "{doneCount} of {0} steps done"
+msgstr ""
 
 #. placeholder {0}: n.decisions.length
 #: src/components/system-map/SystemMap.tsx:121
@@ -74,11 +92,11 @@ msgid "A base of at least 3 weeks after a 30% advance, the last pullback under 1
 msgstr "30% 상승 후 최소 3주 베이스; 마지막 조정은 거래량 감소 속 10% 미만."
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:914
+#: src/app/screens/SystemView.tsx:833
 msgid "A short name makes versions easier to tell apart. The version number stays {0}, and the rules don't change."
 msgstr "짧은 이름이 있으면 버전을 구분하기 쉽습니다. 버전 번호는 {0}이고 규칙은 바뀌지 않습니다."
 
-#: src/app/screens/SystemView.tsx:506
+#: src/components/system-map/PlanStepper.tsx:31
 msgid "About the four-week plan"
 msgstr "4주 계획 정보"
 
@@ -86,13 +104,13 @@ msgstr "4주 계획 정보"
 msgid "Action"
 msgstr "행동"
 
-#: src/app/screens/SystemView.tsx:657
-#: src/app/screens/SystemView.tsx:1085
+#: src/app/screens/SystemView.tsx:576
+#: src/app/screens/SystemView.tsx:1004
 msgid "Activate"
 msgstr "활성화"
 
 #. placeholder {0}: draft ? versionTitle(draft) : ""
-#: src/app/screens/SystemView.tsx:1021
+#: src/app/screens/SystemView.tsx:940
 msgid "Activate {0}"
 msgstr "{0} 활성화"
 
@@ -232,12 +250,12 @@ msgstr "버전별"
 #~ msgid "Calendar"
 #~ msgstr "캘린더"
 
-#: src/app/screens/SystemView.tsx:946
-#: src/app/screens/SystemView.tsx:1070
+#: src/app/screens/SystemView.tsx:865
+#: src/app/screens/SystemView.tsx:989
 msgid "Cancel"
 msgstr "취소"
 
-#: src/app/screens/SystemView.tsx:643
+#: src/app/screens/SystemView.tsx:562
 msgid "Cancel edits"
 msgstr "편집 취소"
 
@@ -302,7 +320,7 @@ msgstr "확인할 조건"
 msgid "Confirm trigger"
 msgstr "트리거 확인"
 
-#: src/app/screens/SystemView.tsx:140
+#: src/app/screens/SystemView.tsx:127
 msgid "Connect rules, decisions, and evidence."
 msgstr "규칙·결정·근거를 연결합니다."
 
@@ -310,11 +328,11 @@ msgstr "규칙·결정·근거를 연결합니다."
 msgid "Consistency"
 msgstr "일관성"
 
-#: src/app/screens/SystemView.tsx:866
+#: src/app/screens/SystemView.tsx:785
 msgid "Could not activate"
 msgstr "활성화할 수 없음"
 
-#: src/app/screens/SystemView.tsx:831
+#: src/app/screens/SystemView.tsx:750
 msgid "Could not discard"
 msgstr "폐기할 수 없음"
 
@@ -322,16 +340,16 @@ msgstr "폐기할 수 없음"
 msgid "Could not load the review"
 msgstr "리뷰를 불러올 수 없음"
 
-#: src/app/screens/SystemView.tsx:196
+#: src/app/screens/SystemView.tsx:183
 msgid "Could not load the system"
 msgstr "시스템을 불러올 수 없음"
 
-#: src/app/screens/SystemView.tsx:901
+#: src/app/screens/SystemView.tsx:820
 msgid "Could not rename"
 msgstr "이름을 바꿀 수 없음"
 
-#: src/app/screens/SystemView.tsx:670
-#: src/app/screens/SystemView.tsx:800
+#: src/app/screens/SystemView.tsx:589
+#: src/app/screens/SystemView.tsx:719
 #: src/components/TradeSystemCard.tsx:88
 msgid "Could not save"
 msgstr "저장할 수 없음"
@@ -340,8 +358,8 @@ msgstr "저장할 수 없음"
 msgid "Could not save regime"
 msgstr "레짐을 저장할 수 없음"
 
-#: src/app/screens/SystemView.tsx:367
-#: src/app/screens/SystemView.tsx:615
+#: src/app/screens/SystemView.tsx:354
+#: src/app/screens/SystemView.tsx:534
 msgid "Could not start"
 msgstr "시작할 수 없음"
 
@@ -412,21 +430,21 @@ msgstr "계획 밖으로 손절·목표가 이동/제거 없음"
 msgid "Directory"
 msgstr "디렉터리"
 
-#: src/app/screens/SystemView.tsx:983
+#: src/app/screens/SystemView.tsx:902
 msgid "Discard"
 msgstr "폐기"
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:809
+#: src/app/screens/SystemView.tsx:728
 msgid "Discard {0}?"
 msgstr "{0}을(를) 폐기할까요?"
 
-#: src/app/screens/SystemView.tsx:259
+#: src/app/screens/SystemView.tsx:246
 msgid "Discard and leave"
 msgstr "폐기하고 나가기"
 
-#: src/app/screens/SystemView.tsx:634
-#: src/app/screens/SystemView.tsx:835
+#: src/app/screens/SystemView.tsx:553
+#: src/app/screens/SystemView.tsx:754
 msgid "Discard draft"
 msgstr "초안 폐기"
 
@@ -434,19 +452,23 @@ msgstr "초안 폐기"
 #~ msgid "Discard this draft? This cannot be undone."
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:99
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "Done"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:86
 msgid "Draft"
 msgstr "초안"
 
-#: src/app/screens/SystemView.tsx:828
+#: src/app/screens/SystemView.tsx:747
 msgid "Draft discarded"
 msgstr "초안을 폐기했습니다"
 
-#: src/app/screens/SystemView.tsx:668
+#: src/app/screens/SystemView.tsx:587
 msgid "Draft saved"
 msgstr "초안을 저장했습니다"
 
-#: src/app/screens/SystemView.tsx:365
+#: src/app/screens/SystemView.tsx:352
 msgid "Draft started"
 msgstr "초안을 시작했습니다"
 
@@ -462,7 +484,7 @@ msgstr "드래그하여 재배치"
 msgid "Dynamic adjustment"
 msgstr "동적 조정"
 
-#: src/app/screens/SystemView.tsx:933
+#: src/app/screens/SystemView.tsx:852
 msgid "e.g. Trend pullbacks, tighter stops"
 msgstr "예: 추세 조정, 더 타이트한 손절"
 
@@ -560,7 +582,7 @@ msgstr "전체 맵을 화면에 맞춤"
 msgid "Follow mode organizes conditions and evidence. It never places orders."
 msgstr "팔로우 모드는 조건과 근거를 정리할 뿐, 주문을 넣지 않습니다."
 
-#: src/app/screens/SystemView.tsx:185
+#: src/app/screens/SystemView.tsx:172
 msgid "Follow trade"
 msgstr "거래 따라가기"
 
@@ -585,7 +607,8 @@ msgstr "{label} 따라가는 중"
 #~ msgid "Following {label} · decision {0}"
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:501
+#: src/components/system-map/PlanStepper.tsx:21
+#: src/components/system-map/PlanStepper.tsx:26
 msgid "Four-week plan"
 msgstr "4주 계획"
 
@@ -597,7 +620,7 @@ msgstr "완전 준수 vs 부분/없음 × 승 vs 패. 위반하고도 이긴 칸
 msgid "Fully followed"
 msgstr "완전 준수"
 
-#: src/app/screens/SystemView.tsx:1024
+#: src/app/screens/SystemView.tsx:943
 msgid "Give a reason for each changed decision. The previous active version becomes read-only history."
 msgstr "바뀐 결정마다 이유를 적으세요. 이전 활성 버전은 읽기 전용 기록이 됩니다."
 
@@ -645,7 +668,7 @@ msgstr "진입 후 거래를 어떻게 읽고 무엇을 할지."
 #~ msgid "Import"
 #~ msgstr "가져오기"
 
-#: src/app/screens/SystemView.tsx:97
+#: src/app/screens/SystemView.tsx:84
 msgid "In use"
 msgstr "사용 중"
 
@@ -673,12 +696,12 @@ msgstr "만료되었거나 소유자가 철회했을 수 있습니다."
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "<0>TraderMemos</0>로 기록 — 셀프호스팅 트레이딩 저널"
 
-#: src/app/screens/SystemView.tsx:816
+#: src/app/screens/SystemView.tsx:735
 msgid "Keep draft"
 msgstr "초안 유지"
 
-#: src/app/screens/SystemView.tsx:247
-#: src/app/screens/SystemView.tsx:980
+#: src/app/screens/SystemView.tsx:234
+#: src/app/screens/SystemView.tsx:899
 msgid "Keep editing"
 msgstr "계속 편집"
 
@@ -710,7 +733,7 @@ msgstr "마지막 백업이 실패했습니다"
 msgid "Latest file"
 msgstr "최신 파일"
 
-#: src/app/screens/SystemView.tsx:938
+#: src/app/screens/SystemView.tsx:857
 msgid "Leave empty to remove the name."
 msgstr "비우면 이름을 제거합니다."
 
@@ -792,12 +815,12 @@ msgstr "N"
 msgid "N/A"
 msgstr "해당 없음"
 
-#: src/app/screens/SystemView.tsx:926
+#: src/app/screens/SystemView.tsx:845
 msgid "Name"
 msgstr "이름"
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:911
+#: src/app/screens/SystemView.tsx:830
 msgid "Name {0}"
 msgstr "{0} 이름 짓기"
 
@@ -810,7 +833,7 @@ msgstr "{0} 이름 짓기"
 msgid "Name for {label}"
 msgstr "{label} 이름"
 
-#: src/app/screens/SystemView.tsx:899
+#: src/app/screens/SystemView.tsx:818
 msgid "Name removed"
 msgstr "이름을 제거했습니다"
 
@@ -818,8 +841,8 @@ msgstr "이름을 제거했습니다"
 msgid "Name the three stances your rule switches between."
 msgstr "규칙이 전환하는 세 가지 스탠스에 이름을 붙입니다."
 
-#: src/app/screens/SystemView.tsx:584
-#: src/app/screens/SystemView.tsx:585
+#: src/app/screens/SystemView.tsx:503
+#: src/app/screens/SystemView.tsx:504
 msgid "Name this version"
 msgstr "이 버전 이름 짓기"
 
@@ -895,7 +918,7 @@ msgstr "같은 테마는 최대 두 종목; 장부 갭 위험이 3% 넘으면 �
 msgid "No rule yet — select to write one."
 msgstr "아직 규칙 없음 — 선택해 작성하세요."
 
-#: src/app/screens/SystemView.tsx:357
+#: src/app/screens/SystemView.tsx:344
 msgid "No rules yet"
 msgstr "아직 규칙 없음"
 
@@ -907,7 +930,7 @@ msgstr "연결된 거래 없음"
 #~ msgid "No trade selected"
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:290
+#: src/app/screens/SystemView.tsx:277
 msgid "No versions yet."
 msgstr "아직 버전이 없습니다."
 
@@ -955,7 +978,7 @@ msgstr "이 버전에는 작성되지 않았습니다."
 msgid "Not written yet."
 msgstr "아직 작성되지 않았습니다."
 
-#: src/app/screens/SystemView.tsx:1053
+#: src/app/screens/SystemView.tsx:972
 msgid "Note (optional)"
 msgstr "메모(선택)"
 
@@ -973,7 +996,7 @@ msgstr "거래일 {0}일 중"
 msgid "Only works in some markets"
 msgstr "일부 시장에서만 통함"
 
-#: src/app/screens/SystemView.tsx:285
+#: src/app/screens/SystemView.tsx:272
 msgid "Open a version on the map. Active and retired versions are read-only."
 msgstr "맵에서 버전을 엽니다. 활성·폐기 버전은 읽기 전용입니다."
 
@@ -1047,7 +1070,7 @@ msgstr "과정 × 결과"
 msgid "Profit factor"
 msgstr "프로핏 팩터"
 
-#: src/app/screens/SystemView.tsx:515
+#: src/components/system-map/PlanStepper.tsx:40
 msgid "Progress is derived from your data — not a checklist you tick."
 msgstr "진행도는 데이터에서 산출됩니다 — 직접 체크하는 목록이 아닙니다."
 
@@ -1055,7 +1078,7 @@ msgstr "진행도는 데이터에서 산출됩니다 — 직접 체크하는 목
 msgid "Put every node back in its original place"
 msgstr "모든 노드를 원래 위치로"
 
-#: src/app/screens/SystemView.tsx:596
+#: src/app/screens/SystemView.tsx:515
 msgid "Read-only"
 msgstr "읽기 전용"
 
@@ -1068,17 +1091,17 @@ msgid "Red days"
 msgstr "손실일"
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:911
+#: src/app/screens/SystemView.tsx:830
 msgid "Rename {0}"
 msgstr "{0} 이름 변경"
 
-#: src/app/screens/SystemView.tsx:584
-#: src/app/screens/SystemView.tsx:585
+#: src/app/screens/SystemView.tsx:503
+#: src/app/screens/SystemView.tsx:504
 msgid "Rename this version"
 msgstr "이 버전 이름 변경"
 
 #: src/app/screens/SystemReviewPanel.tsx:27
-#: src/app/screens/SystemView.tsx:88
+#: src/app/screens/SystemView.tsx:75
 #: src/components/MarketRegimeCard.tsx:39
 #: src/components/TradeSystemCard.tsx:89
 msgid "Request failed"
@@ -1088,15 +1111,15 @@ msgstr "요청 실패"
 msgid "Reset layout"
 msgstr "레이아웃 재설정"
 
-#: src/app/screens/SystemView.tsx:101
+#: src/app/screens/SystemView.tsx:88
 msgid "Retired"
 msgstr "폐기됨"
 
-#: src/app/screens/SystemView.tsx:200
+#: src/app/screens/SystemView.tsx:187
 msgid "Retry"
 msgstr "다시 시도"
 
-#: src/app/screens/SystemView.tsx:186
+#: src/app/screens/SystemView.tsx:173
 #: src/lib/system.ts:68
 #: src/lib/system.ts:160
 msgid "Review"
@@ -1152,8 +1175,8 @@ msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setu
 msgstr "마켓 시간대 기준 토요일 09:00에 한 주의 손익, 승률, R, 셋업, 규칙 위반, 놓친 거래를 작성용 리뷰 노트로 정리해 보냅니다."
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
-#: src/app/screens/SystemView.tsx:676
-#: src/app/screens/SystemView.tsx:986
+#: src/app/screens/SystemView.tsx:595
+#: src/app/screens/SystemView.tsx:905
 #: src/components/TradeSystemCard.tsx:95
 msgid "Save"
 msgstr "저장"
@@ -1162,20 +1185,20 @@ msgstr "저장"
 msgid "Save changes"
 msgstr "변경 사항 저장"
 
-#: src/app/screens/SystemView.tsx:949
+#: src/app/screens/SystemView.tsx:868
 msgid "Save name"
 msgstr "이름 저장"
 
-#: src/app/screens/SystemView.tsx:650
+#: src/app/screens/SystemView.tsx:569
 msgid "Save your edits before activating"
 msgstr "활성화 전에 편집을 저장하세요"
 
-#: src/app/screens/SystemView.tsx:975
+#: src/app/screens/SystemView.tsx:894
 msgid "Save, discard, or keep editing before leaving this node or version."
 msgstr "이 노드·버전을 떠나기 전에 저장·폐기·계속 편집을 선택하세요."
 
-#: src/app/screens/SystemView.tsx:676
-#: src/app/screens/SystemView.tsx:949
+#: src/app/screens/SystemView.tsx:595
+#: src/app/screens/SystemView.tsx:868
 msgid "Saving…"
 msgstr "저장 중…"
 
@@ -1247,20 +1270,20 @@ msgstr "관망합니다."
 msgid "Start here"
 msgstr "여기서 시작"
 
-#: src/app/screens/SystemView.tsx:620
+#: src/app/screens/SystemView.tsx:539
 msgid "Start next version"
 msgstr "다음 버전 시작"
 
-#: src/app/screens/SystemView.tsx:372
+#: src/app/screens/SystemView.tsx:359
 msgid "Start v1.0"
 msgstr "v1.0 시작"
 
 #. placeholder {0}: STARTER_DECISIONS.map((d) => decisionCopy(d).title).join(", ")
-#: src/app/screens/SystemView.tsx:687
+#: src/app/screens/SystemView.tsx:606
 msgid "Start with {0}. The rest can wait."
 msgstr "먼저 {0}부터. 나머지는 나중에."
 
-#: src/app/screens/SystemView.tsx:358
+#: src/app/screens/SystemView.tsx:345
 msgid "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
 msgstr "먼저 네 가지: 언제 진입, 얼마 위험, 언제 청산, 언제 중단."
 
@@ -1296,7 +1319,7 @@ msgstr "시스템 카드를 저장했습니다"
 msgid "System map"
 msgstr "시스템 맵"
 
-#: src/app/screens/SystemView.tsx:180
+#: src/app/screens/SystemView.tsx:167
 msgid "System mode"
 msgstr "시스템 모드"
 
@@ -1320,7 +1343,7 @@ msgstr "핵심 가설이 깨짐 — 청산."
 msgid "The curve"
 msgstr "곡선"
 
-#: src/app/screens/SystemView.tsx:811
+#: src/app/screens/SystemView.tsx:730
 msgid "The draft and every unsaved edit are deleted. Active and retired versions stay as they are. This can't be undone."
 msgstr "초안과 저장되지 않은 편집이 모두 삭제됩니다. 활성·폐기 버전은 그대로입니다. 되돌릴 수 없습니다."
 
@@ -1356,7 +1379,7 @@ msgstr "논지"
 msgid "Thin"
 msgstr "부족"
 
-#: src/app/screens/SystemView.tsx:1025
+#: src/app/screens/SystemView.tsx:944
 msgid "This becomes the active system. You can revise later with a new draft."
 msgstr "이것이 활성 시스템이 됩니다. 나중에 새 초안으로 개정할 수 있습니다."
 
@@ -1400,7 +1423,7 @@ msgstr "거래 유형: {key}"
 msgid "Trades per month."
 msgstr "월별 거래 수."
 
-#: src/app/screens/SystemView.tsx:138
+#: src/app/screens/SystemView.tsx:125
 msgid "Trading system"
 msgstr "트레이딩 시스템"
 
@@ -1428,9 +1451,9 @@ msgstr "거래 유형, 예상 움직임, 보유 기간, 핵심 가설."
 msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
 msgstr "10건 미만 그룹은 무의미하고, 30건 미만은 힌트일 뿐입니다. 표본 수는 증거가 아닙니다."
 
-#: src/app/screens/SystemView.tsx:240
-#: src/app/screens/SystemView.tsx:602
-#: src/app/screens/SystemView.tsx:973
+#: src/app/screens/SystemView.tsx:227
+#: src/app/screens/SystemView.tsx:521
+#: src/app/screens/SystemView.tsx:892
 msgid "Unsaved changes"
 msgstr "저장되지 않은 변경"
 
@@ -1442,7 +1465,7 @@ msgstr "과정 × 결과 사분면을 쓰세요. 위반하고도 이긴 칸이 �
 msgid "Vague wording — make it objective:"
 msgstr "모호한 표현 — 객관적으로:"
 
-#: src/app/screens/SystemView.tsx:572
+#: src/app/screens/SystemView.tsx:491
 msgid "Version"
 msgstr "버전"
 
@@ -1451,16 +1474,16 @@ msgstr "버전"
 msgid "Version {0}"
 msgstr "버전 {0}"
 
-#: src/app/screens/SystemView.tsx:863
+#: src/app/screens/SystemView.tsx:782
 msgid "Version activated"
 msgstr "버전을 활성화했습니다"
 
-#: src/app/screens/SystemView.tsx:172
-#: src/app/screens/SystemView.tsx:283
+#: src/app/screens/SystemView.tsx:159
+#: src/app/screens/SystemView.tsx:270
 msgid "Version history"
 msgstr "버전 기록"
 
-#: src/app/screens/SystemView.tsx:899
+#: src/app/screens/SystemView.tsx:818
 msgid "Version named"
 msgstr "버전 이름을 지었습니다"
 
@@ -1472,7 +1495,7 @@ msgstr "버전 이름을 지었습니다"
 #~ msgid "Waiting for a trade"
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:492
+#: src/app/screens/SystemView.tsx:479
 msgid "Walk the map one decision at a time and check each against the active rules."
 msgstr "맵을 결정 하나씩 따라가며 활성 규칙과 대조하세요."
 
@@ -1563,7 +1586,7 @@ msgstr "최악의 날"
 msgid "Write a rule to turn it into conditions you can tick off."
 msgstr "규칙으로 써서 체크할 수 있는 조건으로 만드세요."
 
-#: src/app/screens/SystemView.tsx:184
+#: src/app/screens/SystemView.tsx:171
 msgid "Write rules"
 msgstr "규칙 작성"
 
@@ -1595,7 +1618,7 @@ msgstr "틀림, 아직 통함, 안 통함, 완료 — 어떻게 구분할까?"
 msgid "Yes"
 msgstr "예"
 
-#: src/app/screens/SystemView.tsx:242
+#: src/app/screens/SystemView.tsx:229
 msgid "Your draft has edits that aren't saved. Leaving now discards them."
 msgstr "초안에 저장되지 않은 편집이 있습니다. 지금 나가면 폐기됩니다."
 

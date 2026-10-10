@@ -16,14 +16,20 @@ msgstr "—"
 #~ msgstr ""
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:730
+#: src/app/screens/SystemView.tsx:649
 msgid "{0} · draft"
 msgstr "{0} · 草稿"
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:729
+#: src/app/screens/SystemView.tsx:648
 msgid "{0} · read-only"
 msgstr "{0} · 唯讀"
+
+#. placeholder {0}: step.progress
+#. placeholder {1}: step.target
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "{0} / {1}"
+msgstr ""
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:198
@@ -41,6 +47,18 @@ msgstr "{0} 筆交易"
 #: src/app/screens/PublicShareView.tsx:197
 msgid "{0} win rate"
 msgstr "勝率 {0}"
+
+#. placeholder {0}: copy.title
+#. placeholder {1}: step.progress
+#. placeholder {2}: step.target
+#: src/components/system-map/PlanStepper.tsx:60
+msgid "{0}: {1} of {2}"
+msgstr ""
+
+#. placeholder {0}: plan.length
+#: src/components/system-map/PlanStepper.tsx:45
+msgid "{doneCount} of {0} steps done"
+msgstr ""
 
 #. placeholder {0}: n.decisions.length
 #: src/components/system-map/SystemMap.tsx:121
@@ -74,11 +92,11 @@ msgid "A base of at least 3 weeks after a 30% advance, the last pullback under 1
 msgstr "急升至少 30% 後形成不少於 3 週的整理；最後一次回調少於 10%，且成交量收縮。"
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:914
+#: src/app/screens/SystemView.tsx:833
 msgid "A short name makes versions easier to tell apart. The version number stays {0}, and the rules don't change."
 msgstr "短名稱方便區分版本。版本號仍是 {0}，規則不會因此改動。"
 
-#: src/app/screens/SystemView.tsx:506
+#: src/components/system-map/PlanStepper.tsx:31
 msgid "About the four-week plan"
 msgstr "關於四周計劃"
 
@@ -86,13 +104,13 @@ msgstr "關於四周計劃"
 msgid "Action"
 msgstr "行動"
 
-#: src/app/screens/SystemView.tsx:657
-#: src/app/screens/SystemView.tsx:1085
+#: src/app/screens/SystemView.tsx:576
+#: src/app/screens/SystemView.tsx:1004
 msgid "Activate"
 msgstr "啟用"
 
 #. placeholder {0}: draft ? versionTitle(draft) : ""
-#: src/app/screens/SystemView.tsx:1021
+#: src/app/screens/SystemView.tsx:940
 msgid "Activate {0}"
 msgstr "啟用 {0}"
 
@@ -232,12 +250,12 @@ msgstr "按版本"
 #~ msgid "Calendar"
 #~ msgstr "日曆"
 
-#: src/app/screens/SystemView.tsx:946
-#: src/app/screens/SystemView.tsx:1070
+#: src/app/screens/SystemView.tsx:865
+#: src/app/screens/SystemView.tsx:989
 msgid "Cancel"
 msgstr "取消"
 
-#: src/app/screens/SystemView.tsx:643
+#: src/app/screens/SystemView.tsx:562
 msgid "Cancel edits"
 msgstr "取消編輯"
 
@@ -302,7 +320,7 @@ msgstr "待確認條件"
 msgid "Confirm trigger"
 msgstr "確認觸發"
 
-#: src/app/screens/SystemView.tsx:140
+#: src/app/screens/SystemView.tsx:127
 msgid "Connect rules, decisions, and evidence."
 msgstr "把規則、決策與證據連起來。"
 
@@ -310,11 +328,11 @@ msgstr "把規則、決策與證據連起來。"
 msgid "Consistency"
 msgstr "穩定性"
 
-#: src/app/screens/SystemView.tsx:866
+#: src/app/screens/SystemView.tsx:785
 msgid "Could not activate"
 msgstr "無法啟用"
 
-#: src/app/screens/SystemView.tsx:831
+#: src/app/screens/SystemView.tsx:750
 msgid "Could not discard"
 msgstr "無法捨棄"
 
@@ -322,16 +340,16 @@ msgstr "無法捨棄"
 msgid "Could not load the review"
 msgstr "無法載入回顧"
 
-#: src/app/screens/SystemView.tsx:196
+#: src/app/screens/SystemView.tsx:183
 msgid "Could not load the system"
 msgstr "無法載入系統"
 
-#: src/app/screens/SystemView.tsx:901
+#: src/app/screens/SystemView.tsx:820
 msgid "Could not rename"
 msgstr "無法重新命名"
 
-#: src/app/screens/SystemView.tsx:670
-#: src/app/screens/SystemView.tsx:800
+#: src/app/screens/SystemView.tsx:589
+#: src/app/screens/SystemView.tsx:719
 #: src/components/TradeSystemCard.tsx:88
 msgid "Could not save"
 msgstr "無法儲存"
@@ -340,8 +358,8 @@ msgstr "無法儲存"
 msgid "Could not save regime"
 msgstr "無法儲存市場狀態"
 
-#: src/app/screens/SystemView.tsx:367
-#: src/app/screens/SystemView.tsx:615
+#: src/app/screens/SystemView.tsx:354
+#: src/app/screens/SystemView.tsx:534
 msgid "Could not start"
 msgstr "無法開始"
 
@@ -412,21 +430,21 @@ msgstr "沒有偏離計劃移動或取消止蝕／目標"
 msgid "Directory"
 msgstr "目錄"
 
-#: src/app/screens/SystemView.tsx:983
+#: src/app/screens/SystemView.tsx:902
 msgid "Discard"
 msgstr "捨棄"
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:809
+#: src/app/screens/SystemView.tsx:728
 msgid "Discard {0}?"
 msgstr "捨棄 {0}？"
 
-#: src/app/screens/SystemView.tsx:259
+#: src/app/screens/SystemView.tsx:246
 msgid "Discard and leave"
 msgstr "捨棄並離開"
 
-#: src/app/screens/SystemView.tsx:634
-#: src/app/screens/SystemView.tsx:835
+#: src/app/screens/SystemView.tsx:553
+#: src/app/screens/SystemView.tsx:754
 msgid "Discard draft"
 msgstr "捨棄草稿"
 
@@ -434,19 +452,23 @@ msgstr "捨棄草稿"
 #~ msgid "Discard this draft? This cannot be undone."
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:99
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "Done"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:86
 msgid "Draft"
 msgstr "草稿"
 
-#: src/app/screens/SystemView.tsx:828
+#: src/app/screens/SystemView.tsx:747
 msgid "Draft discarded"
 msgstr "已捨棄草稿"
 
-#: src/app/screens/SystemView.tsx:668
+#: src/app/screens/SystemView.tsx:587
 msgid "Draft saved"
 msgstr "草稿已儲存"
 
-#: src/app/screens/SystemView.tsx:365
+#: src/app/screens/SystemView.tsx:352
 msgid "Draft started"
 msgstr "已開始草稿"
 
@@ -462,7 +484,7 @@ msgstr "拖曳以重排"
 msgid "Dynamic adjustment"
 msgstr "動態調整"
 
-#: src/app/screens/SystemView.tsx:933
+#: src/app/screens/SystemView.tsx:852
 msgid "e.g. Trend pullbacks, tighter stops"
 msgstr "例如：趨勢回調、收緊止蝕"
 
@@ -560,7 +582,7 @@ msgstr "將整幅地圖納入視野"
 msgid "Follow mode organizes conditions and evidence. It never places orders."
 msgstr "跟隨模式整理條件與證據，絕不會下單。"
 
-#: src/app/screens/SystemView.tsx:185
+#: src/app/screens/SystemView.tsx:172
 msgid "Follow trade"
 msgstr "跟隨交易"
 
@@ -585,7 +607,8 @@ msgstr "跟隨 {label}"
 #~ msgid "Following {label} · decision {0}"
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:501
+#: src/components/system-map/PlanStepper.tsx:21
+#: src/components/system-map/PlanStepper.tsx:26
 msgid "Four-week plan"
 msgstr "四周計劃"
 
@@ -597,7 +620,7 @@ msgstr "完全遵守對比部分／無，對上勝對敗。違規卻賺錢是最
 msgid "Fully followed"
 msgstr "完全遵守"
 
-#: src/app/screens/SystemView.tsx:1024
+#: src/app/screens/SystemView.tsx:943
 msgid "Give a reason for each changed decision. The previous active version becomes read-only history."
 msgstr "為每項改動的決策寫原因。上一啟用版本會變成唯讀歷史。"
 
@@ -645,7 +668,7 @@ msgstr "進場後如何解讀交易、採取什麼行動。"
 #~ msgid "Import"
 #~ msgstr "匯入"
 
-#: src/app/screens/SystemView.tsx:97
+#: src/app/screens/SystemView.tsx:84
 msgid "In use"
 msgstr "使用中"
 
@@ -673,12 +696,12 @@ msgstr "可能已過期，或者已被擁有者撤銷。"
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "以 <0>TraderMemos</0> 記錄 — 自架交易日誌"
 
-#: src/app/screens/SystemView.tsx:816
+#: src/app/screens/SystemView.tsx:735
 msgid "Keep draft"
 msgstr "保留草稿"
 
-#: src/app/screens/SystemView.tsx:247
-#: src/app/screens/SystemView.tsx:980
+#: src/app/screens/SystemView.tsx:234
+#: src/app/screens/SystemView.tsx:899
 msgid "Keep editing"
 msgstr "繼續編輯"
 
@@ -710,7 +733,7 @@ msgstr "上次備份失敗"
 msgid "Latest file"
 msgstr "最新檔案"
 
-#: src/app/screens/SystemView.tsx:938
+#: src/app/screens/SystemView.tsx:857
 msgid "Leave empty to remove the name."
 msgstr "留空以移除名稱。"
 
@@ -792,12 +815,12 @@ msgstr "N"
 msgid "N/A"
 msgstr "不適用"
 
-#: src/app/screens/SystemView.tsx:926
+#: src/app/screens/SystemView.tsx:845
 msgid "Name"
 msgstr "名稱"
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:911
+#: src/app/screens/SystemView.tsx:830
 msgid "Name {0}"
 msgstr "為 {0} 命名"
 
@@ -810,7 +833,7 @@ msgstr "為 {0} 命名"
 msgid "Name for {label}"
 msgstr "{label} 的名稱"
 
-#: src/app/screens/SystemView.tsx:899
+#: src/app/screens/SystemView.tsx:818
 msgid "Name removed"
 msgstr "已移除名稱"
 
@@ -818,8 +841,8 @@ msgstr "已移除名稱"
 msgid "Name the three stances your rule switches between."
 msgstr "為規則切換的三種狀態命名。"
 
-#: src/app/screens/SystemView.tsx:584
-#: src/app/screens/SystemView.tsx:585
+#: src/app/screens/SystemView.tsx:503
+#: src/app/screens/SystemView.tsx:504
 msgid "Name this version"
 msgstr "為這個版本命名"
 
@@ -895,7 +918,7 @@ msgstr "同一題材最多兩隻；賬本跳空風險逾 3% 則跳過。"
 msgid "No rule yet — select to write one."
 msgstr "尚無規則——選取以撰寫。"
 
-#: src/app/screens/SystemView.tsx:357
+#: src/app/screens/SystemView.tsx:344
 msgid "No rules yet"
 msgstr "尚無規則"
 
@@ -907,7 +930,7 @@ msgstr "尚未連結交易"
 #~ msgid "No trade selected"
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:290
+#: src/app/screens/SystemView.tsx:277
 msgid "No versions yet."
 msgstr "尚無版本。"
 
@@ -955,7 +978,7 @@ msgstr "此版本未撰寫。"
 msgid "Not written yet."
 msgstr "尚未撰寫。"
 
-#: src/app/screens/SystemView.tsx:1053
+#: src/app/screens/SystemView.tsx:972
 msgid "Note (optional)"
 msgstr "備註（選填）"
 
@@ -973,7 +996,7 @@ msgstr "共 {0} 個交易日"
 msgid "Only works in some markets"
 msgstr "只在部分市況有效"
 
-#: src/app/screens/SystemView.tsx:285
+#: src/app/screens/SystemView.tsx:272
 msgid "Open a version on the map. Active and retired versions are read-only."
 msgstr "在地圖上開啟一個版本。啟用中與已退役版本為唯讀。"
 
@@ -1047,7 +1070,7 @@ msgstr "過程 × 結果"
 msgid "Profit factor"
 msgstr "獲利因子"
 
-#: src/app/screens/SystemView.tsx:515
+#: src/components/system-map/PlanStepper.tsx:40
 msgid "Progress is derived from your data — not a checklist you tick."
 msgstr "進度由你的資料推算——不是手動打勾清單。"
 
@@ -1055,7 +1078,7 @@ msgstr "進度由你的資料推算——不是手動打勾清單。"
 msgid "Put every node back in its original place"
 msgstr "將每個節點放回原位"
 
-#: src/app/screens/SystemView.tsx:596
+#: src/app/screens/SystemView.tsx:515
 msgid "Read-only"
 msgstr "唯讀"
 
@@ -1068,17 +1091,17 @@ msgid "Red days"
 msgstr "虧損日"
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:911
+#: src/app/screens/SystemView.tsx:830
 msgid "Rename {0}"
 msgstr "重新命名 {0}"
 
-#: src/app/screens/SystemView.tsx:584
-#: src/app/screens/SystemView.tsx:585
+#: src/app/screens/SystemView.tsx:503
+#: src/app/screens/SystemView.tsx:504
 msgid "Rename this version"
 msgstr "重新命名此版本"
 
 #: src/app/screens/SystemReviewPanel.tsx:27
-#: src/app/screens/SystemView.tsx:88
+#: src/app/screens/SystemView.tsx:75
 #: src/components/MarketRegimeCard.tsx:39
 #: src/components/TradeSystemCard.tsx:89
 msgid "Request failed"
@@ -1088,15 +1111,15 @@ msgstr "請求失敗"
 msgid "Reset layout"
 msgstr "重設版面"
 
-#: src/app/screens/SystemView.tsx:101
+#: src/app/screens/SystemView.tsx:88
 msgid "Retired"
 msgstr "已退役"
 
-#: src/app/screens/SystemView.tsx:200
+#: src/app/screens/SystemView.tsx:187
 msgid "Retry"
 msgstr "重試"
 
-#: src/app/screens/SystemView.tsx:186
+#: src/app/screens/SystemView.tsx:173
 #: src/lib/system.ts:68
 #: src/lib/system.ts:160
 msgid "Review"
@@ -1152,8 +1175,8 @@ msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setu
 msgstr "於市場時區週六 09:00，把本週的盈虧、勝率、R、策略、違規次數和錯過的交易整理成一篇待填寫的回顧筆記。"
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
-#: src/app/screens/SystemView.tsx:676
-#: src/app/screens/SystemView.tsx:986
+#: src/app/screens/SystemView.tsx:595
+#: src/app/screens/SystemView.tsx:905
 #: src/components/TradeSystemCard.tsx:95
 msgid "Save"
 msgstr "儲存"
@@ -1162,20 +1185,20 @@ msgstr "儲存"
 msgid "Save changes"
 msgstr "儲存變更"
 
-#: src/app/screens/SystemView.tsx:949
+#: src/app/screens/SystemView.tsx:868
 msgid "Save name"
 msgstr "儲存名稱"
 
-#: src/app/screens/SystemView.tsx:650
+#: src/app/screens/SystemView.tsx:569
 msgid "Save your edits before activating"
 msgstr "啟用前先儲存編輯"
 
-#: src/app/screens/SystemView.tsx:975
+#: src/app/screens/SystemView.tsx:894
 msgid "Save, discard, or keep editing before leaving this node or version."
 msgstr "離開此節點或版本前，請儲存、捨棄或繼續編輯。"
 
-#: src/app/screens/SystemView.tsx:676
-#: src/app/screens/SystemView.tsx:949
+#: src/app/screens/SystemView.tsx:595
+#: src/app/screens/SystemView.tsx:868
 msgid "Saving…"
 msgstr "儲存中…"
 
@@ -1247,20 +1270,20 @@ msgstr "場外觀望。"
 msgid "Start here"
 msgstr "由此開始"
 
-#: src/app/screens/SystemView.tsx:620
+#: src/app/screens/SystemView.tsx:539
 msgid "Start next version"
 msgstr "開始下一版本"
 
-#: src/app/screens/SystemView.tsx:372
+#: src/app/screens/SystemView.tsx:359
 msgid "Start v1.0"
 msgstr "開始 v1.0"
 
 #. placeholder {0}: STARTER_DECISIONS.map((d) => decisionCopy(d).title).join(", ")
-#: src/app/screens/SystemView.tsx:687
+#: src/app/screens/SystemView.tsx:606
 msgid "Start with {0}. The rest can wait."
 msgstr "先從 {0} 開始。其餘可以稍後。"
 
-#: src/app/screens/SystemView.tsx:358
+#: src/app/screens/SystemView.tsx:345
 msgid "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
 msgstr "先回答四個問題：何時進場、冒多少險、何時離場、何時暫停。"
 
@@ -1296,7 +1319,7 @@ msgstr "系統卡已儲存"
 msgid "System map"
 msgstr "系統地圖"
 
-#: src/app/screens/SystemView.tsx:180
+#: src/app/screens/SystemView.tsx:167
 msgid "System mode"
 msgstr "系統模式"
 
@@ -1320,7 +1343,7 @@ msgstr "核心假設已破——砍倉。"
 msgid "The curve"
 msgstr "曲線"
 
-#: src/app/screens/SystemView.tsx:811
+#: src/app/screens/SystemView.tsx:730
 msgid "The draft and every unsaved edit are deleted. Active and retired versions stay as they are. This can't be undone."
 msgstr "草稿及所有未儲存編輯都會刪除。啟用中與已退役版本不變。此操作無法復原。"
 
@@ -1356,7 +1379,7 @@ msgstr "論點"
 msgid "Thin"
 msgstr "不足"
 
-#: src/app/screens/SystemView.tsx:1025
+#: src/app/screens/SystemView.tsx:944
 msgid "This becomes the active system. You can revise later with a new draft."
 msgstr "這會成為啟用中的系統。之後可用新草稿修訂。"
 
@@ -1400,7 +1423,7 @@ msgstr "交易類型：{key}"
 msgid "Trades per month."
 msgstr "每月交易次數。"
 
-#: src/app/screens/SystemView.tsx:138
+#: src/app/screens/SystemView.tsx:125
 msgid "Trading system"
 msgstr "交易系統"
 
@@ -1428,9 +1451,9 @@ msgstr "交易類型、預期走勢、持倉時間、核心假設。"
 msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
 msgstr "少於 10 筆的分組沒有意義；少於 30 筆只是提示。樣本數不是證明。"
 
-#: src/app/screens/SystemView.tsx:240
-#: src/app/screens/SystemView.tsx:602
-#: src/app/screens/SystemView.tsx:973
+#: src/app/screens/SystemView.tsx:227
+#: src/app/screens/SystemView.tsx:521
+#: src/app/screens/SystemView.tsx:892
 msgid "Unsaved changes"
 msgstr "未儲存變更"
 
@@ -1442,7 +1465,7 @@ msgstr "用過程 × 結果象限；違規卻賺錢是最危險的格。"
 msgid "Vague wording — make it objective:"
 msgstr "措辭含糊——改成可客觀判斷："
 
-#: src/app/screens/SystemView.tsx:572
+#: src/app/screens/SystemView.tsx:491
 msgid "Version"
 msgstr "版本"
 
@@ -1451,16 +1474,16 @@ msgstr "版本"
 msgid "Version {0}"
 msgstr "版本 {0}"
 
-#: src/app/screens/SystemView.tsx:863
+#: src/app/screens/SystemView.tsx:782
 msgid "Version activated"
 msgstr "版本已啟用"
 
-#: src/app/screens/SystemView.tsx:172
-#: src/app/screens/SystemView.tsx:283
+#: src/app/screens/SystemView.tsx:159
+#: src/app/screens/SystemView.tsx:270
 msgid "Version history"
 msgstr "版本歷史"
 
-#: src/app/screens/SystemView.tsx:899
+#: src/app/screens/SystemView.tsx:818
 msgid "Version named"
 msgstr "已命名版本"
 
@@ -1472,7 +1495,7 @@ msgstr "已命名版本"
 #~ msgid "Waiting for a trade"
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:492
+#: src/app/screens/SystemView.tsx:479
 msgid "Walk the map one decision at a time and check each against the active rules."
 msgstr "一次走一項決策，對照啟用中的規則核對。"
 
@@ -1563,7 +1586,7 @@ msgstr "最差交易日"
 msgid "Write a rule to turn it into conditions you can tick off."
 msgstr "寫成規則，變成可勾選的條件。"
 
-#: src/app/screens/SystemView.tsx:184
+#: src/app/screens/SystemView.tsx:171
 msgid "Write rules"
 msgstr "撰寫規則"
 
@@ -1595,7 +1618,7 @@ msgstr "錯誤、仍在奏效、未奏效，還是已完成——如何區分？
 msgid "Yes"
 msgstr "是"
 
-#: src/app/screens/SystemView.tsx:242
+#: src/app/screens/SystemView.tsx:229
 msgid "Your draft has edits that aren't saved. Leaving now discards them."
 msgstr "草稿有未儲存的編輯。現在離開會捨棄它們。"
 

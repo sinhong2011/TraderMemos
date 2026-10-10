@@ -1,19 +1,7 @@
 import { t } from "@lingui/core/macro";
-import {
-  CircleHelp,
-  Compass,
-  History,
-  Lock,
-  Pencil,
-  Plus,
-  Rocket,
-  Save,
-  Sparkles,
-  Trash2,
-} from "lucide-react";
+import { Compass, History, Lock, Pencil, Plus, Rocket, Save, Sparkles, Trash2 } from "lucide-react";
 import { useEffect, useId, useMemo, useState } from "react";
 import { Route, type SystemMode } from "@/routes/system";
-import { Card } from "@/components/Card";
 import {
   Dialog,
   DialogBody,
@@ -31,9 +19,9 @@ import { Skeleton } from "@/components/Skeleton";
 import { useToastManager } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { FollowTradeInspector } from "@/components/system-map/FollowTradeInspector";
 import { InspectorFrame } from "@/components/system-map/InspectorFrame";
+import { PlanStepper } from "@/components/system-map/PlanStepper";
 import { RuleEditor } from "@/components/system-map/RuleEditor";
 import { SystemInspector } from "@/components/system-map/SystemInspector";
 import { SystemMap } from "@/components/system-map/SystemMap";
@@ -71,7 +59,6 @@ import {
   decisionCopy,
   DECISIONS,
   emptyRule,
-  planStepCopy,
   STANCES,
   VERSION_NAME_MAX,
   versionTitle,
@@ -495,75 +482,7 @@ function VersionEditor({
 
       {mode === "rules" ? (
         <>
-          <Card
-            title={
-              <div className="flex items-center gap-1.5">
-                <h2 className="text-xs font-medium text-muted-foreground">{t`Four-week plan`}</h2>
-                <Tooltip>
-                  <TooltipTrigger
-                    type="button"
-                    className="inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                    aria-label={t`About the four-week plan`}
-                  >
-                    <CircleHelp className="size-3" strokeWidth={1.75} aria-hidden />
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="bottom"
-                    align="start"
-                    className="block max-w-[18rem] whitespace-normal px-2.5 py-1.5 text-left text-xs leading-relaxed"
-                  >
-                    {t`Progress is derived from your data — not a checklist you tick.`}
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            }
-          >
-            <ol className="grid grid-cols-2 gap-x-4 gap-y-2 lg:grid-cols-4">
-              {sys.plan.map((step, index) => {
-                const copy = planStepCopy(step.key);
-                const pct = Math.min(100, (100 * step.progress) / Math.max(1, step.target));
-                return (
-                  <li key={step.key}>
-                    <Tooltip>
-                      <TooltipTrigger
-                        type="button"
-                        className="group flex w-full flex-col gap-1 rounded-md px-1 py-0.5 text-left outline-none transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring/50"
-                      >
-                        <div className="flex min-w-0 items-baseline justify-between gap-2">
-                          <span className="truncate text-2xs font-medium text-foreground">
-                            <span className="tabular-nums text-muted-foreground">{index + 1}.</span>{" "}
-                            {copy.title}
-                          </span>
-                          <span className="shrink-0 text-2xs tabular-nums text-muted-foreground">
-                            {step.progress}/{step.target}
-                          </span>
-                        </div>
-                        <div
-                          className="h-1 overflow-hidden rounded-full bg-foreground/15"
-                          role="progressbar"
-                          aria-valuenow={step.progress}
-                          aria-valuemin={0}
-                          aria-valuemax={step.target}
-                          aria-label={copy.title}
-                        >
-                          <div
-                            className="h-full rounded-full bg-primary transition-[width] duration-200"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="bottom"
-                        className="block max-w-[16rem] whitespace-normal px-2.5 py-1.5 text-left text-xs leading-relaxed"
-                      >
-                        {copy.detail}
-                      </TooltipContent>
-                    </Tooltip>
-                  </li>
-                );
-              })}
-            </ol>
-          </Card>
+          <PlanStepper plan={sys.plan} />
 
           <div className="flex flex-wrap items-center gap-2">
             <NativeSelect

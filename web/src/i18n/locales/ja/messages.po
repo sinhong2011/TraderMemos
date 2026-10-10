@@ -16,14 +16,20 @@ msgstr "—"
 #~ msgstr ""
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:730
+#: src/app/screens/SystemView.tsx:649
 msgid "{0} · draft"
 msgstr "{0} · 下書き"
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:729
+#: src/app/screens/SystemView.tsx:648
 msgid "{0} · read-only"
 msgstr "{0} · 読み取り専用"
+
+#. placeholder {0}: step.progress
+#. placeholder {1}: step.target
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "{0} / {1}"
+msgstr ""
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:198
@@ -41,6 +47,18 @@ msgstr "{0}件のトレード"
 #: src/app/screens/PublicShareView.tsx:197
 msgid "{0} win rate"
 msgstr "勝率 {0}"
+
+#. placeholder {0}: copy.title
+#. placeholder {1}: step.progress
+#. placeholder {2}: step.target
+#: src/components/system-map/PlanStepper.tsx:60
+msgid "{0}: {1} of {2}"
+msgstr ""
+
+#. placeholder {0}: plan.length
+#: src/components/system-map/PlanStepper.tsx:45
+msgid "{doneCount} of {0} steps done"
+msgstr ""
 
 #. placeholder {0}: n.decisions.length
 #: src/components/system-map/SystemMap.tsx:121
@@ -74,11 +92,11 @@ msgid "A base of at least 3 weeks after a 30% advance, the last pullback under 1
 msgstr "30%上昇後に最低3週間のベース。最後の押し目は出来高減で10%未満。"
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:914
+#: src/app/screens/SystemView.tsx:833
 msgid "A short name makes versions easier to tell apart. The version number stays {0}, and the rules don't change."
 msgstr "短い名前があると版を見分けやすい。版番号は {0} のまま、ルールは変わりません。"
 
-#: src/app/screens/SystemView.tsx:506
+#: src/components/system-map/PlanStepper.tsx:31
 msgid "About the four-week plan"
 msgstr "4週間プランについて"
 
@@ -86,13 +104,13 @@ msgstr "4週間プランについて"
 msgid "Action"
 msgstr "アクション"
 
-#: src/app/screens/SystemView.tsx:657
-#: src/app/screens/SystemView.tsx:1085
+#: src/app/screens/SystemView.tsx:576
+#: src/app/screens/SystemView.tsx:1004
 msgid "Activate"
 msgstr "有効化"
 
 #. placeholder {0}: draft ? versionTitle(draft) : ""
-#: src/app/screens/SystemView.tsx:1021
+#: src/app/screens/SystemView.tsx:940
 msgid "Activate {0}"
 msgstr "{0} を有効化"
 
@@ -232,12 +250,12 @@ msgstr "版別"
 #~ msgid "Calendar"
 #~ msgstr "カレンダー"
 
-#: src/app/screens/SystemView.tsx:946
-#: src/app/screens/SystemView.tsx:1070
+#: src/app/screens/SystemView.tsx:865
+#: src/app/screens/SystemView.tsx:989
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: src/app/screens/SystemView.tsx:643
+#: src/app/screens/SystemView.tsx:562
 msgid "Cancel edits"
 msgstr "編集を取り消す"
 
@@ -302,7 +320,7 @@ msgstr "確認する条件"
 msgid "Confirm trigger"
 msgstr "トリガー確認"
 
-#: src/app/screens/SystemView.tsx:140
+#: src/app/screens/SystemView.tsx:127
 msgid "Connect rules, decisions, and evidence."
 msgstr "ルール・判断・根拠をつなぐ。"
 
@@ -310,11 +328,11 @@ msgstr "ルール・判断・根拠をつなぐ。"
 msgid "Consistency"
 msgstr "一貫性"
 
-#: src/app/screens/SystemView.tsx:866
+#: src/app/screens/SystemView.tsx:785
 msgid "Could not activate"
 msgstr "有効化できませんでした"
 
-#: src/app/screens/SystemView.tsx:831
+#: src/app/screens/SystemView.tsx:750
 msgid "Could not discard"
 msgstr "破棄できませんでした"
 
@@ -322,16 +340,16 @@ msgstr "破棄できませんでした"
 msgid "Could not load the review"
 msgstr "振り返りを読み込めませんでした"
 
-#: src/app/screens/SystemView.tsx:196
+#: src/app/screens/SystemView.tsx:183
 msgid "Could not load the system"
 msgstr "システムを読み込めませんでした"
 
-#: src/app/screens/SystemView.tsx:901
+#: src/app/screens/SystemView.tsx:820
 msgid "Could not rename"
 msgstr "名前を変更できませんでした"
 
-#: src/app/screens/SystemView.tsx:670
-#: src/app/screens/SystemView.tsx:800
+#: src/app/screens/SystemView.tsx:589
+#: src/app/screens/SystemView.tsx:719
 #: src/components/TradeSystemCard.tsx:88
 msgid "Could not save"
 msgstr "保存できませんでした"
@@ -340,8 +358,8 @@ msgstr "保存できませんでした"
 msgid "Could not save regime"
 msgstr "レジームを保存できませんでした"
 
-#: src/app/screens/SystemView.tsx:367
-#: src/app/screens/SystemView.tsx:615
+#: src/app/screens/SystemView.tsx:354
+#: src/app/screens/SystemView.tsx:534
 msgid "Could not start"
 msgstr "開始できませんでした"
 
@@ -412,21 +430,21 @@ msgstr "計画外にストップや目標を動かしたり外したりしてい
 msgid "Directory"
 msgstr "保存先"
 
-#: src/app/screens/SystemView.tsx:983
+#: src/app/screens/SystemView.tsx:902
 msgid "Discard"
 msgstr "破棄"
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:809
+#: src/app/screens/SystemView.tsx:728
 msgid "Discard {0}?"
 msgstr "{0} を破棄しますか？"
 
-#: src/app/screens/SystemView.tsx:259
+#: src/app/screens/SystemView.tsx:246
 msgid "Discard and leave"
 msgstr "破棄して離れる"
 
-#: src/app/screens/SystemView.tsx:634
-#: src/app/screens/SystemView.tsx:835
+#: src/app/screens/SystemView.tsx:553
+#: src/app/screens/SystemView.tsx:754
 msgid "Discard draft"
 msgstr "下書きを破棄"
 
@@ -434,19 +452,23 @@ msgstr "下書きを破棄"
 #~ msgid "Discard this draft? This cannot be undone."
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:99
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "Done"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:86
 msgid "Draft"
 msgstr "下書き"
 
-#: src/app/screens/SystemView.tsx:828
+#: src/app/screens/SystemView.tsx:747
 msgid "Draft discarded"
 msgstr "下書きを破棄しました"
 
-#: src/app/screens/SystemView.tsx:668
+#: src/app/screens/SystemView.tsx:587
 msgid "Draft saved"
 msgstr "下書きを保存しました"
 
-#: src/app/screens/SystemView.tsx:365
+#: src/app/screens/SystemView.tsx:352
 msgid "Draft started"
 msgstr "下書きを開始しました"
 
@@ -462,7 +484,7 @@ msgstr "ドラッグして並べ替え"
 msgid "Dynamic adjustment"
 msgstr "動的調整"
 
-#: src/app/screens/SystemView.tsx:933
+#: src/app/screens/SystemView.tsx:852
 msgid "e.g. Trend pullbacks, tighter stops"
 msgstr "例：押し目買い、ストップを詰める"
 
@@ -560,7 +582,7 @@ msgstr "マップ全体を表示"
 msgid "Follow mode organizes conditions and evidence. It never places orders."
 msgstr "フォローモードは条件と根拠を整理するだけで、注文は出しません。"
 
-#: src/app/screens/SystemView.tsx:185
+#: src/app/screens/SystemView.tsx:172
 msgid "Follow trade"
 msgstr "トレードを追う"
 
@@ -585,7 +607,8 @@ msgstr "{label} を追跡中"
 #~ msgid "Following {label} · decision {0}"
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:501
+#: src/components/system-map/PlanStepper.tsx:21
+#: src/components/system-map/PlanStepper.tsx:26
 msgid "Four-week plan"
 msgstr "4週間プラン"
 
@@ -597,7 +620,7 @@ msgstr "完全遵守と部分／なしを、勝ち負けと交差。ルール破
 msgid "Fully followed"
 msgstr "完全に遵守"
 
-#: src/app/screens/SystemView.tsx:1024
+#: src/app/screens/SystemView.tsx:943
 msgid "Give a reason for each changed decision. The previous active version becomes read-only history."
 msgstr "変えた判断ごとに理由を書く。直前の有効版は読み取り専用の履歴になる。"
 
@@ -645,7 +668,7 @@ msgstr "エントリー後の読みと行動。"
 #~ msgid "Import"
 #~ msgstr "インポート"
 
-#: src/app/screens/SystemView.tsx:97
+#: src/app/screens/SystemView.tsx:84
 msgid "In use"
 msgstr "使用中"
 
@@ -673,12 +696,12 @@ msgstr "期限切れか、所有者によって取り消された可能性があ
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "<0>TraderMemos</0> で記録 — セルフホストのトレードジャーナル"
 
-#: src/app/screens/SystemView.tsx:816
+#: src/app/screens/SystemView.tsx:735
 msgid "Keep draft"
 msgstr "下書きを残す"
 
-#: src/app/screens/SystemView.tsx:247
-#: src/app/screens/SystemView.tsx:980
+#: src/app/screens/SystemView.tsx:234
+#: src/app/screens/SystemView.tsx:899
 msgid "Keep editing"
 msgstr "編集を続ける"
 
@@ -710,7 +733,7 @@ msgstr "前回のバックアップに失敗しました"
 msgid "Latest file"
 msgstr "最新ファイル"
 
-#: src/app/screens/SystemView.tsx:938
+#: src/app/screens/SystemView.tsx:857
 msgid "Leave empty to remove the name."
 msgstr "空にすると名前を削除します。"
 
@@ -792,12 +815,12 @@ msgstr "N"
 msgid "N/A"
 msgstr "該当なし"
 
-#: src/app/screens/SystemView.tsx:926
+#: src/app/screens/SystemView.tsx:845
 msgid "Name"
 msgstr "名前"
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:911
+#: src/app/screens/SystemView.tsx:830
 msgid "Name {0}"
 msgstr "{0} に名前を付ける"
 
@@ -810,7 +833,7 @@ msgstr "{0} に名前を付ける"
 msgid "Name for {label}"
 msgstr "{label}の名前"
 
-#: src/app/screens/SystemView.tsx:899
+#: src/app/screens/SystemView.tsx:818
 msgid "Name removed"
 msgstr "名前を削除しました"
 
@@ -818,8 +841,8 @@ msgstr "名前を削除しました"
 msgid "Name the three stances your rule switches between."
 msgstr "ルールが切り替える3つのスタンスに名前を付けます。"
 
-#: src/app/screens/SystemView.tsx:584
-#: src/app/screens/SystemView.tsx:585
+#: src/app/screens/SystemView.tsx:503
+#: src/app/screens/SystemView.tsx:504
 msgid "Name this version"
 msgstr "この版に名前を付ける"
 
@@ -895,7 +918,7 @@ msgstr "同一テーマは2銘柄まで。口座のオープンギャップリ�
 msgid "No rule yet — select to write one."
 msgstr "まだルールなし——選択して書く。"
 
-#: src/app/screens/SystemView.tsx:357
+#: src/app/screens/SystemView.tsx:344
 msgid "No rules yet"
 msgstr "まだルールがありません"
 
@@ -907,7 +930,7 @@ msgstr "トレード未紐づけ"
 #~ msgid "No trade selected"
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:290
+#: src/app/screens/SystemView.tsx:277
 msgid "No versions yet."
 msgstr "まだ版がありません。"
 
@@ -955,7 +978,7 @@ msgstr "この版には書かれていません。"
 msgid "Not written yet."
 msgstr "まだ書かれていません。"
 
-#: src/app/screens/SystemView.tsx:1053
+#: src/app/screens/SystemView.tsx:972
 msgid "Note (optional)"
 msgstr "メモ（任意）"
 
@@ -973,7 +996,7 @@ msgstr "取引日 {0}日中"
 msgid "Only works in some markets"
 msgstr "一部の相場でしか効かない"
 
-#: src/app/screens/SystemView.tsx:285
+#: src/app/screens/SystemView.tsx:272
 msgid "Open a version on the map. Active and retired versions are read-only."
 msgstr "マップで版を開く。有効・引退版は読み取り専用。"
 
@@ -1047,7 +1070,7 @@ msgstr "プロセス × 結果"
 msgid "Profit factor"
 msgstr "プロフィットファクター"
 
-#: src/app/screens/SystemView.tsx:515
+#: src/components/system-map/PlanStepper.tsx:40
 msgid "Progress is derived from your data — not a checklist you tick."
 msgstr "進捗はデータから算出——手でチェックするリストではない。"
 
@@ -1055,7 +1078,7 @@ msgstr "進捗はデータから算出——手でチェックするリストで
 msgid "Put every node back in its original place"
 msgstr "すべてのノードを元の位置へ"
 
-#: src/app/screens/SystemView.tsx:596
+#: src/app/screens/SystemView.tsx:515
 msgid "Read-only"
 msgstr "読み取り専用"
 
@@ -1068,17 +1091,17 @@ msgid "Red days"
 msgstr "マイナスの日"
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:911
+#: src/app/screens/SystemView.tsx:830
 msgid "Rename {0}"
 msgstr "{0} の名前を変更"
 
-#: src/app/screens/SystemView.tsx:584
-#: src/app/screens/SystemView.tsx:585
+#: src/app/screens/SystemView.tsx:503
+#: src/app/screens/SystemView.tsx:504
 msgid "Rename this version"
 msgstr "この版の名前を変更"
 
 #: src/app/screens/SystemReviewPanel.tsx:27
-#: src/app/screens/SystemView.tsx:88
+#: src/app/screens/SystemView.tsx:75
 #: src/components/MarketRegimeCard.tsx:39
 #: src/components/TradeSystemCard.tsx:89
 msgid "Request failed"
@@ -1088,15 +1111,15 @@ msgstr "リクエストに失敗しました"
 msgid "Reset layout"
 msgstr "レイアウトをリセット"
 
-#: src/app/screens/SystemView.tsx:101
+#: src/app/screens/SystemView.tsx:88
 msgid "Retired"
 msgstr "引退"
 
-#: src/app/screens/SystemView.tsx:200
+#: src/app/screens/SystemView.tsx:187
 msgid "Retry"
 msgstr "再試行"
 
-#: src/app/screens/SystemView.tsx:186
+#: src/app/screens/SystemView.tsx:173
 #: src/lib/system.ts:68
 #: src/lib/system.ts:160
 msgid "Review"
@@ -1152,8 +1175,8 @@ msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setu
 msgstr "マーケットタイムゾーンの土曜 09:00 に、その週の損益・勝率・R・セットアップ・ルール違反・見送ったトレードを、記入用のレビューメモにまとめて届けます。"
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
-#: src/app/screens/SystemView.tsx:676
-#: src/app/screens/SystemView.tsx:986
+#: src/app/screens/SystemView.tsx:595
+#: src/app/screens/SystemView.tsx:905
 #: src/components/TradeSystemCard.tsx:95
 msgid "Save"
 msgstr "保存"
@@ -1162,20 +1185,20 @@ msgstr "保存"
 msgid "Save changes"
 msgstr "変更を保存"
 
-#: src/app/screens/SystemView.tsx:949
+#: src/app/screens/SystemView.tsx:868
 msgid "Save name"
 msgstr "名前を保存"
 
-#: src/app/screens/SystemView.tsx:650
+#: src/app/screens/SystemView.tsx:569
 msgid "Save your edits before activating"
 msgstr "有効化の前に編集を保存"
 
-#: src/app/screens/SystemView.tsx:975
+#: src/app/screens/SystemView.tsx:894
 msgid "Save, discard, or keep editing before leaving this node or version."
 msgstr "このノード／版を離れる前に、保存・破棄・編集継続を選んでください。"
 
-#: src/app/screens/SystemView.tsx:676
-#: src/app/screens/SystemView.tsx:949
+#: src/app/screens/SystemView.tsx:595
+#: src/app/screens/SystemView.tsx:868
 msgid "Saving…"
 msgstr "保存中…"
 
@@ -1247,20 +1270,20 @@ msgstr "見送り、様子を見る。"
 msgid "Start here"
 msgstr "ここから"
 
-#: src/app/screens/SystemView.tsx:620
+#: src/app/screens/SystemView.tsx:539
 msgid "Start next version"
 msgstr "次の版を開始"
 
-#: src/app/screens/SystemView.tsx:372
+#: src/app/screens/SystemView.tsx:359
 msgid "Start v1.0"
 msgstr "v1.0 を開始"
 
 #. placeholder {0}: STARTER_DECISIONS.map((d) => decisionCopy(d).title).join(", ")
-#: src/app/screens/SystemView.tsx:687
+#: src/app/screens/SystemView.tsx:606
 msgid "Start with {0}. The rest can wait."
 msgstr "まず {0} から。残りは後で。"
 
-#: src/app/screens/SystemView.tsx:358
+#: src/app/screens/SystemView.tsx:345
 msgid "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
 msgstr "まず4つ：いつ入る、いくら賭ける、いつ出る、いつ休む。"
 
@@ -1296,7 +1319,7 @@ msgstr "システムカードを保存しました"
 msgid "System map"
 msgstr "システムマップ"
 
-#: src/app/screens/SystemView.tsx:180
+#: src/app/screens/SystemView.tsx:167
 msgid "System mode"
 msgstr "システムモード"
 
@@ -1320,7 +1343,7 @@ msgstr "核心仮説が壊れた——切る。"
 msgid "The curve"
 msgstr "曲線"
 
-#: src/app/screens/SystemView.tsx:811
+#: src/app/screens/SystemView.tsx:730
 msgid "The draft and every unsaved edit are deleted. Active and retired versions stay as they are. This can't be undone."
 msgstr "下書きと未保存の編集はすべて削除。有効・引退版はそのまま。元に戻せません。"
 
@@ -1356,7 +1379,7 @@ msgstr "仮説"
 msgid "Thin"
 msgstr "薄い"
 
-#: src/app/screens/SystemView.tsx:1025
+#: src/app/screens/SystemView.tsx:944
 msgid "This becomes the active system. You can revise later with a new draft."
 msgstr "これが有効なシステムになります。後から新しい下書きで改訂できます。"
 
@@ -1400,7 +1423,7 @@ msgstr "取引タイプ：{key}"
 msgid "Trades per month."
 msgstr "月あたりのトレード数。"
 
-#: src/app/screens/SystemView.tsx:138
+#: src/app/screens/SystemView.tsx:125
 msgid "Trading system"
 msgstr "トレーディングシステム"
 
@@ -1428,9 +1451,9 @@ msgstr "取引タイプ、想定値動き、保有期間、核心仮説。"
 msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
 msgstr "10未満のグループは無意味。30未満はヒントのみ。サンプル数は証明ではない。"
 
-#: src/app/screens/SystemView.tsx:240
-#: src/app/screens/SystemView.tsx:602
-#: src/app/screens/SystemView.tsx:973
+#: src/app/screens/SystemView.tsx:227
+#: src/app/screens/SystemView.tsx:521
+#: src/app/screens/SystemView.tsx:892
 msgid "Unsaved changes"
 msgstr "未保存の変更"
 
@@ -1442,7 +1465,7 @@ msgstr "プロセス×結果の四象限を使う。ルール破り勝ちが最�
 msgid "Vague wording — make it objective:"
 msgstr "曖昧な表現——客観的に："
 
-#: src/app/screens/SystemView.tsx:572
+#: src/app/screens/SystemView.tsx:491
 msgid "Version"
 msgstr "版"
 
@@ -1451,16 +1474,16 @@ msgstr "版"
 msgid "Version {0}"
 msgstr "版 {0}"
 
-#: src/app/screens/SystemView.tsx:863
+#: src/app/screens/SystemView.tsx:782
 msgid "Version activated"
 msgstr "版を有効化しました"
 
-#: src/app/screens/SystemView.tsx:172
-#: src/app/screens/SystemView.tsx:283
+#: src/app/screens/SystemView.tsx:159
+#: src/app/screens/SystemView.tsx:270
 msgid "Version history"
 msgstr "版の履歴"
 
-#: src/app/screens/SystemView.tsx:899
+#: src/app/screens/SystemView.tsx:818
 msgid "Version named"
 msgstr "版に名前を付けました"
 
@@ -1472,7 +1495,7 @@ msgstr "版に名前を付けました"
 #~ msgid "Waiting for a trade"
 #~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:492
+#: src/app/screens/SystemView.tsx:479
 msgid "Walk the map one decision at a time and check each against the active rules."
 msgstr "マップを判断ごとに歩き、有効なルールと照合する。"
 
@@ -1563,7 +1586,7 @@ msgstr "最悪の日"
 msgid "Write a rule to turn it into conditions you can tick off."
 msgstr "ルールにして、チェックできる条件にする。"
 
-#: src/app/screens/SystemView.tsx:184
+#: src/app/screens/SystemView.tsx:171
 msgid "Write rules"
 msgstr "ルールを書く"
 
@@ -1595,7 +1618,7 @@ msgstr "誤り・まだ機能・機能せず・完了——どう見分ける？
 msgid "Yes"
 msgstr "はい"
 
-#: src/app/screens/SystemView.tsx:242
+#: src/app/screens/SystemView.tsx:229
 msgid "Your draft has edits that aren't saved. Leaving now discards them."
 msgstr "下書きに未保存の編集があります。今離れると破棄されます。"
 

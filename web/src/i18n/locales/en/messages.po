@@ -27,14 +27,20 @@ msgstr "—"
 #~ msgstr "{0} · {1} decisions"
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:730
+#: src/app/screens/SystemView.tsx:649
 msgid "{0} · draft"
 msgstr "{0} · draft"
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:729
+#: src/app/screens/SystemView.tsx:648
 msgid "{0} · read-only"
 msgstr "{0} · read-only"
+
+#. placeholder {0}: step.progress
+#. placeholder {1}: step.target
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "{0} / {1}"
+msgstr "{0} / {1}"
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:198
@@ -52,6 +58,18 @@ msgstr "{0} trades"
 #: src/app/screens/PublicShareView.tsx:197
 msgid "{0} win rate"
 msgstr "{0} win rate"
+
+#. placeholder {0}: copy.title
+#. placeholder {1}: step.progress
+#. placeholder {2}: step.target
+#: src/components/system-map/PlanStepper.tsx:60
+msgid "{0}: {1} of {2}"
+msgstr "{0}: {1} of {2}"
+
+#. placeholder {0}: plan.length
+#: src/components/system-map/PlanStepper.tsx:45
+msgid "{doneCount} of {0} steps done"
+msgstr "{doneCount} of {0} steps done"
 
 #. placeholder {0}: n.decisions.length
 #: src/components/system-map/SystemMap.tsx:121
@@ -85,11 +103,11 @@ msgid "A base of at least 3 weeks after a 30% advance, the last pullback under 1
 msgstr "A base of at least 3 weeks after a 30% advance, the last pullback under 10% on falling volume."
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:914
+#: src/app/screens/SystemView.tsx:833
 msgid "A short name makes versions easier to tell apart. The version number stays {0}, and the rules don't change."
 msgstr "A short name makes versions easier to tell apart. The version number stays {0}, and the rules don't change."
 
-#: src/app/screens/SystemView.tsx:506
+#: src/components/system-map/PlanStepper.tsx:31
 msgid "About the four-week plan"
 msgstr "About the four-week plan"
 
@@ -97,13 +115,13 @@ msgstr "About the four-week plan"
 msgid "Action"
 msgstr "Action"
 
-#: src/app/screens/SystemView.tsx:657
-#: src/app/screens/SystemView.tsx:1085
+#: src/app/screens/SystemView.tsx:576
+#: src/app/screens/SystemView.tsx:1004
 msgid "Activate"
 msgstr "Activate"
 
 #. placeholder {0}: draft ? versionTitle(draft) : ""
-#: src/app/screens/SystemView.tsx:1021
+#: src/app/screens/SystemView.tsx:940
 msgid "Activate {0}"
 msgstr "Activate {0}"
 
@@ -243,12 +261,12 @@ msgstr "By version"
 #~ msgid "Calendar"
 #~ msgstr "Calendar"
 
-#: src/app/screens/SystemView.tsx:946
-#: src/app/screens/SystemView.tsx:1070
+#: src/app/screens/SystemView.tsx:865
+#: src/app/screens/SystemView.tsx:989
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/app/screens/SystemView.tsx:643
+#: src/app/screens/SystemView.tsx:562
 msgid "Cancel edits"
 msgstr "Cancel edits"
 
@@ -313,7 +331,7 @@ msgstr "Conditions to confirm"
 msgid "Confirm trigger"
 msgstr "Confirm trigger"
 
-#: src/app/screens/SystemView.tsx:140
+#: src/app/screens/SystemView.tsx:127
 msgid "Connect rules, decisions, and evidence."
 msgstr "Connect rules, decisions, and evidence."
 
@@ -321,11 +339,11 @@ msgstr "Connect rules, decisions, and evidence."
 msgid "Consistency"
 msgstr "Consistency"
 
-#: src/app/screens/SystemView.tsx:866
+#: src/app/screens/SystemView.tsx:785
 msgid "Could not activate"
 msgstr "Could not activate"
 
-#: src/app/screens/SystemView.tsx:831
+#: src/app/screens/SystemView.tsx:750
 msgid "Could not discard"
 msgstr "Could not discard"
 
@@ -333,16 +351,16 @@ msgstr "Could not discard"
 msgid "Could not load the review"
 msgstr "Could not load the review"
 
-#: src/app/screens/SystemView.tsx:196
+#: src/app/screens/SystemView.tsx:183
 msgid "Could not load the system"
 msgstr "Could not load the system"
 
-#: src/app/screens/SystemView.tsx:901
+#: src/app/screens/SystemView.tsx:820
 msgid "Could not rename"
 msgstr "Could not rename"
 
-#: src/app/screens/SystemView.tsx:670
-#: src/app/screens/SystemView.tsx:800
+#: src/app/screens/SystemView.tsx:589
+#: src/app/screens/SystemView.tsx:719
 #: src/components/TradeSystemCard.tsx:88
 msgid "Could not save"
 msgstr "Could not save"
@@ -351,8 +369,8 @@ msgstr "Could not save"
 msgid "Could not save regime"
 msgstr "Could not save regime"
 
-#: src/app/screens/SystemView.tsx:367
-#: src/app/screens/SystemView.tsx:615
+#: src/app/screens/SystemView.tsx:354
+#: src/app/screens/SystemView.tsx:534
 msgid "Could not start"
 msgstr "Could not start"
 
@@ -423,21 +441,21 @@ msgstr "Did not move or remove the stop or target off-plan"
 msgid "Directory"
 msgstr "Directory"
 
-#: src/app/screens/SystemView.tsx:983
+#: src/app/screens/SystemView.tsx:902
 msgid "Discard"
 msgstr "Discard"
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:809
+#: src/app/screens/SystemView.tsx:728
 msgid "Discard {0}?"
 msgstr "Discard {0}?"
 
-#: src/app/screens/SystemView.tsx:259
+#: src/app/screens/SystemView.tsx:246
 msgid "Discard and leave"
 msgstr "Discard and leave"
 
-#: src/app/screens/SystemView.tsx:634
-#: src/app/screens/SystemView.tsx:835
+#: src/app/screens/SystemView.tsx:553
+#: src/app/screens/SystemView.tsx:754
 msgid "Discard draft"
 msgstr "Discard draft"
 
@@ -445,19 +463,23 @@ msgstr "Discard draft"
 #~ msgid "Discard this draft? This cannot be undone."
 #~ msgstr "Discard this draft? This cannot be undone."
 
-#: src/app/screens/SystemView.tsx:99
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "Done"
+msgstr "Done"
+
+#: src/app/screens/SystemView.tsx:86
 msgid "Draft"
 msgstr "Draft"
 
-#: src/app/screens/SystemView.tsx:828
+#: src/app/screens/SystemView.tsx:747
 msgid "Draft discarded"
 msgstr "Draft discarded"
 
-#: src/app/screens/SystemView.tsx:668
+#: src/app/screens/SystemView.tsx:587
 msgid "Draft saved"
 msgstr "Draft saved"
 
-#: src/app/screens/SystemView.tsx:365
+#: src/app/screens/SystemView.tsx:352
 msgid "Draft started"
 msgstr "Draft started"
 
@@ -473,7 +495,7 @@ msgstr "Drag to rearrange"
 msgid "Dynamic adjustment"
 msgstr "Dynamic adjustment"
 
-#: src/app/screens/SystemView.tsx:933
+#: src/app/screens/SystemView.tsx:852
 msgid "e.g. Trend pullbacks, tighter stops"
 msgstr "e.g. Trend pullbacks, tighter stops"
 
@@ -571,7 +593,7 @@ msgstr "Fit the whole map in view"
 msgid "Follow mode organizes conditions and evidence. It never places orders."
 msgstr "Follow mode organizes conditions and evidence. It never places orders."
 
-#: src/app/screens/SystemView.tsx:185
+#: src/app/screens/SystemView.tsx:172
 msgid "Follow trade"
 msgstr "Follow trade"
 
@@ -596,7 +618,8 @@ msgstr "Following {label}"
 #~ msgid "Following {label} · decision {0}"
 #~ msgstr "Following {label} · decision {0}"
 
-#: src/app/screens/SystemView.tsx:501
+#: src/components/system-map/PlanStepper.tsx:21
+#: src/components/system-map/PlanStepper.tsx:26
 msgid "Four-week plan"
 msgstr "Four-week plan"
 
@@ -608,7 +631,7 @@ msgstr "Full adherence vs partial/none, against win vs loss. Wrong-but-won is th
 msgid "Fully followed"
 msgstr "Fully followed"
 
-#: src/app/screens/SystemView.tsx:1024
+#: src/app/screens/SystemView.tsx:943
 msgid "Give a reason for each changed decision. The previous active version becomes read-only history."
 msgstr "Give a reason for each changed decision. The previous active version becomes read-only history."
 
@@ -656,7 +679,7 @@ msgstr "How you read the trade after entry and what you do."
 #~ msgid "Import"
 #~ msgstr "Import"
 
-#: src/app/screens/SystemView.tsx:97
+#: src/app/screens/SystemView.tsx:84
 msgid "In use"
 msgstr "In use"
 
@@ -684,12 +707,12 @@ msgstr "It may have expired or been revoked by its owner."
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 
-#: src/app/screens/SystemView.tsx:816
+#: src/app/screens/SystemView.tsx:735
 msgid "Keep draft"
 msgstr "Keep draft"
 
-#: src/app/screens/SystemView.tsx:247
-#: src/app/screens/SystemView.tsx:980
+#: src/app/screens/SystemView.tsx:234
+#: src/app/screens/SystemView.tsx:899
 msgid "Keep editing"
 msgstr "Keep editing"
 
@@ -721,7 +744,7 @@ msgstr "Last backup failed"
 msgid "Latest file"
 msgstr "Latest file"
 
-#: src/app/screens/SystemView.tsx:938
+#: src/app/screens/SystemView.tsx:857
 msgid "Leave empty to remove the name."
 msgstr "Leave empty to remove the name."
 
@@ -803,12 +826,12 @@ msgstr "N"
 msgid "N/A"
 msgstr "N/A"
 
-#: src/app/screens/SystemView.tsx:926
+#: src/app/screens/SystemView.tsx:845
 msgid "Name"
 msgstr "Name"
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:911
+#: src/app/screens/SystemView.tsx:830
 msgid "Name {0}"
 msgstr "Name {0}"
 
@@ -821,7 +844,7 @@ msgstr "Name {0}"
 msgid "Name for {label}"
 msgstr "Name for {label}"
 
-#: src/app/screens/SystemView.tsx:899
+#: src/app/screens/SystemView.tsx:818
 msgid "Name removed"
 msgstr "Name removed"
 
@@ -829,8 +852,8 @@ msgstr "Name removed"
 msgid "Name the three stances your rule switches between."
 msgstr "Name the three stances your rule switches between."
 
-#: src/app/screens/SystemView.tsx:584
-#: src/app/screens/SystemView.tsx:585
+#: src/app/screens/SystemView.tsx:503
+#: src/app/screens/SystemView.tsx:504
 msgid "Name this version"
 msgstr "Name this version"
 
@@ -906,7 +929,7 @@ msgstr "No more than two names in the same theme; skip if the open gap risk on t
 msgid "No rule yet — select to write one."
 msgstr "No rule yet — select to write one."
 
-#: src/app/screens/SystemView.tsx:357
+#: src/app/screens/SystemView.tsx:344
 msgid "No rules yet"
 msgstr "No rules yet"
 
@@ -918,7 +941,7 @@ msgstr "No trade linked yet"
 #~ msgid "No trade selected"
 #~ msgstr "No trade selected"
 
-#: src/app/screens/SystemView.tsx:290
+#: src/app/screens/SystemView.tsx:277
 msgid "No versions yet."
 msgstr "No versions yet."
 
@@ -966,7 +989,7 @@ msgstr "Not written in this version."
 msgid "Not written yet."
 msgstr "Not written yet."
 
-#: src/app/screens/SystemView.tsx:1053
+#: src/app/screens/SystemView.tsx:972
 msgid "Note (optional)"
 msgstr "Note (optional)"
 
@@ -984,7 +1007,7 @@ msgstr "of {0} trading days"
 msgid "Only works in some markets"
 msgstr "Only works in some markets"
 
-#: src/app/screens/SystemView.tsx:285
+#: src/app/screens/SystemView.tsx:272
 msgid "Open a version on the map. Active and retired versions are read-only."
 msgstr "Open a version on the map. Active and retired versions are read-only."
 
@@ -1058,7 +1081,7 @@ msgstr "Process × outcome"
 msgid "Profit factor"
 msgstr "Profit factor"
 
-#: src/app/screens/SystemView.tsx:515
+#: src/components/system-map/PlanStepper.tsx:40
 msgid "Progress is derived from your data — not a checklist you tick."
 msgstr "Progress is derived from your data — not a checklist you tick."
 
@@ -1066,7 +1089,7 @@ msgstr "Progress is derived from your data — not a checklist you tick."
 msgid "Put every node back in its original place"
 msgstr "Put every node back in its original place"
 
-#: src/app/screens/SystemView.tsx:596
+#: src/app/screens/SystemView.tsx:515
 msgid "Read-only"
 msgstr "Read-only"
 
@@ -1079,17 +1102,17 @@ msgid "Red days"
 msgstr "Red days"
 
 #. placeholder {0}: version.label
-#: src/app/screens/SystemView.tsx:911
+#: src/app/screens/SystemView.tsx:830
 msgid "Rename {0}"
 msgstr "Rename {0}"
 
-#: src/app/screens/SystemView.tsx:584
-#: src/app/screens/SystemView.tsx:585
+#: src/app/screens/SystemView.tsx:503
+#: src/app/screens/SystemView.tsx:504
 msgid "Rename this version"
 msgstr "Rename this version"
 
 #: src/app/screens/SystemReviewPanel.tsx:27
-#: src/app/screens/SystemView.tsx:88
+#: src/app/screens/SystemView.tsx:75
 #: src/components/MarketRegimeCard.tsx:39
 #: src/components/TradeSystemCard.tsx:89
 msgid "Request failed"
@@ -1099,15 +1122,15 @@ msgstr "Request failed"
 msgid "Reset layout"
 msgstr "Reset layout"
 
-#: src/app/screens/SystemView.tsx:101
+#: src/app/screens/SystemView.tsx:88
 msgid "Retired"
 msgstr "Retired"
 
-#: src/app/screens/SystemView.tsx:200
+#: src/app/screens/SystemView.tsx:187
 msgid "Retry"
 msgstr "Retry"
 
-#: src/app/screens/SystemView.tsx:186
+#: src/app/screens/SystemView.tsx:173
 #: src/lib/system.ts:68
 #: src/lib/system.ts:160
 msgid "Review"
@@ -1163,8 +1186,8 @@ msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setu
 msgstr "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
-#: src/app/screens/SystemView.tsx:676
-#: src/app/screens/SystemView.tsx:986
+#: src/app/screens/SystemView.tsx:595
+#: src/app/screens/SystemView.tsx:905
 #: src/components/TradeSystemCard.tsx:95
 msgid "Save"
 msgstr "Save"
@@ -1173,20 +1196,20 @@ msgstr "Save"
 msgid "Save changes"
 msgstr "Save changes"
 
-#: src/app/screens/SystemView.tsx:949
+#: src/app/screens/SystemView.tsx:868
 msgid "Save name"
 msgstr "Save name"
 
-#: src/app/screens/SystemView.tsx:650
+#: src/app/screens/SystemView.tsx:569
 msgid "Save your edits before activating"
 msgstr "Save your edits before activating"
 
-#: src/app/screens/SystemView.tsx:975
+#: src/app/screens/SystemView.tsx:894
 msgid "Save, discard, or keep editing before leaving this node or version."
 msgstr "Save, discard, or keep editing before leaving this node or version."
 
-#: src/app/screens/SystemView.tsx:676
-#: src/app/screens/SystemView.tsx:949
+#: src/app/screens/SystemView.tsx:595
+#: src/app/screens/SystemView.tsx:868
 msgid "Saving…"
 msgstr "Saving…"
 
@@ -1258,20 +1281,20 @@ msgstr "Stand aside and watch."
 msgid "Start here"
 msgstr "Start here"
 
-#: src/app/screens/SystemView.tsx:620
+#: src/app/screens/SystemView.tsx:539
 msgid "Start next version"
 msgstr "Start next version"
 
-#: src/app/screens/SystemView.tsx:372
+#: src/app/screens/SystemView.tsx:359
 msgid "Start v1.0"
 msgstr "Start v1.0"
 
 #. placeholder {0}: STARTER_DECISIONS.map((d) => decisionCopy(d).title).join(", ")
-#: src/app/screens/SystemView.tsx:687
+#: src/app/screens/SystemView.tsx:606
 msgid "Start with {0}. The rest can wait."
 msgstr "Start with {0}. The rest can wait."
 
-#: src/app/screens/SystemView.tsx:358
+#: src/app/screens/SystemView.tsx:345
 msgid "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
 msgstr "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
 
@@ -1307,7 +1330,7 @@ msgstr "System card saved"
 msgid "System map"
 msgstr "System map"
 
-#: src/app/screens/SystemView.tsx:180
+#: src/app/screens/SystemView.tsx:167
 msgid "System mode"
 msgstr "System mode"
 
@@ -1331,7 +1354,7 @@ msgstr "The core hypothesis was broken — cut."
 msgid "The curve"
 msgstr "The curve"
 
-#: src/app/screens/SystemView.tsx:811
+#: src/app/screens/SystemView.tsx:730
 msgid "The draft and every unsaved edit are deleted. Active and retired versions stay as they are. This can't be undone."
 msgstr "The draft and every unsaved edit are deleted. Active and retired versions stay as they are. This can't be undone."
 
@@ -1367,7 +1390,7 @@ msgstr "Thesis"
 msgid "Thin"
 msgstr "Thin"
 
-#: src/app/screens/SystemView.tsx:1025
+#: src/app/screens/SystemView.tsx:944
 msgid "This becomes the active system. You can revise later with a new draft."
 msgstr "This becomes the active system. You can revise later with a new draft."
 
@@ -1411,7 +1434,7 @@ msgstr "Trade type: {key}"
 msgid "Trades per month."
 msgstr "Trades per month."
 
-#: src/app/screens/SystemView.tsx:138
+#: src/app/screens/SystemView.tsx:125
 msgid "Trading system"
 msgstr "Trading system"
 
@@ -1439,9 +1462,9 @@ msgstr "Type of trade, expected move, holding time, core hypothesis."
 msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
 msgstr "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
 
-#: src/app/screens/SystemView.tsx:240
-#: src/app/screens/SystemView.tsx:602
-#: src/app/screens/SystemView.tsx:973
+#: src/app/screens/SystemView.tsx:227
+#: src/app/screens/SystemView.tsx:521
+#: src/app/screens/SystemView.tsx:892
 msgid "Unsaved changes"
 msgstr "Unsaved changes"
 
@@ -1453,7 +1476,7 @@ msgstr "Use the process × outcome quadrant; wrong-but-won is the most dangerous
 msgid "Vague wording — make it objective:"
 msgstr "Vague wording — make it objective:"
 
-#: src/app/screens/SystemView.tsx:572
+#: src/app/screens/SystemView.tsx:491
 msgid "Version"
 msgstr "Version"
 
@@ -1462,16 +1485,16 @@ msgstr "Version"
 msgid "Version {0}"
 msgstr "Version {0}"
 
-#: src/app/screens/SystemView.tsx:863
+#: src/app/screens/SystemView.tsx:782
 msgid "Version activated"
 msgstr "Version activated"
 
-#: src/app/screens/SystemView.tsx:172
-#: src/app/screens/SystemView.tsx:283
+#: src/app/screens/SystemView.tsx:159
+#: src/app/screens/SystemView.tsx:270
 msgid "Version history"
 msgstr "Version history"
 
-#: src/app/screens/SystemView.tsx:899
+#: src/app/screens/SystemView.tsx:818
 msgid "Version named"
 msgstr "Version named"
 
@@ -1483,7 +1506,7 @@ msgstr "Version named"
 #~ msgid "Waiting for a trade"
 #~ msgstr "Waiting for a trade"
 
-#: src/app/screens/SystemView.tsx:492
+#: src/app/screens/SystemView.tsx:479
 msgid "Walk the map one decision at a time and check each against the active rules."
 msgstr "Walk the map one decision at a time and check each against the active rules."
 
@@ -1574,7 +1597,7 @@ msgstr "Worst day"
 msgid "Write a rule to turn it into conditions you can tick off."
 msgstr "Write a rule to turn it into conditions you can tick off."
 
-#: src/app/screens/SystemView.tsx:184
+#: src/app/screens/SystemView.tsx:171
 msgid "Write rules"
 msgstr "Write rules"
 
@@ -1606,7 +1629,7 @@ msgstr "Wrong, still working, not working, or finished — how do I tell them ap
 msgid "Yes"
 msgstr "Yes"
 
-#: src/app/screens/SystemView.tsx:242
+#: src/app/screens/SystemView.tsx:229
 msgid "Your draft has edits that aren't saved. Leaving now discards them."
 msgstr "Your draft has edits that aren't saved. Leaving now discards them."
 
