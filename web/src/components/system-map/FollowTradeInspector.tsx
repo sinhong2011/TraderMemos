@@ -1,16 +1,23 @@
 import { t } from "@lingui/core/macro";
-import { AlertTriangle, CheckSquare2, Circle, FileText, Info, Pencil, Square } from "lucide-react";
+import { Info, NotebookPen, Pencil, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { DecisionId, Rule, SystemVersion } from "@/lib/api/system";
-import { DECISIONS, emptyRule } from "@/lib/system";
+import type { DecisionId, SystemVersion } from "@/lib/api/system";
+import { decisionCopy, DECISIONS } from "@/lib/system";
 import type { MapNodeId } from "@/lib/system-map";
-import { decisionsForNode } from "@/lib/system-map";
-import { systemNodeTitle } from "./SystemNode";
+import { decisionsForNode, nodeClarity } from "@/lib/system-map";
+import { ClarityPill, NodeIcon, NodeProgress, systemNodeTitle } from "./SystemNode";
 import { InspectorFrame, InspectorSection } from "./InspectorFrame";
 
 function decisionIndex(id: DecisionId): number {
   const i = DECISIONS.indexOf(id);
   return i >= 0 ? i + 1 : 0;
+}
+
+function conditionLines(text: string): string[] {
+  return text
+    .split(/[;\n]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 export function FollowTradeInspector({
@@ -23,110 +30,102 @@ export function FollowTradeInspector({
   onEditDraft: () => void;
 }) {
   const decisions = decisionsForNode(node);
-  const primary = decisions[0];
-  const rule: Rule = (primary && version?.rules?.[primary]) || emptyRule();
-  const hasRule = Boolean(rule.text.trim());
+  const written = decisions.filter((d) => version?.rules?.[d]?.text.trim());
+  const conditions = written.flatMap((d) => conditionLines(version!.rules[d]!.text)).slice(0, 6);
   const label = version?.label ?? "—";
 
   return (
     <InspectorFrame
       title={systemNodeTitle(node)}
-      subtitle={
-        primary
-          ? t`Following ${label} · decision ${decisionIndex(primary)}`
-          : t`Select a node on the map`
+      subtitle={t`Following ${label}`}
+      icon={<NodeIcon id={node} className="size-4.5" />}
+      meta={
+        <>
+          <ClarityPill clarity={nodeClarity(node, version?.rules, version?.open_questions)} />
+          <NodeProgress filled={written.length} total={decisions.length} />
+        </>
       }
       footer={
         <>
           <div className="grid gap-2 sm:grid-cols-2">
+            <Button type="button" variant="outline" onClick={onEditDraft}>
+              <Pencil className="size-4" aria-hidden />
+              {t`Edit rules`}
+            </Button>
             <Button
               type="button"
+              variant="secondary"
               disabled
-              title={t`Available when a trade is attached (Phase C–E)`}
+              title={t`Link a trade first to record evidence against it`}
             >
-              <FileText className="size-4" />
+              <NotebookPen className="size-4" aria-hidden />
               {t`Record evidence`}
             </Button>
-            <Button type="button" variant="outline" onClick={onEditDraft}>
-              <Pencil className="size-4" />
-              {t`Edit draft`}
-            </Button>
           </div>
-          <p className="flex items-start gap-1.5 text-2xs text-muted-foreground">
-            <Info className="mt-0.5 size-3.5 shrink-0" />
-            {t`This mode organizes recorded conditions and evidence — it does not place orders.`}
+          <p className="text-2xs leading-snug text-muted-foreground">
+            {t`Follow mode organizes conditions and evidence. It never places orders.`}
           </p>
         </>
       }
     >
-      <InspectorSection
-        title={t`Rule`}
-        action={<span className="text-2xs text-muted-foreground">{label}</span>}
-      >
-        {hasRule ? (
-          <p className="rounded-lg bg-muted/40 px-3 py-2.5 text-sm leading-relaxed text-foreground">
-            {rule.text}
-          </p>
-        ) : (
-          <p className="rounded-lg bg-muted/40 px-3 py-2.5 text-sm text-muted-foreground">
-            {t`No rule written for this decision yet. Edit the draft to add one.`}
-          </p>
-        )}
-      </InspectorSection>
-
-      <InspectorSection title={t`Condition check`}>
-        <ul className="flex flex-col gap-1.5">
-          {(hasRule
-            ? rule.text
-                .split(/[;\n]+/)
-                .map((s) => s.trim())
-                .filter(Boolean)
-                .slice(0, 4)
-            : [t`Attach a trade to check conditions against this rule`]
-          ).map((line, i) => (
-            <li
-              key={`${i}-${line.slice(0, 24)}`}
-              className="flex items-start gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground"
-            >
-              {hasRule ? (
-                <Square className="mt-0.5 size-4 shrink-0 opacity-50" aria-hidden />
-              ) : (
-                <Circle className="mt-0.5 size-4 shrink-0 opacity-40" aria-hidden />
-              )}
-              <span className="leading-snug">{line}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-1 flex items-center gap-1.5 text-2xs text-muted-foreground">
-          <CheckSquare2 className="size-3.5" />
-          {t`Checks unlock when Follow trade has a linked opportunity (Phase C).`}
-        </p>
-      </InspectorSection>
-
-      <div className="flex items-start gap-2 rounded-lg bg-warning/10 px-3 py-2.5 text-sm text-warning-foreground ring-1 ring-warning/25">
-        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
-        <div>
-          <div className="font-medium">{t`Waiting for a trade`}</div>
-          <p className="mt-0.5 text-2xs opacity-90">
-            {t`No live opportunity is attached yet — the map still shows where this decision sits.`}
+      <div className="flex items-start gap-2.5 rounded-lg bg-info/10 px-3 py-2.5">
+        <Info className="mt-0.5 size-4 shrink-0 text-info-foreground" aria-hidden />
+        <div className="min-w-0">
+          <div className="text-sm font-medium text-foreground">{t`No trade linked yet`}</div>
+          <p className="mt-0.5 text-2xs leading-snug text-muted-foreground">
+            {t`The map still shows where this decision sits. Linking a trade to check it against these rules is on the way.`}
           </p>
         </div>
       </div>
 
+      <InspectorSection title={decisions.length > 1 ? t`Your rules` : t`Your rule`}>
+        <ul className="flex flex-col gap-2">
+          {decisions.map((d) => {
+            const text = version?.rules?.[d]?.text.trim() ?? "";
+            return (
+              <li key={d} className="rounded-lg bg-muted/40 px-3 py-2.5">
+                <div className="text-2xs font-medium text-muted-foreground">
+                  {t`Decision ${decisionIndex(d)} · ${decisionCopy(d).title}`}
+                </div>
+                <p
+                  className={
+                    text
+                      ? "mt-1 text-sm leading-relaxed text-foreground"
+                      : "mt-1 text-sm text-muted-foreground/80"
+                  }
+                >
+                  {text || t`Not written yet.`}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      </InspectorSection>
+
+      <InspectorSection title={t`Condition check`}>
+        {conditions.length > 0 ? (
+          <ul className="flex flex-col gap-0.5" aria-label={t`Conditions to confirm`}>
+            {conditions.map((line, i) => (
+              <li
+                key={`${i}-${line.slice(0, 24)}`}
+                className="flex items-start gap-2.5 rounded-md px-1 py-1.5 text-sm text-muted-foreground"
+              >
+                <Square className="mt-0.5 size-4 shrink-0 opacity-50" aria-hidden />
+                <span className="leading-snug">{line}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {t`Write a rule to turn it into conditions you can tick off.`}
+          </p>
+        )}
+      </InspectorSection>
+
       <InspectorSection title={t`Evidence at the time`}>
-        <ol className="relative ms-2 flex flex-col gap-3 border-s border-border/60 ps-4">
-          <li className="relative text-sm text-muted-foreground">
-            <span className="absolute -start-[1.3rem] top-1.5 size-2 rounded-full bg-muted-foreground/40" />
-            {t`No evidence recorded yet.`}
-          </li>
-        </ol>
-        <button
-          type="button"
-          disabled
-          className="mt-1 text-start text-2xs text-primary/70 disabled:opacity-60"
-        >
-          {t`View plan snapshot`}
-        </button>
+        <p className="text-sm text-muted-foreground">
+          {t`Nothing recorded yet. Screenshots and notes captured while following a trade land here.`}
+        </p>
       </InspectorSection>
     </InspectorFrame>
   );

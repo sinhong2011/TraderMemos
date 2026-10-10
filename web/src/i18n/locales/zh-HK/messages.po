@@ -24,11 +24,16 @@ msgstr ""
 #. placeholder {0}: selectedVersion.label
 #. placeholder {1}: decisions.length
 #: src/app/screens/SystemView.tsx:582
-msgid "{0} · {1} decisions"
+#~ msgid "{0} · {1} decisions"
+#~ msgstr ""
+
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:658
+msgid "{0} · draft"
 msgstr ""
 
 #. placeholder {0}: selectedVersion.label
-#: src/app/screens/SystemView.tsx:581
+#: src/app/screens/SystemView.tsx:657
 msgid "{0} · read-only"
 msgstr ""
 
@@ -51,7 +56,17 @@ msgstr "勝率 {0}"
 
 #. placeholder {0}: n.decisions.length
 #: src/components/system-map/SystemMap.tsx:121
-msgid "{filled} of {0} written"
+#~ msgid "{filled} of {0} written"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:116
+msgid "{filled} of {total} decisions written"
+msgstr ""
+
+#. placeholder {0}: clarityLabel(clarity)
+#. placeholder {1}: n.decisions.length
+#: src/components/system-map/SystemMap.tsx:123
+msgid "{title}: {0}, {filled} of {1} written"
 msgstr ""
 
 #: src/app/screens/PublicShareView.tsx:223
@@ -74,13 +89,13 @@ msgstr ""
 msgid "Action"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:515
-#: src/app/screens/SystemView.tsx:801
+#: src/app/screens/SystemView.tsx:585
+#: src/app/screens/SystemView.tsx:923
 msgid "Activate"
 msgstr ""
 
 #. placeholder {0}: draft?.label ?? ""
-#: src/app/screens/SystemView.tsx:737
+#: src/app/screens/SystemView.tsx:859
 msgid "Activate {0}"
 msgstr ""
 
@@ -109,8 +124,8 @@ msgid "Adjust"
 msgstr ""
 
 #: src/components/system-map/RuleEditor.tsx:144
-msgid "Ambiguous, conflicting or missing cases ({part})"
-msgstr ""
+#~ msgid "Ambiguous, conflicting or missing cases ({part})"
+#~ msgstr ""
 
 #: src/lib/system.ts:277
 msgid "Another reason — say which evidence."
@@ -129,16 +144,16 @@ msgid "At most 6% open risk; cut to 3% in defensive markets."
 msgstr ""
 
 #: src/components/system-map/FollowTradeInspector.tsx:85
-msgid "Attach a trade to check conditions against this rule"
-msgstr ""
+#~ msgid "Attach a trade to check conditions against this rule"
+#~ msgstr ""
 
 #: src/app/screens/SystemView.tsx:394
-msgid "Attach an opportunity in Phase C — layout matches the follow inspector now."
-msgstr ""
+#~ msgid "Attach an opportunity in Phase C — layout matches the follow inspector now."
+#~ msgstr ""
 
 #: src/components/system-map/FollowTradeInspector.tsx:45
-msgid "Available when a trade is attached (Phase C–E)"
-msgstr ""
+#~ msgid "Available when a trade is attached (Phase C–E)"
+#~ msgstr ""
 
 #: src/app/screens/SystemView.tsx:170
 #~ msgid "Back to write rules"
@@ -220,11 +235,11 @@ msgstr ""
 #~ msgid "Calendar"
 #~ msgstr "日曆"
 
-#: src/app/screens/SystemView.tsx:786
+#: src/app/screens/SystemView.tsx:908
 msgid "Cancel"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:503
+#: src/app/screens/SystemView.tsx:571
 msgid "Cancel edits"
 msgstr ""
 
@@ -234,6 +249,10 @@ msgstr ""
 
 #: src/app/screens/SystemReviewPanel.tsx:47
 msgid "Carded"
+msgstr ""
+
+#: src/components/system-map/RuleEditor.tsx:183
+msgid "Cases your rules don't settle yet — ambiguous, conflicting or missing."
 msgstr ""
 
 #. placeholder {0}: Math.round(review.streak.chance * 100)
@@ -250,11 +269,10 @@ msgid "Checking…"
 msgstr "檢查中…"
 
 #: src/components/system-map/FollowTradeInspector.tsx:102
-msgid "Checks unlock when Follow trade has a linked opportunity (Phase C)."
-msgstr ""
+#~ msgid "Checks unlock when Follow trade has a linked opportunity (Phase C)."
+#~ msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:71
-#: src/components/system-map/SystemNode.tsx:55
+#: src/components/system-map/SystemNode.tsx:59
 msgid "Clear"
 msgstr ""
 
@@ -266,23 +284,27 @@ msgstr ""
 msgid "Concentration, correlation, gap, liquidity and slippage across all positions."
 msgstr ""
 
-#: src/components/system-map/FollowTradeInspector.tsx:77
+#: src/components/system-map/FollowTradeInspector.tsx:105
 msgid "Condition check"
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:49
+#: src/components/system-map/SystemMap.tsx:55
 msgid "Conditions not met"
 msgstr ""
 
 #: src/components/system-map/SystemMapList.tsx:95
-msgid "Conditions not met → keep watching is a branch of Entry, not a failure."
+#~ msgid "Conditions not met → keep watching is a branch of Entry, not a failure."
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:107
+msgid "Conditions to confirm"
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:47
+#: src/components/system-map/SystemMap.tsx:53
 msgid "Confirm trigger"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:100
+#: src/app/screens/SystemView.tsx:123
 msgid "Connect rules, decisions, and evidence."
 msgstr ""
 
@@ -290,11 +312,11 @@ msgstr ""
 msgid "Consistency"
 msgstr "穩定性"
 
-#: src/app/screens/SystemView.tsx:665
+#: src/app/screens/SystemView.tsx:787
 msgid "Could not activate"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:527
+#: src/app/screens/SystemView.tsx:759
 msgid "Could not discard"
 msgstr ""
 
@@ -302,12 +324,12 @@ msgstr ""
 msgid "Could not load the review"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:154
+#: src/app/screens/SystemView.tsx:177
 msgid "Could not load the system"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:489
-#: src/app/screens/SystemView.tsx:641
+#: src/app/screens/SystemView.tsx:598
+#: src/app/screens/SystemView.tsx:728
 #: src/components/TradeSystemCard.tsx:88
 msgid "Could not save"
 msgstr ""
@@ -316,8 +338,8 @@ msgstr ""
 msgid "Could not save regime"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:287
-#: src/app/screens/SystemView.tsx:469
+#: src/app/screens/SystemView.tsx:343
+#: src/app/screens/SystemView.tsx:543
 msgid "Could not start"
 msgstr ""
 
@@ -363,9 +385,12 @@ msgstr "連續日數"
 #~ msgid "Decision · {0}"
 #~ msgstr ""
 
+#. placeholder {0}: decisionIndex(d)
 #. placeholder {0}: decisionIndex(id)
 #. placeholder {1}: copy.title
-#: src/components/system-map/RuleEditor.tsx:64
+#. placeholder {1}: decisionCopy(d).title
+#: src/components/system-map/FollowTradeInspector.tsx:88
+#: src/components/system-map/RuleEditor.tsx:45
 msgid "Decision {0} · {1}"
 msgstr ""
 
@@ -374,8 +399,8 @@ msgid "Defensive"
 msgstr ""
 
 #: src/app/screens/SystemView.tsx:391
-msgid "Demo shell"
-msgstr ""
+#~ msgid "Demo shell"
+#~ msgstr ""
 
 #: src/lib/system.ts:255
 msgid "Did not move or remove the stop or target off-plan"
@@ -385,44 +410,66 @@ msgstr ""
 msgid "Directory"
 msgstr "目錄"
 
-#: src/app/screens/SystemView.tsx:699
+#: src/app/screens/SystemView.tsx:821
 msgid "Discard"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:531
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:737
+msgid "Discard {0}?"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:240
+msgid "Discard and leave"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:562
+#: src/app/screens/SystemView.tsx:763
 msgid "Discard draft"
 msgstr ""
 
 #: src/app/screens/SystemView.tsx:523
-msgid "Discard this draft? This cannot be undone."
-msgstr ""
+#~ msgid "Discard this draft? This cannot be undone."
+#~ msgstr ""
 
-#: src/app/screens/SystemView.tsx:70
+#: src/app/screens/SystemView.tsx:82
 msgid "Draft"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:525
+#: src/app/screens/SystemView.tsx:756
 msgid "Draft discarded"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:487
+#: src/app/screens/SystemView.tsx:596
 msgid "Draft saved"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:285
+#: src/app/screens/SystemView.tsx:341
 msgid "Draft started"
 msgstr ""
 
 #: src/components/system-map/SystemMap.tsx:81
-msgid "Drag nodes to rearrange"
+#~ msgid "Drag nodes to rearrange"
+#~ msgstr ""
+
+#: src/components/system-map/SystemMap.tsx:78
+msgid "Drag to rearrange"
 msgstr ""
 
 #: src/lib/system.ts:124
 msgid "Dynamic adjustment"
 msgstr ""
 
+#: src/components/system-map/RuleEditor.tsx:192
+msgid "e.g. What if the index gaps through the 200-day line?"
+msgstr ""
+
 #: src/components/system-map/FollowTradeInspector.tsx:52
-msgid "Edit draft"
+#~ msgid "Edit draft"
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:53
+msgid "Edit rules"
 msgstr ""
 
 #: src/app/screens/SystemView.tsx:585
@@ -441,7 +488,7 @@ msgstr ""
 msgid "Entry"
 msgstr ""
 
-#: src/components/system-map/SystemNode.tsx:38
+#: src/components/system-map/SystemNode.tsx:42
 msgid "Entry conditions"
 msgstr ""
 
@@ -449,7 +496,7 @@ msgstr ""
 msgid "Every {interval}"
 msgstr "每 {interval}"
 
-#: src/components/system-map/FollowTradeInspector.tsx:116
+#: src/components/system-map/FollowTradeInspector.tsx:125
 msgid "Evidence at the time"
 msgstr ""
 
@@ -483,23 +530,31 @@ msgid "Failed {0}"
 msgstr "失敗（{0}）"
 
 #: src/components/system-map/FeedbackEdge.tsx:25
-#: src/components/system-map/SystemMap.tsx:51
+#: src/components/system-map/SystemMap.tsx:57
 msgid "Feedback to rules"
 msgstr ""
 
 #: src/app/screens/SystemView.tsx:540
-msgid "fill these first; the rest can wait."
-msgstr ""
+#~ msgid "fill these first; the rest can wait."
+#~ msgstr ""
 
 #: src/lib/system.ts:227
 msgid "Finished"
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:61
+#: src/components/system-map/SystemMap.tsx:288
 msgid "Fit"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:143
+#: src/components/system-map/SystemMap.tsx:285
+msgid "Fit the whole map in view"
+msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:66
+msgid "Follow mode organizes conditions and evidence. It never places orders."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:166
 msgid "Follow trade"
 msgstr ""
 
@@ -515,12 +570,16 @@ msgstr ""
 msgid "Followed · won"
 msgstr ""
 
-#. placeholder {0}: decisionIndex(primary)
-#: src/components/system-map/FollowTradeInspector.tsx:36
-msgid "Following {label} · decision {0}"
+#: src/components/system-map/FollowTradeInspector.tsx:40
+msgid "Following {label}"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:402
+#. placeholder {0}: decisionIndex(primary)
+#: src/components/system-map/FollowTradeInspector.tsx:36
+#~ msgid "Following {label} · decision {0}"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:469
 msgid "Four-week plan"
 msgstr ""
 
@@ -532,7 +591,7 @@ msgstr ""
 msgid "Fully followed"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:740
+#: src/app/screens/SystemView.tsx:862
 msgid "Give a reason for each changed decision. The previous active version becomes read-only history."
 msgstr ""
 
@@ -560,7 +619,7 @@ msgstr ""
 #~ msgid "Holding"
 #~ msgstr ""
 
-#: src/components/system-map/SystemNode.tsx:42
+#: src/components/system-map/SystemNode.tsx:46
 msgid "Holding decisions"
 msgstr ""
 
@@ -580,7 +639,7 @@ msgstr ""
 #~ msgid "Import"
 #~ msgstr "匯入"
 
-#: src/app/screens/SystemView.tsx:68
+#: src/app/screens/SystemView.tsx:80
 msgid "In use"
 msgstr ""
 
@@ -608,7 +667,12 @@ msgstr "可能已過期，或者已被擁有者撤銷。"
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "以 <0>TraderMemos</0> 記錄 — 自架交易日誌"
 
-#: src/app/screens/SystemView.tsx:696
+#: src/app/screens/SystemView.tsx:744
+msgid "Keep draft"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:228
+#: src/app/screens/SystemView.tsx:818
 msgid "Keep editing"
 msgstr ""
 
@@ -648,6 +712,10 @@ msgstr ""
 msgid "Lesson"
 msgstr ""
 
+#: src/components/system-map/FollowTradeInspector.tsx:59
+msgid "Link a trade first to record evidence against it"
+msgstr ""
+
 #: src/lib/system.ts:84
 msgid "Liquid names above $10 with average volume over 1M; no biotech binary events."
 msgstr ""
@@ -677,7 +745,7 @@ msgstr "僅限手動"
 #~ msgid "Market"
 #~ msgstr ""
 
-#: src/components/system-map/SystemNode.tsx:36
+#: src/components/system-map/SystemNode.tsx:40
 #: src/lib/system.ts:76
 msgid "Market environment"
 msgstr ""
@@ -714,12 +782,20 @@ msgstr ""
 msgid "N/A"
 msgstr ""
 
+#. placeholder {0}: stanceLabel(stance)
+#: src/components/system-map/RuleEditor.tsx:153
+msgid "Name for {0}"
+msgstr ""
+
+#: src/components/system-map/RuleEditor.tsx:138
+msgid "Name the three stances your rule switches between."
+msgstr ""
+
 #: src/lib/system.ts:269
 msgid "Narrow when this rule or setup may be used."
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:75
-#: src/components/system-map/SystemNode.tsx:53
+#: src/components/system-map/SystemNode.tsx:57
 msgid "Needs clarity"
 msgstr ""
 
@@ -768,36 +844,48 @@ msgid "No data in this range."
 msgstr ""
 
 #: src/components/system-map/FollowTradeInspector.tsx:120
-msgid "No evidence recorded yet."
-msgstr ""
+#~ msgid "No evidence recorded yet."
+#~ msgstr ""
 
 #: src/components/system-map/FollowTradeInspector.tsx:111
-msgid "No live opportunity is attached yet — the map still shows where this decision sits."
-msgstr ""
+#~ msgid "No live opportunity is attached yet — the map still shows where this decision sits."
+#~ msgstr ""
 
 #: src/lib/system.ts:120
 msgid "No more than two names in the same theme; skip if the open gap risk on the book exceeds 3%."
 msgstr ""
 
 #: src/components/system-map/FollowTradeInspector.tsx:72
-msgid "No rule written for this decision yet. Edit the draft to add one."
+#~ msgid "No rule written for this decision yet. Edit the draft to add one."
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:171
+msgid "No rule yet — select to write one."
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:277
+#: src/app/screens/SystemView.tsx:333
 msgid "No rules yet"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:389
-msgid "No trade selected"
+#: src/components/system-map/FollowTradeInspector.tsx:74
+msgid "No trade linked yet"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:214
+#: src/app/screens/SystemView.tsx:389
+#~ msgid "No trade selected"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:271
 msgid "No versions yet."
 msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:198
 msgid "None"
 msgstr "無"
+
+#: src/components/system-map/RuleEditor.tsx:191
+msgid "None recorded."
+msgstr ""
 
 #: src/lib/system.ts:187
 msgid "Normal"
@@ -823,13 +911,24 @@ msgstr ""
 msgid "Not working"
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:79
-#: src/components/system-map/SystemNode.tsx:51
+#: src/components/system-map/SystemNode.tsx:55
 msgid "Not written"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:769
+#: src/components/system-map/RuleEditor.tsx:63
+msgid "Not written in this version."
+msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:97
+msgid "Not written yet."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:891
 msgid "Note (optional)"
+msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:127
+msgid "Nothing recorded yet. Screenshots and notes captured while following a trade land here."
 msgstr ""
 
 #. placeholder {0}: data.trading_days
@@ -842,12 +941,17 @@ msgstr "共 {0} 個交易日"
 msgid "Only works in some markets"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:209
+#: src/app/screens/SystemView.tsx:266
 msgid "Open a version on the map. Active and retired versions are read-only."
 msgstr ""
 
 #: src/components/system-map/RuleEditor.tsx:142
-msgid "Open questions"
+#~ msgid "Open questions"
+#~ msgstr ""
+
+#: src/components/system-map/RuleEditor.tsx:181
+#: src/components/system-map/RuleEditor.tsx:194
+msgid "Open questions · {partTitle}"
 msgstr ""
 
 #: src/components/system-map/RuleEditor.tsx:121
@@ -911,15 +1015,19 @@ msgstr ""
 msgid "Profit factor"
 msgstr "獲利因子"
 
-#: src/app/screens/SystemView.tsx:403
+#: src/app/screens/SystemView.tsx:470
 msgid "Progress is derived from your data — not a checklist you tick."
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:457
+#: src/components/system-map/SystemMap.tsx:275
+msgid "Put every node back in its original place"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:524
 msgid "Read-only"
 msgstr ""
 
-#: src/components/system-map/FollowTradeInspector.tsx:48
+#: src/components/system-map/FollowTradeInspector.tsx:62
 msgid "Record evidence"
 msgstr ""
 
@@ -928,31 +1036,31 @@ msgid "Red days"
 msgstr "虧損日"
 
 #: src/app/screens/SystemReviewPanel.tsx:27
-#: src/app/screens/SystemView.tsx:59
+#: src/app/screens/SystemView.tsx:71
 #: src/components/MarketRegimeCard.tsx:39
 #: src/components/TradeSystemCard.tsx:89
 msgid "Request failed"
 msgstr ""
 
-#: src/components/system-map/SystemMap.tsx:269
+#: src/components/system-map/SystemMap.tsx:278
 msgid "Reset layout"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:72
+#: src/app/screens/SystemView.tsx:84
 msgid "Retired"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:158
+#: src/app/screens/SystemView.tsx:181
 msgid "Retry"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:144
+#: src/app/screens/SystemView.tsx:167
 #: src/lib/system.ts:68
 #: src/lib/system.ts:160
 msgid "Review"
 msgstr ""
 
-#: src/components/system-map/SystemNode.tsx:44
+#: src/components/system-map/SystemNode.tsx:48
 msgid "Review & adjust"
 msgstr ""
 
@@ -964,7 +1072,7 @@ msgstr "回顧"
 msgid "Revise the version"
 msgstr ""
 
-#: src/components/system-map/SystemNode.tsx:40
+#: src/components/system-map/SystemNode.tsx:44
 msgid "Risk & position"
 msgstr ""
 
@@ -981,8 +1089,8 @@ msgid "Risk too high"
 msgstr ""
 
 #: src/components/system-map/FollowTradeInspector.tsx:63
-msgid "Rule"
-msgstr ""
+#~ msgid "Rule"
+#~ msgstr ""
 
 #: src/app/screens/SystemView.tsx:82
 #: src/app/screens/SystemView.tsx:385
@@ -1002,8 +1110,8 @@ msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setu
 msgstr "於市場時區週六 09:00，把本週的盈虧、勝率、R、策略、違規次數和錯過的交易整理成一篇待填寫的回顧筆記。"
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
-#: src/app/screens/SystemView.tsx:494
-#: src/app/screens/SystemView.tsx:702
+#: src/app/screens/SystemView.tsx:604
+#: src/app/screens/SystemView.tsx:824
 #: src/components/TradeSystemCard.tsx:95
 msgid "Save"
 msgstr "儲存"
@@ -1012,8 +1120,16 @@ msgstr "儲存"
 msgid "Save changes"
 msgstr "儲存變更"
 
-#: src/app/screens/SystemView.tsx:691
+#: src/app/screens/SystemView.tsx:578
+msgid "Save your edits before activating"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:813
 msgid "Save, discard, or keep editing before leaving this node or version."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:604
+msgid "Saving…"
 msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:131
@@ -1021,8 +1137,8 @@ msgid "Scheduled backups are off"
 msgstr "排程備份已關閉"
 
 #: src/components/system-map/FollowTradeInspector.tsx:37
-msgid "Select a node on the map"
-msgstr ""
+#~ msgid "Select a node on the map"
+#~ msgstr ""
 
 #: src/components/system-map/SystemNode.tsx:38
 #~ msgid "Self-checked clear"
@@ -1068,7 +1184,7 @@ msgstr "保留的快照"
 msgid "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
 msgstr "資料庫快照會寫入伺服器上的資料夾。請將該資料夾同步到異地 — 同一磁碟上的副本無法在磁碟故障後倖存。"
 
-#: src/components/system-map/RuleEditor.tsx:82
+#: src/components/system-map/RuleEditor.tsx:81
 msgid "Someone else would decide the same"
 msgstr ""
 
@@ -1080,25 +1196,30 @@ msgstr "SQN"
 msgid "Stand aside and watch."
 msgstr ""
 
-#: src/components/system-map/RuleEditor.tsx:66
+#: src/components/system-map/RuleEditor.tsx:50
 msgid "Start here"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:474
+#: src/app/screens/SystemView.tsx:548
 msgid "Start next version"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:292
+#: src/app/screens/SystemView.tsx:348
 msgid "Start v1.0"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:278
+#. placeholder {0}: STARTER_DECISIONS.map((d) => decisionCopy(d).title).join(", ")
+#: src/app/screens/SystemView.tsx:615
+msgid "Start with {0}. The rest can wait."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:334
 msgid "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
 msgstr ""
 
 #: src/app/screens/SystemView.tsx:539
-msgid "Starter prompts:"
-msgstr ""
+#~ msgid "Starter prompts:"
+#~ msgstr ""
 
 #: src/lib/system.ts:142
 msgid "State diagnosis"
@@ -1124,11 +1245,11 @@ msgstr ""
 msgid "System card saved"
 msgstr ""
 
-#: src/components/system-map/SystemMapList.tsx:50
+#: src/components/system-map/SystemMapList.tsx:26
 msgid "System map"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:138
+#: src/app/screens/SystemView.tsx:161
 msgid "System mode"
 msgstr ""
 
@@ -1152,9 +1273,17 @@ msgstr ""
 msgid "The curve"
 msgstr "曲線"
 
+#: src/app/screens/SystemView.tsx:739
+msgid "The draft and every unsaved edit are deleted. Active and retired versions stay as they are. This can't be undone."
+msgstr ""
+
 #: src/app/screens/PublicShareView.tsx:205
 msgid "The edge"
 msgstr "優勢"
+
+#: src/components/system-map/FollowTradeInspector.tsx:76
+msgid "The map still shows where this decision sits. Linking a trade to check it against these rules is on the way."
+msgstr ""
 
 #: src/lib/system.ts:107
 msgid "The most one trade may risk, and how risk is split between better and worse odds."
@@ -1180,7 +1309,7 @@ msgstr ""
 msgid "Thin"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:741
+#: src/app/screens/SystemView.tsx:863
 msgid "This becomes the active system. You can revise later with a new draft."
 msgstr ""
 
@@ -1189,8 +1318,8 @@ msgid "This link isn't available"
 msgstr "此連結無法使用"
 
 #: src/components/system-map/FollowTradeInspector.tsx:57
-msgid "This mode organizes recorded conditions and evidence — it does not place orders."
-msgstr ""
+#~ msgid "This mode organizes recorded conditions and evidence — it does not place orders."
+#~ msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:118
 msgid "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
@@ -1212,7 +1341,7 @@ msgstr ""
 msgid "Trade type"
 msgstr ""
 
-#: src/components/system-map/RuleEditor.tsx:127
+#: src/components/system-map/RuleEditor.tsx:166
 msgid "Trade type: {key}"
 msgstr ""
 
@@ -1224,8 +1353,12 @@ msgstr ""
 msgid "Trades per month."
 msgstr "每月交易次數。"
 
-#: src/app/screens/SystemView.tsx:98
+#: src/app/screens/SystemView.tsx:121
 msgid "Trading system"
+msgstr ""
+
+#: src/components/system-map/SystemMap.tsx:251
+msgid "Trading system map"
 msgstr ""
 
 #: src/lib/system.ts:94
@@ -1236,6 +1369,10 @@ msgstr ""
 msgid "Trigger met"
 msgstr ""
 
+#: src/components/system-map/RuleEditor.tsx:84
+msgid "Turn on once the rule leaves no room for judgment."
+msgstr ""
+
 #: src/lib/system.ts:131
 msgid "Type of trade, expected move, holding time, core hypothesis."
 msgstr ""
@@ -1244,7 +1381,9 @@ msgstr ""
 msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:689
+#: src/app/screens/SystemView.tsx:221
+#: src/app/screens/SystemView.tsx:530
+#: src/app/screens/SystemView.tsx:811
 msgid "Unsaved changes"
 msgstr ""
 
@@ -1252,11 +1391,11 @@ msgstr ""
 msgid "Use the process × outcome quadrant; wrong-but-won is the most dangerous cell."
 msgstr ""
 
-#: src/components/system-map/RuleEditor.tsx:100
+#: src/components/system-map/RuleEditor.tsx:73
 msgid "Vague wording — make it objective:"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:446
+#: src/app/screens/SystemView.tsx:513
 msgid "Version"
 msgstr ""
 
@@ -1265,21 +1404,25 @@ msgstr ""
 msgid "Version {0}"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:662
+#: src/app/screens/SystemView.tsx:784
 msgid "Version activated"
 msgstr ""
 
-#: src/app/screens/SystemView.tsx:130
-#: src/app/screens/SystemView.tsx:207
+#: src/app/screens/SystemView.tsx:153
+#: src/app/screens/SystemView.tsx:264
 msgid "Version history"
 msgstr ""
 
 #: src/components/system-map/FollowTradeInspector.tsx:128
-msgid "View plan snapshot"
-msgstr ""
+#~ msgid "View plan snapshot"
+#~ msgstr ""
 
 #: src/components/system-map/FollowTradeInspector.tsx:109
-msgid "Waiting for a trade"
+#~ msgid "Waiting for a trade"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:462
+msgid "Walk the map one decision at a time and check each against the active rules."
 msgstr ""
 
 #: src/app/drawers/NewNoteDrawer.tsx:92
@@ -1314,6 +1457,10 @@ msgstr ""
 
 #: src/lib/system.ts:77
 msgid "When do I trade actively, cut risk, or stop trading?"
+msgstr ""
+
+#: src/components/system-map/SystemMapList.tsx:79
+msgid "When entry conditions aren't met, you keep watching — that's a branch, not a failure."
 msgstr ""
 
 #: src/lib/system.ts:167
@@ -1361,7 +1508,11 @@ msgstr ""
 msgid "Worst day"
 msgstr "最差交易日"
 
-#: src/app/screens/SystemView.tsx:142
+#: src/components/system-map/FollowTradeInspector.tsx:120
+msgid "Write a rule to turn it into conditions you can tick off."
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:165
 msgid "Write rules"
 msgstr ""
 
@@ -1391,6 +1542,18 @@ msgstr ""
 
 #: src/components/TradeSystemCard.tsx:121
 msgid "Yes"
+msgstr ""
+
+#: src/app/screens/SystemView.tsx:223
+msgid "Your draft has edits that aren't saved. Leaving now discards them."
+msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:81
+msgid "Your rule"
+msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:81
+msgid "Your rules"
 msgstr ""
 
 #: src/app/drawers/NewNoteDrawer.tsx:197

@@ -29,7 +29,7 @@ export function FeedbackEdge({
       <BaseEdge id={id} path={path} style={style} markerEnd={markerEnd} />
       <EdgeLabelRenderer>
         <div
-          className="nodrag nopan pointer-events-none absolute origin-center rounded-md bg-card px-1.5 py-0.5 text-2xs text-muted-foreground shadow-sm ring-1 ring-border/50"
+          className="nodrag nopan pointer-events-none absolute origin-center rounded-md bg-card/90 px-1.5 py-0.5 text-2xs whitespace-nowrap text-muted-foreground"
           style={{
             transform: `translate(-50%, -50%) translate(${lx}px, ${ly}px)`,
           }}

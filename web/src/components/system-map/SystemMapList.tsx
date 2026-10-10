@@ -1,39 +1,15 @@
 import { t } from "@lingui/core/macro";
-import {
-  BarChart3,
-  CheckCircle2,
-  CircleDashed,
-  ClipboardList,
-  Clock3,
-  Crosshair,
-  Gauge,
-  type LucideIcon,
-} from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { DecisionId, Rule, SystemPart } from "@/lib/api/system";
 import { MAP_NODES, type MapNodeId, nodeClarity, nodeSummaryLine } from "@/lib/system-map";
-import { clarityLabel, systemNodeTitle } from "./SystemNode";
-
-function nodeIcon(id: MapNodeId): LucideIcon {
-  switch (id) {
-    case "market":
-      return BarChart3;
-    case "entry":
-      return Crosshair;
-    case "risk":
-      return Gauge;
-    case "holding":
-      return ClipboardList;
-    case "review":
-      return BarChart3;
-  }
-}
-
-function StatusIcon({ clarity }: { clarity: ReturnType<typeof nodeClarity> }) {
-  if (clarity === "self_clear") return <CheckCircle2 className="size-3.5 text-success" />;
-  if (clarity === "needs_clarity") return <Clock3 className="size-3.5 text-primary" />;
-  return <CircleDashed className="size-3.5 text-muted-foreground" />;
-}
+import {
+  clarityLabel,
+  clarityTone,
+  NodeProgress,
+  NodeIcon,
+  StatusIcon,
+  systemNodeTitle,
+} from "./SystemNode";
 
 export function SystemMapList({
   rules,
@@ -51,8 +27,8 @@ export function SystemMapList({
       {MAP_NODES.map((n) => {
         const clarity = nodeClarity(n.id, rules, openQuestions);
         const active = selected === n.id;
-        const Icon = nodeIcon(n.id);
         const line = nodeSummaryLine(n.id, rules);
+        const filled = n.decisions.filter((d) => (rules?.[d]?.text ?? "").trim()).length;
         return (
           <li key={n.id}>
             <button
@@ -61,10 +37,10 @@ export function SystemMapList({
               aria-selected={active}
               onClick={() => onSelect(n.id)}
               className={cn(
-                "flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-start transition-colors",
-                "hover:bg-accent",
-                active && "bg-accent ring-2 ring-primary",
-                clarity === "needs_clarity" && !active && "ring-1 ring-primary/40",
+                "flex w-full items-start gap-3 rounded-xl bg-card px-3 py-2.5 text-start shadow-sm",
+                "transition-[background-color,box-shadow] duration-150 motion-reduce:transition-none",
+                "hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                active && "ring-2 ring-primary",
               )}
             >
               <span
@@ -73,11 +49,19 @@ export function SystemMapList({
                   active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground",
                 )}
               >
-                <Icon className="size-4" />
+                <NodeIcon id={n.id} className="size-4" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold">{systemNodeTitle(n.id)}</span>
-                <span className="mt-1 flex items-center gap-1.5 text-2xs text-muted-foreground">
+                <span className="flex items-center justify-between gap-2">
+                  <span className="truncate text-sm font-semibold">{systemNodeTitle(n.id)}</span>
+                  <NodeProgress filled={filled} total={n.decisions.length} />
+                </span>
+                <span
+                  className={cn(
+                    "mt-0.5 flex items-center gap-1.5 text-2xs font-medium",
+                    clarityTone(clarity).text,
+                  )}
+                >
                   <StatusIcon clarity={clarity} />
                   {clarityLabel(clarity)}
                 </span>
@@ -91,8 +75,8 @@ export function SystemMapList({
           </li>
         );
       })}
-      <li className="px-3 pt-1 text-2xs text-muted-foreground">
-        {t`Conditions not met → keep watching is a branch of Entry, not a failure.`}
+      <li className="px-3 pt-1 text-2xs leading-snug text-muted-foreground">
+        {t`When entry conditions aren't met, you keep watching — that's a branch, not a failure.`}
       </li>
     </ul>
   );

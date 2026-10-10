@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
-import { Compass, History, Lock, Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Compass, History, Lock, Plus, Rocket, Save, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Route, type SystemMode } from "@/routes/system";
 import { Card } from "@/components/Card";
 import {
@@ -26,7 +26,12 @@ import { RuleEditor } from "@/components/system-map/RuleEditor";
 import { SystemInspector } from "@/components/system-map/SystemInspector";
 import { SystemMap } from "@/components/system-map/SystemMap";
 import { SystemMapList } from "@/components/system-map/SystemMapList";
-import { systemNodeTitle } from "@/components/system-map/SystemNode";
+import {
+  ClarityPill,
+  NodeProgress,
+  NodeIcon,
+  systemNodeTitle,
+} from "@/components/system-map/SystemNode";
 import type {
   ChangeBody,
   ChangeReason,
@@ -49,11 +54,18 @@ import {
   CHANGE_REASONS,
   changedDecisions,
   changeReasonCopy,
+  decisionCopy,
   DECISIONS,
   emptyRule,
   planStepCopy,
 } from "@/lib/system";
-import { decisionsForNode, isMapNodeId, type MapNodeId, STARTER_DECISIONS } from "@/lib/system-map";
+import {
+  decisionsForNode,
+  isMapNodeId,
+  type MapNodeId,
+  nodeClarity,
+  STARTER_DECISIONS,
+} from "@/lib/system-map";
 import { SystemReviewPanel } from "./SystemReviewPanel";
 
 const failMessage = (err: unknown) => (err instanceof Error ? err.message : t`Request failed`);
@@ -78,16 +90,27 @@ export function SystemView() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [editorDirty, setEditorDirty] = useState(false);
+  const [pendingLeave, setPendingLeave] = useState<null | (() => void)>(null);
   const sys = systemQ.data;
   const mode: SystemMode = search.mode ?? "rules";
   const hasWorkspace = Boolean(sys && (sys.active || sys.draft || sys.history.length > 0));
   const shownVersion = sys?.draft ?? sys?.active ?? sys?.history[0] ?? null;
 
+  /** Rules and Follow share one mounted editor; anything else remounts it and drops edits. */
+  const guardLeave = (go: () => void) => {
+    if (editorDirty) setPendingLeave(() => go);
+    else go();
+  };
+
   const setMode = (next: SystemMode) => {
-    void navigate({
-      search: (prev) => ({ ...prev, mode: next === "rules" ? undefined : next }),
-      replace: true,
-    });
+    const go = () =>
+      void navigate({
+        search: (prev) => ({ ...prev, mode: next === "rules" ? undefined : next }),
+        replace: true,
+      });
+    if (next === "review") guardLeave(go);
+    else go();
   };
 
   return (
@@ -163,7 +186,11 @@ export function SystemView() {
 
       {sys && mode === "review" ? <SystemReviewPanel /> : null}
       {sys && (mode === "rules" || mode === "follow") ? (
-        <SystemMapWorkspace systemId={sys.id} mode={mode} onEditDraft={() => setMode("rules")} />
+        <SystemMapWorkspace
+          mode={mode}
+          onEditDraft={() => setMode("rules")}
+          onDirtyChange={setEditorDirty}
+        />
       ) : null}
 
       {sys ? (
@@ -177,14 +204,44 @@ export function SystemView() {
           ]}
           onSelect={(id) => {
             setHistoryOpen(false);
-            setMode("rules");
-            void navigate({
-              search: (prev) => ({ ...prev, version: id, mode: undefined }),
-              replace: true,
-            });
+            guardLeave(
+              () =>
+                void navigate({
+                  search: (prev) => ({ ...prev, version: id, mode: undefined }),
+                  replace: true,
+                }),
+            );
           }}
         />
       ) : null}
+
+      <Dialog open={pendingLeave != null} onOpenChange={(v) => !v && setPendingLeave(null)}>
+        <DialogContent className="max-w-[min(480px,94vw)]">
+          <DialogHeader className="flex-col items-start gap-1.5 pr-12">
+            <DialogTitle>{t`Unsaved changes`}</DialogTitle>
+            <DialogDescription className="text-left leading-relaxed">
+              {t`Your draft has edits that aren't saved. Leaving now discards them.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setPendingLeave(null)}>
+              {t`Keep editing`}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive-outline"
+              onClick={() => {
+                const go = pendingLeave;
+                setPendingLeave(null);
+                setEditorDirty(false);
+                go?.();
+              }}
+            >
+              {t`Discard and leave`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Page>
   );
 }
@@ -202,10 +259,10 @@ function VersionHistoryDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="max-w-[min(480px,94vw)]">
+        <DialogHeader className="flex-col items-start gap-1.5 pr-12">
           <DialogTitle>{t`Version history`}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-left leading-relaxed">
             {t`Open a version on the map. Active and retired versions are read-only.`}
           </DialogDescription>
         </DialogHeader>
@@ -237,13 +294,13 @@ function VersionHistoryDialog({
 }
 
 function SystemMapWorkspace({
-  systemId,
   mode,
   onEditDraft,
+  onDirtyChange,
 }: {
-  systemId: string;
   mode: "rules" | "follow";
   onEditDraft: () => void;
+  onDirtyChange: (dirty: boolean) => void;
 }) {
   const toast = useToastManager();
   const systemQ = useTradingSystem();
@@ -251,7 +308,6 @@ function SystemMapWorkspace({
   const start = useStartSystemVersion();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  void systemId;
 
   const versions = useMemo(() => {
     const list: SystemVersion[] = [];
@@ -298,7 +354,7 @@ function SystemMapWorkspace({
 
   return (
     <VersionEditor
-      key={`${selectedVersion.id}:${selectedVersion.updated_at}:${mode}`}
+      key={`${selectedVersion.id}:${selectedVersion.updated_at}`}
       selectedVersion={selectedVersion}
       versions={versions}
       sys={sys}
@@ -306,6 +362,7 @@ function SystemMapWorkspace({
       navigate={navigate}
       mode={mode}
       onEditDraft={onEditDraft}
+      onDirtyChange={onDirtyChange}
     />
   );
 }
@@ -328,6 +385,7 @@ function VersionEditor({
   navigate,
   mode,
   onEditDraft,
+  onDirtyChange,
 }: {
   selectedVersion: SystemVersion;
   versions: SystemVersion[];
@@ -336,6 +394,7 @@ function VersionEditor({
   navigate: ReturnType<typeof Route.useNavigate>;
   mode: "rules" | "follow";
   onEditDraft: () => void;
+  onDirtyChange: (dirty: boolean) => void;
 }) {
   const toast = useToastManager();
   const start = useStartSystemVersion();
@@ -347,11 +406,25 @@ function VersionEditor({
   const [dirtyPrompt, setDirtyPrompt] = useState<null | (() => void)>(null);
   const [activateOpen, setActivateOpen] = useState(false);
   const [activateSeed, setActivateSeed] = useState(0);
+  const [discardOpen, setDiscardOpen] = useState(false);
 
   const dirty = useMemo(() => {
     if (readonly) return false;
     return JSON.stringify(draftBody) !== JSON.stringify(versionToBody(selectedVersion));
   }, [draftBody, selectedVersion, readonly]);
+
+  useEffect(() => {
+    onDirtyChange(dirty);
+  }, [dirty, onDirtyChange]);
+
+  useEffect(() => () => onDirtyChange(false), [onDirtyChange]);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
 
   const node: MapNodeId = isMapNodeId(search?.node) ? search.node! : "market";
 
@@ -385,15 +458,9 @@ function VersionEditor({
   return (
     <>
       {mode === "follow" ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm">
-          <span className="font-medium text-foreground">{t`No trade selected`}</span>
-          <span className="rounded-md bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground">
-            {t`Demo shell`}
-          </span>
-          <span className="text-2xs text-muted-foreground">
-            {t`Attach an opportunity in Phase C — layout matches the follow inspector now.`}
-          </span>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          {t`Walk the map one decision at a time and check each against the active rules.`}
+        </p>
       ) : null}
 
       {mode === "rules" ? (
@@ -402,7 +469,7 @@ function VersionEditor({
             title={t`Four-week plan`}
             description={t`Progress is derived from your data — not a checklist you tick.`}
           >
-            <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:items-stretch">
+            <ol className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4 lg:items-stretch">
               {sys.plan.map((step) => {
                 const copy = planStepCopy(step.key);
                 const pct = Math.min(100, (100 * step.progress) / Math.max(1, step.target));
@@ -412,12 +479,12 @@ function VersionEditor({
                     className="flex h-full flex-col gap-2 rounded-lg bg-muted/40 px-3 py-2.5"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-sm font-medium">{copy.title}</span>
+                      <span className="text-sm leading-tight font-medium">{copy.title}</span>
                       <span className="text-2xs tabular-nums text-muted-foreground">
                         {step.progress}/{step.target}
                       </span>
                     </div>
-                    <p className="flex-1 text-2xs leading-snug text-muted-foreground">
+                    <p className="hidden flex-1 text-2xs leading-snug text-muted-foreground sm:block">
                       {copy.detail}
                     </p>
                     <div
@@ -447,97 +514,106 @@ function VersionEditor({
             >
               {versions.map((v) => (
                 <NativeSelectOption key={v.id} value={v.id}>
-                  {v.label} · {v.status}
+                  {v.label} · {versionStatusLabel(v.status)}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
             {readonly ? (
               <span className="inline-flex items-center gap-1 text-2xs text-muted-foreground">
-                <Lock className="size-3.5" />
+                <Lock className="size-3.5" aria-hidden />
                 {t`Read-only`}
               </span>
             ) : null}
-            {!sys.draft ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={start.isPending}
-                onClick={() =>
-                  start.mutate(undefined, {
-                    onError: (e) =>
-                      toast.add({ title: t`Could not start`, description: failMessage(e) }),
-                  })
-                }
-              >
-                <Plus className="size-4" />
-                {t`Start next version`}
-              </Button>
+            {dirty ? (
+              <span className="inline-flex items-center gap-1.5 text-2xs font-medium text-warning-foreground">
+                <span className="size-1.5 rounded-full bg-warning" aria-hidden />
+                {t`Unsaved changes`}
+              </span>
             ) : null}
-            {sys.draft && selectedVersion.id === sys.draft.id ? (
-              <>
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={!dirty || save.isPending}
-                  onClick={() =>
-                    save.mutate(
-                      { id: sys.draft!.id, body: draftBody },
-                      {
-                        onSuccess: () => toast.add({ title: t`Draft saved` }),
-                        onError: (e) =>
-                          toast.add({ title: t`Could not save`, description: failMessage(e) }),
-                      },
-                    )
-                  }
-                >
-                  {t`Save`}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={!dirty}
-                  onClick={resetDraft}
-                >
-                  {t`Cancel edits`}
-                </Button>
+            <div className="ms-auto flex flex-wrap items-center gap-2">
+              {!sys.draft ? (
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  disabled={activate.isPending}
-                  onClick={() => {
-                    setActivateSeed((n) => n + 1);
-                    setActivateOpen(true);
-                  }}
-                >
-                  {t`Activate`}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={discard.isPending}
-                  onClick={() => {
-                    if (!confirm(t`Discard this draft? This cannot be undone.`)) return;
-                    discard.mutate(sys.draft!.id, {
-                      onSuccess: () => toast.add({ title: t`Draft discarded` }),
+                  disabled={start.isPending}
+                  onClick={() =>
+                    start.mutate(undefined, {
                       onError: (e) =>
-                        toast.add({ title: t`Could not discard`, description: failMessage(e) }),
-                    });
-                  }}
+                        toast.add({ title: t`Could not start`, description: failMessage(e) }),
+                    })
+                  }
                 >
-                  {t`Discard draft`}
+                  <Plus className="size-4" aria-hidden />
+                  {t`Start next version`}
                 </Button>
-              </>
-            ) : null}
+              ) : null}
+              {sys.draft && selectedVersion.id === sys.draft.id ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground"
+                    disabled={discard.isPending}
+                    onClick={() => setDiscardOpen(true)}
+                  >
+                    <Trash2 className="size-3.5" aria-hidden />
+                    {t`Discard draft`}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={!dirty}
+                    onClick={resetDraft}
+                  >
+                    {t`Cancel edits`}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={activate.isPending || dirty}
+                    title={dirty ? t`Save your edits before activating` : undefined}
+                    onClick={() => {
+                      setActivateSeed((n) => n + 1);
+                      setActivateOpen(true);
+                    }}
+                  >
+                    <Rocket className="size-3.5" aria-hidden />
+                    {t`Activate`}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={!dirty || save.isPending}
+                    onClick={() =>
+                      sys.draft &&
+                      save.mutate(
+                        { id: sys.draft.id, body: draftBody },
+                        {
+                          onSuccess: () => toast.add({ title: t`Draft saved` }),
+                          onError: (e) =>
+                            toast.add({ title: t`Could not save`, description: failMessage(e) }),
+                        },
+                      )
+                    }
+                  >
+                    <Save className="size-3.5" aria-hidden />
+                    {save.isPending ? t`Saving…` : t`Save`}
+                  </Button>
+                </>
+              ) : null}
+            </div>
           </div>
 
           {!sys.active && sys.draft ? (
-            <p className="text-2xs text-muted-foreground">
-              {t`Starter prompts:`} {STARTER_DECISIONS.map((d) => d).join(", ")} —{" "}
-              {t`fill these first; the rest can wait.`}
+            <p className="flex items-start gap-1.5 text-2xs leading-snug text-muted-foreground">
+              <Sparkles className="mt-px size-3.5 shrink-0 text-primary" aria-hidden />
+              <span>
+                {t`Start with ${STARTER_DECISIONS.map((d) => decisionCopy(d).title).join(", ")}. The rest can wait.`}
+              </span>
             </p>
           ) : null}
         </>
@@ -579,7 +655,19 @@ function VersionEditor({
               subtitle={
                 readonly
                   ? t`${selectedVersion.label} · read-only`
-                  : t`${selectedVersion.label} · ${decisions.length} decisions`
+                  : t`${selectedVersion.label} · draft`
+              }
+              icon={<NodeIcon id={node} className="size-4.5" />}
+              meta={
+                <>
+                  <ClarityPill
+                    clarity={nodeClarity(node, draftBody.rules, draftBody.open_questions)}
+                  />
+                  <NodeProgress
+                    filled={decisions.filter((d) => draftBody.rules[d]?.text.trim()).length}
+                    total={decisions.length}
+                  />
+                </>
               }
             >
               <SystemInspector panelKey={node}>
@@ -590,7 +678,6 @@ function VersionEditor({
                   regimes={draftBody.regimes}
                   tradeTypes={draftBody.trade_types}
                   readonly={readonly}
-                  version={selectedVersion}
                   onRuleChange={(id, patch) =>
                     setDraftBody((b) => ({
                       ...b,
@@ -644,6 +731,41 @@ function VersionEditor({
         }}
       />
 
+      <Dialog open={discardOpen} onOpenChange={setDiscardOpen}>
+        <DialogContent className="max-w-[min(480px,94vw)]">
+          <DialogHeader className="flex-col items-start gap-1.5 pr-12">
+            <DialogTitle>{t`Discard ${selectedVersion.label}?`}</DialogTitle>
+            <DialogDescription className="text-left leading-relaxed">
+              {t`The draft and every unsaved edit are deleted. Active and retired versions stay as they are. This can't be undone.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setDiscardOpen(false)}>
+              {t`Keep draft`}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={discard.isPending}
+              onClick={() => {
+                const draftId = sys.draft?.id;
+                if (!draftId) return;
+                discard.mutate(draftId, {
+                  onSuccess: () => {
+                    setDiscardOpen(false);
+                    toast.add({ title: t`Draft discarded` });
+                  },
+                  onError: (e) =>
+                    toast.add({ title: t`Could not discard`, description: failMessage(e) }),
+                });
+              }}
+            >
+              {t`Discard draft`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <ActivateDialog
         key={activateSeed}
         open={activateOpen}
@@ -684,10 +806,10 @@ function DirtyDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onStay()}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="max-w-[min(480px,94vw)]">
+        <DialogHeader className="flex-col items-start gap-1.5 pr-12">
           <DialogTitle>{t`Unsaved changes`}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-left leading-relaxed">
             {t`Save, discard, or keep editing before leaving this node or version.`}
           </DialogDescription>
         </DialogHeader>
@@ -732,10 +854,10 @@ function ActivateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
+      <DialogContent className="max-w-[min(520px,94vw)]">
+        <DialogHeader className="flex-col items-start gap-1.5 pr-12">
           <DialogTitle>{t`Activate ${draft?.label ?? ""}`}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-left leading-relaxed">
             {changed.length
               ? t`Give a reason for each changed decision. The previous active version becomes read-only history.`
               : t`This becomes the active system. You can revise later with a new draft.`}
@@ -744,7 +866,7 @@ function ActivateDialog({
         <DialogBody className="flex flex-col gap-3">
           {changed.map((d) => (
             <div key={d} className="flex flex-col gap-1.5 rounded-lg bg-muted/40 p-3">
-              <div className="text-sm font-medium">{d}</div>
+              <div className="text-sm font-medium">{decisionCopy(d).title}</div>
               <NativeSelect
                 value={reasons[d]?.reason ?? "other"}
                 onChange={(e) =>

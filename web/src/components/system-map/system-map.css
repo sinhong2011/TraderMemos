@@ -52,6 +52,16 @@
 
 .system-map-flow .react-flow__node {
   cursor: grab;
+  border-radius: var(--radius-xl);
+}
+
+.system-map-flow .react-flow__node:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 3px;
+}
+
+.system-map-flow .react-flow__node-watch:focus-visible {
+  border-radius: 9999px;
 }
 
 .system-map-flow .react-flow__node.dragging {
