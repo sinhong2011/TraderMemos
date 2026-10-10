@@ -1,4 +1,5 @@
 import {
+  applyNodeChanges,
   Background,
   Controls,
   MarkerType,
@@ -16,7 +17,7 @@ import "./system-map.css";
 import { t } from "@lingui/core/macro";
 import { Maximize2, Move, RotateCcw } from "lucide-react";
 import { useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import type { DecisionId, Rule, SystemPart } from "@/lib/api/system";
@@ -94,6 +95,50 @@ function positionsFromNodes(nodes: Node[]): MapLayoutPositions {
   return out;
 }
 
+function buildNodes(
+  layout: MapLayoutPositions,
+  rules: Partial<Record<DecisionId, Rule>> | undefined,
+  openQuestions: Partial<Record<SystemPart, string>> | undefined,
+  selected: MapNodeId | null,
+): Node[] {
+  const fallback = defaultMapLayout();
+  const systemNodes: SystemMapNode[] = MAP_NODES.map((n) => {
+    const clarity = nodeClarity(n.id, rules, openQuestions);
+    const filled = n.decisions.filter((d) => (rules?.[d]?.text ?? "").trim()).length;
+    const title = systemNodeTitle(n.id);
+    return {
+      id: n.id,
+      type: "system",
+      position: layout[n.id] ?? fallback[n.id]!,
+      ariaLabel: t`${title}: ${clarityLabel(clarity)}, ${filled} of ${n.decisions.length} written`,
+      data: {
+        nodeId: n.id,
+        title,
+        summary: nodeSummaryLine(n.id, rules),
+        filled,
+        total: n.decisions.length,
+        clarity,
+        selected: selected === n.id,
+      },
+      selected: selected === n.id,
+      draggable: true,
+      connectable: false,
+      deletable: false,
+    };
+  });
+  const watch: WatchMapNode = {
+    id: WATCH_NODE_ID,
+    type: "watch",
+    position: layout[WATCH_NODE_ID] ?? fallback[WATCH_NODE_ID]!,
+    data: { title: t`Keep watching`, detail: t`Not a failure — wait for the trigger` },
+    draggable: true,
+    connectable: false,
+    deletable: false,
+    selectable: true,
+  };
+  return [...systemNodes, watch];
+}
+
 function MapInner({
   systemId,
   rules,
@@ -109,50 +154,24 @@ function MapInner({
 }) {
   const { fitView } = useReactFlow();
   const reduceMotion = useReducedMotion();
-  const [layout, setLayout] = useState<MapLayoutPositions>(() => loadMapLayout(systemId));
-
-  const nodes: Node[] = (() => {
-    const systemNodes: SystemMapNode[] = MAP_NODES.map((n) => {
-      const clarity = nodeClarity(n.id, rules, openQuestions);
-      const filled = n.decisions.filter((d) => (rules?.[d]?.text ?? "").trim()).length;
-      const title = systemNodeTitle(n.id);
-      return {
-        id: n.id,
-        type: "system",
-        position: layout[n.id] ?? defaultMapLayout()[n.id],
-        ariaLabel: t`${title}: ${clarityLabel(clarity)}, ${filled} of ${n.decisions.length} written`,
-        data: {
-          nodeId: n.id,
-          title,
-          summary: nodeSummaryLine(n.id, rules),
-          filled,
-          total: n.decisions.length,
-          clarity,
-          selected: selected === n.id,
-        },
-        selected: selected === n.id,
-        draggable: true,
-        connectable: false,
-        deletable: false,
-      };
+  const [nodes, setNodes] = useState<Node[]>(() =>
+    buildNodes(loadMapLayout(systemId), rules, openQuestions, selected),
+  );
+  const [synced, setSynced] = useState({ rules, openQuestions, selected });
+  if (
+    synced.rules !== rules ||
+    synced.openQuestions !== openQuestions ||
+    synced.selected !== selected
+  ) {
+    setSynced({ rules, openQuestions, selected });
+    setNodes((prev) => {
+      const fresh = buildNodes(positionsFromNodes(prev), rules, openQuestions, selected);
+      return prev.map((n) => {
+        const next = fresh.find((f) => f.id === n.id)!;
+        return { ...n, data: next.data, selected: next.selected, ariaLabel: next.ariaLabel };
+      });
     });
-
-    const watch: WatchMapNode = {
-      id: WATCH_NODE_ID,
-      type: "watch",
-      position: layout[WATCH_NODE_ID] ?? defaultMapLayout()[WATCH_NODE_ID],
-      data: {
-        title: t`Keep watching`,
-        detail: t`Not a failure — wait for the trigger`,
-      },
-      draggable: true,
-      connectable: false,
-      deletable: false,
-      selectable: true,
-    };
-
-    return [...systemNodes, watch];
-  })();
+  }
 
   const edges: Edge[] = MAP_EDGES.map((e) => {
     const label = edgeLabel(e.labelKey);
@@ -194,11 +213,6 @@ function MapInner({
     };
   });
 
-  useEffect(() => {
-    const id = requestAnimationFrame(() => void fitView({ padding: FIT_PADDING }));
-    return () => cancelAnimationFrame(id);
-  }, [fitView]);
-
   const selectNode = (id: string) => {
     const next = id === WATCH_NODE_ID ? "entry" : (id as MapNodeId);
     if (next !== selected) onSelect(next);
@@ -207,34 +221,20 @@ function MapInner({
   const onNodesChange = (changes: NodeChange[]) => {
     const picked = changes.find((c) => c.type === "select" && c.selected);
     if (picked && "id" in picked) selectNode(picked.id);
-    const moved = changes.filter(
-      (c): c is NodeChange & { type: "position"; position?: { x: number; y: number } } =>
-        c.type === "position",
-    );
-    if (!moved.length) return;
-    setLayout((prev) => {
-      const next = { ...prev };
-      for (const c of moved) {
-        if (c.position) next[c.id] = { x: c.position.x, y: c.position.y };
-      }
-      return next;
-    });
-  };
-
-  const persistLayout = (next: MapLayoutPositions) => {
-    setLayout(next);
-    saveMapLayout(systemId, next);
+    const applicable = changes.filter((c) => c.type === "position" || c.type === "dimensions");
+    if (applicable.length) setNodes((prev) => applyNodeChanges(applicable, prev));
   };
 
   const resetLayout = () => {
     const next = defaultMapLayout();
-    persistLayout(next);
-    requestAnimationFrame(() =>
-      fitView({ padding: FIT_PADDING, duration: reduceMotion ? 0 : 200 }),
+    setNodes((prev) => prev.map((n) => ({ ...n, position: next[n.id] ?? n.position })));
+    saveMapLayout(systemId, next);
+    requestAnimationFrame(
+      () => void fitView({ padding: FIT_PADDING, duration: reduceMotion ? 0 : 200 }),
     );
   };
 
-  const isDefaultLayout = sameLayout(layout, defaultMapLayout());
+  const isDefaultLayout = sameLayout(positionsFromNodes(nodes), defaultMapLayout());
 
   return (
     <div className="relative h-full min-h-[min(520px,60vh)] w-full overflow-hidden bg-transparent">
@@ -244,9 +244,8 @@ function MapInner({
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
-        onNodeDragStop={(_, _node, all) => {
-          persistLayout({ ...layout, ...positionsFromNodes(all) });
-        }}
+        onNodeDragStop={() => saveMapLayout(systemId, positionsFromNodes(nodes))}
+        selectNodesOnDrag={false}
         onNodeClick={(_, n) => selectNode(n.id)}
         aria-label={t`Trading system map`}
         nodesDraggable
@@ -255,6 +254,7 @@ function MapInner({
         panOnDrag
         zoomOnScroll
         fitView
+        fitViewOptions={{ padding: FIT_PADDING }}
         minZoom={0.45}
         maxZoom={1.4}
         proOptions={{ hideAttribution: true }}
