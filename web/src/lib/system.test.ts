@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { changedDecisions, DECISIONS, emptyRule, vagueWords } from "./system";
+import { changedDecisions, DECISIONS, emptyRule, vagueWords, versionTitle } from "./system";
 import {
   decisionClarity,
   defaultMapLayout,
@@ -96,5 +96,15 @@ describe("system-map", () => {
     saveMapLayout(id, { ...base, market: { x: 12, y: 34 } });
     expect(loadMapLayout(id).market).toEqual({ x: 12, y: 34 });
     expect(loadMapLayout(id).entry).toEqual(base.entry);
+  });
+});
+
+describe("versionTitle", () => {
+  it("shows the number alone without a name", () => {
+    expect(versionTitle({ label: "v1.1", name: "" })).toBe("v1.1");
+    expect(versionTitle({ label: "v1.1", name: "   " })).toBe("v1.1");
+  });
+  it("appends the name after the number", () => {
+    expect(versionTitle({ label: "v1.1", name: "Trend pullbacks" })).toBe("v1.1 · Trend pullbacks");
   });
 });

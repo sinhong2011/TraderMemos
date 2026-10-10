@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
-import { Compass, History, Lock, Plus, Rocket, Save, Sparkles, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Compass, History, Lock, Pencil, Plus, Rocket, Save, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { Route, type SystemMode } from "@/routes/system";
 import { Card } from "@/components/Card";
 import {
@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/Dialog";
 import { EmptyState } from "@/components/EmptyState";
-import { FormTextarea } from "@/components/FormInput";
+import { FormInput, FormTextarea } from "@/components/FormInput";
 import { Page } from "@/components/Page";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { Skeleton } from "@/components/Skeleton";
@@ -46,6 +46,7 @@ import { cn } from "@/lib/cn";
 import {
   useActivateSystemVersion,
   useDiscardSystemDraft,
+  useRenameSystemVersion,
   useSaveSystemVersion,
   useStartSystemVersion,
   useTradingSystem,
@@ -58,6 +59,8 @@ import {
   DECISIONS,
   emptyRule,
   planStepCopy,
+  VERSION_NAME_MAX,
+  versionTitle,
 } from "@/lib/system";
 import {
   decisionsForNode,
@@ -127,7 +130,7 @@ export function SystemView() {
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-full bg-muted/60 px-2.5 py-1 text-2xs font-medium",
+                  "inline-flex max-w-72 items-center gap-2 rounded-full bg-muted/60 px-2.5 py-1 text-2xs font-medium",
                   shownVersion.status === "active" && "text-foreground",
                   shownVersion.status === "draft" && "text-muted-foreground",
                 )}
@@ -141,7 +144,9 @@ export function SystemView() {
                   )}
                   aria-hidden
                 />
-                {shownVersion.label} · {versionStatusLabel(shownVersion.status)}
+                <span className="truncate">
+                  {versionTitle(shownVersion)} · {versionStatusLabel(shownVersion.status)}
+                </span>
               </span>
               <Button
                 type="button"
@@ -278,8 +283,13 @@ function VersionHistoryDialog({
                     className="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-start hover:bg-accent"
                     onClick={() => onSelect(v.id)}
                   >
-                    <span className="text-sm font-medium">{v.label}</span>
-                    <span className="text-2xs text-muted-foreground">
+                    <span className="flex min-w-0 items-baseline gap-2">
+                      <span className="text-sm font-medium tabular-nums">{v.label}</span>
+                      {v.name ? (
+                        <span className="truncate text-sm text-muted-foreground">{v.name}</span>
+                      ) : null}
+                    </span>
+                    <span className="shrink-0 text-2xs text-muted-foreground">
                       {versionStatusLabel(v.status)}
                     </span>
                   </button>
@@ -407,6 +417,8 @@ function VersionEditor({
   const [activateOpen, setActivateOpen] = useState(false);
   const [activateSeed, setActivateSeed] = useState(0);
   const [discardOpen, setDiscardOpen] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [renameSeed, setRenameSeed] = useState(0);
 
   const dirty = useMemo(() => {
     if (readonly) return false;
@@ -514,10 +526,23 @@ function VersionEditor({
             >
               {versions.map((v) => (
                 <NativeSelectOption key={v.id} value={v.id}>
-                  {v.label} · {versionStatusLabel(v.status)}
+                  {versionTitle(v)} · {versionStatusLabel(v.status)}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={selectedVersion.name ? t`Rename this version` : t`Name this version`}
+              title={selectedVersion.name ? t`Rename this version` : t`Name this version`}
+              onClick={() => {
+                setRenameSeed((n) => n + 1);
+                setRenameOpen(true);
+              }}
+            >
+              <Pencil className="size-3.5" aria-hidden />
+            </Button>
             {readonly ? (
               <span className="inline-flex items-center gap-1 text-2xs text-muted-foreground">
                 <Lock className="size-3.5" aria-hidden />
@@ -766,6 +791,13 @@ function VersionEditor({
         </DialogContent>
       </Dialog>
 
+      <RenameVersionDialog
+        key={renameSeed}
+        open={renameOpen}
+        onOpenChange={setRenameOpen}
+        version={selectedVersion}
+      />
+
       <ActivateDialog
         key={activateSeed}
         open={activateOpen}
@@ -790,6 +822,89 @@ function VersionEditor({
         }}
       />
     </>
+  );
+}
+
+function RenameVersionDialog({
+  open,
+  onOpenChange,
+  version,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  version: SystemVersion;
+}) {
+  const toast = useToastManager();
+  const rename = useRenameSystemVersion();
+  const [name, setName] = useState(version.name ?? "");
+  const inputId = useId();
+  const hintId = useId();
+  const trimmed = name.trim().replace(/\s+/g, " ");
+  const unchanged = trimmed === (version.name ?? "");
+
+  const submit = () => {
+    if (unchanged || rename.isPending) return;
+    rename.mutate(
+      { id: version.id, name: trimmed },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+          toast.add({ title: trimmed ? t`Version named` : t`Name removed` });
+        },
+        onError: (e) => toast.add({ title: t`Could not rename`, description: failMessage(e) }),
+      },
+    );
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-[min(480px,94vw)]">
+        <DialogHeader className="flex-col items-start gap-1.5 pr-12">
+          <DialogTitle>
+            {version.name ? t`Rename ${version.label}` : t`Name ${version.label}`}
+          </DialogTitle>
+          <DialogDescription className="text-left leading-relaxed">
+            {t`A short name makes versions easier to tell apart. The version number stays ${version.label}, and the rules don't change.`}
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          className="contents"
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
+        >
+          <DialogBody className="gap-2 pt-1">
+            <label htmlFor={inputId} className="text-sm font-medium">
+              {t`Name`}
+            </label>
+            <FormInput
+              id={inputId}
+              autoFocus
+              value={name}
+              maxLength={VERSION_NAME_MAX}
+              placeholder={t`e.g. Trend pullbacks, tighter stops`}
+              aria-describedby={hintId}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <div id={hintId} className="flex justify-between gap-3 text-2xs text-muted-foreground">
+              <span>{t`Leave empty to remove the name.`}</span>
+              <span className="tabular-nums">
+                {name.length}/{VERSION_NAME_MAX}
+              </span>
+            </div>
+          </DialogBody>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+              {t`Cancel`}
+            </Button>
+            <Button type="submit" disabled={unchanged || rename.isPending}>
+              {rename.isPending ? t`Saving…` : t`Save name`}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -856,7 +971,7 @@ function ActivateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[min(520px,94vw)]">
         <DialogHeader className="flex-col items-start gap-1.5 pr-12">
-          <DialogTitle>{t`Activate ${draft?.label ?? ""}`}</DialogTitle>
+          <DialogTitle>{t`Activate ${draft ? versionTitle(draft) : ""}`}</DialogTitle>
           <DialogDescription className="text-left leading-relaxed">
             {changed.length
               ? t`Give a reason for each changed decision. The previous active version becomes read-only history.`

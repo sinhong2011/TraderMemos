@@ -40,6 +40,8 @@ export interface Rule {
 export interface SystemVersion {
   id: string;
   label: string;
+  /** Optional display name; `label` stays the version number. */
+  name: string;
   status: "draft" | "active" | "retired";
   rules: Record<DecisionId, Rule>;
   open_questions: Record<string, string>;
@@ -198,6 +200,11 @@ export const systemApi = {
     apiFetch<SystemVersion>(`/system/versions/${id}`, {
       method: "PUT",
       body: JSON.stringify(body),
+    }),
+  renameVersion: (id: string, name: string) =>
+    apiFetch<SystemVersion>(`/system/versions/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ name }),
     }),
   discardDraft: (id: string) => apiFetch<void>(`/system/versions/${id}`, { method: "DELETE" }),
   activate: (id: string, changes: ChangeBody[]) =>

@@ -327,3 +327,11 @@ export function changedDecisions(
   }
   return out;
 }
+
+export const VERSION_NAME_MAX = 80;
+
+/** "v1.1 · Trend pullbacks", or just the number when the version has no name. */
+export function versionTitle(v: Pick<SystemVersion, "label" | "name">): string {
+  const name = v.name?.trim();
+  return name ? `${v.label} · ${name}` : v.label;
+}

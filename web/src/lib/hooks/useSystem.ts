@@ -59,6 +59,14 @@ export function useSaveSystemVersion() {
   });
 }
 
+export function useRenameSystemVersion() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) => systemApi.renameVersion(id, name),
+    onSuccess: invalidate,
+  });
+}
+
 export function useDiscardSystemDraft() {
   const invalidate = useInvalidate();
   return useMutation({ mutationFn: systemApi.discardDraft, onSuccess: invalidate });
