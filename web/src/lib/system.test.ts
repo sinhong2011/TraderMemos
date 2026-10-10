@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vite-plus/test";
-import { changedDecisions, DECISIONS, emptyRule, vagueWords, versionTitle } from "./system";
+import {
+  changedDecisions,
+  customRegimeLabel,
+  DECISIONS,
+  emptyRule,
+  vagueWords,
+  versionTitle,
+} from "./system";
 import {
   decisionClarity,
   defaultMapLayout,
@@ -106,5 +113,19 @@ describe("versionTitle", () => {
   });
   it("appends the name after the number", () => {
     expect(versionTitle({ label: "v1.1", name: "Trend pullbacks" })).toBe("v1.1 · Trend pullbacks");
+  });
+});
+
+describe("customRegimeLabel", () => {
+  it("treats empty and English seeds as unset", () => {
+    expect(customRegimeLabel("normal", {})).toBe("");
+    expect(customRegimeLabel("normal", { normal: "" })).toBe("");
+    expect(customRegimeLabel("normal", { normal: "Normal" })).toBe("");
+    expect(customRegimeLabel("defensive", { defensive: "Defensive" })).toBe("");
+    expect(customRegimeLabel("paused", { paused: "Paused" })).toBe("");
+  });
+  it("keeps real custom names", () => {
+    expect(customRegimeLabel("normal", { normal: "Risk-on" })).toBe("Risk-on");
+    expect(customRegimeLabel("defensive", { defensive: "  Caution  " })).toBe("Caution");
   });
 });

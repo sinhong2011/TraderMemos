@@ -5,6 +5,7 @@ import { FormInput, FormTextarea } from "@/components/FormInput";
 import { Switch } from "@/components/ui/switch";
 import type { DecisionId, Rule, Stance, SystemPart } from "@/lib/api/system";
 import {
+  customRegimeLabel,
   decisionCopy,
   DECISIONS,
   emptyRule,
@@ -137,25 +138,30 @@ export function RuleEditor({
               <p className="text-2xs text-muted-foreground">
                 {t`Name the three stances your rule switches between.`}
               </p>
-              <div className="grid gap-2 sm:grid-cols-3">
-                {STANCES.map((stance) => (
-                  <label
-                    key={stance}
-                    className="flex flex-col gap-1.5 rounded-lg bg-muted/40 px-2.5 py-2 text-2xs"
-                  >
-                    <span className="font-semibold text-foreground">{stanceLabel(stance)}</span>
-                    <span className="min-h-8 leading-snug text-muted-foreground">
-                      {stanceHint(stance)}
-                    </span>
-                    <FormInput
-                      value={regimes[stance] ?? ""}
-                      placeholder={stanceLabel(stance)}
-                      aria-label={t`Name for ${stanceLabel(stance)}`}
-                      disabled={readonly}
-                      onChange={(e) => onRegimeLabel(stance, e.target.value)}
-                    />
-                  </label>
-                ))}
+              <div className="grid items-stretch gap-2 sm:grid-cols-3">
+                {STANCES.map((stance) => {
+                  const label = stanceLabel(stance);
+                  const custom = customRegimeLabel(stance, regimes);
+                  return (
+                    <label
+                      key={stance}
+                      className="flex h-full flex-col gap-1.5 rounded-lg bg-muted/40 px-2.5 py-2 text-2xs"
+                    >
+                      <span className="font-semibold text-foreground">{label}</span>
+                      <span className="min-h-10 leading-snug text-muted-foreground">
+                        {stanceHint(stance)}
+                      </span>
+                      <FormInput
+                        className="mt-auto"
+                        value={custom}
+                        placeholder={label}
+                        aria-label={t`Name for ${label}`}
+                        disabled={readonly}
+                        onChange={(e) => onRegimeLabel(stance, e.target.value)}
+                      />
+                    </label>
+                  );
+                })}
               </div>
             </div>
           ) : null}

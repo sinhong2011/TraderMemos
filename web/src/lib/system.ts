@@ -176,11 +176,25 @@ export function emptyRule(): Rule {
 
 export const STANCES: Stance[] = ["normal", "defensive", "paused"];
 
+/** English labels older builds wrote into regimes — not a real custom name. */
+const SEEDED_REGIME_LABELS: Record<Stance, string> = {
+  normal: "Normal",
+  defensive: "Defensive",
+  paused: "Paused",
+};
+
+/** Custom stance name, or "" when unset / still the old English seed. */
+export function customRegimeLabel(stance: Stance, regimes?: Record<string, string> | null): string {
+  const raw = regimes?.[stance]?.trim() ?? "";
+  if (!raw || raw === SEEDED_REGIME_LABELS[stance]) return "";
+  return raw;
+}
+
 export function stanceLabel(
   stance: Stance,
   version?: Pick<SystemVersion, "regimes"> | null,
 ): string {
-  const custom = version?.regimes?.[stance];
+  const custom = customRegimeLabel(stance, version?.regimes);
   if (custom) return custom;
   switch (stance) {
     case "normal":

@@ -55,10 +55,12 @@ import {
   CHANGE_REASONS,
   changedDecisions,
   changeReasonCopy,
+  customRegimeLabel,
   decisionCopy,
   DECISIONS,
   emptyRule,
   planStepCopy,
+  STANCES,
   VERSION_NAME_MAX,
   versionTitle,
 } from "@/lib/system";
@@ -378,11 +380,15 @@ function SystemMapWorkspace({
 }
 
 function versionToBody(v: SystemVersion): SystemVersionBody {
+  const regimes = { ...v.regimes };
+  for (const stance of STANCES) {
+    regimes[stance] = customRegimeLabel(stance, v.regimes);
+  }
   return {
     label: v.label,
     rules: { ...emptyRules(), ...v.rules },
     open_questions: { ...v.open_questions },
-    regimes: { ...v.regimes },
+    regimes,
     trade_types: { ...v.trade_types },
   };
 }

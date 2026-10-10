@@ -155,12 +155,14 @@ func RulesClean(rules map[string]Rule) bool {
 	return true
 }
 
-// DefaultRegimes are the starting stance labels.
+// DefaultRegimes are the starting stance keys. Labels stay empty so the UI
+// can show the translated default (Normal / Defensive / Paused) as a
+// placeholder until the user picks a custom name.
 func DefaultRegimes() map[string]string {
 	return map[string]string{
-		StanceNormal:    "Normal",
-		StanceDefensive: "Defensive",
-		StancePaused:    "Paused",
+		StanceNormal:    "",
+		StanceDefensive: "",
+		StancePaused:    "",
 	}
 }
 
