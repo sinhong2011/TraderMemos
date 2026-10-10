@@ -4,6 +4,7 @@ dist/
 tsconfig.tsbuildinfo
 *.tsbuildinfo
 test-results/
+e2e-artifacts/
 playwright-report/
 .playwright/
 .vitest/
