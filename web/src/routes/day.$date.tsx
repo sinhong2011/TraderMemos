@@ -25,6 +25,7 @@ import { useTrades } from "@/lib/hooks/useTrades";
 import { useReviewInbox } from "@/lib/hooks/useReviewInbox";
 import { useMarketToday } from "@/lib/today";
 import { useUI } from "@/lib/ui";
+import { MarketRegimeCard } from "@/components/MarketRegimeCard";
 import { WeeklyFocusCard } from "@/components/WeeklyFocusCard";
 import { notesApi } from "@/lib/api/notes";
 import { useWeeklyFocus } from "@/lib/hooks/useWeeklyFocus";
@@ -141,19 +142,24 @@ function DayReviewPage() {
   );
 
   const todayNet = summaryQ.data?.net_pnl ?? 0;
-  const desk = isToday ? (
+  const desk = (
     <>
-      <DailyLossCard todayNetPnl={todayNet} currency={currency} fxRate={fxRate} />
-      <OpenPositionsCard
-        trades={openQ.data ?? []}
-        loading={openQ.isLoading}
-        error={openQ.isError}
-        currency={currency}
-        fxRate={fxRate}
-        onSelect={(t) => setSelectedTradeId(t.id)}
-      />
+      <MarketRegimeCard day={date} />
+      {isToday ? (
+        <>
+          <DailyLossCard todayNetPnl={todayNet} currency={currency} fxRate={fxRate} />
+          <OpenPositionsCard
+            trades={openQ.data ?? []}
+            loading={openQ.isLoading}
+            error={openQ.isError}
+            currency={currency}
+            fxRate={fxRate}
+            onSelect={(t) => setSelectedTradeId(t.id)}
+          />
+        </>
+      ) : null}
     </>
-  ) : null;
+  );
 
   const bodyOf = (t: MissedTrade) => ({
     symbol: t.symbol,

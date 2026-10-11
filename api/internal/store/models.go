@@ -219,6 +219,13 @@ type MarketBarsCache struct {
 	ExpiresAt sql.NullString `json:"expires_at"`
 }
 
+type MarketRegimeDay struct {
+	UserID string `json:"user_id"`
+	Day    string `json:"day"`
+	Regime string `json:"regime"`
+	Note   string `json:"note"`
+}
+
 type MediaFile struct {
 	ID          string    `json:"id"`
 	UserID      string    `json:"user_id"`
@@ -323,6 +330,101 @@ type ShareLink struct {
 	ViewCount int64        `json:"view_count"`
 }
 
+type SystemChange struct {
+	ID               string    `json:"id"`
+	VersionID        string    `json:"version_id"`
+	UserID           string    `json:"user_id"`
+	Decision         string    `json:"decision"`
+	Reason           string    `json:"reason"`
+	Note             string    `json:"note"`
+	EvidenceTradeIds string    `json:"evidence_trade_ids"`
+	CreatedAt        time.Time `json:"created_at"`
+}
+
+type SystemPlan struct {
+	ID        string         `json:"id"`
+	UserID    string         `json:"user_id"`
+	VersionID sql.NullString `json:"version_id"`
+	Symbol    string         `json:"symbol"`
+	Direction string         `json:"direction"`
+	Status    string         `json:"status"`
+	Source    string         `json:"source"`
+	TradeID   sql.NullString `json:"trade_id"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+}
+
+type SystemPlanEvent struct {
+	ID         string    `json:"id"`
+	PlanID     string    `json:"plan_id"`
+	UserID     string    `json:"user_id"`
+	Kind       string    `json:"kind"`
+	FromStatus string    `json:"from_status"`
+	ToStatus   string    `json:"to_status"`
+	TradeID    string    `json:"trade_id"`
+	Reason     string    `json:"reason"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+type SystemPlanEvidence struct {
+	ID             string       `json:"id"`
+	PlanID         string       `json:"plan_id"`
+	UserID         string       `json:"user_id"`
+	WithdrawnAt    sql.NullTime `json:"withdrawn_at"`
+	WithdrawReason string       `json:"withdraw_reason"`
+	CreatedAt      time.Time    `json:"created_at"`
+}
+
+type SystemPlanEvidenceRevision struct {
+	ID         string       `json:"id"`
+	EvidenceID string       `json:"evidence_id"`
+	UserID     string       `json:"user_id"`
+	Seq        int64        `json:"seq"`
+	DecisionID string       `json:"decision_id"`
+	Stance     string       `json:"stance"`
+	Body       string       `json:"body"`
+	State      string       `json:"state"`
+	Action     string       `json:"action"`
+	Source     string       `json:"source"`
+	OccurredAt sql.NullTime `json:"occurred_at"`
+	RecordedAt time.Time    `json:"recorded_at"`
+}
+
+type SystemPlanRevision struct {
+	ID           string          `json:"id"`
+	PlanID       string          `json:"plan_id"`
+	UserID       string          `json:"user_id"`
+	Seq          int64           `json:"seq"`
+	Stage        string          `json:"stage"`
+	Setup        string          `json:"setup"`
+	Thesis       string          `json:"thesis"`
+	TriggerText  string          `json:"trigger_text"`
+	Invalidation string          `json:"invalidation"`
+	EntryPrice   sql.NullFloat64 `json:"entry_price"`
+	StopPrice    sql.NullFloat64 `json:"stop_price"`
+	TargetPrice  sql.NullFloat64 `json:"target_price"`
+	Conditions   string          `json:"conditions"`
+	OccurredAt   sql.NullTime    `json:"occurred_at"`
+	RecordedAt   time.Time       `json:"recorded_at"`
+}
+
+type SystemVersion struct {
+	ID            string       `json:"id"`
+	SystemID      string       `json:"system_id"`
+	UserID        string       `json:"user_id"`
+	Label         string       `json:"label"`
+	Status        string       `json:"status"`
+	Rules         string       `json:"rules"`
+	OpenQuestions string       `json:"open_questions"`
+	Regimes       string       `json:"regimes"`
+	TradeTypes    string       `json:"trade_types"`
+	ActivatedAt   sql.NullTime `json:"activated_at"`
+	RetiredAt     sql.NullTime `json:"retired_at"`
+	CreatedAt     time.Time    `json:"created_at"`
+	UpdatedAt     time.Time    `json:"updated_at"`
+	Name          string       `json:"name"`
+}
+
 type Tag struct {
 	ID          string `json:"id"`
 	UserID      string `json:"user_id"`
@@ -397,9 +499,37 @@ type TradeSetup struct {
 	SetupID string `json:"setup_id"`
 }
 
+type TradeSystemCard struct {
+	TradeID         string         `json:"trade_id"`
+	UserID          string         `json:"user_id"`
+	VersionID       sql.NullString `json:"version_id"`
+	Regime          string         `json:"regime"`
+	TriggerMet      string         `json:"trigger_met"`
+	TradeType       string         `json:"trade_type"`
+	Thesis          string         `json:"thesis"`
+	PlannedHoldDays sql.NullInt64  `json:"planned_hold_days"`
+	TimeStopDays    sql.NullInt64  `json:"time_stop_days"`
+	ExitState       string         `json:"exit_state"`
+	Adherence       string         `json:"adherence"`
+	Checklist       string         `json:"checklist"`
+	Lesson          string         `json:"lesson"`
+	RuleChange      int64          `json:"rule_change"`
+	PlannedAt       sql.NullTime   `json:"planned_at"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
+}
+
 type TradeTag struct {
 	TradeID string `json:"trade_id"`
 	TagID   string `json:"tag_id"`
+}
+
+type TradingSystem struct {
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type User struct {

@@ -1,22 +1,56 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-07-11 20:58+0800\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Generator: @lingui/cli\n"
-"Language: zh-HK\n"
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Plural-Forms: \n"
+
+#: src/components/TradeSystemCard.tsx:106
+#: src/components/TradeSystemCard.tsx:120
+#: src/components/TradeSystemCard.tsx:132
+#: src/components/TradeSystemCard.tsx:166
+#: src/components/TradeSystemCard.tsx:180
+msgid "—"
+msgstr "—"
+
+#. placeholder {0}: plan.symbol
+#. placeholder {1}: directionLabel(plan.direction)
+#. placeholder {2}: plan.version_label || "—"
+#: src/components/system-map/FollowPlan.tsx:1002
+msgid "{0} · {1} · {2}"
+msgstr "{0} · {1} · {2}"
+
+#. placeholder {0}: selectedVersion.label
+#. placeholder {1}: decisions.length
+#: src/app/screens/SystemView.tsx:582
+#~ msgid "{0} · {1} decisions"
+#~ msgstr ""
+
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:667
+msgid "{0} · draft"
+msgstr "{0} · 草稿"
+
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:666
+msgid "{0} · read-only"
+msgstr "{0} · 唯讀"
+
+#. placeholder {0}: step.progress
+#. placeholder {1}: step.target
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "{0} / {1}"
+msgstr "{0} / {1}"
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:198
 msgid "{0} days in the market"
 msgstr "入市 {0} 日"
+
+#. placeholder {0}: check.answered
+#. placeholder {0}: data.check.answered
+#. placeholder {1}: check.total
+#. placeholder {1}: data.check.total
+#: src/components/system-map/FollowPlan.tsx:1008
+#: src/components/system-map/SystemNode.tsx:182
+msgid "{0} of {1} checked"
+msgstr "已核對 {0}/{1}"
 
 #. placeholder {0}: s.total_trades
 #. placeholder {0}: sym.trades
@@ -30,17 +64,220 @@ msgstr "{0} 筆交易"
 msgid "{0} win rate"
 msgstr "勝率 {0}"
 
+#. placeholder {0}: copy.title
+#. placeholder {1}: step.progress
+#. placeholder {2}: step.target
+#: src/components/system-map/PlanStepper.tsx:60
+msgid "{0}: {1} of {2}"
+msgstr "{0}：{1}/{2}"
+
+#. placeholder {0}: plan.length
+#: src/components/system-map/PlanStepper.tsx:45
+msgid "{doneCount} of {0} steps done"
+msgstr "{0} 步中已完成 {doneCount} 步"
+
+#. placeholder {0}: n.decisions.length
+#: src/components/system-map/SystemMap.tsx:121
+#~ msgid "{filled} of {0} written"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:141
+msgid "{filled} of {total} decisions written"
+msgstr "已寫 {filled}/{total} 項決策"
+
+#: src/components/system-map/FollowPlan.tsx:876
+msgid "{from} → {to}"
+msgstr "{from} → {to}"
+
+#. placeholder {0}: checkLabel(check.state)
+#. placeholder {1}: check.answered
+#. placeholder {2}: check.total
+#: src/components/system-map/SystemMap.tsx:131
+msgid "{title}: {0}, {1} of {2} checked"
+msgstr "{title}：{0}，已核對 {1}/{2}"
+
+#. placeholder {0}: clarityLabel(clarity)
+#. placeholder {1}: n.decisions.length
+#: src/components/system-map/SystemMap.tsx:132
+msgid "{title}: {0}, {filled} of {1} written"
+msgstr "{title}：{0}，已寫 {filled}/{1}"
+
 #: src/app/screens/PublicShareView.tsx:223
 msgid "1.0 = break-even"
 msgstr "1.0 = 打和"
+
+#: src/lib/system.ts:108
+msgid "1% of equity per trade at full size; 0.5% when the setup is only a B."
+msgstr "滿倉每筆風險為資金 1%；僅屬 B 級設置時用 0.5%。"
 
 #: src/app/screens/settings/backups-section.tsx:94
 msgid "A backup is already running"
 msgstr "備份已在進行中"
 
+#: src/lib/system.ts:90
+msgid "A base of at least 3 weeks after a 30% advance, the last pullback under 10% on falling volume."
+msgstr "急升至少 30% 後形成不少於 3 週的整理；最後一次回調少於 10%，且成交量收縮。"
+
+#: src/lib/system-plan.ts:222
+msgid "A long needs its stop below entry."
+msgstr "做多的止蝕要低於進場價。"
+
+#: src/lib/system-plan.ts:230
+msgid "A long needs its target above entry."
+msgstr "做多的目標要高於進場價。"
+
+#. placeholder {0}: version.label
+#: src/app/screens/SystemView.tsx:850
+msgid "A short name makes versions easier to tell apart. The version number stays {0}, and the rules don't change."
+msgstr "短名稱方便區分版本。版本號仍是 {0}，規則不會因此改動。"
+
+#: src/lib/system-plan.ts:225
+msgid "A short needs its stop above entry."
+msgstr "做空的止蝕要高於進場價。"
+
+#: src/lib/system-plan.ts:233
+msgid "A short needs its target below entry."
+msgstr "做空的目標要低於進場價。"
+
+#: src/components/system-map/FollowPlan.tsx:1055
+msgid "A trade is linked. New revisions are marked after the fill; what you wrote before stays as it was."
+msgstr "已連結一筆交易。之後的修訂會標成成交後；成交前寫下的內容維持原樣。"
+
+#: src/components/system-map/PlanStepper.tsx:31
+msgid "About the four-week plan"
+msgstr "關於四周計劃"
+
+#: src/components/system-map/EvidenceTimeline.tsx:284
+#: src/components/system-map/EvidenceTimeline.tsx:286
+#: src/lib/system.ts:148
+msgid "Action"
+msgstr "行動"
+
+#: src/app/screens/SystemView.tsx:606
+#: src/app/screens/SystemView.tsx:1021
+msgid "Activate"
+msgstr "啟用"
+
+#. placeholder {0}: draft ? versionTitle(draft) : ""
+#: src/app/screens/SystemView.tsx:957
+msgid "Activate {0}"
+msgstr "啟用 {0}"
+
+#: src/components/system-map/FollowPlan.tsx:290
+#: src/components/system-map/FollowTradeInspector.tsx:61
+msgid "Activate a version before planning trades"
+msgstr "先啟用一個版本，再規劃交易"
+
+#: src/components/system-map/FollowTradeInspector.tsx:81
+msgid "Activate a version first — plans are checked against the rules in use."
+msgstr "請先啟用一個版本——計劃會對照正在使用的規則。"
+
+#: src/lib/system.ts:315
+#~ msgid "Activate the next version after the live run. A saved review decision comes later — this step only tracks that you revised."
+#~ msgstr "實盤跑完後啟用下一版本。已儲存的回顧決策稍後才算——此步只追蹤你有否修訂。"
+
+#: src/components/system-map/FollowPlan.tsx:945
+#: src/components/system-map/FollowPlan.tsx:946
+msgid "Activity"
+msgstr "活動"
+
+#: src/components/system-map/EvidenceTimeline.tsx:63
+msgid "Add"
+msgstr "加倉"
+
+#: src/lib/system.ts:126
+msgid "Add only when relative strength makes a new high with the index; trim when the thesis is intact but time is half gone."
+msgstr "僅在相對強度隨指數創新高時加倉；論點仍在但時間已過半則減倉。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:306
+msgid "Adding or trimming is a note. It is not an order, and it is not marked as breaking a rule."
+msgstr "加倉或減倉只是一則紀錄，不是下單，也不會被當成違反規則。"
+
+#: src/app/screens/SystemReviewPanel.tsx:136
+msgid "Adequate"
+msgstr "足夠"
+
+#: src/components/TradeSystemCard.tsx:175
+msgid "Adherence"
+msgstr "遵守度"
+
+#: src/app/screens/SystemReviewPanel.tsx:51
+msgid "Adherence rate"
+msgstr "遵守率"
+
+#: src/lib/system.ts:166
+msgid "Adjust"
+msgstr "調整"
+
+#: src/components/system-map/FollowPlan.tsx:101
+msgid "After fill"
+msgstr "成交後"
+
+#: src/components/system-map/EvidenceTimeline.tsx:332
+#: src/components/system-map/EvidenceTimeline.tsx:423
+#: src/components/system-map/PlanDialogs.tsx:128
+msgid "After the fact"
+msgstr "事後補記"
+
+#: src/components/system-map/PlanDialogs.tsx:275
+msgid "Already confirms another plan"
+msgstr "已用來確認另一個計劃"
+
+#: src/components/system-map/RuleEditor.tsx:144
+#~ msgid "Ambiguous, conflicting or missing cases ({part})"
+#~ msgstr ""
+
+#: src/lib/system.ts:291
+msgid "Another reason — say which evidence."
+msgstr "其他原因——說明依據。"
+
+#: src/lib/system.ts:300
+msgid "Answer all 16 decisions so someone else would decide the same, then activate."
+msgstr "寫齊 16 項決策，讓別人也能做同樣決定，然後啟用。"
+
+#: src/components/system-map/FollowPlan.tsx:692
+msgid "Answer for {title}"
+msgstr "{title}的答案"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "套用"
+
+#: src/lib/system.ts:102
+msgid "At most 6% open risk; cut to 3% in defensive markets."
+msgstr "未平倉風險最多 6%；防守市況降至 3%。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:331
+msgid "At the time"
+msgstr "當時"
+
+#: src/components/system-map/FollowTradeInspector.tsx:85
+#~ msgid "Attach a trade to check conditions against this rule"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:394
+#~ msgid "Attach an opportunity in Phase C — layout matches the follow inspector now."
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:45
+#~ msgid "Available when a trade is attached (Phase C–E)"
+#~ msgstr ""
+
+#: src/components/system-map/PlanDialogs.tsx:218
+msgid "Back"
+msgstr "返回"
+
+#: src/components/system-map/FollowPlan.tsx:1046
+msgid "Back to latest"
+msgstr "回到最新"
+
+#: src/components/system-map/FollowPlan.tsx:339
+msgid "Back to planned"
+msgstr "回到計劃中"
+
+#: src/app/screens/SystemView.tsx:170
+#~ msgid "Back to write rules"
+#~ msgstr ""
 
 #: src/app/screens/settings/backups-section.tsx:149
 msgid "Back up now"
@@ -74,21 +311,270 @@ msgstr "備份為最新"
 msgid "Backups are overdue"
 msgstr "備份已逾期"
 
+#: src/components/system-map/FollowPlan.tsx:101
+msgid "Before fill"
+msgstr "成交前"
+
 #: src/app/screens/PublicShareView.tsx:308
 msgid "Best day"
 msgstr "最佳交易日"
+
+#: src/lib/system-plan.ts:121
+msgid "Breaks a rule"
+msgstr "違反規則"
+
+#: src/app/screens/SystemReviewPanel.tsx:72
+msgid "Broke rules · lost"
+msgstr "違規 · 虧"
+
+#: src/app/screens/SystemReviewPanel.tsx:71
+msgid "Broke rules · won"
+msgstr "違規 · 賺"
+
+#: src/lib/system.ts:96
+msgid "Buy only on a break and hold above the pivot with volume above the 50-day average."
+msgstr "僅在帶量突破並站穩支點時買入，成交量高於 50 日均量。"
+
+#: src/app/screens/SystemReviewPanel.tsx:104
+msgid "By adherence"
+msgstr "按遵守度"
+
+#: src/app/screens/SystemReviewPanel.tsx:101
+msgid "By exit state"
+msgstr "按離場狀態"
+
+#: src/app/screens/SystemReviewPanel.tsx:99
+msgid "By market"
+msgstr "按市場"
+
+#: src/app/screens/SystemReviewPanel.tsx:100
+msgid "By setup"
+msgstr "按設置"
+
+#: src/app/screens/SystemReviewPanel.tsx:102
+msgid "By trade type"
+msgstr "按交易類型"
+
+#: src/app/screens/SystemReviewPanel.tsx:103
+msgid "By version"
+msgstr "按版本"
 
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "日曆"
 
+#: src/app/screens/SystemView.tsx:882
+#: src/app/screens/SystemView.tsx:1006
+#: src/components/system-map/EvidenceTimeline.tsx:218
+#: src/components/system-map/PlanDialogs.tsx:154
+#: src/components/system-map/PlanDialogs.tsx:346
+msgid "Cancel"
+msgstr "取消"
+
+#: src/app/screens/SystemView.tsx:592
+msgid "Cancel edits"
+msgstr "取消編輯"
+
+#: src/components/system-map/FollowPlan.tsx:629
+msgid "Cancel plan"
+msgstr "取消計劃"
+
+#: src/components/system-map/FollowPlan.tsx:429
+msgid "Cancel plan…"
+msgstr "取消計劃…"
+
+#: src/components/system-map/FollowPlan.tsx:627
+msgid "Cancel this plan?"
+msgstr "取消這個計劃？"
+
+#: src/lib/system-plan.ts:44
+msgid "Cancelled"
+msgstr "已取消"
+
+#: src/components/system-map/FollowPlan.tsx:1103
+msgid "Cancelled — no trade."
+msgstr "已取消——沒有交易。"
+
+#: src/lib/system.ts:305
+msgid "Card past or backtest trades against the rules; note ambiguous, conflicting or missing cases."
+msgstr "用規則核對過往或回測交易；記下模糊、衝突或缺失的個案。"
+
+#: src/app/screens/SystemReviewPanel.tsx:47
+msgid "Carded"
+msgstr "已建卡"
+
+#: src/components/system-map/RuleEditor.tsx:189
+msgid "Cases your rules don't settle yet — ambiguous, conflicting or missing."
+msgstr "規則尚未釐清的個案——模糊、衝突或缺失。"
+
+#. placeholder {0}: Math.round(review.streak.chance * 100)
+#: src/app/screens/SystemReviewPanel.tsx:79
+msgid "Chance of this run given recent win rate: {0}%."
+msgstr "以近期勝率計，此連串結果的機率：{0}%。"
+
+#: src/lib/system.ts:168
+msgid "Change a rule only with enough trades behind it; a single normal loss changes nothing."
+msgstr "有足夠樣本才改規則；單一次正常虧損不必動。"
+
+#. placeholder {0}: version.label
+#: src/components/system-map/FollowPlan.tsx:1118
+msgid "Check against {0}"
+msgstr "對照 {0}"
+
+#. placeholder {0}: detail.version_label || "—"
+#. placeholder {1}: detail.latest?.seq ?? 0
+#: src/components/system-map/FollowPlan.tsx:305
+msgid "Checked against {0} · revision {1}"
+msgstr "對照 {0} · 修訂 {1}"
+
 #: src/app/screens/settings/backups-section.tsx:158
 msgid "Checking…"
 msgstr "檢查中…"
 
+#: src/components/system-map/FollowTradeInspector.tsx:102
+#~ msgid "Checks unlock when Follow trade has a linked opportunity (Phase C)."
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:63
+msgid "Clear"
+msgstr "清除"
+
+#: src/app/screens/SystemReviewPanel.tsx:46
+msgid "Closed"
+msgstr "已平倉"
+
+#. placeholder {0}: fmtDateTime(plan.trade.closed_at)
+#: src/components/system-map/FollowPlan.tsx:1084
+msgid "closed {0}"
+msgstr "平倉於 {0}"
+
+#: src/lib/system.ts:119
+msgid "Concentration, correlation, gap, liquidity and slippage across all positions."
+msgstr "全部倉位的集中度、相關性、跳空、流動性與滑價。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:110
+msgid "Condition check"
+msgstr "條件核對"
+
+#: src/components/system-map/SystemMap.tsx:57
+msgid "Conditions not met"
+msgstr "條件未滿足"
+
+#: src/components/system-map/SystemMapList.tsx:95
+#~ msgid "Conditions not met → keep watching is a branch of Entry, not a failure."
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:112
+msgid "Conditions to confirm"
+msgstr "待確認條件"
+
+#: src/components/system-map/SystemMap.tsx:55
+msgid "Confirm trigger"
+msgstr "確認觸發"
+
+#: src/app/screens/SystemView.tsx:134
+msgid "Connect rules, decisions, and evidence."
+msgstr "把規則、決策與證據連起來。"
+
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
 msgstr "穩定性"
+
+#: src/components/system-map/EvidenceTimeline.tsx:441
+msgid "Correct"
+msgstr "更正"
+
+#: src/components/system-map/EvidenceTimeline.tsx:207
+msgid "Correcting this note. The earlier wording stays."
+msgstr "正在更正這則紀錄。先前的文字會保留。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:144
+msgid "Correction saved"
+msgstr "已儲存更正"
+
+#: src/app/screens/SystemView.tsx:802
+msgid "Could not activate"
+msgstr "無法啟用"
+
+#: src/components/system-map/FollowPlan.tsx:513
+msgid "Could not create the plan"
+msgstr "無法建立計劃"
+
+#: src/app/screens/SystemView.tsx:767
+msgid "Could not discard"
+msgstr "無法捨棄"
+
+#: src/components/system-map/FollowPlan.tsx:562
+msgid "Could not link"
+msgstr "無法連結"
+
+#: src/components/system-map/EvidenceTimeline.tsx:163
+msgid "Could not load evidence."
+msgstr "無法載入證據。"
+
+#: src/app/screens/SystemReviewPanel.tsx:28
+msgid "Could not load the review"
+msgstr "無法載入回顧"
+
+#: src/app/screens/SystemView.tsx:190
+msgid "Could not load the system"
+msgstr "無法載入系統"
+
+#: src/components/system-map/PlanDialogs.tsx:323
+msgid "Could not load trades."
+msgstr "無法載入交易。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:148
+msgid "Could not record evidence"
+msgstr "無法記錄證據"
+
+#: src/app/screens/SystemView.tsx:837
+msgid "Could not rename"
+msgstr "無法重新命名"
+
+#: src/app/screens/SystemView.tsx:619
+#: src/app/screens/SystemView.tsx:736
+#: src/components/system-map/FollowPlan.tsx:238
+#: src/components/TradeSystemCard.tsx:88
+msgid "Could not save"
+msgstr "無法儲存"
+
+#: src/components/MarketRegimeCard.tsx:38
+msgid "Could not save regime"
+msgstr "無法儲存市場狀態"
+
+#: src/app/screens/SystemView.tsx:367
+#: src/app/screens/SystemView.tsx:564
+msgid "Could not start"
+msgstr "無法開始"
+
+#: src/components/system-map/FollowPlan.tsx:539
+msgid "Could not unlink"
+msgstr "無法解除連結"
+
+#: src/components/system-map/FollowPlan.tsx:252
+msgid "Could not update"
+msgstr "無法更新"
+
+#: src/components/system-map/EvidenceTimeline.tsx:380
+msgid "Could not withdraw"
+msgstr "無法撤回"
+
+#: src/app/screens/SystemReviewPanel.tsx:59
+msgid "Counted in range only — not in the adherence rate (no version on misses yet)."
+msgstr "只計入區間——不計入遵守率（錯過的交易尚未掛版本）。"
+
+#: src/app/screens/SystemReviewPanel.tsx:44
+msgid "Coverage"
+msgstr "覆蓋率"
+
+#: src/components/system-map/PlanDialogs.tsx:157
+msgid "Create plan"
+msgstr "建立計劃"
+
+#: src/components/system-map/PlanDialogs.tsx:157
+msgid "Creating…"
+msgstr "建立中…"
 
 #: src/app/screens/PublicShareView.tsx:272
 msgid "Cumulative net P&L over the shared period."
@@ -102,6 +588,10 @@ msgstr "累計損益曲線"
 msgid "Cumulative P&L shape — amounts are not shared."
 msgstr "累計損益形態 — 金額未有分享。"
 
+#: src/lib/system.ts:138
+msgid "Daily close under the 10-day and sector lagging for two sessions weakens the thesis."
+msgstr "日線收於 10 日線下，且板塊連續兩日落後，論點轉弱。"
+
 #: src/components/AppNav.tsx:31
 #~ msgid "Dashboard"
 #~ msgstr "儀表板"
@@ -111,17 +601,193 @@ msgstr "累計損益形態 — 金額未有分享。"
 msgid "days in a row"
 msgstr "連續日數"
 
+#: src/components/system-map/EvidenceTimeline.tsx:223
+#: src/components/system-map/EvidenceTimeline.tsx:225
+msgid "Decision"
+msgstr "決策"
+
+#. placeholder {0}: decisionCopy(decisions[0]).title
+#: src/app/screens/SystemView.tsx:584
+#~ msgid "Decision · {0}"
+#~ msgstr ""
+
+#. placeholder {0}: decisionIndex(d)
+#. placeholder {0}: decisionIndex(id)
+#. placeholder {1}: copy.title
+#. placeholder {1}: decisionCopy(d).title
+#: src/components/system-map/FollowTradeInspector.tsx:93
+#: src/components/system-map/RuleEditor.tsx:46
+msgid "Decision {0} · {1}"
+msgstr "決策 {0} · {1}"
+
+#. placeholder {0}: decisionIndex(decision)
+#: src/components/system-map/FollowPlan.tsx:675
+msgid "Decision {0} · {title}"
+msgstr "決策 {0} · {title}"
+
+#: src/lib/system.ts:203
+msgid "Defensive"
+msgstr "防守"
+
+#: src/app/screens/SystemView.tsx:391
+#~ msgid "Demo shell"
+#~ msgstr ""
+
+#: src/lib/system.ts:269
+msgid "Did not move or remove the stop or target off-plan"
+msgstr "沒有偏離計劃移動或取消止蝕／目標"
+
 #: src/app/screens/settings/backups-section.tsx:207
 msgid "Directory"
 msgstr "目錄"
 
-#: src/app/drawers/NewNoteDrawer.tsx:187
+#: src/app/screens/SystemView.tsx:919
+#: src/components/system-map/FollowPlan.tsx:592
+msgid "Discard"
+msgstr "捨棄"
+
+#. placeholder {0}: selectedVersion.label
+#: src/app/screens/SystemView.tsx:745
+msgid "Discard {0}?"
+msgstr "捨棄 {0}？"
+
+#: src/app/screens/SystemView.tsx:257
+msgid "Discard and leave"
+msgstr "捨棄並離開"
+
+#: src/app/screens/SystemView.tsx:583
+#: src/app/screens/SystemView.tsx:771
+msgid "Discard draft"
+msgstr "捨棄草稿"
+
+#: src/components/system-map/FollowPlan.tsx:374
+msgid "Discard edits"
+msgstr "捨棄修改"
+
+#: src/app/screens/SystemView.tsx:523
+#~ msgid "Discard this draft? This cannot be undone."
+#~ msgstr ""
+
+#: src/components/system-map/PlanStepper.tsx:87
+msgid "Done"
+msgstr "完成"
+
+#: src/app/screens/SystemView.tsx:87
+msgid "Draft"
+msgstr "草稿"
+
+#: src/app/screens/SystemView.tsx:764
+msgid "Draft discarded"
+msgstr "已捨棄草稿"
+
+#: src/app/screens/SystemView.tsx:617
+msgid "Draft saved"
+msgstr "草稿已儲存"
+
+#: src/app/screens/SystemView.tsx:365
+msgid "Draft started"
+msgstr "已開始草稿"
+
+#: src/components/system-map/SystemMap.tsx:81
+#~ msgid "Drag nodes to rearrange"
+#~ msgstr ""
+
+#: src/components/system-map/SystemMap.tsx:94
+msgid "Drag to rearrange"
+msgstr "拖曳以重排"
+
+#: src/lib/system.ts:124
+msgid "Dynamic adjustment"
+msgstr "動態調整"
+
+#: src/components/system-map/FollowPlan.tsx:775
+msgid "e.g. Flat base, 7 weeks"
+msgstr "例如：7 週平台整理"
+
+#: src/app/screens/SystemView.tsx:869
+msgid "e.g. Trend pullbacks, tighter stops"
+msgstr "例如：趨勢回調、收緊止蝕"
+
+#: src/components/system-map/RuleEditor.tsx:198
+msgid "e.g. What if the index gaps through the 200-day line?"
+msgstr "例如：指數跳空穿過 200 日線怎麼辦？"
+
+#: src/components/system-map/EvidenceTimeline.tsx:449
+msgid "Earlier revisions"
+msgstr "較早的修訂"
+
+#: src/components/system-map/FollowTradeInspector.tsx:52
+#~ msgid "Edit draft"
+#~ msgstr ""
+
+#: src/components/system-map/FollowPlan.tsx:1017
+#: src/components/system-map/FollowTradeInspector.tsx:56
+msgid "Edit rules"
+msgstr "編輯規則"
+
+#: src/app/screens/SystemView.tsx:585
+#~ msgid "Edit the selected node."
+#~ msgstr ""
+
+#: src/app/drawers/NewNoteDrawer.tsx:189
 msgid "Edit weekly review"
 msgstr "編輯每週回顧"
+
+#: src/lib/system.ts:261
+msgid "Entered at a level planned beforehand"
+msgstr "在預先計劃的價位進場"
+
+#: src/components/system-map/FollowPlan.tsx:810
+#: src/components/system-map/FollowPlan.tsx:816
+#: src/lib/system.ts:62
+msgid "Entry"
+msgstr "進場"
+
+#: src/components/system-map/SystemNode.tsx:46
+msgid "Entry conditions"
+msgstr "進場條件"
+
+#: src/components/system-map/FollowPlan.tsx:804
+msgid "Entry, stop and target price the plan in R."
+msgstr "進場、止蝕和目標用來計算計劃的 R。"
 
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
 msgstr "每 {interval}"
+
+#: src/components/system-map/EvidenceTimeline.tsx:155
+#: src/components/system-map/FollowTradeInspector.tsx:130
+msgid "Evidence at the time"
+msgstr "當時的證據"
+
+#: src/components/system-map/EvidenceTimeline.tsx:256
+msgid "Evidence note"
+msgstr "證據紀錄"
+
+#: src/components/system-map/EvidenceTimeline.tsx:144
+msgid "Evidence recorded"
+msgstr "已記錄證據"
+
+#: src/components/system-map/EvidenceTimeline.tsx:180
+msgid "Evidence while holding"
+msgstr "持倉期間的證據"
+
+#: src/lib/system.ts:277
+msgid "Execution error"
+msgstr "執行錯誤"
+
+#: src/components/system-map/EvidenceTimeline.tsx:69
+#: src/lib/system.ts:66
+msgid "Exit"
+msgstr "離場"
+
+#: src/components/TradeSystemCard.tsx:161
+msgid "Exit state"
+msgstr "離場狀態"
+
+#: src/lib/system.ts:267
+msgid "Exited by the plan, not by emotion"
+msgstr "按計劃離場，而非情緒"
 
 #: src/app/screens/PublicShareView.tsx:250
 msgid "Expectancy"
@@ -136,13 +802,152 @@ msgstr "失敗"
 msgid "Failed {0}"
 msgstr "失敗（{0}）"
 
+#: src/components/system-map/FeedbackEdge.tsx:25
+#: src/components/system-map/SystemMap.tsx:59
+msgid "Feedback to rules"
+msgstr "回饋到規則"
+
+#: src/app/screens/SystemView.tsx:540
+#~ msgid "fill these first; the rest can wait."
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:54
+#: src/lib/system.ts:241
+msgid "Finished"
+msgstr "已完成"
+
+#: src/lib/system.ts:315
+msgid "Finishes only after the write, the history test, and a live run, once you activate the next version. Activating early does not complete it."
+msgstr "要等撰寫、用過往交易測試和實盤運行都完成，並且啟用下一個版本，這一步才算完成。提早啟用不會把它標成完成。"
+
+#: src/components/system-map/SystemMap.tsx:309
+msgid "Fit"
+msgstr "適配"
+
+#: src/components/system-map/SystemMap.tsx:306
+msgid "Fit the whole map in view"
+msgstr "將整幅地圖納入視野"
+
+#: src/components/system-map/FollowPlan.tsx:228
+msgid "Fix the prices first"
+msgstr "請先修正價格"
+
+#: src/components/system-map/FollowPlan.tsx:1030
+#: src/components/system-map/FollowTradeInspector.tsx:69
+msgid "Follow mode organizes conditions and evidence. It never places orders."
+msgstr "跟隨模式整理條件與證據，絕不會下單。"
+
+#: src/app/screens/SystemView.tsx:179
+msgid "Follow trade"
+msgstr "跟隨交易"
+
+#: src/app/screens/SystemView.tsx:166
+#~ msgid "Follow trade comes next"
+#~ msgstr ""
+
+#: src/app/screens/SystemReviewPanel.tsx:70
+msgid "Followed · lost"
+msgstr "有守 · 虧"
+
+#: src/app/screens/SystemReviewPanel.tsx:69
+msgid "Followed · won"
+msgstr "有守 · 賺"
+
+#: src/components/system-map/FollowTradeInspector.tsx:43
+msgid "Following {label}"
+msgstr "跟隨 {label}"
+
+#. placeholder {0}: decisionIndex(primary)
+#: src/components/system-map/FollowTradeInspector.tsx:36
+#~ msgid "Following {label} · decision {0}"
+#~ msgstr ""
+
+#: src/components/system-map/PlanStepper.tsx:21
+#: src/components/system-map/PlanStepper.tsx:26
+msgid "Four-week plan"
+msgstr "四周計劃"
+
+#: src/app/screens/SystemReviewPanel.tsx:66
+msgid "Full adherence vs partial/none, against win vs loss. Wrong-but-won is the dangerous cell."
+msgstr "完全遵守對比部分／無，對上勝對敗。違規卻賺錢是最危險的格。"
+
+#: src/lib/system.ts:250
+msgid "Fully followed"
+msgstr "完全遵守"
+
+#: src/app/screens/SystemView.tsx:960
+msgid "Give a reason for each changed decision. The previous active version becomes read-only history."
+msgstr "為每項改動的決策寫原因。上一啟用版本會變成唯讀歷史。"
+
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
 msgstr "獲利日"
 
+#: src/app/screens/SystemReviewPanel.tsx:169
+msgid "Group"
+msgstr "分組"
+
+#. placeholder {0}: fmtDateTime(r.occurred_at)
+#: src/components/system-map/FollowPlan.tsx:927
+msgid "happened {0}"
+msgstr "發生於 {0}"
+
+#. placeholder {0}: fmtDateTime(latest.occurred_at)
+#: src/components/system-map/EvidenceTimeline.tsx:431
+msgid "Happened {0}"
+msgstr "發生於 {0}"
+
+#: src/app/screens/SystemReviewPanel.tsx:57
+msgid "Hesitated misses"
+msgstr "猶豫錯過"
+
+#: src/app/screens/SystemView.tsx:582
+#~ msgid "Historical versions are read-only."
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:426
+#~ msgid "History"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:71
+msgid "Hold"
+msgstr "持有"
+
+#: src/components/system-map/SystemNode.tsx:25
+#~ msgid "Holding"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:50
+msgid "Holding decisions"
+msgstr "持倉決策"
+
+#: src/lib/system.ts:161
+msgid "How do I judge process apart from outcome?"
+msgstr "如何把過程與結果分開衡量？"
+
+#: src/lib/system.ts:64
+msgid "How much risk each trade and the book carry."
+msgstr "每筆交易與整本倉位承擔多少風險。"
+
+#: src/lib/system.ts:66
+msgid "How you read the trade after entry and what you do."
+msgstr "進場後如何解讀交易、採取什麼行動。"
+
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
 #~ msgstr "匯入"
+
+#: src/app/screens/SystemView.tsx:85
+msgid "In use"
+msgstr "使用中"
+
+#: src/lib/system.ts:78
+msgid "Index above the 200-day and the 50-day rising = normal; below the 200-day = defensive; more new lows than highs for two weeks = paused."
+msgstr "指數在 200 日線上且 50 日線上升＝正常；跌破 200 日線＝防守；兩週新低多於新高＝暫停。"
+
+#: src/app/screens/SystemReviewPanel.tsx:134
+msgid "Indicative"
+msgstr "參考性"
 
 #: src/app/screens/settings/settings-sections.tsx:1170
 #~ msgid "Interface language"
@@ -152,6 +957,15 @@ msgstr "獲利日"
 #~ msgid "Interface language for TraderMemos."
 #~ msgstr "TraderMemos 的介面語言。"
 
+#: src/components/system-map/FollowPlan.tsx:853
+#: src/components/system-map/FollowPlan.tsx:855
+msgid "Invalidation"
+msgstr "失效條件"
+
+#: src/components/system-map/FollowPlan.tsx:634
+msgid "It goes back to planned so you can revise it and link a fill."
+msgstr "會回到計劃中，之後可以再修訂並連結成交。"
+
 #: src/app/screens/PublicShareView.tsx:155
 msgid "It may have expired or been revoked by its owner."
 msgstr "可能已過期，或者已被擁有者撤銷。"
@@ -160,9 +974,27 @@ msgstr "可能已過期，或者已被擁有者撤銷。"
 msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
 msgstr "以 <0>TraderMemos</0> 記錄 — 自架交易日誌"
 
+#: src/app/screens/SystemView.tsx:752
+msgid "Keep draft"
+msgstr "保留草稿"
+
+#: src/app/screens/SystemView.tsx:244
+#: src/app/screens/SystemView.tsx:916
+#: src/components/system-map/FollowPlan.tsx:580
+msgid "Keep editing"
+msgstr "繼續編輯"
+
+#: src/components/system-map/SystemMap.tsx:153
+msgid "Keep watching"
+msgstr "繼續觀察"
+
 #: src/app/screens/PublicShareView.tsx:257
 msgid "Kelly"
 msgstr "Kelly"
+
+#: src/components/system-map/PlanDialogs.tsx:212
+msgid "Kept in the plan's history"
+msgstr "會留在計劃的歷史裡"
 
 #: src/app/screens/settings/settings-sections.tsx:1166
 #~ msgid "Language"
@@ -180,9 +1012,55 @@ msgstr "上次備份"
 msgid "Last backup failed"
 msgstr "上次備份失敗"
 
+#: src/components/system-map/FollowPlan.tsx:934
+msgid "Latest"
+msgstr "最新"
+
 #: src/app/screens/settings/backups-section.tsx:192
 msgid "Latest file"
 msgstr "最新檔案"
+
+#: src/app/screens/SystemView.tsx:874
+msgid "Leave empty to remove the name."
+msgstr "留空以移除名稱。"
+
+#: src/lib/system.ts:243
+msgid "Left for a reason outside the system."
+msgstr "因系統以外的原因離場。"
+
+#: src/components/TradeSystemCard.tsx:209
+msgid "Lesson"
+msgstr "教訓"
+
+#: src/components/system-map/FollowTradeInspector.tsx:59
+#~ msgid "Link a trade first to record evidence against it"
+#~ msgstr "先連結一筆交易，才能對照記錄證據"
+
+#: src/components/system-map/EvidenceTimeline.tsx:158
+msgid "Link a trade to record what you saw while holding. A note is your judgment — it is not an order."
+msgstr "先連結一筆交易，才能記錄持倉時看到的東西。這則紀錄是你的判斷，不是下單。"
+
+#: src/components/system-map/PlanDialogs.tsx:315
+msgid "Link the trade that filled this plan"
+msgstr "連結成交了這個計劃的交易"
+
+#: src/components/system-map/FollowPlan.tsx:355
+#: src/components/system-map/PlanDialogs.tsx:354
+msgid "Link trade"
+msgstr "連結交易"
+
+#: src/components/system-map/FollowPlan.tsx:871
+msgid "Linked a trade"
+msgstr "已連結交易"
+
+#: src/lib/system.ts:84
+msgid "Liquid names above $10 with average volume over 1M; no biotech binary events."
+msgstr "股價高於 $10、日均量逾 100 萬的流動標的；不含生技二元事件。"
+
+#: src/components/system-map/PlanDialogs.tsx:32
+#: src/components/system-map/PlanDialogs.tsx:107
+msgid "Long"
+msgstr "做多"
 
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
@@ -192,13 +1070,125 @@ msgstr "最長獲利連續"
 msgid "Longest red streak"
 msgstr "最長虧損連續"
 
+#. placeholder {0}: review.streak.length
+#: src/app/screens/SystemReviewPanel.tsx:78
+msgid "Losing streak ({0})"
+msgstr "連虧（{0}）"
+
+#: src/lib/system.ts:288
+msgid "Losses were too large too often. Change the sizing rules."
+msgstr "虧損太大太頻繁。改倉位規則。"
+
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Manual only"
 msgstr "僅限手動"
 
+#: src/components/system-map/PlanDialogs.tsx:118
+msgid "Marked as written after the fact, so it never passes for a plan made in advance."
+msgstr "標成事後補記，不會被當成事前計劃。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:321
+msgid "Marked as written after the fact. The earlier note stays."
+msgstr "標成事後補記。先前的紀錄會保留。"
+
+#: src/components/system-map/SystemNode.tsx:19
+#~ msgid "Market"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:44
+#: src/lib/system.ts:76
+msgid "Market environment"
+msgstr "市場環境"
+
+#: src/components/TradeSystemCard.tsx:101
+msgid "Market regime"
+msgstr "市場狀態"
+
+#: src/components/MarketRegimeCard.tsx:19
+msgid "Market today"
+msgstr "今日市場"
+
+#: src/lib/system.ts:154
+msgid "Measure"
+msgstr "衡量"
+
+#: src/lib/system.ts:68
+msgid "Measure, judge process apart from outcome, adjust."
+msgstr "衡量、把過程與結果分開判斷、再調整。"
+
+#: src/lib/system-plan.ts:119
+msgid "Meets your rules"
+msgstr "符合規則"
+
+#: src/components/system-map/FollowPlan.tsx:702
+#: src/lib/system-plan.ts:69
+msgid "Met"
+msgstr "符合"
+
+#: src/lib/system.ts:132
+msgid "Momentum swing, 2–3 weeks, targeting the measured move of the base."
+msgstr "動量波段，2–3 週，以整理區測幅為目標。"
+
+#: src/components/system-map/FollowPlan.tsx:391
+msgid "More plan actions"
+msgstr "更多計劃操作"
+
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
 msgstr "最常交易"
+
+#: src/app/screens/SystemReviewPanel.tsx:170
+msgid "N"
+msgstr "N"
+
+#: src/components/system-map/FollowPlan.tsx:704
+#: src/components/TradeSystemCard.tsx:123
+#: src/lib/system-plan.ts:73
+msgid "N/A"
+msgstr "不適用"
+
+#: src/app/screens/SystemView.tsx:862
+msgid "Name"
+msgstr "名稱"
+
+#. placeholder {0}: version.label
+#: src/app/screens/SystemView.tsx:847
+msgid "Name {0}"
+msgstr "為 {0} 命名"
+
+#. placeholder {0}: stanceLabel(stance)
+#: src/components/system-map/RuleEditor.tsx:153
+#~ msgid "Name for {0}"
+#~ msgstr "{0} 的名稱"
+
+#: src/components/system-map/RuleEditor.tsx:158
+msgid "Name for {label}"
+msgstr "{label} 的名稱"
+
+#: src/app/screens/SystemView.tsx:835
+msgid "Name removed"
+msgstr "已移除名稱"
+
+#: src/components/system-map/RuleEditor.tsx:139
+msgid "Name the three stances your rule switches between."
+msgstr "為規則切換的三種狀態命名。"
+
+#: src/app/screens/SystemView.tsx:533
+#: src/app/screens/SystemView.tsx:534
+msgid "Name this version"
+msgstr "為這個版本命名"
+
+#: src/lib/system.ts:283
+msgid "Narrow when this rule or setup may be used."
+msgstr "收窄此規則或設置可用的時機。"
+
+#: src/components/system-map/SystemNode.tsx:61
+msgid "Needs clarity"
+msgstr "尚需釐清"
+
+#: src/app/screens/SystemReviewPanel.tsx:172
+msgid "Net"
+msgstr "淨值"
 
 #: src/app/screens/PublicShareView.tsx:182
 msgid "Net P&L"
@@ -208,9 +1198,19 @@ msgstr "淨損益"
 msgid "Never"
 msgstr "從未"
 
+#: src/lib/system.ts:136
+msgid "New evidence"
+msgstr "新證據"
+
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
 #~ msgstr "新增筆記"
+
+#: src/components/system-map/FollowPlan.tsx:294
+#: src/components/system-map/FollowTradeInspector.tsx:65
+#: src/components/system-map/PlanDialogs.tsx:75
+msgid "New plan"
+msgstr "新計劃"
 
 #: src/components/AppNav.tsx:251
 #~ msgid "New Setup"
@@ -220,13 +1220,142 @@ msgstr "從未"
 #~ msgid "New Trade"
 #~ msgstr "新增交易"
 
+#: src/components/TradeSystemCard.tsx:122
+msgid "No"
+msgstr "否"
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/PlanDialogs.tsx:327
+msgid "No {0} trades yet. Import or log the fill, then link it here."
+msgstr "還沒有 {0} 的交易。匯入或記錄成交後，再在這裡連結。"
+
+#: src/components/TradeSystemCard.tsx:74
+msgid "No active version stamped yet."
+msgstr "尚未蓋上啟用版本。"
+
+#: src/components/system-map/FollowPlan.tsx:701
+#: src/lib/system-plan.ts:67
+msgid "No answer"
+msgstr "未回答"
+
 #: src/app/screens/settings/backups-section.tsx:128
 msgid "No backup yet"
 msgstr "尚未備份"
 
+#: src/app/screens/SystemReviewPanel.tsx:180
+msgid "No data in this range."
+msgstr "此區間沒有資料。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:120
+#~ msgid "No evidence recorded yet."
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:111
+#~ msgid "No live opportunity is attached yet — the map still shows where this decision sits."
+#~ msgstr ""
+
+#: src/lib/system.ts:120
+msgid "No more than two names in the same theme; skip if the open gap risk on the book exceeds 3%."
+msgstr "同一題材最多兩隻；賬本跳空風險逾 3% 則跳過。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:77
+msgid "No plan open"
+msgstr "沒有打開的計劃"
+
+#: src/components/system-map/FollowTradeInspector.tsx:72
+#~ msgid "No rule written for this decision yet. Edit the draft to add one."
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:217
+msgid "No rule yet — select to write one."
+msgstr "尚無規則——選取以撰寫。"
+
+#: src/app/screens/SystemView.tsx:357
+msgid "No rules yet"
+msgstr "尚無規則"
+
+#: src/components/system-map/FollowTradeInspector.tsx:74
+#~ msgid "No trade linked yet"
+#~ msgstr "尚未連結交易"
+
+#: src/components/system-map/FollowPlan.tsx:1104
+msgid "No trade linked yet."
+msgstr "尚未連結交易。"
+
+#: src/app/screens/SystemView.tsx:389
+#~ msgid "No trade selected"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:288
+msgid "No versions yet."
+msgstr "尚無版本。"
+
 #: src/app/screens/settings/backups-section.tsx:198
 msgid "None"
 msgstr "無"
+
+#: src/components/system-map/RuleEditor.tsx:197
+msgid "None recorded."
+msgstr "沒有記錄。"
+
+#: src/lib/system.ts:201
+msgid "Normal"
+msgstr "正常"
+
+#: src/components/MarketRegimeCard.tsx:20
+msgid "Normal and Defensive allow trading; Paused means stand aside."
+msgstr "「正常」與「防守」可交易；「暫停」表示場外觀望。"
+
+#: src/components/system-map/SystemMap.tsx:153
+msgid "Not a failure — wait for the trigger"
+msgstr "不是失敗——等待觸發"
+
+#: src/lib/system.ts:254
+msgid "Not followed"
+msgstr "未遵守"
+
+#: src/components/system-map/FollowPlan.tsx:703
+#: src/lib/system-plan.ts:71
+msgid "Not met"
+msgstr "不符合"
+
+#: src/lib/system.ts:238
+msgid "Not proven wrong, but never followed through — time and opportunity cost."
+msgstr "未證偽，但從未跟進——時間與機會成本。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:52
+#: src/lib/system.ts:237
+msgid "Not working"
+msgstr "未奏效"
+
+#: src/components/system-map/SystemNode.tsx:59
+msgid "Not written"
+msgstr "未撰寫"
+
+#: src/components/system-map/RuleEditor.tsx:64
+msgid "Not written in this version."
+msgstr "此版本未撰寫。"
+
+#: src/components/system-map/FollowPlan.tsx:682
+#: src/components/system-map/FollowTradeInspector.tsx:102
+msgid "Not written yet."
+msgstr "尚未撰寫。"
+
+#: src/app/screens/SystemView.tsx:989
+msgid "Note (optional)"
+msgstr "備註（選填）"
+
+#: src/components/system-map/EvidenceTimeline.tsx:377
+msgid "Note withdrawn"
+msgstr "已撤回紀錄"
+
+#: src/components/system-map/EvidenceTimeline.tsx:178
+msgid "Nothing recorded while holding."
+msgstr "持倉期間還沒有紀錄。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:132
+#~ msgid "Nothing recorded yet. Screenshots and notes captured while following a trade land here."
+#~ msgstr "尚無記錄。跟隨交易時擷取的截圖與筆記會出現在此。"
 
 #. placeholder {0}: data.trading_days
 #: src/app/screens/PublicShareView.tsx:285
@@ -234,31 +1363,326 @@ msgstr "無"
 msgid "of {0} trading days"
 msgstr "共 {0} 個交易日"
 
+#: src/lib/system.ts:282
+msgid "Only works in some markets"
+msgstr "只在部分市況有效"
+
+#: src/components/system-map/FollowPlan.tsx:1095
+#: src/components/system-map/PlanDialogs.tsx:288
+msgid "Open"
+msgstr "未平倉"
+
+#: src/components/system-map/FollowTradeInspector.tsx:132
+msgid "Open a plan and link the trade. Notes you write while holding show up on Review."
+msgstr "先開一個計畫並連結交易。持倉時寫下的紀錄會出現在回顧。"
+
+#: src/app/screens/SystemView.tsx:283
+msgid "Open a version on the map. Active and retired versions are read-only."
+msgstr "在地圖上開啟一個版本。啟用中與已退役版本為唯讀。"
+
+#: src/components/system-map/RuleEditor.tsx:142
+#~ msgid "Open questions"
+#~ msgstr ""
+
+#: src/components/system-map/RuleEditor.tsx:187
+#: src/components/system-map/RuleEditor.tsx:200
+msgid "Open questions · {partTitle}"
+msgstr "未解問題 · {partTitle}"
+
+#: src/components/system-map/RuleEditor.tsx:121
+#~ msgid "Open questions ({part}) — ambiguous, conflicting or missing cases"
+#~ msgstr ""
+
+#. placeholder {0}: fmtDateTime(plan.trade.opened_at)
+#: src/components/system-map/FollowPlan.tsx:1082
+msgid "Opened {0}"
+msgstr "開倉於 {0}"
+
+#: src/components/system-map/PlanDialogs.tsx:250
+msgid "Opened before this plan was written"
+msgstr "在寫下這個計劃之前已經開倉"
+
+#: src/components/system-map/PlanDialogs.tsx:248
+msgid "Opposite side to the plan"
+msgstr "方向和計劃相反"
+
+#: src/lib/system.ts:243
+#: src/lib/system.ts:291
+msgid "Other"
+msgstr "其他"
+
+#: src/components/system-map/FollowPlan.tsx:1074
+msgid "Outcome"
+msgstr "結果"
+
+#: src/lib/system.ts:252
+msgid "Partly followed"
+msgstr "部分遵守"
+
+#: src/lib/system.ts:205
+msgid "Paused"
+msgstr "暫停"
+
 #: src/app/screens/PublicShareView.tsx:252
 msgid "per trade"
 msgstr "每筆"
+
+#: src/lib/system.ts:106
+msgid "Per-trade risk"
+msgstr "每筆風險"
+
+#: src/app/screens/SystemView.tsx:167
+#~ msgid "Phase C–E will attach a live opportunity or trade to this map: condition checks, evidence timeline, and confirm-trigger on the Entry node. Write rules first."
+#~ msgstr ""
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/PlanDialogs.tsx:317
+msgid "Pick the {0} trade yourself — nothing is matched automatically. You can unlink it later; both steps stay in the history."
+msgstr "請自己揀選 {0} 的交易——不會自動配對。之後可以解除連結；兩步都會留在歷史裡。"
+
+#: src/components/system-map/FollowPlan.tsx:272
+#: src/components/system-map/FollowPlan.tsx:1060
+msgid "Plan"
+msgstr "計劃"
+
+#: src/components/system-map/FollowPlan.tsx:510
+msgid "Plan created"
+msgstr "已建立計劃"
+
+#: src/components/system-map/FollowPlan.tsx:1026
+msgid "Plan history"
+msgstr "計劃歷史"
+
+#. placeholder {0}: planStatusLabel(status).toLowerCase()
+#: src/components/system-map/FollowPlan.tsx:250
+msgid "Plan marked {0}"
+msgstr "計劃已標為{0}"
+
+#: src/components/system-map/FollowPlan.tsx:873
+msgid "Plan written"
+msgstr "已寫下計劃"
+
+#: src/lib/system-plan.ts:36
+msgid "Planned"
+msgstr "計劃中"
+
+#. placeholder {0}: r.toFixed(2)
+#: src/components/system-map/FollowPlan.tsx:804
+msgid "Planned {0}R"
+msgstr "計劃 {0}R"
+
+#: src/components/TradeSystemCard.tsx:141
+msgid "Planned hold (days)"
+msgstr "計劃持倉（日）"
+
+#: src/components/system-map/PlanDialogs.tsx:127
+msgid "Planning now"
+msgstr "現在規劃"
 
 #: src/components/AppNav.tsx:38
 #~ msgid "Playbook"
 #~ msgstr "策略庫"
 
+#: src/lib/system.ts:118
+msgid "Portfolio check"
+msgstr "組合檢查"
+
+#: src/lib/system.ts:112
+msgid "Position size"
+msgstr "倉位大小"
+
+#: src/lib/system.ts:64
+msgid "Position sizing"
+msgstr "倉位計算"
+
+#: src/components/TradeSystemCard.tsx:191
+msgid "Post-trade checklist"
+msgstr "交易後清單"
+
+#: src/app/screens/SystemReviewPanel.tsx:65
+msgid "Process × outcome"
+msgstr "過程 × 結果"
+
 #: src/app/screens/PublicShareView.tsx:208
 msgid "Profit factor"
 msgstr "獲利因子"
+
+#: src/components/system-map/PlanStepper.tsx:40
+msgid "Progress is derived from your data — not a checklist you tick."
+msgstr "進度由你的資料推算——不是手動打勾清單。"
+
+#: src/components/system-map/SystemMap.tsx:296
+msgid "Put every node back in its original place"
+msgstr "將每個節點放回原位"
+
+#: src/app/screens/SystemView.tsx:545
+msgid "Read-only"
+msgstr "唯讀"
+
+#: src/components/system-map/PlanDialogs.tsx:204
+msgid "Reason"
+msgstr "原因"
+
+#: src/components/system-map/EvidenceTimeline.tsx:351
+msgid "Record"
+msgstr "記錄"
+
+#: src/components/system-map/FollowTradeInspector.tsx:62
+#~ msgid "Record evidence"
+#~ msgstr "記錄證據"
+
+#. placeholder {0}: fmtDateTime(latest.recorded_at)
+#. placeholder {0}: fmtDateTime(r.recorded_at)
+#: src/components/system-map/EvidenceTimeline.tsx:411
+#: src/components/system-map/FollowPlan.tsx:926
+msgid "Recorded {0}"
+msgstr "記錄於 {0}"
+
+#. placeholder {0}: fmtDateTime(viewing.recorded_at)
+#: src/components/system-map/FollowPlan.tsx:1042
+msgid "Recorded {0}. Read-only — later revisions never change it."
+msgstr "記錄於 {0}。唯讀——之後的修訂不會改動它。"
+
+#: src/components/system-map/PlanDialogs.tsx:117
+msgid "Recorded now, before any fill."
+msgstr "現在記錄，在任何成交之前。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:320
+msgid "Recorded now, while you were in the trade."
+msgstr "現在記錄，當作你當時在倉內寫下的。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:348
+msgid "Recording an action does not place an order."
+msgstr "記錄一個動作不會下單。"
 
 #: src/app/screens/PublicShareView.tsx:289
 msgid "Red days"
 msgstr "虧損日"
 
+#. placeholder {0}: version.label
+#: src/app/screens/SystemView.tsx:847
+msgid "Rename {0}"
+msgstr "重新命名 {0}"
+
+#: src/app/screens/SystemView.tsx:533
+#: src/app/screens/SystemView.tsx:534
+msgid "Rename this version"
+msgstr "重新命名此版本"
+
+#: src/components/system-map/FollowPlan.tsx:369
+#: src/components/system-map/FollowPlan.tsx:635
+msgid "Reopen"
+msgstr "重新開啟"
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/FollowPlan.tsx:633
+msgid "Reopen {0}?"
+msgstr "重新開啟 {0}？"
+
+#: src/app/screens/SystemReviewPanel.tsx:27
+#: src/app/screens/SystemView.tsx:76
+#: src/components/MarketRegimeCard.tsx:39
+#: src/components/system-map/EvidenceTimeline.tsx:34
+#: src/components/system-map/FollowPlan.tsx:91
+#: src/components/TradeSystemCard.tsx:89
+msgid "Request failed"
+msgstr "請求失敗"
+
+#: src/components/system-map/SystemMap.tsx:299
+msgid "Reset layout"
+msgstr "重設版面"
+
+#: src/app/screens/SystemView.tsx:89
+msgid "Retired"
+msgstr "已退役"
+
+#: src/app/screens/SystemView.tsx:194
+msgid "Retry"
+msgstr "重試"
+
+#: src/app/screens/SystemView.tsx:180
+#: src/lib/system.ts:68
+#: src/lib/system.ts:160
+msgid "Review"
+msgstr "回顧"
+
+#: src/components/system-map/SystemNode.tsx:52
+msgid "Review & adjust"
+msgstr "回顧與調整"
+
 #: src/app/screens/NotesView.tsx:61
 msgid "Reviews"
 msgstr "回顧"
+
+#: src/lib/system.ts:314
+msgid "Revise the version"
+msgstr "修訂版本"
+
+#. placeholder {0}: latest.seq
+#. placeholder {0}: r.seq
+#: src/components/system-map/EvidenceTimeline.tsx:426
+#: src/components/system-map/EvidenceTimeline.tsx:452
+#: src/components/system-map/FollowPlan.tsx:912
+msgid "Revision {0}"
+msgstr "修訂 {0}"
+
+#. placeholder {0}: viewing.seq
+#. placeholder {1}: stageLabel(viewing.stage)
+#: src/components/system-map/FollowPlan.tsx:1039
+msgid "Revision {0} · {1}"
+msgstr "修訂 {0} · {1}"
+
+#. placeholder {0}: p.latest?.seq ?? ""
+#: src/components/system-map/FollowPlan.tsx:235
+msgid "Revision {0} saved"
+msgstr "已儲存修訂 {0}"
+
+#: src/components/system-map/FollowPlan.tsx:893
+#: src/components/system-map/FollowPlan.tsx:894
+msgid "Revisions"
+msgstr "修訂"
+
+#: src/components/system-map/SystemNode.tsx:48
+msgid "Risk & position"
+msgstr "風險與倉位"
+
+#: src/components/system-map/SystemNode.tsx:23
+#~ msgid "Risk & size"
+#~ msgstr ""
+
+#: src/lib/system.ts:100
+msgid "Risk budget"
+msgstr "風險預算"
+
+#: src/lib/system.ts:287
+msgid "Risk too high"
+msgstr "風險過高"
+
+#: src/components/system-map/FollowTradeInspector.tsx:63
+#~ msgid "Rule"
+#~ msgstr ""
+
+#: src/app/screens/SystemView.tsx:82
+#: src/app/screens/SystemView.tsx:385
+#~ msgid "Rules"
+#~ msgstr ""
+
+#: src/lib/system.ts:309
+msgid "Run it live"
+msgstr "實盤運行"
+
+#: src/app/screens/SystemReviewPanel.tsx:173
+msgid "Sample"
+msgstr "樣本"
 
 #: src/app/screens/settings/alerts-section.tsx:323
 msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
 msgstr "於市場時區週六 09:00，把本週的盈虧、勝率、R、策略、違規次數和錯過的交易整理成一篇待填寫的回顧筆記。"
 
 #: src/app/drawers/NewTradeDrawer.tsx:2108
+#: src/app/screens/SystemView.tsx:625
+#: src/app/screens/SystemView.tsx:922
+#: src/components/TradeSystemCard.tsx:95
 msgid "Save"
 msgstr "儲存"
 
@@ -266,17 +1690,125 @@ msgstr "儲存"
 msgid "Save changes"
 msgstr "儲存變更"
 
+#: src/components/system-map/EvidenceTimeline.tsx:351
+msgid "Save correction"
+msgstr "儲存更正"
+
+#: src/app/screens/SystemView.tsx:885
+msgid "Save name"
+msgstr "儲存名稱"
+
+#: src/components/system-map/FollowPlan.tsx:263
+msgid "Save or discard your edits first"
+msgstr "請先儲存或捨棄修改"
+
+#: src/components/system-map/FollowPlan.tsx:385
+#: src/components/system-map/FollowPlan.tsx:605
+msgid "Save revision"
+msgstr "儲存修訂"
+
+#: src/components/system-map/FollowPlan.tsx:575
+msgid "Save them as a new revision, discard them, or keep editing."
+msgstr "儲存成新修訂、捨棄，或繼續編輯。"
+
+#: src/app/screens/SystemView.tsx:599
+msgid "Save your edits before activating"
+msgstr "啟用前先儲存編輯"
+
+#: src/app/screens/SystemView.tsx:911
+msgid "Save, discard, or keep editing before leaving this node or version."
+msgstr "離開此節點或版本前，請儲存、捨棄或繼續編輯。"
+
+#: src/app/screens/SystemView.tsx:625
+#: src/app/screens/SystemView.tsx:885
+#: src/components/system-map/FollowPlan.tsx:385
+msgid "Saving…"
+msgstr "儲存中…"
+
 #: src/app/screens/settings/backups-section.tsx:131
 msgid "Scheduled backups are off"
 msgstr "排程備份已關閉"
+
+#: src/components/system-map/FollowTradeInspector.tsx:37
+#~ msgid "Select a node on the map"
+#~ msgstr ""
+
+#: src/components/system-map/SystemNode.tsx:38
+#~ msgid "Self-checked clear"
+#~ msgstr ""
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "設定"
 
+#: src/components/system-map/FollowPlan.tsx:763
+#: src/components/system-map/FollowPlan.tsx:771
+#: src/lib/system.ts:88
+msgid "Setup"
+msgstr "設置"
+
+#: src/components/system-map/FollowPlan.tsx:1142
+msgid "Setup, trigger and prices live on Entry and Risk; invalidation on Holding."
+msgstr "設置、觸發和價格在進場與風險；失效條件在持倉。"
+
 #: src/app/screens/PublicShareView.tsx:129
 msgid "Shared performance record"
 msgstr "分享的績效紀錄"
+
+#: src/lib/system.ts:114
+msgid "Shares = (equity × risk%) / (entry − stop). Size follows risk, never the other way round."
+msgstr "股數 =（資金 × 風險%）／（進場 − 止蝕）。倉位跟風險走，從不相反。"
+
+#: src/components/system-map/PlanDialogs.tsx:32
+#: src/components/system-map/PlanDialogs.tsx:108
+msgid "Short"
+msgstr "做空"
+
+#: src/components/TradeSystemCard.tsx:217
+msgid "Should this change a rule?"
+msgstr "是否應改規則？"
+
+#: src/components/system-map/FollowPlan.tsx:932
+msgid "Showing"
+msgstr "顯示中"
+
+#: src/components/system-map/PlanDialogs.tsx:100
+#: src/components/system-map/PlanDialogs.tsx:102
+msgid "Side"
+msgstr "方向"
+
+#: src/lib/system.ts:265
+msgid "Size and risk matched the plan"
+msgstr "倉位與風險符合計劃"
+
+#: src/lib/system.ts:113
+msgid "Size worked out from entry, stop and per-trade risk."
+msgstr "由進場、止蝕與每筆風險算出倉位。"
+
+#. placeholder {0}: plan.symbol
+#: src/components/system-map/FollowPlan.tsx:621
+msgid "Skip {0}?"
+msgstr "跳過 {0}？"
+
+#: src/components/system-map/FollowPlan.tsx:418
+msgid "Skip this trade…"
+msgstr "跳過這筆交易…"
+
+#: src/components/system-map/FollowPlan.tsx:623
+msgid "Skip trade"
+msgstr "跳過交易"
+
+#: src/lib/system-plan.ts:42
+msgid "Skipped"
+msgstr "已跳過"
+
+#: src/components/system-map/FollowPlan.tsx:1101
+msgid "Skipped — no trade."
+msgstr "已跳過——沒有交易。"
+
+#: src/lib/system.ts:214
+msgid "Smaller size, fewer trades."
+msgstr "縮小倉位，減少交易。"
 
 #: src/app/screens/settings/backups-section.tsx:186
 msgid "Snapshots kept"
@@ -286,41 +1818,393 @@ msgstr "保留的快照"
 msgid "Snapshots of the database, written to a folder on the server. Sync that folder off-site — a copy on the same disk doesn't survive the disk."
 msgstr "資料庫快照會寫入伺服器上的資料夾。請將該資料夾同步到異地 — 同一磁碟上的副本無法在磁碟故障後倖存。"
 
+#: src/components/system-map/RuleEditor.tsx:82
+msgid "Someone else would decide the same"
+msgstr "別人會做同樣決定"
+
 #: src/app/screens/PublicShareView.tsx:261
 msgid "SQN"
 msgstr "SQN"
+
+#: src/lib/system.ts:216
+msgid "Stand aside and watch."
+msgstr "場外觀望。"
+
+#: src/components/system-map/RuleEditor.tsx:51
+msgid "Start here"
+msgstr "由此開始"
+
+#: src/app/screens/SystemView.tsx:569
+msgid "Start next version"
+msgstr "開始下一版本"
+
+#: src/app/screens/SystemView.tsx:372
+msgid "Start v1.0"
+msgstr "開始 v1.0"
+
+#. placeholder {0}: STARTER_DECISIONS.map((d) => decisionCopy(d).title).join(", ")
+#: src/app/screens/SystemView.tsx:636
+msgid "Start with {0}. The rest can wait."
+msgstr "先從 {0} 開始。其餘可以稍後。"
+
+#: src/app/screens/SystemView.tsx:358
+msgid "Start with four questions: when do you enter, how much do you risk, when do you exit, and when do you pause."
+msgstr "先回答四個問題：何時進場、冒多少險、何時離場、何時暫停。"
+
+#: src/app/screens/SystemView.tsx:539
+#~ msgid "Starter prompts:"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:267
+#: src/components/system-map/EvidenceTimeline.tsx:269
+msgid "State"
+msgstr "狀態"
+
+#: src/lib/system.ts:142
+msgid "State diagnosis"
+msgstr "狀態診斷"
 
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "統計"
 
+#: src/lib/system-plan.ts:123
+msgid "Still open"
+msgstr "尚未完成"
+
+#: src/components/system-map/EvidenceTimeline.tsx:56
+msgid "Still working"
+msgstr "仍然有效"
+
+#: src/lib/system.ts:82
+msgid "Stock selection"
+msgstr "選股"
+
+#: src/components/system-map/FollowPlan.tsx:811
+#: src/components/system-map/FollowPlan.tsx:823
+msgid "Stop"
+msgstr "止蝕"
+
+#: src/lib/system.ts:263
+msgid "Stop and target were set before entry"
+msgstr "止蝕與目標在進場前已設好"
+
+#: src/components/system-map/EvidenceTimeline.tsx:39
+#: src/components/system-map/EvidenceTimeline.tsx:249
+msgid "Supports"
+msgstr "支持"
+
+#: src/components/system-map/PlanDialogs.tsx:89
+msgid "Symbol"
+msgstr "代號"
+
+#: src/components/TradeSystemCard.tsx:72
+msgid "System card"
+msgstr "系統卡"
+
+#: src/components/TradeSystemCard.tsx:85
+msgid "System card saved"
+msgstr "系統卡已儲存"
+
+#: src/components/system-map/SystemMapList.tsx:30
+msgid "System map"
+msgstr "系統地圖"
+
+#: src/app/screens/SystemView.tsx:174
+msgid "System mode"
+msgstr "系統模式"
+
+#: src/app/screens/SystemView.tsx:78
+#~ msgid "System view"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:67
+msgid "Take profit"
+msgstr "獲利了結"
+
+#: src/lib/system-plan.ts:40
+msgid "Taken"
+msgstr "已成交"
+
+#: src/components/system-map/FollowPlan.tsx:812
+#: src/components/system-map/FollowPlan.tsx:830
+msgid "Target"
+msgstr "目標"
+
+#: src/lib/system.ts:241
+msgid "Target reached, or the edge was fading."
+msgstr "已達目標，或優勢正在消退。"
+
+#: src/lib/system.ts:304
+msgid "Test on past trades"
+msgstr "用過往交易測試"
+
+#: src/lib/system.ts:234
+msgid "The core hypothesis was broken — cut."
+msgstr "核心假設已破——砍倉。"
+
 #: src/app/screens/PublicShareView.tsx:268
 msgid "The curve"
 msgstr "曲線"
+
+#: src/app/screens/SystemView.tsx:747
+msgid "The draft and every unsaved edit are deleted. Active and retired versions stay as they are. This can't be undone."
+msgstr "草稿及所有未儲存編輯都會刪除。啟用中與已退役版本不變。此操作無法復原。"
 
 #: src/app/screens/PublicShareView.tsx:205
 msgid "The edge"
 msgstr "優勢"
 
+#: src/components/system-map/FollowPlan.tsx:793
+msgid "The exact event that gets you in"
+msgstr "真正讓你進場的事件"
+
+#: src/components/system-map/FollowTradeInspector.tsx:76
+#~ msgid "The map still shows where this decision sits. Linking a trade to check it against these rules is on the way."
+#~ msgstr "地圖仍會顯示此決策的位置。連結交易以對照這些規則的功能即將推出。"
+
+#: src/lib/system.ts:107
+msgid "The most one trade may risk, and how risk is split between better and worse odds."
+msgstr "單筆最多可冒多少險，以及風險如何在優劣機會之間分配。"
+
+#: src/lib/system.ts:101
+msgid "The most planned risk the whole account carries at once, and when that grows or shrinks."
+msgstr "整戶帳戶同時承擔的計劃風險上限，以及何時放大或縮小。"
+
+#: src/components/system-map/FollowPlan.tsx:628
+msgid "The opportunity is gone or no longer valid. The plan and its revisions stay in history."
+msgstr "機會已消失或不再成立。計劃和修訂會留在歷史裡。"
+
+#: src/components/system-map/FollowPlan.tsx:640
+msgid "The plan returns to waiting and the trade is free to confirm another plan. The link stays in history."
+msgstr "計劃回到等待觸發，這筆交易可以再確認另一個計劃。連結會留在歷史裡。"
+
+#. placeholder {0}: fmtDateTime(data.prompt.due_at)
+#: src/components/system-map/EvidenceTimeline.tsx:172
+msgid "The planned hold ended {0}. Record what you saw. This does not close the trade or judge the plan."
+msgstr "計劃持有已於 {0} 屆滿。記錄你當時看到的。這不會平倉，也不會判定計畫。"
+
 #: src/app/screens/PublicShareView.tsx:326
 msgid "The rhythm"
 msgstr "節奏"
+
+#: src/lib/system.ts:278
+msgid "The rule was fine; I didn't follow it. Fix the process."
+msgstr "規則沒問題；是我沒遵守。修正過程。"
+
+#: src/components/system-map/FollowPlan.tsx:622
+msgid "The setup came but you passed. Say why — it's how hesitation shows up in review."
+msgstr "形態出現了，但你沒有做。寫下原因——回顧時才看得出猶豫。"
+
+#. placeholder {0}: fmtDateTime(data.prompt.due_at)
+#: src/components/system-map/EvidenceTimeline.tsx:171
+msgid "The time stop was due {0}. Record what you saw. This does not close the trade or judge the plan."
+msgstr "時間停損已於 {0} 到期。記錄你當時看到的。這不會平倉，也不會判定計畫。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:362
+msgid "The wording stays on the timeline. Say why you are withdrawing it."
+msgstr "文字會留在時間線上。請說明為何撤回。"
+
+#: src/components/system-map/FollowPlan.tsx:764
+#: src/components/system-map/FollowPlan.tsx:779
+#: src/components/TradeSystemCard.tsx:154
+msgid "Thesis"
+msgstr "論點"
+
+#: src/components/system-map/PlanDialogs.tsx:142
+msgid "Thesis (optional)"
+msgstr "論點（可選）"
+
+#: src/app/screens/SystemReviewPanel.tsx:132
+msgid "Thin"
+msgstr "不足"
+
+#: src/app/screens/SystemView.tsx:961
+msgid "This becomes the active system. You can revise later with a new draft."
+msgstr "這會成為啟用中的系統。之後可用新草稿修訂。"
 
 #: src/app/screens/PublicShareView.tsx:153
 msgid "This link isn't available"
 msgstr "此連結無法使用"
 
+#: src/components/system-map/FollowTradeInspector.tsx:57
+#~ msgid "This mode organizes recorded conditions and evidence — it does not place orders."
+#~ msgstr ""
+
+#. placeholder {0}: planStatusLabel(plan.status).toLowerCase()
+#: src/components/system-map/FollowPlan.tsx:1051
+msgid "This plan is {0}. Reopen it to keep revising."
+msgstr "這個計劃是{0}。重新開啟後才能繼續修訂。"
+
 #: src/app/screens/settings/backups-section.tsx:118
 msgid "This server runs on Postgres. Built-in backups cover SQLite only — back up Postgres with pg_dump or your provider's snapshots."
 msgstr "此伺服器使用 Postgres。內建備份只支援 SQLite — 請以 pg_dump 或服務供應商的快照備份 Postgres。"
 
-#: src/components/AppNav.tsx:32
-#~ msgid "Trades"
-#~ msgstr "交易"
+#: src/components/system-map/EvidenceTimeline.tsx:311
+msgid "This version has no scaling rule written."
+msgstr "這個版本還沒有寫加減倉規則。"
+
+#: src/lib/system.ts:130
+msgid "Trade definition"
+msgstr "交易定義"
+
+#: src/lib/system.ts:310
+msgid "Trade it live with a card on each trade. The question is \"can I follow it?\", not \"does it make money?\". Progress counts carded live trades — not a small-size check."
+msgstr "實盤交易並為每筆建卡。問題是「我能否遵守？」，不是「有沒有賺錢？」。進度只計已建卡的實盤——不是小倉位檢查。"
+
+#: src/components/system-map/FollowPlan.tsx:559
+msgid "Trade linked"
+msgstr "已連結交易"
+
+#: src/lib/system.ts:212
+msgid "Trade the system at normal risk."
+msgstr "以正常風險執行系統。"
+
+#: src/components/TradeSystemCard.tsx:127
+msgid "Trade type"
+msgstr "交易類型"
+
+#: src/components/system-map/RuleEditor.tsx:172
+msgid "Trade type: {key}"
+msgstr "交易類型：{key}"
+
+#: src/components/system-map/FollowPlan.tsx:536
+msgid "Trade unlinked"
+msgstr "已解除連結"
+
+#: src/components/system-map/PlanDialogs.tsx:331
+msgid "Trades"
+msgstr "交易"
 
 #: src/app/screens/PublicShareView.tsx:349
 msgid "Trades per month."
 msgstr "每月交易次數。"
+
+#: src/app/screens/SystemView.tsx:132
+msgid "Trading system"
+msgstr "交易系統"
+
+#: src/components/system-map/SystemMap.tsx:271
+msgid "Trading system map"
+msgstr "交易系統地圖"
+
+#: src/components/system-map/FollowPlan.tsx:765
+#: src/components/system-map/FollowPlan.tsx:788
+#: src/lib/system.ts:94
+msgid "Trigger"
+msgstr "觸發"
+
+#: src/components/TradeSystemCard.tsx:115
+msgid "Trigger met"
+msgstr "觸發已滿足"
+
+#: src/components/system-map/EvidenceTimeline.tsx:65
+msgid "Trim"
+msgstr "減倉"
+
+#: src/components/system-map/RuleEditor.tsx:85
+msgid "Turn on once the rule leaves no room for judgment."
+msgstr "規則已無判斷空間時才開啟。"
+
+#: src/lib/system.ts:131
+msgid "Type of trade, expected move, holding time, core hypothesis."
+msgstr "交易類型、預期走勢、持倉時間、核心假設。"
+
+#: src/lib/system-plan.ts:67
+#~ msgid "Unanswered"
+#~ msgstr ""
+
+#: src/components/system-map/EvidenceTimeline.tsx:43
+#: src/components/system-map/EvidenceTimeline.tsx:251
+msgid "Uncertain"
+msgstr "不確定"
+
+#: src/app/screens/SystemReviewPanel.tsx:162
+msgid "Under 10 trades a group says nothing; under 30 it only hints. Sample size is not proof."
+msgstr "少於 10 筆的分組沒有意義；少於 30 筆只是提示。樣本數不是證明。"
+
+#: src/components/system-map/FollowPlan.tsx:641
+msgid "Unlink"
+msgstr "解除連結"
+
+#: src/components/system-map/FollowPlan.tsx:639
+msgid "Unlink the trade?"
+msgstr "解除這筆交易的連結？"
+
+#: src/components/system-map/FollowPlan.tsx:406
+msgid "Unlink trade…"
+msgstr "解除連結…"
+
+#: src/components/system-map/FollowPlan.tsx:872
+msgid "Unlinked the trade"
+msgstr "已解除交易連結"
+
+#: src/app/screens/SystemView.tsx:235
+#: src/app/screens/SystemView.tsx:551
+#: src/app/screens/SystemView.tsx:909
+#: src/components/system-map/FollowPlan.tsx:312
+msgid "Unsaved changes"
+msgstr "未儲存變更"
+
+#: src/components/system-map/FollowPlan.tsx:573
+msgid "Unsaved plan edits"
+msgstr "計劃有未儲存的修改"
+
+#: src/lib/system.ts:162
+msgid "Use the process × outcome quadrant; wrong-but-won is the most dangerous cell."
+msgstr "用過程 × 結果象限；違規卻賺錢是最危險的格。"
+
+#: src/components/system-map/RuleEditor.tsx:74
+msgid "Vague wording — make it objective:"
+msgstr "措辭含糊——改成可客觀判斷："
+
+#: src/app/screens/SystemView.tsx:521
+msgid "Version"
+msgstr "版本"
+
+#. placeholder {0}: card.version_label
+#: src/components/TradeSystemCard.tsx:74
+msgid "Version {0}"
+msgstr "版本 {0}"
+
+#: src/app/screens/SystemView.tsx:799
+msgid "Version activated"
+msgstr "版本已啟用"
+
+#: src/app/screens/SystemView.tsx:166
+#: src/app/screens/SystemView.tsx:281
+msgid "Version history"
+msgstr "版本歷史"
+
+#: src/app/screens/SystemView.tsx:835
+msgid "Version named"
+msgstr "已命名版本"
+
+#: src/components/system-map/FollowPlan.tsx:936
+msgid "View"
+msgstr "查看"
+
+#: src/components/system-map/FollowTradeInspector.tsx:128
+#~ msgid "View plan snapshot"
+#~ msgstr ""
+
+#: src/components/system-map/FollowTradeInspector.tsx:109
+#~ msgid "Waiting for a trade"
+#~ msgstr ""
+
+#: src/components/system-map/FollowPlan.tsx:327
+#: src/lib/system-plan.ts:38
+msgid "Waiting for trigger"
+msgstr "等待觸發"
+
+#: src/app/screens/SystemView.tsx:479
+#~ msgid "Walk the map one decision at a time and check each against the active rules."
+#~ msgstr "一次走一項決策，對照啟用中的規則核對。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:41
+#: src/components/system-map/EvidenceTimeline.tsx:250
+msgid "Weakens"
+msgstr "削弱"
 
 #: src/app/drawers/NewNoteDrawer.tsx:92
 #: src/app/screens/NotesView.tsx:71
@@ -332,19 +2216,202 @@ msgstr "每週回顧"
 msgid "Weekly review alerts"
 msgstr "每週回顧提醒"
 
-#: src/app/drawers/NewNoteDrawer.tsx:110
+#: src/app/drawers/NewNoteDrawer.tsx:112
 msgid "Weekly review updated"
 msgstr "已更新每週回顧"
+
+#: src/components/system-map/EvidenceTimeline.tsx:241
+#: src/components/system-map/EvidenceTimeline.tsx:243
+msgid "What it does to the rule"
+msgstr "對規則的影響"
+
+#: src/components/system-map/FollowPlan.tsx:860
+msgid "What proves the idea wrong"
+msgstr "什麼情況證明這個想法是錯的"
+
+#: src/lib/system.ts:83
+msgid "What qualifies? What will I never trade, even if it is going up?"
+msgstr "什麼合資格？即使在升，什麼我永不交易？"
+
+#: src/lib/system.ts:149
+msgid "What to do in each state: hold, trim, take profit, stop out, exit."
+msgstr "各狀態怎麼做：持有、減倉、止盈、止蝕、離場。"
+
+#: src/lib/system.ts:137
+msgid "What to watch after entry: structure, relative strength, sector, levels, catalysts."
+msgstr "進場後觀察：結構、相對強度、板塊、位階、催化劑。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:256
+#~ msgid "What you saw"
+#~ msgstr "你看到的"
+
+#: src/components/system-map/FollowPlan.tsx:714
+msgid "What you saw (optional)"
+msgstr "你當時看到的（可選）"
+
+#: src/components/system-map/FollowPlan.tsx:708
+msgid "What you saw for {title}"
+msgstr "你對{title}看到的"
+
+#: src/components/system-map/EvidenceTimeline.tsx:317
+#: src/components/system-map/EvidenceTimeline.tsx:325
+#: src/components/system-map/PlanDialogs.tsx:114
+#: src/components/system-map/PlanDialogs.tsx:122
+msgid "When"
+msgstr "何時"
+
+#: src/lib/system.ts:62
+msgid "When and what you trade."
+msgstr "何時交易、交易什麼。"
+
+#: src/lib/system.ts:77
+msgid "When do I trade actively, cut risk, or stop trading?"
+msgstr "何時積極交易、削減風險，或停止交易？"
+
+#: src/components/system-map/SystemMapList.tsx:102
+msgid "When entry conditions aren't met, you keep watching — that's a branch, not a failure."
+msgstr "進場條件未滿足就繼續觀察——這是分支，不是失敗。"
+
+#: src/components/system-map/EvidenceTimeline.tsx:337
+#: src/components/system-map/PlanDialogs.tsx:133
+#: src/components/system-map/PlanDialogs.tsx:136
+msgid "When it happened"
+msgstr "當時是什麼時候"
+
+#: src/lib/system.ts:167
+msgid "Which lessons are worth a rule change, and which are just normal variance?"
+msgstr "哪些教訓值得改規則，哪些只是正常波動？"
+
+#: src/lib/system.ts:125
+msgid "Which new evidence justifies adding, and which justifies trimming?"
+msgstr "什麼新證據支持加倉，什麼支持減倉？"
+
+#: src/lib/system.ts:155
+msgid "Which numbers tell me the system is working — by market, setup and adherence?"
+msgstr "哪些數字告訴我系統有效——按市場、設置與遵守度？"
+
+#: src/lib/system.ts:95
+msgid "Which objective event makes me actually buy? Before it happens, do I know I do nothing?"
+msgstr "哪個客觀事件令我真正買入？在發生前，我是否知道應按兵不動？"
+
+#: src/lib/system.ts:89
+msgid "Which price structure must exist before I prepare a trade?"
+msgstr "準備交易前必須存在哪種價格結構？"
+
+#: src/components/system-map/FollowPlan.tsx:784
+#: src/components/system-map/PlanDialogs.tsx:147
+msgid "Why this, why now"
+msgstr "為什麼是這筆，為什麼是現在"
 
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
 msgid "Win rate"
 msgstr "勝率"
 
+#: src/lib/system.ts:156
+msgid "Win rate, average win/loss, expectancy in R, results by regime and by setup."
+msgstr "勝率、平均盈虧、以 R 計的期望值，以及按市況與設置的結果。"
+
+#: src/app/screens/SystemReviewPanel.tsx:171
+msgid "Win%"
+msgstr "勝率%"
+
+#: src/app/screens/SystemReviewPanel.tsx:49
+msgid "With adherence"
+msgstr "含遵守度"
+
+#: src/app/screens/SystemReviewPanel.tsx:48
+msgid "With regime"
+msgstr "含市況"
+
+#: src/components/system-map/EvidenceTimeline.tsx:363
+#: src/components/system-map/EvidenceTimeline.tsx:444
+msgid "Withdraw"
+msgstr "撤回"
+
+#: src/components/system-map/EvidenceTimeline.tsx:361
+msgid "Withdraw this note"
+msgstr "撤回這則紀錄"
+
+#. placeholder {0}: fmtDateTime(entry.withdrawn_at)
+#. placeholder {1}: entry.withdraw_reason
+#: src/components/system-map/EvidenceTimeline.tsx:436
+msgid "Withdrawn {0} · {1}"
+msgstr "已於 {0} 撤回 · {1}"
+
 #: src/app/screens/PublicShareView.tsx:315
 msgid "Worst day"
 msgstr "最差交易日"
 
-#: src/app/drawers/NewNoteDrawer.tsx:195
+#: src/components/system-map/FollowPlan.tsx:441
+msgid "Write a plan before the fill, then walk the map and answer each rule."
+msgstr "成交前先寫計劃，再沿著地圖逐條回答規則。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:80
+msgid "Write a plan before the fill: setup, trigger, prices, and an answer for each rule. Link the trade once it fills."
+msgstr "成交前寫下計劃：設置、觸發、價格，以及每條規則的答案。成交後再連結交易。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:125
+msgid "Write a rule to turn it into conditions you can tick off."
+msgstr "寫成規則，變成可勾選的條件。"
+
+#: src/components/system-map/PlanDialogs.tsx:77
+msgid "Write it before the fill. It's checked against {versionLabel}, and every save adds a revision instead of overwriting the last one."
+msgstr "在成交前寫下。會對照 {versionLabel}，每次儲存都新增修訂，不會覆蓋上一筆。"
+
+#: src/app/screens/SystemView.tsx:178
+msgid "Write rules"
+msgstr "撰寫規則"
+
+#: src/app/screens/SystemView.tsx:73
+#~ msgid "Write the rules you trade by on the map, follow them trade by trade, and let the results tell you which rules to keep."
+#~ msgstr ""
+
+#: src/lib/system.ts:299
+msgid "Write v1.0"
+msgstr "撰寫 v1.0"
+
+#: src/components/system-map/FollowPlan.tsx:301
+msgid "Written after the fact"
+msgstr "事後補記"
+
+#: src/components/system-map/EvidenceTimeline.tsx:50
+#: src/lib/system.ts:234
+msgid "Wrong"
+msgstr "錯誤"
+
+#: src/lib/system.ts:150
+msgid "Wrong → exit; finished → take at least half; not working past time stop → exit."
+msgstr "錯誤 → 離場；完成 → 至少減半；逾時仍未奏效 → 離場。"
+
+#: src/lib/system.ts:144
+msgid "Wrong = close under the stop structure; not working = flat past planned hold with no follow-through."
+msgstr "錯誤＝收於止蝕結構下；未奏效＝過了計劃持倉仍橫行、無跟進。"
+
+#: src/lib/system.ts:143
+msgid "Wrong, still working, not working, or finished — how do I tell them apart?"
+msgstr "錯誤、仍在奏效、未奏效，還是已完成——如何區分？"
+
+#: src/components/TradeSystemCard.tsx:121
+msgid "Yes"
+msgstr "是"
+
+#: src/app/screens/SystemView.tsx:239
+msgid "Your draft has edits that aren't saved. Leaving now discards them."
+msgstr "草稿有未儲存的編輯。現在離開會捨棄它們。"
+
+#: src/app/screens/SystemView.tsx:238
+msgid "Your plan has edits that aren't saved as a revision. Leaving now discards them."
+msgstr "計劃的修改尚未存成修訂。現在離開會捨棄它們。"
+
+#: src/components/system-map/FollowTradeInspector.tsx:86
+msgid "Your rule"
+msgstr "你的規則"
+
+#: src/components/system-map/FollowTradeInspector.tsx:86
+msgid "Your rules"
+msgstr "你的規則"
+
+#: src/app/drawers/NewNoteDrawer.tsx:197
 msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
 msgstr "本週的數字，然後是做得好的、做得不好的，以及下週的重點。"

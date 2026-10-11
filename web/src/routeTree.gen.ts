@@ -28,6 +28,7 @@ import { Route as ReviewRouteImport } from './routes/review'
 import { Route as RoutinesRouteImport } from './routes/routines'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SetupRouteImport } from './routes/setup'
+import { Route as SystemRouteImport } from './routes/system'
 import { Route as TodayRouteImport } from './routes/today'
 import { Route as TradesRouteImport } from './routes/trades'
 import { Route as WrappedRouteImport } from './routes/wrapped'
@@ -132,6 +133,11 @@ const SetupRoute = SetupRouteImport.update({
   path: '/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SystemRoute = SystemRouteImport.update({
+  id: '/system',
+  path: '/system',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TodayRoute = TodayRouteImport.update({
   id: '/today',
   path: '/today',
@@ -193,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/routines': typeof RoutinesRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
+  '/system': typeof SystemRoute
   '/today': typeof TodayRoute
   '/trades': typeof TradesRouteWithChildren
   '/wrapped': typeof WrappedRoute
@@ -222,6 +229,7 @@ export interface FileRoutesByTo {
   '/routines': typeof RoutinesRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
+  '/system': typeof SystemRoute
   '/today': typeof TodayRoute
   '/wrapped': typeof WrappedRoute
   '/accounts/$accountId': typeof AccountsAccountIdRoute
@@ -251,6 +259,7 @@ export interface FileRoutesById {
   '/routines': typeof RoutinesRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
+  '/system': typeof SystemRoute
   '/today': typeof TodayRoute
   '/trades': typeof TradesRouteWithChildren
   '/wrapped': typeof WrappedRoute
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
     | '/routines'
     | '/settings'
     | '/setup'
+    | '/system'
     | '/today'
     | '/trades'
     | '/wrapped'
@@ -311,6 +321,7 @@ export interface FileRouteTypes {
     | '/routines'
     | '/settings'
     | '/setup'
+    | '/system'
     | '/today'
     | '/wrapped'
     | '/accounts/$accountId'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/routines'
     | '/settings'
     | '/setup'
+    | '/system'
     | '/today'
     | '/trades'
     | '/wrapped'
@@ -369,6 +381,7 @@ export interface RootRouteChildren {
   RoutinesRoute: typeof RoutinesRoute
   SettingsRoute: typeof SettingsRoute
   SetupRoute: typeof SetupRoute
+  SystemRoute: typeof SystemRoute
   TodayRoute: typeof TodayRoute
   TradesRoute: typeof TradesRouteWithChildren
   WrappedRoute: typeof WrappedRoute
@@ -512,6 +525,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SetupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/system': {
+      id: '/system'
+      path: '/system'
+      fullPath: '/system'
+      preLoaderRoute: typeof SystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/today': {
       id: '/today'
       path: '/today'
@@ -604,6 +624,7 @@ const rootRouteChildren: RootRouteChildren = {
   RoutinesRoute: RoutinesRoute,
   SettingsRoute: SettingsRoute,
   SetupRoute: SetupRoute,
+  SystemRoute: SystemRoute,
   TodayRoute: TodayRoute,
   TradesRoute: TradesRouteWithChildren,
   WrappedRoute: WrappedRoute,

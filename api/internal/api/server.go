@@ -236,6 +236,7 @@ func (s *Server) routes() {
 	s.checklistRoutes(protected)
 	s.routineRoutes(protected)
 	s.missedTradeRoutes(protected)
+	s.tradingSystemRoutes(protected)
 	s.marketRoutes(protected)
 	s.economicEventRoutes(protected)
 	s.ocrRoutes(protected)
