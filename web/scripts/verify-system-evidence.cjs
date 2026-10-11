@@ -97,9 +97,9 @@ async function main() {
     await page.goto(`${BASE_URL}/system?mode=follow&plan=${taken.id}&node=review`, {
       waitUntil: "networkidle",
     });
-    const evidence = page.getByRole("heading", { name: "Evidence at the time" }).or(
-      page.getByText("Evidence at the time").first(),
-    );
+    const evidence = page
+      .getByRole("heading", { name: "Evidence at the time" })
+      .or(page.getByText("Evidence at the time").first());
     await page.getByText("Evidence at the time").first().waitFor();
     await page.getByText(/time stop was due/i).scrollIntoViewIfNeeded();
     record("time-stop-prompt", await page.getByText(/time stop was due/i).isVisible());
@@ -108,7 +108,9 @@ async function main() {
     await page.locator('select[aria-label="Action"]').selectOption("add");
     await page.getByText("Adding or trimming is a note").waitFor();
     record("scaling-hint", await page.getByText("not an order").first().isVisible());
-    await page.getByRole("textbox", { name: "Evidence note", exact: true }).fill("Volume held above the pivot");
+    await page
+      .getByRole("textbox", { name: "Evidence note", exact: true })
+      .fill("Volume held above the pivot");
     await shot(page, "evidence-03-compose.png");
     await page.getByRole("button", { name: "Record", exact: true }).click();
     await page.getByText("Evidence recorded").waitFor();
@@ -118,16 +120,17 @@ async function main() {
 
     await page.getByRole("button", { name: "Correct" }).click();
     await page.getByText("Correcting this note").waitFor();
-    await page.getByRole("textbox", { name: "Evidence note", exact: true }).fill("Abandoned wording");
+    await page
+      .getByRole("textbox", { name: "Evidence note", exact: true })
+      .fill("Abandoned wording");
     await page.getByRole("button", { name: "Cancel" }).click();
     record("cancel-correction", (await page.getByText("Abandoned wording").count()) === 0);
-    record(
-      "original-kept",
-      (await page.getByText("Volume held above the pivot").count()) >= 1,
-    );
+    record("original-kept", (await page.getByText("Volume held above the pivot").count()) >= 1);
 
     await page.getByRole("button", { name: "Correct" }).click();
-    await page.getByRole("textbox", { name: "Evidence note", exact: true }).fill("Volume faded after the add");
+    await page
+      .getByRole("textbox", { name: "Evidence note", exact: true })
+      .fill("Volume faded after the add");
     await page.getByRole("button", { name: "Save correction" }).click();
     await page.getByText("Correction saved").waitFor();
     await page.getByText("Volume faded after the add").first().waitFor();
@@ -149,7 +152,10 @@ async function main() {
     await dialog.getByLabel("Reason").fill("Wrote the wrong moment");
     await dialog.getByRole("button", { name: "Withdraw" }).click();
     await page.getByText("Note withdrawn").waitFor();
-    await page.getByText(/Withdrawn /).first().waitFor();
+    await page
+      .getByText(/Withdrawn /)
+      .first()
+      .waitFor();
     record("withdrawn", (await page.getByRole("button", { name: "Correct" }).count()) === 0);
     record(
       "withdrawn-keeps-text",
@@ -183,7 +189,9 @@ async function main() {
   }
 
   const failed = results.filter((r) => !r.pass);
-  console.log(JSON.stringify({ pass: results.length - failed.length, fail: failed.length, results }, null, 2));
+  console.log(
+    JSON.stringify({ pass: results.length - failed.length, fail: failed.length, results }, null, 2),
+  );
   if (failed.length) process.exit(1);
 }
 
