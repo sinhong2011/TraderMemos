@@ -5,6 +5,44 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.16.0](https://github.com/sinhong2011/TraderMemos/compare/v0.15.0...v0.16.0) (2026-10-18)
+
+
+### Features
+
+* **alerts:** weekly review push that opens a prefilled review note ([#330](https://github.com/sinhong2011/TraderMemos/issues/330)) ([48c3111](https://github.com/sinhong2011/TraderMemos/commit/48c3111b77f25a9d974b4b082614437336994833))
+* **backup:** scheduled SQLite snapshots with status in Settings → About ([#329](https://github.com/sinhong2011/TraderMemos/issues/329)) ([6ecb326](https://github.com/sinhong2011/TraderMemos/commit/6ecb32699b68303fe71f70cd21e9c4fe82cb3fef))
+* **import:** sample rows show what will import, and when ([#320](https://github.com/sinhong2011/TraderMemos/issues/320)) ([5ab35ee](https://github.com/sinhong2011/TraderMemos/commit/5ab35ee30bde66463e11e03fe08bf1ea90897adb))
+* **marketing:** homepage revamp + docs for features since 0.14 ([#358](https://github.com/sinhong2011/TraderMemos/issues/358)) ([bc24ccb](https://github.com/sinhong2011/TraderMemos/commit/bc24ccb80f747d0b71fa229521ec111971356c5a))
+* mistake tax — what breaking your own process cost, by reason ([#340](https://github.com/sinhong2011/TraderMemos/issues/340)) ([e2ec61a](https://github.com/sinhong2011/TraderMemos/commit/e2ec61a427ff32ad488afd787b84b80e666123eb))
+* **mobile:** review queue — grade the inbox one trade at a time ([#345](https://github.com/sinhong2011/TraderMemos/issues/345)) ([9dbb92c](https://github.com/sinhong2011/TraderMemos/commit/9dbb92cf49b08a34896aa03ebdc8fcdf75d42165))
+* **mobile:** searchable model picker sheet for LLM settings ([#319](https://github.com/sinhong2011/TraderMemos/issues/319)) ([db3d705](https://github.com/sinhong2011/TraderMemos/commit/db3d705c8adb33e05328f7974a0fc4d9c9af2bef))
+* **mobile:** this week's focus on Home ([#346](https://github.com/sinhong2011/TraderMemos/issues/346)) ([39b86fc](https://github.com/sinhong2011/TraderMemos/commit/39b86fc4204193878526f36f86f7ded8d2ef1542))
+* review inbox — grade every closed trade, one at a time ([#342](https://github.com/sinhong2011/TraderMemos/issues/342)) ([528c079](https://github.com/sinhong2011/TraderMemos/commit/528c0794753b472a4753dbcdb4b582f0ea8bae60))
+* setup scorecard — verdict, expectancy interval and clean R per playbook setup ([#339](https://github.com/sinhong2011/TraderMemos/issues/339)) ([9ceb22a](https://github.com/sinhong2011/TraderMemos/commit/9ceb22a6fb40643ec4efa539bd3825fc21931b1a))
+* **web:** sign-in brand panel as a field of journal candles ([#338](https://github.com/sinhong2011/TraderMemos/issues/338)) ([4db1abb](https://github.com/sinhong2011/TraderMemos/commit/4db1abb2c8dc4118010a9d278f2d8bec6a2fcee0))
+* **web:** Today — one page for the trading day ([#327](https://github.com/sinhong2011/TraderMemos/issues/327)) ([5fcb8a2](https://github.com/sinhong2011/TraderMemos/commit/5fcb8a27ff60f8c850a386660c4dced098538ae9))
+* weekly focus — the review's commitments lead the next week's Today ([#343](https://github.com/sinhong2011/TraderMemos/issues/343)) ([b606060](https://github.com/sinhong2011/TraderMemos/commit/b606060a02bbc029b94ba76c52063d701386198b))
+* weekly focus history — how often the focus you set was kept ([#347](https://github.com/sinhong2011/TraderMemos/issues/347)) ([ea8ff3d](https://github.com/sinhong2011/TraderMemos/commit/ea8ff3de7ab6bb4f1e40bb2cdbef236ea18862d2))
+
+
+### Bug Fixes
+
+* **analytics:** bucket trade duration on the request's market tz ([#326](https://github.com/sinhong2011/TraderMemos/issues/326)) ([1a57f08](https://github.com/sinhong2011/TraderMemos/commit/1a57f08d72907f574c879abd4785e1bf1d9633b7))
+* **api:** scorecard "clean" expectancy drops every trade the mistake tax charges ([#341](https://github.com/sinhong2011/TraderMemos/issues/341)) ([5ad7459](https://github.com/sinhong2011/TraderMemos/commit/5ad745900441bc767687010895beb424660020a2))
+* **api:** unreviewed-trades alert counts what the review inbox counts ([#344](https://github.com/sinhong2011/TraderMemos/issues/344)) ([3b70d73](https://github.com/sinhong2011/TraderMemos/commit/3b70d73e85f432f13c56aab54e8aef0db0e349d4))
+* **mobile:** read and type fill times on the display clock ([#328](https://github.com/sinhong2011/TraderMemos/issues/328)) ([0fbc6df](https://github.com/sinhong2011/TraderMemos/commit/0fbc6df360f50c10c43b7e770d7994379f3e5f83))
+* **mobile:** routine ticks key on the market-timezone trading day (app, widgets, Siri, controls) ([#332](https://github.com/sinhong2011/TraderMemos/issues/332)) ([f71d72f](https://github.com/sinhong2011/TraderMemos/commit/f71d72f41372daf1c31784f715edfe9cfca9c4ff))
+* **mobile:** show the API's reason for 502/503/504 errors ([#318](https://github.com/sinhong2011/TraderMemos/issues/318)) ([07ab67f](https://github.com/sinhong2011/TraderMemos/commit/07ab67fa06c38735c81c4b913ac063ff736cfe80))
+* **ocr:** keep the server's resolved instant for scanned fill times ([#317](https://github.com/sinhong2011/TraderMemos/issues/317)) ([e4ede86](https://github.com/sinhong2011/TraderMemos/commit/e4ede86f2bc044474a666bb4756ef93167639a94))
+* **ocr:** retry overload, keep scanned fill times in the screen's zone, skip unfilled orders ([#316](https://github.com/sinhong2011/TraderMemos/issues/316)) ([a9138ae](https://github.com/sinhong2011/TraderMemos/commit/a9138aec53c04c60eb71cee8717ae8f06f834142))
+* **routines:** key routine days on the market trading day ([#331](https://github.com/sinhong2011/TraderMemos/issues/331)) ([63fa03b](https://github.com/sinhong2011/TraderMemos/commit/63fa03bba224d68b00d92bebeedd8317ddc24260))
+* **web:** 11px text floor via a named text-2xs step ([#336](https://github.com/sinhong2011/TraderMemos/issues/336)) ([9f72a8b](https://github.com/sinhong2011/TraderMemos/commit/9f72a8bbb911e4f64774c07df8dac9e2271f3dc2))
+* **web:** charts follow the theme; drop dead Signal tokens ([#334](https://github.com/sinhong2011/TraderMemos/issues/334)) ([409f12b](https://github.com/sinhong2011/TraderMemos/commit/409f12bc5a0400aa2464eab555e5470aaac04118))
+* **web:** light-mode cards, readable P&L red, market-day "today" on Home ([#333](https://github.com/sinhong2011/TraderMemos/issues/333)) ([8de9364](https://github.com/sinhong2011/TraderMemos/commit/8de936458b2f90d91faa74868ba721b98bd50840))
+* **web:** neutral fees, heading token, 24px segment targets, reduced-motion charts ([#337](https://github.com/sinhong2011/TraderMemos/issues/337)) ([b40b9cd](https://github.com/sinhong2011/TraderMemos/commit/b40b9cd38f0471f327dbac673459c9ddee917457))
+* **web:** Remove trade behind ⋯ in the trade drawer; borderless settings and stat tiles ([#335](https://github.com/sinhong2011/TraderMemos/issues/335)) ([b03d10c](https://github.com/sinhong2011/TraderMemos/commit/b03d10cf9081fb606bd92ff6e01988eb5463482c))
+
 ## [0.15.0](https://github.com/sinhong2011/TraderMemos/compare/v0.14.1...v0.15.0) (2026-10-01)
 
 
