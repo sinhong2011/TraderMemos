@@ -1,0 +1,82 @@
+---
+title: 提示、分享與安全
+description: 透過推送或 Webhook 發送的日誌提示規則、自營帳戶規則、可撤銷的公開分享連結、私隱模式，以及雙重認證登入。
+---
+
+## 提示規則
+
+提示在**你自己的伺服器上**評估 —— 每次寫入交易後以及背景掃描時 —— 並且免費發送。在 設定 → 規則 →
+**Journal Alerts** 中配置；總開關是 **Enable alerts**。
+
+| 規則 | 觸發條件 |
+|------|-----------|
+| **Risk rule broken** | 一筆已平倉交易的風險超過了單筆最大風險（Risk Rules） |
+| **Daily loss limit** | 已實現盈虧跌破單日最大虧損，即使當天之後回升 |
+| **Consecutive losses** | 截至今天連續虧損達到設定筆數（預設 3） |
+| **Prop drawdown approaching** | 自營帳戶已用掉設定比例的回撤額度（預設 80%）。觸及上限總會提示 |
+| **Unreviewed trades** | 每週提示：早於 N 天（預設 7）的已平倉交易沒有執行評級 —— 與[覆盤收件匣](/zh-Hant/docs/guides/weekly-review)統計的是同一批交易。在流動端點擊會打開覆盤佇列 |
+| **Weekly review** | 市場時區週六 09:00，附預填好的回顧筆記 |
+
+**Timezone** 決定每日規則的「今天」何時切換。每個事件只發送一次（每日違規每天一次，未覆盤提示每週一次）。
+**Recent Alerts** 列出伺服器已發送的提示。
+
+流動端的 設定 → 交易與日誌 → **提示** 有相同的規則開關以及**推送到呢部裝置**；閾值、時區和 Webhook
+在 Web 上編輯。
+
+## 渠道
+
+**Alert Channels** 列出提示發往何處：
+
+- **Mobile push** —— 在 iOS / Android App 登入時自動註冊（Expo 推送）。
+- **Webhook** —— **Add webhook**，填寫 http(s) URL 和可選標籤。JSON 在 Discord、Slack 和 ntfy 中原生渲染。
+
+每個渠道都有 **Test** 按鈕，並顯示最近一次的發送錯誤。指向私有 / 區域網路地址的 Webhook 預設被攔截，
+除非設定 `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS=true`；掃描間隔為 `TM_JOB_ALERTS_INTERVAL_MIN` ——
+見[配置](/zh-Hant/docs/self-hosting/configuration)。
+
+## 自營帳戶
+
+把帳戶類型設為 **Prop**（設定 → 帳戶），然後打開該帳戶並點擊 **Prop rules**：盈利目標、最大回撤、
+回撤模式（*Trailing*、*End-of-day trailing*、*Static*）、單日虧損上限，以及一致性規則（單日利潤可佔
+總利潤的百分比）。留空即跳過該規則。首頁的 **Prop program** 卡片追蹤淨值、交易天數、最佳單日，以及
+相對目標和回撤的進度；上面的回撤提示監控的是同一額度。
+
+## 分享連結
+
+分享連結是一個可撤銷、唯讀的公開頁面，展示**匯總**的績效記錄 —— 勝率、獲利因子、累計盈虧曲線和節奏
+統計。交易、筆記和帳戶詳情永遠不會公開。
+
+- 從 設定 → **分享** → *新增分享連結* 建立，或使用報表上的分享按鈕（連結限定為當前帳戶和日期範圍）。
+  流動端從報表建立。
+- **顯示金額** 預設關閉：頁面只顯示比率和曲線形狀。
+- **有效期**：30 日、90 日（預設）、1 年或永不過期。
+- 分享列表顯示每條連結的範圍、建立 / 到期日期和瀏覽次數。**撤銷**會立即切斷存取。
+
+公開頁面**預設關閉** —— 在 API 上設定 `TM_SHARE_LINKS_ENABLED=true`（當 Web 應用位於其他來源時還需設定
+`TM_PUBLIC_WEB_URL`）。
+
+## 私隱模式
+
+頁首（Web）或首頁（流動端）的眼睛按鈕會把所有金額遮蔽為 `••••` —— 統計和比率仍然可見。適合截圖和
+螢幕分享。這是按裝置儲存的顯示設定；流動端也可在 設定 → 一般 → 顯示 → **私隱模式** 中切換。
+
+## 雙重認證
+
+設定 → **個人檔案** → Security → **Two-factor authentication** → *Set up*：用任意驗證器 App 掃描
+QR 碼（或手動輸入金鑰），再輸入 6 位驗證碼確認。關閉時需要同時提供密碼和當前驗證碼。流動端同樣的
+頁面在 設定 → 個人檔案 中；它只顯示金鑰、不顯示 QR 碼，因為手機通常就是驗證器本身。
+
+<Callout type="warn">
+按設計**沒有恢復碼** —— 對伺服器的 shell 存取就是恢復途徑。如果遺失了驗證器：
+
+```bash
+docker compose exec api /tradermemos disable-totp --email you@example.com
+```
+</Callout>
+
+## 權杖使用紀錄
+
+除了*最後使用時間*，伺服器還會記錄哪些客戶端在使用每個 [API 權杖](/zh-Hant/docs/guides/api-tokens)
+—— IP 和 User-Agent，每個客戶端一行（同一 IP 和 App 十分鐘內的重複請求合併；保留最近 50 條）。在
+流動端 設定 → 整合 → **API 權杖** 中打開某個權杖即可查看，或呼叫
+`GET /api/v1/access-tokens/{id}/uses`。

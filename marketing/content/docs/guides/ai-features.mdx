@@ -15,8 +15,20 @@ Configure both in **Settings → AI**. Two things to know up front:
 ## Screenshot scan (fill extraction)
 
 Extracts fills from a broker-app screenshot so you don't retype them. In the **New Trade**
-drawer, **Scan to fill** accepts one or more PNG / JPEG / WebP images and returns editable
-execution rows (symbol, side, qty, price, fees, time — multi-symbol screenshots work).
+drawer, **Scan to fill** takes one or more PNG / JPEG / WebP screenshots — or a CSV / JSON fill
+file — and stages them in a review overlay before anything touches the form:
+
+- each file gets its own row and progress while the model reads it;
+- when all have settled, per-symbol cards show the fills, average entry / exit and FIFO net
+  P&L (multi-symbol screenshots work);
+- the form only changes when you press **Fill form**. A scan that read nothing offers
+  **Close** instead, with the model's notes as the explanation.
+
+The server does the careful parts. Fill times are read in the timezone the screenshot shows
+(a label like `美東` beside the time), else your market timezone, and a missing year is
+filled in without putting a fill in the future. Cancelled, rejected and unfilled orders are
+skipped, and long / short comes from the fills themselves. When the provider is overloaded,
+the server retries twice and then answers **503 `ocr_busy`** with a "try again" message.
 
 Setup in **Settings → AI → Screenshot scan**:
 
@@ -35,12 +47,26 @@ local models may need a higher timeout, and your
 
 ## Trade coach
 
-On any trade's detail view, **Ask AI** sends the full trade context — fills, P&L, R-multiple,
-MAE/MFE, setup, emotion, tags, your notes — to your model and returns coaching notes. When the
-coach is off or unreachable, the panel falls back to built-in rule-based notes.
+On any trade's detail view, **Ask AI** sends the trade to your model — fills, P&L, R-multiple,
+MAE/MFE, setup, emotion, tags, your notes — plus your state **as of the entry**: that day's
+and week's prior P&L, win/loss streak, drawdown, and the emotions on your last few closes. The
+review comes back as:
+
+- **coaching notes**, streamed in one at a time as the model writes them;
+- one **next action** — a single checkable instruction for the next trade;
+- a per-trade **execution score** (entry, exit, risk, tempo on the same 0–100 scale as
+  Reports).
+
+Reviews are saved: reopening the trade shows the last one (*Saved review from …*), and the
+button becomes **Regenerate**. When the coach is off or unreachable, the panel falls back to
+built-in rule-based notes.
 
 Setup in **Settings → AI → Trade coach**: same fields as above (any chat model works — vision
 not required), plus an optional **System prompt** to change the coaching style.
+
+On mobile, the model row opens a searchable picker sheet grouped by vendor. For screenshot
+scan it hides models that can't read images (behind *Show all models*), and you can type any
+model id the endpoint doesn't advertise.
 
 ## Headless defaults via environment
 
