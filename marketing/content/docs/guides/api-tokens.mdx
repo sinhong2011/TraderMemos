@@ -21,6 +21,14 @@ A token has the **same access as your account** — there are no scopes. Treat i
 password, and prefer an expiry over "never" for anything you might forget about.
 </Callout>
 
+### Where has a token been used?
+
+Each token keeps an activity log: one entry per client — IP address and user-agent — whenever
+a new one shows up (or the same one returns after ten minutes), so a cron job writes one row,
+not one per request. The newest 50 are kept. Read it from the mobile app (**Settings →
+Integrations → API tokens →** a token → **Token activity**) or via `GET /api/v1/access-tokens/{id}/uses`. If an
+entry looks unfamiliar, revoke the token.
+
 ## Use it
 
 Send it as a Bearer token on any `/api/v1` route:

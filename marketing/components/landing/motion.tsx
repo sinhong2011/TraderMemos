@@ -273,3 +273,31 @@ export function TypedTerminal({
     </pre>
   );
 }
+
+/**
+ * Headline line revealed as one unit — a left-to-right wipe that sharpens
+ * from a blur. Used where the line carries a gradient ink: per-word
+ * transforms would break `background-clip: text`.
+ */
+export function InkReveal({
+  text,
+  className,
+  delay = 0,
+}: {
+  text: string;
+  className?: string;
+  delay?: number;
+}) {
+  const reduce = useReducedMotion();
+  if (reduce) return <span className={className}>{text}</span>;
+  return (
+    <motion.span
+      className={`inline-block ${className ?? ''}`}
+      initial={{ clipPath: 'inset(0 100% 0 0)', opacity: 0.4, y: 10 }}
+      animate={{ clipPath: 'inset(0 0% 0 0)', opacity: 1, y: 0 }}
+      transition={{ duration: 1.1, ease: easeOutExpo, delay }}
+    >
+      {text}
+    </motion.span>
+  );
+}

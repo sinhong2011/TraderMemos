@@ -5,6 +5,7 @@
     "health",
     "auth",
     "access-tokens",
+    "share-links",
     "accounts",
     "trades",
     "executions",
@@ -17,6 +18,7 @@
     "notes",
     "routines",
     "missed-trades",
+    "alerts",
     "admin"
   ]
 }

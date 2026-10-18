@@ -1,4 +1,13 @@
 {
   "title": "ガイド",
-  "pages": ["importing-trades", "supported-brokers", "ai-features", "api-tokens"]
+  "pages": [
+    "importing-trades",
+    "supported-brokers",
+    "daily-workflow",
+    "weekly-review",
+    "analytics",
+    "alerts-and-sharing",
+    "ai-features",
+    "api-tokens"
+  ]
 }

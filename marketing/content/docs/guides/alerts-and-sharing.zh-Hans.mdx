@@ -1,0 +1,82 @@
+---
+title: 提醒、分享与安全
+description: 通过推送或 Webhook 发送的日志提醒规则、自营账户规则、可撤销的公开分享链接、隐私模式，以及双重认证登录。
+---
+
+## 提醒规则
+
+提醒在**你自己的服务器上**评估 —— 每次写入交易后以及后台扫描时 —— 并且免费发送。在 设置 → 规则 →
+**Journal Alerts** 中配置；总开关是 **Enable alerts**。
+
+| 规则 | 触发条件 |
+|------|-----------|
+| **Risk rule broken** | 一笔已平仓交易的风险超过了单笔最大风险（Risk Rules） |
+| **Daily loss limit** | 已实现盈亏跌破单日最大亏损，即使当天之后回升 |
+| **Consecutive losses** | 截至今天连续亏损达到设定笔数（默认 3） |
+| **Prop drawdown approaching** | 自营账户已用掉设定比例的回撤额度（默认 80%）。触及上限总会提醒 |
+| **Unreviewed trades** | 每周提醒：早于 N 天（默认 7）的已平仓交易没有执行评级 —— 与[复盘收件箱](/zh-Hans/docs/guides/weekly-review)统计的是同一批交易。在移动端点击会打开复盘队列 |
+| **Weekly review** | 市场时区周六 09:00，附预填好的回顾笔记 |
+
+**Timezone** 决定每日规则的"今天"何时切换。每个事件只发送一次（每日违规每天一次，未复盘提醒每周一次）。
+**Recent Alerts** 列出服务器已发送的提醒。
+
+移动端的 设置 → 交易与日志 → **提示** 有相同的规则开关以及**推送到这部设备**；阈值、时区和 Webhook
+在 Web 上编辑。
+
+## 渠道
+
+**Alert Channels** 列出提醒发往何处：
+
+- **Mobile push** —— 在 iOS / Android App 登录时自动注册（Expo 推送）。
+- **Webhook** —— **Add webhook**，填写 http(s) URL 和可选标签。JSON 在 Discord、Slack 和 ntfy 中原生渲染。
+
+每个渠道都有 **Test** 按钮，并显示最近一次的发送错误。指向私有 / 局域网地址的 Webhook 默认被拦截，
+除非设置 `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS=true`；扫描间隔为 `TM_JOB_ALERTS_INTERVAL_MIN` ——
+见[配置](/zh-Hans/docs/self-hosting/configuration)。
+
+## 自营账户
+
+把账户类型设为 **Prop**（设置 → 账户），然后打开该账户并点击 **Prop rules**：盈利目标、最大回撤、
+回撤模式（*Trailing*、*End-of-day trailing*、*Static*）、单日亏损上限，以及一致性规则（单日利润可占
+总利润的百分比）。留空即跳过该规则。首页的 **Prop program** 卡片跟踪净值、交易天数、最佳单日，以及
+相对目标和回撤的进度；上面的回撤提醒监控的是同一额度。
+
+## 分享链接
+
+分享链接是一个可撤销、只读的公开页面，展示**汇总**的绩效记录 —— 胜率、盈利因子、累计盈亏曲线和节奏
+统计。交易、笔记和账户详情永远不会公开。
+
+- 从 设置 → **分享** → *新增分享链接* 创建，或使用报表上的分享按钮（链接限定为当前账户和日期范围）。
+  移动端从报表创建。
+- **显示金额** 默认关闭：页面只显示比率和曲线形状。
+- **有效期**：30 天、90 天（默认）、1 年或永不过期。
+- 分享列表显示每条链接的范围、创建 / 到期日期和浏览次数。**撤销**会立即切断访问。
+
+公开页面**默认关闭** —— 在 API 上设置 `TM_SHARE_LINKS_ENABLED=true`（当 Web 应用位于其他源时还需设置
+`TM_PUBLIC_WEB_URL`）。
+
+## 隐私模式
+
+页眉（Web）或首页（移动端）的眼睛按钮会把所有金额遮蔽为 `••••` —— 统计和比率仍然可见。适合截图和
+屏幕共享。这是按设备保存的显示设置；移动端也可在 设置 → 一般 → 显示 → **隐私模式** 中切换。
+
+## 双重认证
+
+设置 → **个人档案** → Security → **Two-factor authentication** → *Set up*：用任意验证器 App 扫描
+二维码（或手动输入密钥），再输入 6 位验证码确认。关闭时需要同时提供密码和当前验证码。移动端同样的
+页面在 设置 → 个人档案 中；它只显示密钥、不显示二维码，因为手机通常就是验证器本身。
+
+<Callout type="warn">
+按设计**没有恢复码** —— 对服务器的 shell 访问就是恢复途径。如果丢失了验证器：
+
+```bash
+docker compose exec api /tradermemos disable-totp --email you@example.com
+```
+</Callout>
+
+## 令牌使用记录
+
+除了*最后使用时间*，服务器还会记录哪些客户端在使用每个 [API 令牌](/zh-Hans/docs/guides/api-tokens)
+—— IP 和 User-Agent，每个客户端一行（同一 IP 和 App 十分钟内的重复请求合并；保留最近 50 条）。在
+移动端 设置 → 整合 → **API 令牌** 中打开某个令牌即可查看，或调用
+`GET /api/v1/access-tokens/{id}/uses`。

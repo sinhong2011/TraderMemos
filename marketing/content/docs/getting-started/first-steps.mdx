@@ -24,13 +24,17 @@ rename or replace them under **Playbook**.
 
 Three ways, mix freely:
 
+- **Connect a broker** — `/connect` — **Find my broker** on the Import page, or **Connect
+  broker** on an account's page — opens a searchable broker catalogue grouped **Auto-sync / File import / Manual**. Pick yours,
+  choose or create the account inline, then follow that broker's export steps — or, for
+  Interactive Brokers, enter the Flex Query and the first sync runs straight away.
 - **Import a broker CSV** — the fastest way to a populated journal.
   See [Importing trades](/en/docs/guides/importing-trades).
 - **New Trade** (hotkey `c` `t`) — manual entry with execution rows, setup, tags, emotion,
   screenshots, and notes. With [AI features](/en/docs/guides/ai-features) enabled,
   **Scan to fill** extracts the fills from a broker screenshot.
-- **Automate it** — IBKR accounts can auto-sync on a schedule via a Flex Query
-  (**Settings → Accounts → Flex sync**).
+- **Automate it** — IBKR accounts auto-sync on a schedule via a Flex Query, set up from
+  `/connect` or the **Interactive Brokers · Flex sync** card on the account's page.
 - **Just exploring?** Seed ~200 realistic demo trades:
   ```bash
   make demo-seed API=http://localhost:3000/api/v1 EMAIL=you@example.com PASSWORD='…'
@@ -44,31 +48,44 @@ duplicates are always skipped — so nothing here can double-count.
 | Page | Hotkey | What it's for |
 |------|--------|---------------|
 | **Home** | `G` `H` | Equity curve, P&L hero, streaks, expectancy, goal pacing |
+| **Today** | `G` `D` | The trading day on one page — routine, desk (daily-loss guardrail, open risk), session P&L, missed trades, daily log |
 | **Trades** | `G` `T` | The trade log — filter, sort, drill into fills and journal detail |
 | **Calendar** | `G` `C` | Daily P&L heatmap with weekly totals and drill-down |
 | **Reports** | `G` `S` | Expectancy, SQN, Kelly %, Monte Carlo, execution quality; setup / hourly / session breakdowns |
 | **Notes** | `G` `N` | Freeform notes and daily logs |
 | **Playbook** | `G` `P` | Your setups, each linked to the trades that used it |
-| **Calculator** | `G` `R` | Position-size / R calculator |
+| **Calculator** | `G` `R` | R-multiple & FVG trade planner |
 | **Import** | `G` `I` | Import & export |
-| **Settings** | `⌘` `,` | Accounts, rules & alerts, journal, AI, API tokens, sharing, users |
+| **Settings** | `⌘` `,` | Profile (password, two-factor), General (language, timezones, theme), Shortcuts, Accounts, Rules & alerts, Journal, AI, API tokens, Sharing, Users, About (version, backups) |
 
-`⌘K` opens the command palette from anywhere, and the **Tools** menu holds the rest — advanced
-chart, bar replay, economic calendar, FX and Kelly calculators, and Year Wrapped. Every binding
+`⌘K` opens the command palette from anywhere. Pages without a hotkey live there too:
+**Routines** and **Missed trades** (both also open from Today) and the **Review** inbox
+(`/review`). The **Tools** menu holds the rest — position size, Kelly, currency converter,
+R-multiple & FVG, advanced chart, replay, economic calendar, and Year Wrapped. Every binding
 is remappable in **Settings → Shortcuts**.
 
 ## 4. Build the review habit
 
 The journal pays off in the loop, not the log:
 
-1. **Tag every trade** with a setup from your playbook (plus mistakes and emotion when
-   relevant) — untagged trades can't teach you anything.
-2. **Check Reports weekly** — the setup breakdown shows which patterns actually make money;
-   Playbook ranks them by expectancy and profit factor.
-3. **Set guardrails** — **Settings → Rules** holds risk limits (max risk per trade, max daily
-   loss) that the New Trade compliance check enforces, and an annual goal the Dashboard paces.
-4. **Size consistently** — the position-size calculator (`⌘⇧P`) works off your account equity
-   and default risk %.
+1. **Start each session on Today** (`G` `D`) — tick the routine, watch the daily-loss
+   guardrail, log the trades you passed on as missed trades. See
+   [Daily workflow](/en/docs/guides/daily-workflow).
+2. **Clear the review inbox** — every closed trade from the last 14 days without an execution
+   grade waits in **Review** (`/review`, linked from Today), one trade at a time. Tag the setup,
+   mistakes and emotion while you're there — untagged trades can't teach you anything.
+3. **Write the weekly review** — every Saturday the server drafts a review note with the
+   week's numbers. The bullets you write under *Focus for next week* become **This week's
+   focus** on Today and on mobile Home, and Reports → Behavior tracks how often you kept it.
+   See [Weekly review](/en/docs/guides/weekly-review).
+4. **Let the numbers judge your setups** — Playbook sorts setups by verdict (Edge, Promising,
+   Watch, Too early, Execution leak, Bleeding) with an expectancy interval, so four lucky
+   trades don't pass for an edge. Reports adds the mistake tax and Edge Score — see
+   [Analytics](/en/docs/guides/analytics).
+5. **Set guardrails** — **Settings → Rules** holds risk limits (max risk per trade, max daily
+   loss) that the New Trade compliance check enforces, an annual goal the Dashboard paces, and
+   the alerts that warn you ([Alerts & sharing](/en/docs/guides/alerts-and-sharing)). The
+   position-size calculator (`⌘⇧P`) sizes off your account equity and default risk %.
 
 ## 5. Before you rely on it
 

@@ -168,7 +168,124 @@
     ],
     "licenseHeading": "AGPL-3.0 licensed",
     "licenseBody": "Self-host it, modify it, and run it for yourself or your firm freely.",
-    "readDocs": "Read the docs"
+    "readDocs": "Read the docs",
+    "heroKicker": "Just shipped — the review loop",
+    "noteMeta": "Oct 15 · NVDA",
+    "noteLine1": "“Chased the open. Cut it at the stop.”",
+    "noteLine2": "Next time, wait for the retest.",
+    "chips": [
+      {
+        "label": "Review inbox",
+        "value": "3 to grade"
+      },
+      {
+        "label": "Mistake tax",
+        "value": "−$412 · FOMO"
+      },
+      {
+        "label": "Weekly focus",
+        "value": "Kept 4 of 5"
+      },
+      {
+        "label": "Edge Score",
+        "value": "71 / 100"
+      }
+    ],
+    "eyebrowLoop": "The review loop",
+    "loopHeading": "Trade. Grade. Fix one thing. Repeat.",
+    "loopSub": "TraderMemos is built around the habit that actually moves a P&L: an honest review, every day, that feeds next week's plan.",
+    "loop": [
+      {
+        "tag": "Today",
+        "title": "Start the day on one page",
+        "body": "Today gathers the routine you run before the open, this week's focus, your daily-loss guardrail and open risk and the trades you've logged so far."
+      },
+      {
+        "tag": "Log",
+        "title": "Every fill, grouped into trades",
+        "body": "Import broker CSVs and MT4/MT5 statements, sync IBKR Flex, or log by hand. Fills become trades with P&L, R and hold time."
+      },
+      {
+        "tag": "Review",
+        "title": "Grade the inbox, one trade at a time",
+        "body": "The review inbox walks you through every closed trade: grade the execution, tag the mistake, write the lesson. Missed trades go in the log too."
+      },
+      {
+        "tag": "Improve",
+        "title": "See what your process costs",
+        "body": "Setup scorecards give each playbook setup a verdict and an expectancy interval. Mistake tax totals what breaking your own rules cost, by reason."
+      }
+    ],
+    "eyebrowNew": "Recently shipped",
+    "newHeading": "The newest pages in the journal",
+    "newSub": "Shipped to main and free for everyone running TraderMemos — no paid tier, no feature gate.",
+    "newItems": {
+      "today": {
+        "title": "Today",
+        "description": "One page for the trading day: routine, focus, risk and the session so far."
+      },
+      "inbox": {
+        "title": "Review inbox",
+        "description": "Grade every closed trade, one at a time — on the web or the phone."
+      },
+      "focus": {
+        "title": "Weekly focus",
+        "description": "Your review's commitments lead next week's Today, with a history of how often you kept them."
+      },
+      "scorecard": {
+        "title": "Setup scorecard",
+        "description": "Verdict, expectancy interval and clean R for every playbook setup."
+      },
+      "mistakeTax": {
+        "title": "Mistake tax",
+        "description": "What breaking your own process cost, broken down by reason."
+      },
+      "edge": {
+        "title": "Edge Score",
+        "description": "An open, documented score plus rolling performance against your own baseline."
+      },
+      "routines": {
+        "title": "Routines",
+        "description": "Pre-market and post-session checklists with stages and history, ticked on the market's day."
+      },
+      "backup": {
+        "title": "Scheduled backups",
+        "description": "Automatic SQLite snapshots with their status in Settings → About."
+      }
+    },
+    "eyebrowNumbers": "By the numbers",
+    "numbers": [
+      {
+        "value": 9,
+        "suffix": "",
+        "label": "broker CSV presets"
+      },
+      {
+        "value": 4,
+        "suffix": "",
+        "label": "languages"
+      },
+      {
+        "value": 0,
+        "suffix": "",
+        "prefix": "$",
+        "label": "per month, forever"
+      },
+      {
+        "value": 100,
+        "suffix": "%",
+        "label": "of your data on your server"
+      }
+    ],
+    "eyebrowMobile": "In your pocket",
+    "mobileHeading": "The journal goes where the trade happens",
+    "mobileBody": "The companion app reads and writes the same server. Journal offline, grade the review queue on the train, and check this week's focus before the open.",
+    "mobilePoints": [
+      "Offline journaling with a sync queue",
+      "Widgets, Live Activities and Siri on iOS",
+      "Review queue and weekly focus on Home",
+      "iOS on the App Store · Android APK on GitHub"
+    ]
   },
   "Footer": {
     "tagline": "Self-hosted trading journal.",
