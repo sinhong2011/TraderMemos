@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.16.1](https://github.com/sinhong2011/TraderMemos/compare/v0.16.0...v0.16.1) (2026-11-18)
+
+
+### Bug Fixes
+
+* tags faceted filter submenu activation ([#369](https://github.com/sinhong2011/TraderMemos/issues/369)) ([02763d3](https://github.com/sinhong2011/TraderMemos/commit/02763d3442ae3b3f8bae6f9da608f3c3ed677e04))
+
 ## [0.16.0](https://github.com/sinhong2011/TraderMemos/compare/v0.15.0...v0.16.0) (2026-11-18)
 
 
