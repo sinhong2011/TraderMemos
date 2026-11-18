@@ -69,6 +69,7 @@ API 呼び出しには引き続き認証が必要です。`GET /healthz` も公�
 
 ## MCP / AI エージェント
 
-HTTP を扱える MCP サーバーやエージェントを、PAT を Bearer ヘッダーに、`/openapi.yaml` をツール
-定義として、自分のインスタンスに向けるだけです。約定のインポート、分析データの取得、トレードへの
-注記など、UI でできることはすべてスクリプトから実行できます。
+TraderMemos には `/api/v1/mcp` に MCP エンドポイントが組み込まれています。Grok・Claude・Cursor などの
+MCP クライアントが PAT で接続でき、書き込みを許可しない限り読み取り専用です。詳しくは
+[AI アシスタント向け MCP](/docs/guides/mcp) を参照してください。それ以外のエージェントは、PAT を
+Bearer ヘッダーに、`/openapi.yaml` をツール定義として使えます。

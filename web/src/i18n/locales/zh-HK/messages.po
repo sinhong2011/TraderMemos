@@ -38,9 +38,23 @@ msgstr "1.0 = 打和"
 msgid "A backup is already running"
 msgstr "備份已在進行中"
 
+#: src/app/screens/settings/mcp-section.tsx:201
+#: src/app/screens/settings/mcp-section.tsx:212
+msgid "Allow changes"
+msgstr "允許修改"
+
+#: src/app/screens/settings/mcp-section.tsx:185
+#: src/app/screens/settings/mcp-section.tsx:196
+msgid "Allow MCP connections"
+msgstr "允許 MCP 連線"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "套用"
+
+#: src/app/screens/settings/mcp-section.tsx:237
+msgid "Authentication"
+msgstr "驗證"
 
 #: src/app/screens/settings/backups-section.tsx:149
 msgid "Back up now"
@@ -86,9 +100,42 @@ msgstr "最佳交易日"
 msgid "Checking…"
 msgstr "檢查中…"
 
+#: src/app/screens/settings/mcp-section.tsx:155
+msgid "Claude Code"
+msgstr "Claude Code"
+
+#: src/app/screens/settings/mcp-section.tsx:251
+msgid "Connect a client"
+msgstr "連接用戶端"
+
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
 msgstr "穩定性"
+
+#: src/app/screens/settings/mcp-section.tsx:84
+#: src/app/screens/settings/mcp-section.tsx:95
+msgid "Copied"
+msgstr "已複製"
+
+#: src/app/screens/settings/mcp-section.tsx:95
+msgid "Copy"
+msgstr "複製"
+
+#: src/app/screens/settings/mcp-section.tsx:265
+msgid "Copy configuration"
+msgstr "複製設定"
+
+#: src/app/screens/settings/mcp-section.tsx:229
+msgid "Copy endpoint URL"
+msgstr "複製端點網址"
+
+#: src/app/screens/settings/mcp-section.tsx:86
+msgid "Couldn't copy — select the text instead"
+msgstr "無法複製 — 請改為選取文字"
+
+#: src/app/screens/settings/mcp-section.tsx:136
+msgid "Couldn't save MCP settings"
+msgstr "無法儲存 MCP 設定"
 
 #: src/app/screens/PublicShareView.tsx:272
 msgid "Cumulative net P&L over the shared period."
@@ -115,9 +162,17 @@ msgstr "連續日數"
 msgid "Directory"
 msgstr "目錄"
 
-#: src/app/drawers/NewNoteDrawer.tsx:187
+#: src/app/screens/settings/mcp-section.tsx:244
+msgid "Disconnecting"
+msgstr "中斷連線"
+
+#: src/app/drawers/NewNoteDrawer.tsx:189
 msgid "Edit weekly review"
 msgstr "編輯每週回顧"
+
+#: src/app/screens/settings/mcp-section.tsx:224
+msgid "Endpoint"
+msgstr "端點"
 
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
@@ -136,9 +191,25 @@ msgstr "失敗"
 msgid "Failed {0}"
 msgstr "失敗（{0}）"
 
+#: src/app/screens/settings/mcp-section.tsx:176
+msgid "Failed to load MCP settings."
+msgstr "無法載入 MCP 設定。"
+
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
 msgstr "獲利日"
+
+#: src/app/screens/settings/mcp-section.tsx:145
+msgid "Grok (xAI API)"
+msgstr "Grok（xAI API）"
+
+#: src/app/screens/settings/mcp-section.tsx:150
+msgid "Grok Build"
+msgstr "Grok Build"
+
+#: src/app/screens/settings/mcp-section.tsx:270
+msgid "Grok's web and app connectors require OAuth sign-in, which TraderMemos doesn't offer; use the xAI API or Grok Build instead."
+msgstr "Grok 網頁及應用程式連接器需要 OAuth 登入，TraderMemos 並不支援；請改用 xAI API 或 Grok Build。"
 
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
@@ -184,6 +255,10 @@ msgstr "上次備份失敗"
 msgid "Latest file"
 msgstr "最新檔案"
 
+#: src/app/screens/settings/mcp-section.tsx:169
+msgid "Let Grok, Claude, ChatGPT and other Model Context Protocol clients work with your journal using a personal access token. This is separate from the built-in AI coach."
+msgstr "讓 Grok、Claude、ChatGPT 及其他 Model Context Protocol 用戶端以個人存取權杖操作你的交易日誌。此功能與內建 AI 教練無關。"
+
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
 msgstr "最長獲利連續"
@@ -195,6 +270,22 @@ msgstr "最長虧損連續"
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Manual only"
 msgstr "僅限手動"
+
+#: src/app/screens/settings/mcp-section.tsx:253
+msgid "MCP client"
+msgstr "MCP 用戶端"
+
+#: src/app/screens/settings/mcp-section.tsx:168
+msgid "MCP for AI assistants"
+msgstr "AI 助理的 MCP"
+
+#: src/app/screens/settings/mcp-section.tsx:181
+msgid "MCP is turned off for this server (TM_MCP_ENABLED=false). Ask the server owner to enable it."
+msgstr "此伺服器已停用 MCP（TM_MCP_ENABLED=false）。請聯絡伺服器管理員啟用。"
+
+#: src/app/screens/settings/mcp-section.tsx:161
+msgid "Most MCP clients (Cursor, VS Code, Windsurf…) accept this shape: a Streamable HTTP URL plus an Authorization header."
+msgstr "大部分 MCP 用戶端（Cursor、VS Code、Windsurf 等）都接受此格式：Streamable HTTP 網址加 Authorization 標頭。"
 
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
@@ -234,6 +325,22 @@ msgstr "無"
 msgid "of {0} trading days"
 msgstr "共 {0} 個交易日"
 
+#: src/app/screens/settings/mcp-section.tsx:190
+msgid "Off"
+msgstr "關閉"
+
+#: src/app/screens/settings/mcp-section.tsx:202
+msgid "Off: assistants can only read. On: they can also log executions and edit or delete trades and notes. Deletions can't be undone."
+msgstr "關閉：助理只能讀取。開啟：亦可記錄成交，以及編輯或刪除交易與筆記。刪除後無法復原。"
+
+#: src/app/screens/settings/mcp-section.tsx:190
+msgid "On"
+msgstr "開啟"
+
+#: src/app/screens/settings/mcp-section.tsx:160
+msgid "Other clients"
+msgstr "其他用戶端"
+
 #: src/app/screens/PublicShareView.tsx:252
 msgid "per trade"
 msgstr "每筆"
@@ -246,6 +353,14 @@ msgstr "每筆"
 msgid "Profit factor"
 msgstr "獲利因子"
 
+#: src/app/screens/settings/mcp-section.tsx:206
+msgid "Read & write"
+msgstr "讀寫"
+
+#: src/app/screens/settings/mcp-section.tsx:206
+msgid "Read-only"
+msgstr "唯讀"
+
 #: src/app/screens/PublicShareView.tsx:289
 msgid "Red days"
 msgstr "虧損日"
@@ -253,6 +368,14 @@ msgstr "虧損日"
 #: src/app/screens/NotesView.tsx:61
 msgid "Reviews"
 msgstr "回顧"
+
+#: src/app/screens/settings/mcp-section.tsx:246
+msgid "Revoke an assistant's token under Access tokens; it stops working on its next request. Turning off MCP above blocks all of them at once. Only a signed-in session can change these switches — a token can't grant itself write access."
+msgstr "在「存取權杖」撤銷助理的權杖，下一個請求起即失效。關閉上方的 MCP 會一次封鎖所有權杖。只有已登入的工作階段才能更改這些開關 —— 權杖無法自行取得寫入權限。"
+
+#: src/app/screens/settings/mcp-section.tsx:151
+msgid "Runs on your machine. Set TRADERMEMOS_TOKEN in your shell first."
+msgstr "在你的電腦上執行。請先在 shell 設定 TRADERMEMOS_TOKEN。"
 
 #: src/app/screens/settings/alerts-section.tsx:323
 msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
@@ -269,6 +392,14 @@ msgstr "儲存變更"
 #: src/app/screens/settings/backups-section.tsx:131
 msgid "Scheduled backups are off"
 msgstr "排程備份已關閉"
+
+#: src/app/screens/settings/mcp-section.tsx:239
+msgid "Send a personal access token (tm_pat_…) as \"Authorization: Bearer <token>\". Create one token per assistant under Access tokens above — the token is shown only once and never appears here."
+msgstr "以 \"Authorization: Bearer <token>\" 傳送個人存取權杖（tm_pat_…）。請在上方「存取權杖」為每個助理各建立一個權杖 —— 權杖只會顯示一次，不會出現在這裏。"
+
+#: src/app/screens/settings/mcp-section.tsx:156
+msgid "Set TRADERMEMOS_TOKEN in your shell first."
+msgstr "請先在 shell 設定 TRADERMEMOS_TOKEN。"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
@@ -293,6 +424,10 @@ msgstr "SQN"
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "統計"
+
+#: src/app/screens/settings/mcp-section.tsx:232
+msgid "Streamable HTTP transport. Use the address your assistant can reach — behind a reverse proxy, that's your public URL."
+msgstr "Streamable HTTP 傳輸。請使用助理能連到的位址 —— 若經反向代理，即為你的公開網址。"
 
 #: src/app/screens/PublicShareView.tsx:268
 msgid "The curve"
@@ -332,9 +467,13 @@ msgstr "每週回顧"
 msgid "Weekly review alerts"
 msgstr "每週回顧提醒"
 
-#: src/app/drawers/NewNoteDrawer.tsx:110
+#: src/app/drawers/NewNoteDrawer.tsx:112
 msgid "Weekly review updated"
 msgstr "已更新每週回顧"
+
+#: src/app/screens/settings/mcp-section.tsx:186
+msgid "When off, every token is refused at the MCP endpoint. The REST API is unaffected."
+msgstr "關閉時，MCP 端點會拒絕所有權杖。REST API 不受影響。"
 
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
@@ -345,6 +484,10 @@ msgstr "勝率"
 msgid "Worst day"
 msgstr "最差交易日"
 
-#: src/app/drawers/NewNoteDrawer.tsx:195
+#: src/app/screens/settings/mcp-section.tsx:146
+msgid "xAI's servers call TraderMemos, so this URL must be reachable from the internet over HTTPS. Pass the token as-is in the authorization field."
+msgstr "由 xAI 的伺服器呼叫 TraderMemos，因此此網址必須能從互聯網以 HTTPS 連到。請在 authorization 欄位直接填入權杖。"
+
+#: src/app/drawers/NewNoteDrawer.tsx:197
 msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
 msgstr "本週的數字，然後是做得好的、做得不好的，以及下週的重點。"

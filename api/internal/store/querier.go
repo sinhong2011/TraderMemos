@@ -68,6 +68,7 @@ type Querier interface {
 	GetImportBatch(ctx context.Context, arg GetImportBatchParams) (ImportBatch, error)
 	GetInstrumentSpec(ctx context.Context, arg GetInstrumentSpecParams) (InstrumentSpec, error)
 	GetJournalNote(ctx context.Context, arg GetJournalNoteParams) (JournalNote, error)
+	GetMCPSettings(ctx context.Context, userID string) (McpSetting, error)
 	GetMarketBarsCache(ctx context.Context, cacheKey string) (MarketBarsCache, error)
 	GetMediaFile(ctx context.Context, arg GetMediaFileParams) (MediaFile, error)
 	GetMissedTrade(ctx context.Context, arg GetMissedTradeParams) (MissedTrade, error)
@@ -175,6 +176,7 @@ type Querier interface {
 	UpsertEconomicEvent(ctx context.Context, arg UpsertEconomicEventParams) error
 	UpsertFlexSyncSettings(ctx context.Context, arg UpsertFlexSyncSettingsParams) (FlexSyncSetting, error)
 	UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error
+	UpsertMCPSettings(ctx context.Context, arg UpsertMCPSettingsParams) (McpSetting, error)
 	UpsertMarketBarsCache(ctx context.Context, arg UpsertMarketBarsCacheParams) error
 	UpsertOcrSettings(ctx context.Context, arg UpsertOcrSettingsParams) (OcrSetting, error)
 	UpsertPropSettings(ctx context.Context, arg UpsertPropSettingsParams) (PropSetting, error)

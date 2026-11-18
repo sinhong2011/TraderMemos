@@ -54,6 +54,9 @@ type Deps struct {
 	// ShareLinksEnabled turns on public share pages (off by default — the
 	// public endpoint exposes journal aggregates without auth).
 	ShareLinksEnabled bool
+	// MCPEnabled mounts the MCP endpoint (POST /api/v1/mcp). Per-user opt-in
+	// still applies on top of it.
+	MCPEnabled bool
 	// PublicWebURL is the web-app origin advertised to clients for share links.
 	PublicWebURL string
 	// Driver is the database driver name ("sqlite" or "postgres") for /system/info.
@@ -245,4 +248,8 @@ func (s *Server) routes() {
 	s.meRoutes(protected)
 	s.adminRoutes(protected)
 	s.preferenceRoutes(protected)
+	s.mcpSettingsRoutes(protected)
+
+	// MCP has its own PAT-only auth, so it sits outside `protected`.
+	s.mcpRoutes()
 }

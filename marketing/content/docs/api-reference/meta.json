@@ -5,6 +5,7 @@
     "health",
     "auth",
     "access-tokens",
+    "mcp",
     "share-links",
     "accounts",
     "trades",

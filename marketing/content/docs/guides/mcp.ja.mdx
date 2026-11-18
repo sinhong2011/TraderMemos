@@ -1,0 +1,161 @@
+---
+title: AI アシスタント向け MCP
+description: Grok・Claude・ChatGPT・Cursor などの Model Context Protocol クライアントをジャーナルに接続します。既定は読み取り専用、書き込みは許可したときだけ。
+---
+
+TraderMemos は [Model Context Protocol](https://modelcontextprotocol.io) のエンドポイントを提供します。
+AI アシスタントはトレードの検索、パフォーマンスレポートの実行、ノートの閲覧ができ、許可した場合に限り
+約定の記録やジャーナルの編集もできます。
+
+これは内蔵の [AI コーチ](/docs/guides/ai-features) ではなく、LLM プロバイダーの設定でもありません。
+アシスタントは自分の環境（xAI、Anthropic、手元の PC など）で動き、あなたが渡したトークンで
+TraderMemos サーバーを呼び出します。
+
+## 有効にする
+
+1. **設定 → API → アクセストークン → トークンを生成**。アシスタントごとに 1 つ（`Grok`、`Claude Code` など）
+   作ると、他に影響を与えず個別に取り消せます。`tm_pat_…` は一度しか表示されないのでコピーしておきます。
+2. **設定 → API → AI アシスタント向け MCP → MCP 接続を許可**。オンにするまで、MCP エンドポイントは
+   すべてのトークンを `403 mcp_disabled` で拒否します。
+3. 読み取り専用にするなら **変更を許可** はオフのまま。書き込みを許可するときだけオンにします。
+
+同じ画面にエンドポイント URL と、クライアントごとの貼り付け用設定が表示されます。
+
+## 接続情報
+
+| | |
+|---|---|
+| エンドポイント | `https://<your-host>/api/v1/mcp`（API を別ホストで運用している場合は API ホスト） |
+| トランスポート | Streamable HTTP（ステートレス、JSON レスポンス） |
+| 認証 | `Authorization: Bearer tm_pat_…` — パーソナルアクセストークンのみ |
+| 権限 | **変更を許可** がオンでない限り読み取り専用 |
+
+Web アプリのログインセッション（JWT）は意図的に拒否します。パーソナルアクセストークンは名前が付き、
+一覧でき、最終利用元が分かり、個別に取り消せるからです。
+
+## 権限
+
+| ツール | 権限 | 内容 |
+|--------|------|------|
+| `get_connection_info` | 読み取り | 読み取り専用か読み書きか、サーバーのバージョン |
+| `list_accounts` | 読み取り | 口座とその ID |
+| `list_trades` | 読み取り | トレード（新しい順）。口座・日付・銘柄・状態・方向・保有期間で絞り込み、ページング可 |
+| `get_trade` | 読み取り | 1 件のトレード（約定・ジャーナル・タグ・エクスカーション） |
+| `get_analytics` | 読み取り | `summary`, `r_summary`, `daily`, `equity_curve`, `breakdown`, `behavior`, `compliance`, `execution_score`, `edge_score`, `setup_scorecard`, `mistake_tax` |
+| `list_notes` / `get_note` | 読み取り | ノート・デイリーログ・週次レビュー |
+| `list_tags` / `list_setups` | 読み取り | ジャーナル用の ID |
+| `log_execution` | 書き込み | 約定を記録。サーバーが約定をトレードにまとめます。同じ約定の再送は無視されます |
+| `update_trade_journal` | 書き込み | ノート・セットアップ・タグ・リスク・損切り/目標・感情・評価 |
+| `delete_trade` | 書き込み | トレードを約定・添付ファイルごと削除 |
+| `create_note` / `update_note` / `delete_note` | 書き込み | ジャーナルノート |
+
+**変更を許可** がオフの間、書き込みツールは**一覧にも表示されず**、呼び出されてもサーバーが拒否します。
+スイッチの変更は次のリクエストから反映されます（ツール一覧をキャッシュするクライアントは再読み込みが必要な場合があります）。
+
+各ツールはアシスタントのトークンで対応する [REST エンドポイント](/docs/api-reference) を実行するため、
+見えるのはそのトークンが API で見られる範囲 — あなたのデータだけです。
+
+<Callout type="warn">
+ツールには MCP アノテーション（`readOnlyHint`、`destructiveHint` など）が付いており、クライアントが
+危険な操作を表示・確認するのに使います。これはクライアント UI 向けのヒントであり、セキュリティではありません。
+アシスタントに何ができるかはサーバー側 — トークンと **変更を許可** スイッチ — が決めます。
+削除は元に戻せないため、ジャーナルを編集させたいとき以外は書き込みをオフにしておきましょう。
+</Callout>
+
+MCP のスイッチを変更できるのはサインイン中のセッションだけです。トークン（アシスタントに渡したものを含む）
+では `403 session_required` となるため、アシスタントが自分に書き込み権限を与えることはできません。
+
+## クライアントを接続
+
+### Grok（xAI API）
+
+xAI の [リモート MCP ツール](https://docs.x.ai/developers/tools/remote-mcp) は Streamable HTTP で接続し、
+`Authorization` ヘッダーでトークンを送ります。呼び出し元は xAI のサーバーなので、エンドポイントは
+**インターネットから HTTPS で到達できる**必要があります（`localhost` のインスタンスでは動きません）。
+
+```python
+from xai_sdk import Client
+from xai_sdk.tools import mcp
+
+client = Client()  # reads XAI_API_KEY
+chat = client.chat.create(
+    model="grok-4.7",
+    tools=[mcp(
+        server_url="https://journal.example.com/api/v1/mcp",
+        server_label="tradermemos",
+        authorization="tm_pat_…",
+    )],
+)
+```
+
+`authorization` にはトークンをそのまま渡してください。TraderMemos は `Bearer ` の有無どちらも受け付けます。
+同じフィールド（`server_url`、`server_label`、`authorization`）は `https://api.x.ai/v1/responses` の
+OpenAI 互換 Responses API でも使えます。一部のツールだけ公開するには `allowed_tool_names` を使います。
+
+### Grok Build
+
+[Grok Build](https://docs.x.ai/build/features/mcp-servers) は手元のマシンで動くので、LAN や `localhost` の URL でも構いません。
+
+```bash
+grok mcp add --transport http tradermemos https://journal.example.com/api/v1/mcp \
+  --header "Authorization: Bearer ${TRADERMEMOS_TOKEN}"
+```
+
+<Callout>
+**grok.com と Grok アプリ**のカスタムコネクタは URL を追加して OAuth でサインインします。TraderMemos は
+パーソナルアクセストークンのみで認証し OAuth サーバーを持たないため、xAI API か Grok Build を使ってください。
+</Callout>
+
+### Claude Code
+
+```bash
+claude mcp add --transport http tradermemos https://journal.example.com/api/v1/mcp \
+  --header "Authorization: Bearer ${TRADERMEMOS_TOKEN}"
+```
+
+### その他のクライアント
+
+Cursor・VS Code・Windsurf など多くの MCP クライアントは、Streamable HTTP の URL とヘッダーを指定できます。
+
+```json
+{
+  "mcpServers": {
+    "tradermemos": {
+      "type": "http",
+      "url": "https://journal.example.com/api/v1/mcp",
+      "headers": { "Authorization": "Bearer tm_pat_…" }
+    }
+  }
+}
+```
+
+リモートサーバーに OAuth しか使えないクライアント（例: claude.ai のカスタムコネクタ）は、grok.com と同じ理由でまだ接続できません。
+
+## アシスタントの接続を解除する
+
+- **特定のアシスタント:** **設定 → API → アクセストークン** でそのトークンを取り消します。ツール呼び出しのたびに
+  トークンを再確認するため、次のリクエストから拒否されます。
+- **すべてのアシスタント:** **MCP 接続を許可** をオフにします。
+- **誰が接続した？** 各トークンにはクライアントの IP とユーザーエージェントの利用履歴があります
+  （[詳細](/docs/guides/api-tokens#where-has-a-token-been-used)）。
+
+トークンは作成後、TraderMemos のログにも設定画面にも表示されません。アシスタントとのチャットに貼り付けず、
+クライアントの設定か環境変数に入れてください。
+
+## セルフホスティングの注意
+
+- `TM_MCP_ENABLED=false` でエンドポイント自体をサーバーから外せます（[設定](/docs/self-hosting/configuration)）。
+  既定はオンですが、ユーザーが有効にするまでは何もしません。
+- エンドポイントは `/api/v1` 配下なので、API を転送済みのリバースプロキシは変更不要です。ステートレスなので
+  スティッキーセッション不要、再起動やレプリカ間でも問題ありません。
+- 切り分けには `curl` を使います:
+
+```bash
+curl -s https://journal.example.com/api/v1/mcp \
+  -H "Authorization: Bearer $TRADERMEMOS_TOKEN" \
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+`401` はトークンの欠落・誤り・期限切れ・取り消し、`403 mcp_disabled` はアカウントで MCP がオフ、
+`404` はサーバーが `TM_MCP_ENABLED=false` で動いていることを示します。

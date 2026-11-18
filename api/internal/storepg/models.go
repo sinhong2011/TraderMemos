@@ -219,6 +219,13 @@ type MarketBarsCache struct {
 	ExpiresAt sql.NullString `json:"expires_at"`
 }
 
+type McpSetting struct {
+	UserID      string    `json:"user_id"`
+	Enabled     int64     `json:"enabled"`
+	AllowWrites int64     `json:"allow_writes"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
 type MediaFile struct {
 	ID          string    `json:"id"`
 	UserID      string    `json:"user_id"`

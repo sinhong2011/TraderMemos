@@ -37,9 +37,23 @@ msgstr "1.0 = break-even"
 msgid "A backup is already running"
 msgstr "A backup is already running"
 
+#: src/app/screens/settings/mcp-section.tsx:201
+#: src/app/screens/settings/mcp-section.tsx:212
+msgid "Allow changes"
+msgstr "Allow changes"
+
+#: src/app/screens/settings/mcp-section.tsx:185
+#: src/app/screens/settings/mcp-section.tsx:196
+msgid "Allow MCP connections"
+msgstr "Allow MCP connections"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "Apply"
+
+#: src/app/screens/settings/mcp-section.tsx:237
+msgid "Authentication"
+msgstr "Authentication"
 
 #: src/app/screens/settings/backups-section.tsx:149
 msgid "Back up now"
@@ -85,9 +99,42 @@ msgstr "Best day"
 msgid "Checking…"
 msgstr "Checking…"
 
+#: src/app/screens/settings/mcp-section.tsx:155
+msgid "Claude Code"
+msgstr "Claude Code"
+
+#: src/app/screens/settings/mcp-section.tsx:251
+msgid "Connect a client"
+msgstr "Connect a client"
+
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
 msgstr "Consistency"
+
+#: src/app/screens/settings/mcp-section.tsx:84
+#: src/app/screens/settings/mcp-section.tsx:95
+msgid "Copied"
+msgstr "Copied"
+
+#: src/app/screens/settings/mcp-section.tsx:95
+msgid "Copy"
+msgstr "Copy"
+
+#: src/app/screens/settings/mcp-section.tsx:265
+msgid "Copy configuration"
+msgstr "Copy configuration"
+
+#: src/app/screens/settings/mcp-section.tsx:229
+msgid "Copy endpoint URL"
+msgstr "Copy endpoint URL"
+
+#: src/app/screens/settings/mcp-section.tsx:86
+msgid "Couldn't copy — select the text instead"
+msgstr "Couldn't copy — select the text instead"
+
+#: src/app/screens/settings/mcp-section.tsx:136
+msgid "Couldn't save MCP settings"
+msgstr "Couldn't save MCP settings"
 
 #: src/app/screens/PublicShareView.tsx:272
 msgid "Cumulative net P&L over the shared period."
@@ -114,9 +161,17 @@ msgstr "days in a row"
 msgid "Directory"
 msgstr "Directory"
 
-#: src/app/drawers/NewNoteDrawer.tsx:187
+#: src/app/screens/settings/mcp-section.tsx:244
+msgid "Disconnecting"
+msgstr "Disconnecting"
+
+#: src/app/drawers/NewNoteDrawer.tsx:189
 msgid "Edit weekly review"
 msgstr "Edit weekly review"
+
+#: src/app/screens/settings/mcp-section.tsx:224
+msgid "Endpoint"
+msgstr "Endpoint"
 
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
@@ -135,9 +190,25 @@ msgstr "Failed"
 msgid "Failed {0}"
 msgstr "Failed {0}"
 
+#: src/app/screens/settings/mcp-section.tsx:176
+msgid "Failed to load MCP settings."
+msgstr "Failed to load MCP settings."
+
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
 msgstr "Green days"
+
+#: src/app/screens/settings/mcp-section.tsx:145
+msgid "Grok (xAI API)"
+msgstr "Grok (xAI API)"
+
+#: src/app/screens/settings/mcp-section.tsx:150
+msgid "Grok Build"
+msgstr "Grok Build"
+
+#: src/app/screens/settings/mcp-section.tsx:270
+msgid "Grok's web and app connectors require OAuth sign-in, which TraderMemos doesn't offer; use the xAI API or Grok Build instead."
+msgstr "Grok's web and app connectors require OAuth sign-in, which TraderMemos doesn't offer; use the xAI API or Grok Build instead."
 
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
@@ -183,6 +254,10 @@ msgstr "Last backup failed"
 msgid "Latest file"
 msgstr "Latest file"
 
+#: src/app/screens/settings/mcp-section.tsx:169
+msgid "Let Grok, Claude, ChatGPT and other Model Context Protocol clients work with your journal using a personal access token. This is separate from the built-in AI coach."
+msgstr "Let Grok, Claude, ChatGPT and other Model Context Protocol clients work with your journal using a personal access token. This is separate from the built-in AI coach."
+
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
 msgstr "Longest green streak"
@@ -194,6 +269,22 @@ msgstr "Longest red streak"
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Manual only"
 msgstr "Manual only"
+
+#: src/app/screens/settings/mcp-section.tsx:253
+msgid "MCP client"
+msgstr "MCP client"
+
+#: src/app/screens/settings/mcp-section.tsx:168
+msgid "MCP for AI assistants"
+msgstr "MCP for AI assistants"
+
+#: src/app/screens/settings/mcp-section.tsx:181
+msgid "MCP is turned off for this server (TM_MCP_ENABLED=false). Ask the server owner to enable it."
+msgstr "MCP is turned off for this server (TM_MCP_ENABLED=false). Ask the server owner to enable it."
+
+#: src/app/screens/settings/mcp-section.tsx:161
+msgid "Most MCP clients (Cursor, VS Code, Windsurf…) accept this shape: a Streamable HTTP URL plus an Authorization header."
+msgstr "Most MCP clients (Cursor, VS Code, Windsurf…) accept this shape: a Streamable HTTP URL plus an Authorization header."
 
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
@@ -233,6 +324,22 @@ msgstr "None"
 msgid "of {0} trading days"
 msgstr "of {0} trading days"
 
+#: src/app/screens/settings/mcp-section.tsx:190
+msgid "Off"
+msgstr "Off"
+
+#: src/app/screens/settings/mcp-section.tsx:202
+msgid "Off: assistants can only read. On: they can also log executions and edit or delete trades and notes. Deletions can't be undone."
+msgstr "Off: assistants can only read. On: they can also log executions and edit or delete trades and notes. Deletions can't be undone."
+
+#: src/app/screens/settings/mcp-section.tsx:190
+msgid "On"
+msgstr "On"
+
+#: src/app/screens/settings/mcp-section.tsx:160
+msgid "Other clients"
+msgstr "Other clients"
+
 #: src/app/screens/PublicShareView.tsx:252
 msgid "per trade"
 msgstr "per trade"
@@ -245,6 +352,14 @@ msgstr "per trade"
 msgid "Profit factor"
 msgstr "Profit factor"
 
+#: src/app/screens/settings/mcp-section.tsx:206
+msgid "Read & write"
+msgstr "Read & write"
+
+#: src/app/screens/settings/mcp-section.tsx:206
+msgid "Read-only"
+msgstr "Read-only"
+
 #: src/app/screens/PublicShareView.tsx:289
 msgid "Red days"
 msgstr "Red days"
@@ -252,6 +367,14 @@ msgstr "Red days"
 #: src/app/screens/NotesView.tsx:61
 msgid "Reviews"
 msgstr "Reviews"
+
+#: src/app/screens/settings/mcp-section.tsx:246
+msgid "Revoke an assistant's token under Access tokens; it stops working on its next request. Turning off MCP above blocks all of them at once. Only a signed-in session can change these switches — a token can't grant itself write access."
+msgstr "Revoke an assistant's token under Access tokens; it stops working on its next request. Turning off MCP above blocks all of them at once. Only a signed-in session can change these switches — a token can't grant itself write access."
+
+#: src/app/screens/settings/mcp-section.tsx:151
+msgid "Runs on your machine. Set TRADERMEMOS_TOKEN in your shell first."
+msgstr "Runs on your machine. Set TRADERMEMOS_TOKEN in your shell first."
 
 #: src/app/screens/settings/alerts-section.tsx:323
 msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
@@ -268,6 +391,14 @@ msgstr "Save changes"
 #: src/app/screens/settings/backups-section.tsx:131
 msgid "Scheduled backups are off"
 msgstr "Scheduled backups are off"
+
+#: src/app/screens/settings/mcp-section.tsx:239
+msgid "Send a personal access token (tm_pat_…) as \"Authorization: Bearer <token>\". Create one token per assistant under Access tokens above — the token is shown only once and never appears here."
+msgstr "Send a personal access token (tm_pat_…) as \"Authorization: Bearer <token>\". Create one token per assistant under Access tokens above — the token is shown only once and never appears here."
+
+#: src/app/screens/settings/mcp-section.tsx:156
+msgid "Set TRADERMEMOS_TOKEN in your shell first."
+msgstr "Set TRADERMEMOS_TOKEN in your shell first."
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
@@ -292,6 +423,10 @@ msgstr "SQN"
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "Stats"
+
+#: src/app/screens/settings/mcp-section.tsx:232
+msgid "Streamable HTTP transport. Use the address your assistant can reach — behind a reverse proxy, that's your public URL."
+msgstr "Streamable HTTP transport. Use the address your assistant can reach — behind a reverse proxy, that's your public URL."
 
 #: src/app/screens/PublicShareView.tsx:268
 msgid "The curve"
@@ -331,9 +466,13 @@ msgstr "Weekly review"
 msgid "Weekly review alerts"
 msgstr "Weekly review alerts"
 
-#: src/app/drawers/NewNoteDrawer.tsx:110
+#: src/app/drawers/NewNoteDrawer.tsx:112
 msgid "Weekly review updated"
 msgstr "Weekly review updated"
+
+#: src/app/screens/settings/mcp-section.tsx:186
+msgid "When off, every token is refused at the MCP endpoint. The REST API is unaffected."
+msgstr "When off, every token is refused at the MCP endpoint. The REST API is unaffected."
 
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
@@ -344,6 +483,10 @@ msgstr "Win rate"
 msgid "Worst day"
 msgstr "Worst day"
 
-#: src/app/drawers/NewNoteDrawer.tsx:195
+#: src/app/screens/settings/mcp-section.tsx:146
+msgid "xAI's servers call TraderMemos, so this URL must be reachable from the internet over HTTPS. Pass the token as-is in the authorization field."
+msgstr "xAI's servers call TraderMemos, so this URL must be reachable from the internet over HTTPS. Pass the token as-is in the authorization field."
+
+#: src/app/drawers/NewNoteDrawer.tsx:197
 msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
 msgstr "Your week in numbers, then what worked, what didn't, and the focus for next week."
