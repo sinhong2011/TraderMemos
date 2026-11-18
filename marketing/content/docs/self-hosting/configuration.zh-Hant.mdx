@@ -70,6 +70,7 @@ description: API 讀取的全部 TM_* 環境變量，含默認值與作用說明
 | 變量 | 默認值 | 用途 |
 |----------|---------|---------|
 | `TM_SHARE_LINKS_ENABLED` | `false` | 開啓公開分享頁。默認關閉 —— 分享鏈接會讓日誌的一部分無需登錄即可訪問 |
+| `TM_MCP_ENABLED` | `true` | 在 `/api/v1/mcp` 提供面向 AI 助手的 MCP 端點。用戶在設置中開啓 MCP 前不起作用；設爲 `false` 則完全移除該端點（[指南](/docs/guides/mcp)） |
 | `TM_PUBLIC_WEB_URL` | *（空）* | 生成分享鏈接時使用的公開 Web 應用地址。若 API 與 Web 同源部署（自帶 nginx），留空即可 |
 | `TM_JOBS_ENABLED` | `true` | 後臺任務總開關。多副本部署時只在一個實例上開啓 |
 | `TM_JOB_EXCURSION_INTERVAL_MIN` | `360` | MAE/MFE 回填間隔（分鐘，`0` 爲禁用） |

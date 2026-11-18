@@ -11,7 +11,13 @@ import (
 	"github.com/tradermemos/api/internal/store"
 )
 
-const userKey = "uid"
+const (
+	userKey = "uid"
+	// viaPATKey marks a request authenticated with a personal access token
+	// rather than a browser/app session, for the few routes that must refuse
+	// tokens (see ViaPAT).
+	viaPATKey = "via_pat"
+)
 
 type UserStore interface {
 	GetUserByID(ctx context.Context, id string) (store.User, error)
@@ -50,11 +56,12 @@ func Middleware(j *JWT, users UserStore, tokens TokenStore) echo.MiddlewareFunc 
 			}
 			raw := strings.TrimPrefix(h, "Bearer ")
 			if IsPAT(raw) {
-				uid, err := authenticatePAT(c, tokens, raw)
+				uid, err := AuthenticatePAT(c, tokens, raw)
 				if err != nil {
 					return echo.NewHTTPError(http.StatusUnauthorized, "invalid token")
 				}
 				c.Set(userKey, uid)
+				c.Set(viaPATKey, true)
 				return next(c)
 			}
 			uid, err := j.Parse(raw, TokenAccess)
@@ -72,7 +79,10 @@ func Middleware(j *JWT, users UserStore, tokens TokenStore) echo.MiddlewareFunc 
 	}
 }
 
-func authenticatePAT(c *echo.Context, tokens TokenStore, secret string) (string, error) {
+// AuthenticatePAT resolves a personal access token secret to its owner,
+// rejecting unknown, revoked and expired tokens, and stamps last use. Exported
+// for the MCP endpoint, which accepts only PATs.
+func AuthenticatePAT(c *echo.Context, tokens TokenStore, secret string) (string, error) {
 	if tokens == nil {
 		return "", echo.ErrUnauthorized
 	}
@@ -118,6 +128,24 @@ func recordUse(ctx context.Context, tokens TokenStore, tokenID, ip, agent string
 		TokenID_2: tokenID,
 		Limit:     useHistoryLimit,
 	})
+}
+
+// SetUser marks the request as authenticated by uid. viaPAT records whether a
+// personal access token (as opposed to a session) did it.
+func SetUser(c *echo.Context, uid string, viaPAT bool) {
+	c.Set(userKey, uid)
+	if viaPAT {
+		c.Set(viaPATKey, true)
+	}
+}
+
+// ViaPAT reports whether the request authenticated with a personal access
+// token. Settings that widen what a token can do (MCP write access) refuse
+// PAT-authenticated callers, so a token handed to an AI assistant cannot
+// grant itself more power.
+func ViaPAT(c *echo.Context) bool {
+	v, _ := c.Get(viaPATKey).(bool)
+	return v
 }
 
 func UserID(c *echo.Context) string {

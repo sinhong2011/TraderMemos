@@ -1,0 +1,153 @@
+---
+title: 面向 AI 助手的 MCP
+description: 将 Grok、Claude、ChatGPT、Cursor 等 Model Context Protocol 客户端连接到你的交易日志 —— 默认只读，允许后才可写入。
+---
+
+TraderMemos 提供一个 [Model Context Protocol](https://modelcontextprotocol.io) 端点。AI 助手可以查询交易、
+运行绩效报告、阅读笔记，并且仅在你允许时记录成交、编辑日志。
+
+这不是内置的 [AI 教练](/docs/guides/ai-features)，也不配置任何 LLM 提供商。助手运行在它自己的环境
+（xAI、Anthropic、你的电脑），用你提供的令牌调用你的 TraderMemos 服务器。
+
+## 开启
+
+1. **设置 → API → 访问令牌 → 生成令牌。** 每个助手各建一个（`Grok`、`Claude Code` 等），以便单独撤销。
+   复制 `tm_pat_…` 密钥 —— 它只显示一次。
+2. **设置 → API → 面向 AI 助手的 MCP → 允许 MCP 连接。** 开启之前，MCP 端点会以 `403 mcp_disabled`
+   拒绝所有令牌。
+3. 想要只读助手就保持 **允许修改** 关闭；需要写入时再开启。
+
+同一区域会显示端点 URL 以及各客户端可直接粘贴的配置。
+
+## 连接信息
+
+| | |
+|---|---|
+| 端点 | `https://<your-host>/api/v1/mcp`（API 独立部署时为 API 主机） |
+| 传输 | Streamable HTTP，无状态，JSON 响应 |
+| 认证 | `Authorization: Bearer tm_pat_…` —— 仅限个人访问令牌 |
+| 权限 | 除非开启 **允许修改**，否则只读 |
+
+Web 应用的登录会话（JWT）会被刻意拒绝：个人访问令牌有名称、可列出、能看到最近使用来源，并可逐个撤销。
+
+## 权限
+
+| 工具 | 权限 | 作用 |
+|------|------|------|
+| `get_connection_info` | 读 | 报告只读或读写，以及服务器版本 |
+| `list_accounts` | 读 | 账户及其 ID |
+| `list_trades` | 读 | 交易（最新在前），可按账户、日期、代码、状态、方向、持仓时长筛选并分页 |
+| `get_trade` | 读 | 单笔交易，含成交、日志、标签与 MAE/MFE |
+| `get_analytics` | 读 | `summary`, `r_summary`, `daily`, `equity_curve`, `breakdown`, `behavior`, `compliance`, `execution_score`, `edge_score`, `setup_scorecard`, `mistake_tax` |
+| `list_notes` / `get_note` | 读 | 日志笔记、每日记录、周复盘 |
+| `list_tags` / `list_setups` | 读 | 记录日志所需的 ID |
+| `log_execution` | 写 | 记录一笔成交，服务器会把成交归并为交易；重复提交同一成交不会重复记录 |
+| `update_trade_journal` | 写 | 笔记、策略、标签、风险、止损/目标、情绪、评分 |
+| `delete_trade` | 写 | 删除交易及其成交与附件 |
+| `create_note` / `update_note` / `delete_note` | 写 | 日志笔记 |
+
+**允许修改** 关闭时，写入工具**不会出现在列表中**，即使被调用也会被服务器拒绝。开关变更从下一个请求起生效；
+缓存了工具列表的客户端可能需要刷新才能显示新开放的工具。
+
+每个工具都会以助手的令牌调用对应的 [REST 端点](/docs/api-reference)，因此它能看到的与该令牌通过 API
+能看到的完全一致：只有你的数据。
+
+<Callout type="warn">
+工具带有 MCP 注解（`readOnlyHint`、`destructiveHint` 等），供客户端标记和确认高风险调用。它们只是给客户端
+界面的提示，不是安全机制。助手能做什么由服务器决定：令牌与 **允许修改** 开关。删除无法撤销 —— 除非你希望
+助手编辑日志，否则请保持写入关闭。
+</Callout>
+
+只有已登录的会话才能更改 MCP 开关。使用令牌（包括交给助手的那个）会得到 `403 session_required`，
+因此助手无法自行获得写入权限。
+
+## 连接客户端
+
+### Grok（xAI API）
+
+xAI 的 [远程 MCP 工具](https://docs.x.ai/developers/tools/remote-mcp) 通过 Streamable HTTP 连接，并在
+`Authorization` 头中发送令牌。调用来自 xAI 的服务器，所以你的端点必须**能从互联网通过 HTTPS 访问** ——
+`localhost` 实例无法使用。
+
+```python
+from xai_sdk import Client
+from xai_sdk.tools import mcp
+
+client = Client()  # reads XAI_API_KEY
+chat = client.chat.create(
+    model="grok-4.7",
+    tools=[mcp(
+        server_url="https://journal.example.com/api/v1/mcp",
+        server_label="tradermemos",
+        authorization="tm_pat_…",
+    )],
+)
+```
+
+在 `authorization` 中直接填入令牌即可；TraderMemos 接受带或不带 `Bearer ` 前缀的写法。相同字段
+（`server_url`、`server_label`、`authorization`）也适用于 `https://api.x.ai/v1/responses` 的 OpenAI 兼容
+Responses API。用 `allowed_tool_names` 可以只开放部分工具。
+
+### Grok Build
+
+[Grok Build](https://docs.x.ai/build/features/mcp-servers) 运行在你的电脑上，因此局域网或 `localhost` 地址也可以：
+
+```bash
+grok mcp add --transport http tradermemos https://journal.example.com/api/v1/mcp \
+  --header "Authorization: Bearer ${TRADERMEMOS_TOKEN}"
+```
+
+<Callout>
+**grok.com 和 Grok 应用**的自定义连接器通过 URL 添加并使用 OAuth 登录。TraderMemos 只支持个人访问令牌认证，
+不提供 OAuth 服务器，请改用 xAI API 或 Grok Build。
+</Callout>
+
+### Claude Code
+
+```bash
+claude mcp add --transport http tradermemos https://journal.example.com/api/v1/mcp \
+  --header "Authorization: Bearer ${TRADERMEMOS_TOKEN}"
+```
+
+### 其他客户端
+
+Cursor、VS Code、Windsurf 等大多数 MCP 客户端都接受 Streamable HTTP URL 加请求头：
+
+```json
+{
+  "mcpServers": {
+    "tradermemos": {
+      "type": "http",
+      "url": "https://journal.example.com/api/v1/mcp",
+      "headers": { "Authorization": "Bearer tm_pat_…" }
+    }
+  }
+}
+```
+
+只支持以 OAuth 连接远程服务器的客户端（例如 claude.ai 自定义连接器）暂时无法连接，原因与 grok.com 相同。
+
+## 断开助手
+
+- **单个助手：** 在 **设置 → API → 访问令牌** 撤销它的令牌。每次工具调用都会重新校验令牌，因此从下一个请求起即被拒绝。
+- **所有助手：** 关闭 **允许 MCP 连接**。
+- **谁连接过？** 每个令牌都有客户端 IP 与 User-Agent 的活动记录（[详情](/docs/guides/api-tokens#where-has-a-token-been-used)）。
+
+令牌创建后不会出现在 TraderMemos 的日志或设置页面中。不要把令牌粘贴到与助手的对话里 —— 放进客户端配置或环境变量。
+
+## 自托管说明
+
+- `TM_MCP_ENABLED=false` 会把端点从服务器中完全移除（[配置](/docs/self-hosting/configuration)）。默认开启，
+  但在用户自行启用前不起作用。
+- 端点位于 `/api/v1` 下，已转发 API 的反向代理无需改动。它是无状态的：不需要粘性会话，重启和多副本都没问题。
+- 排查问题可以用 `curl`：
+
+```bash
+curl -s https://journal.example.com/api/v1/mcp \
+  -H "Authorization: Bearer $TRADERMEMOS_TOKEN" \
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+`401` 表示令牌缺失、错误、过期或已撤销；`403 mcp_disabled` 表示该账户未开启 MCP；`404` 表示服务器以
+`TM_MCP_ENABLED=false` 运行。

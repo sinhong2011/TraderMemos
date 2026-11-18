@@ -63,6 +63,11 @@ type Config struct {
 	// Off by default: instances are self-hosted and a share link makes part of
 	// the journal reachable without auth.
 	ShareLinksEnabled bool
+	// MCPEnabled serves the MCP (Model Context Protocol) endpoint at
+	// /api/v1/mcp (TM_MCP_ENABLED). On by default but inert: every user must
+	// still opt in under Settings → MCP before a token answers MCP clients.
+	// Set false to remove the endpoint from the instance entirely.
+	MCPEnabled bool
 	// PublicWebURL is the public web-app origin advertised to API clients for
 	// building share-link URLs (TM_PUBLIC_WEB_URL). Empty means the API origin
 	// also serves the web app (the bundled nginx deployment).
@@ -140,6 +145,7 @@ func Load() (Config, error) {
 		"coach_api_key":                  "",
 		"coach_model":                    "gpt-4o-mini",
 		"share_links_enabled":            false,
+		"mcp_enabled":                    true,
 		"public_web_url":                 "",
 		"cors_origins":                   "",
 		"jobs_enabled":                   true,
@@ -196,6 +202,7 @@ func Load() (Config, error) {
 		CoachAPIKey:                k.String("coach_api_key"),
 		CoachModel:                 k.String("coach_model"),
 		ShareLinksEnabled:          k.Bool("share_links_enabled"),
+		MCPEnabled:                 k.Bool("mcp_enabled"),
 		PublicWebURL:               strings.TrimRight(k.String("public_web_url"), "/"),
 		CORSOrigins:                SplitCSV(k.String("cors_origins")),
 		JobsEnabled:                k.Bool("jobs_enabled"),

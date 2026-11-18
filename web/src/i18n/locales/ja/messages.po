@@ -38,9 +38,23 @@ msgstr "1.0 = 損益分岐"
 msgid "A backup is already running"
 msgstr "バックアップはすでに実行中です"
 
+#: src/app/screens/settings/mcp-section.tsx:201
+#: src/app/screens/settings/mcp-section.tsx:212
+msgid "Allow changes"
+msgstr "変更を許可"
+
+#: src/app/screens/settings/mcp-section.tsx:185
+#: src/app/screens/settings/mcp-section.tsx:196
+msgid "Allow MCP connections"
+msgstr "MCP 接続を許可"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "適用"
+
+#: src/app/screens/settings/mcp-section.tsx:237
+msgid "Authentication"
+msgstr "認証"
 
 #: src/app/screens/settings/backups-section.tsx:149
 msgid "Back up now"
@@ -86,9 +100,42 @@ msgstr "最高の日"
 msgid "Checking…"
 msgstr "確認中…"
 
+#: src/app/screens/settings/mcp-section.tsx:155
+msgid "Claude Code"
+msgstr "Claude Code"
+
+#: src/app/screens/settings/mcp-section.tsx:251
+msgid "Connect a client"
+msgstr "クライアントを接続"
+
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
 msgstr "一貫性"
+
+#: src/app/screens/settings/mcp-section.tsx:84
+#: src/app/screens/settings/mcp-section.tsx:95
+msgid "Copied"
+msgstr "コピーしました"
+
+#: src/app/screens/settings/mcp-section.tsx:95
+msgid "Copy"
+msgstr "コピー"
+
+#: src/app/screens/settings/mcp-section.tsx:265
+msgid "Copy configuration"
+msgstr "設定をコピー"
+
+#: src/app/screens/settings/mcp-section.tsx:229
+msgid "Copy endpoint URL"
+msgstr "エンドポイント URL をコピー"
+
+#: src/app/screens/settings/mcp-section.tsx:86
+msgid "Couldn't copy — select the text instead"
+msgstr "コピーできませんでした — テキストを選択してください"
+
+#: src/app/screens/settings/mcp-section.tsx:136
+msgid "Couldn't save MCP settings"
+msgstr "MCP 設定を保存できませんでした"
 
 #: src/app/screens/PublicShareView.tsx:272
 msgid "Cumulative net P&L over the shared period."
@@ -115,9 +162,17 @@ msgstr "連続日数"
 msgid "Directory"
 msgstr "保存先"
 
-#: src/app/drawers/NewNoteDrawer.tsx:187
+#: src/app/screens/settings/mcp-section.tsx:244
+msgid "Disconnecting"
+msgstr "接続の解除"
+
+#: src/app/drawers/NewNoteDrawer.tsx:189
 msgid "Edit weekly review"
 msgstr "週次レビューを編集"
+
+#: src/app/screens/settings/mcp-section.tsx:224
+msgid "Endpoint"
+msgstr "エンドポイント"
 
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
@@ -136,9 +191,25 @@ msgstr "失敗"
 msgid "Failed {0}"
 msgstr "失敗（{0}）"
 
+#: src/app/screens/settings/mcp-section.tsx:176
+msgid "Failed to load MCP settings."
+msgstr "MCP 設定を読み込めませんでした。"
+
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
 msgstr "プラスの日"
+
+#: src/app/screens/settings/mcp-section.tsx:145
+msgid "Grok (xAI API)"
+msgstr "Grok（xAI API）"
+
+#: src/app/screens/settings/mcp-section.tsx:150
+msgid "Grok Build"
+msgstr "Grok Build"
+
+#: src/app/screens/settings/mcp-section.tsx:270
+msgid "Grok's web and app connectors require OAuth sign-in, which TraderMemos doesn't offer; use the xAI API or Grok Build instead."
+msgstr "Grok の Web／アプリのコネクタは OAuth サインインが必要ですが、TraderMemos は対応していません。xAI API か Grok Build を使ってください。"
 
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
@@ -184,6 +255,10 @@ msgstr "前回のバックアップに失敗しました"
 msgid "Latest file"
 msgstr "最新ファイル"
 
+#: src/app/screens/settings/mcp-section.tsx:169
+msgid "Let Grok, Claude, ChatGPT and other Model Context Protocol clients work with your journal using a personal access token. This is separate from the built-in AI coach."
+msgstr "Grok、Claude、ChatGPT などの Model Context Protocol クライアントが、パーソナルアクセストークンでジャーナルを操作できるようにします。内蔵の AI コーチとは別の機能です。"
+
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
 msgstr "最長プラス連続"
@@ -195,6 +270,22 @@ msgstr "最長マイナス連続"
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Manual only"
 msgstr "手動のみ"
+
+#: src/app/screens/settings/mcp-section.tsx:253
+msgid "MCP client"
+msgstr "MCP クライアント"
+
+#: src/app/screens/settings/mcp-section.tsx:168
+msgid "MCP for AI assistants"
+msgstr "AI アシスタント向け MCP"
+
+#: src/app/screens/settings/mcp-section.tsx:181
+msgid "MCP is turned off for this server (TM_MCP_ENABLED=false). Ask the server owner to enable it."
+msgstr "このサーバーでは MCP が無効です（TM_MCP_ENABLED=false）。サーバー管理者に有効化を依頼してください。"
+
+#: src/app/screens/settings/mcp-section.tsx:161
+msgid "Most MCP clients (Cursor, VS Code, Windsurf…) accept this shape: a Streamable HTTP URL plus an Authorization header."
+msgstr "多くの MCP クライアント（Cursor、VS Code、Windsurf など）はこの形式を受け付けます：Streamable HTTP の URL と Authorization ヘッダー。"
 
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
@@ -234,6 +325,22 @@ msgstr "なし"
 msgid "of {0} trading days"
 msgstr "取引日 {0}日中"
 
+#: src/app/screens/settings/mcp-section.tsx:190
+msgid "Off"
+msgstr "オフ"
+
+#: src/app/screens/settings/mcp-section.tsx:202
+msgid "Off: assistants can only read. On: they can also log executions and edit or delete trades and notes. Deletions can't be undone."
+msgstr "オフ：アシスタントは読み取りのみ。オン：約定の記録や、トレード・ノートの編集と削除も可能になります。削除は元に戻せません。"
+
+#: src/app/screens/settings/mcp-section.tsx:190
+msgid "On"
+msgstr "オン"
+
+#: src/app/screens/settings/mcp-section.tsx:160
+msgid "Other clients"
+msgstr "その他のクライアント"
+
 #: src/app/screens/PublicShareView.tsx:252
 msgid "per trade"
 msgstr "1トレードあたり"
@@ -246,6 +353,14 @@ msgstr "1トレードあたり"
 msgid "Profit factor"
 msgstr "プロフィットファクター"
 
+#: src/app/screens/settings/mcp-section.tsx:206
+msgid "Read & write"
+msgstr "読み書き"
+
+#: src/app/screens/settings/mcp-section.tsx:206
+msgid "Read-only"
+msgstr "読み取り専用"
+
 #: src/app/screens/PublicShareView.tsx:289
 msgid "Red days"
 msgstr "マイナスの日"
@@ -253,6 +368,14 @@ msgstr "マイナスの日"
 #: src/app/screens/NotesView.tsx:61
 msgid "Reviews"
 msgstr "レビュー"
+
+#: src/app/screens/settings/mcp-section.tsx:246
+msgid "Revoke an assistant's token under Access tokens; it stops working on its next request. Turning off MCP above blocks all of them at once. Only a signed-in session can change these switches — a token can't grant itself write access."
+msgstr "アクセストークンでアシスタントのトークンを取り消すと、次のリクエストから使えなくなります。上の MCP をオフにするとすべてを一度に遮断します。これらのスイッチはサインイン中のセッションからのみ変更でき、トークン自身が書き込み権限を得ることはできません。"
+
+#: src/app/screens/settings/mcp-section.tsx:151
+msgid "Runs on your machine. Set TRADERMEMOS_TOKEN in your shell first."
+msgstr "お使いのマシン上で動作します。先にシェルで TRADERMEMOS_TOKEN を設定してください。"
 
 #: src/app/screens/settings/alerts-section.tsx:323
 msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
@@ -269,6 +392,14 @@ msgstr "変更を保存"
 #: src/app/screens/settings/backups-section.tsx:131
 msgid "Scheduled backups are off"
 msgstr "定期バックアップはオフです"
+
+#: src/app/screens/settings/mcp-section.tsx:239
+msgid "Send a personal access token (tm_pat_…) as \"Authorization: Bearer <token>\". Create one token per assistant under Access tokens above — the token is shown only once and never appears here."
+msgstr "パーソナルアクセストークン（tm_pat_…）を \"Authorization: Bearer <token>\" として送信します。上のアクセストークンでアシスタントごとにトークンを作成してください。トークンは一度しか表示されず、ここには表示されません。"
+
+#: src/app/screens/settings/mcp-section.tsx:156
+msgid "Set TRADERMEMOS_TOKEN in your shell first."
+msgstr "先にシェルで TRADERMEMOS_TOKEN を設定してください。"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
@@ -293,6 +424,10 @@ msgstr "SQN"
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "統計"
+
+#: src/app/screens/settings/mcp-section.tsx:232
+msgid "Streamable HTTP transport. Use the address your assistant can reach — behind a reverse proxy, that's your public URL."
+msgstr "Streamable HTTP トランスポートです。アシスタントから到達できるアドレスを使ってください（リバースプロキシ経由なら公開 URL）。"
 
 #: src/app/screens/PublicShareView.tsx:268
 msgid "The curve"
@@ -332,9 +467,13 @@ msgstr "週次レビュー"
 msgid "Weekly review alerts"
 msgstr "週次レビューのアラート"
 
-#: src/app/drawers/NewNoteDrawer.tsx:110
+#: src/app/drawers/NewNoteDrawer.tsx:112
 msgid "Weekly review updated"
 msgstr "週次レビューを更新しました"
+
+#: src/app/screens/settings/mcp-section.tsx:186
+msgid "When off, every token is refused at the MCP endpoint. The REST API is unaffected."
+msgstr "オフの間、MCP エンドポイントはすべてのトークンを拒否します。REST API には影響しません。"
 
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
@@ -345,6 +484,10 @@ msgstr "勝率"
 msgid "Worst day"
 msgstr "最悪の日"
 
-#: src/app/drawers/NewNoteDrawer.tsx:195
+#: src/app/screens/settings/mcp-section.tsx:146
+msgid "xAI's servers call TraderMemos, so this URL must be reachable from the internet over HTTPS. Pass the token as-is in the authorization field."
+msgstr "xAI のサーバーが TraderMemos を呼び出すため、この URL はインターネットから HTTPS で到達できる必要があります。authorization フィールドにはトークンをそのまま渡してください。"
+
+#: src/app/drawers/NewNoteDrawer.tsx:197
 msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
 msgstr "今週の数字と、うまくいったこと・いかなかったこと・来週の重点。"

@@ -63,5 +63,6 @@ curl -X POST https://your-host/api/v1/executions \
 
 ## MCP / AI 代理
 
-让任何支持 HTTP 的 MCP 服务或代理指向你的实例，PAT 作为 Bearer 头、`/openapi.yaml`
-作为工具描述即可。UI 能做的一切 —— 导入成交、查询统计、批注交易 —— 都可以脚本化。
+TraderMemos 在 `/api/v1/mcp` 内置了 MCP 端点 —— Grok、Claude、Cursor 等 MCP 客户端用 PAT 连接，
+除非你允许写入，否则只读。详见 [面向 AI 助手的 MCP](/docs/guides/mcp)。其他支持 HTTP 的代理也可以把
+PAT 作为 Bearer 头、`/openapi.yaml` 作为工具描述使用。

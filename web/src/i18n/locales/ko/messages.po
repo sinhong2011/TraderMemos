@@ -38,9 +38,23 @@ msgstr "1.0 = 손익분기"
 msgid "A backup is already running"
 msgstr "이미 백업이 실행 중입니다"
 
+#: src/app/screens/settings/mcp-section.tsx:201
+#: src/app/screens/settings/mcp-section.tsx:212
+msgid "Allow changes"
+msgstr "변경 허용"
+
+#: src/app/screens/settings/mcp-section.tsx:185
+#: src/app/screens/settings/mcp-section.tsx:196
+msgid "Allow MCP connections"
+msgstr "MCP 연결 허용"
+
 #: src/app/drawers/NewTradeDrawer.tsx:2104
 msgid "Apply"
 msgstr "적용"
+
+#: src/app/screens/settings/mcp-section.tsx:237
+msgid "Authentication"
+msgstr "인증"
 
 #: src/app/screens/settings/backups-section.tsx:149
 msgid "Back up now"
@@ -86,9 +100,42 @@ msgstr "최고의 날"
 msgid "Checking…"
 msgstr "확인 중…"
 
+#: src/app/screens/settings/mcp-section.tsx:155
+msgid "Claude Code"
+msgstr "Claude Code"
+
+#: src/app/screens/settings/mcp-section.tsx:251
+msgid "Connect a client"
+msgstr "클라이언트 연결"
+
 #: src/app/screens/PublicShareView.tsx:280
 msgid "Consistency"
 msgstr "일관성"
+
+#: src/app/screens/settings/mcp-section.tsx:84
+#: src/app/screens/settings/mcp-section.tsx:95
+msgid "Copied"
+msgstr "복사됨"
+
+#: src/app/screens/settings/mcp-section.tsx:95
+msgid "Copy"
+msgstr "복사"
+
+#: src/app/screens/settings/mcp-section.tsx:265
+msgid "Copy configuration"
+msgstr "설정 복사"
+
+#: src/app/screens/settings/mcp-section.tsx:229
+msgid "Copy endpoint URL"
+msgstr "엔드포인트 URL 복사"
+
+#: src/app/screens/settings/mcp-section.tsx:86
+msgid "Couldn't copy — select the text instead"
+msgstr "복사하지 못했습니다 — 텍스트를 직접 선택하세요"
+
+#: src/app/screens/settings/mcp-section.tsx:136
+msgid "Couldn't save MCP settings"
+msgstr "MCP 설정을 저장하지 못했습니다"
 
 #: src/app/screens/PublicShareView.tsx:272
 msgid "Cumulative net P&L over the shared period."
@@ -115,9 +162,17 @@ msgstr "연속 일수"
 msgid "Directory"
 msgstr "디렉터리"
 
-#: src/app/drawers/NewNoteDrawer.tsx:187
+#: src/app/screens/settings/mcp-section.tsx:244
+msgid "Disconnecting"
+msgstr "연결 해제"
+
+#: src/app/drawers/NewNoteDrawer.tsx:189
 msgid "Edit weekly review"
 msgstr "주간 리뷰 편집"
+
+#: src/app/screens/settings/mcp-section.tsx:224
+msgid "Endpoint"
+msgstr "엔드포인트"
 
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Every {interval}"
@@ -136,9 +191,25 @@ msgstr "실패"
 msgid "Failed {0}"
 msgstr "실패 ({0})"
 
+#: src/app/screens/settings/mcp-section.tsx:176
+msgid "Failed to load MCP settings."
+msgstr "MCP 설정을 불러오지 못했습니다."
+
 #: src/app/screens/PublicShareView.tsx:283
 msgid "Green days"
 msgstr "수익일"
+
+#: src/app/screens/settings/mcp-section.tsx:145
+msgid "Grok (xAI API)"
+msgstr "Grok (xAI API)"
+
+#: src/app/screens/settings/mcp-section.tsx:150
+msgid "Grok Build"
+msgstr "Grok Build"
+
+#: src/app/screens/settings/mcp-section.tsx:270
+msgid "Grok's web and app connectors require OAuth sign-in, which TraderMemos doesn't offer; use the xAI API or Grok Build instead."
+msgstr "Grok 웹·앱 커넥터는 OAuth 로그인이 필요하지만 TraderMemos는 이를 지원하지 않습니다. 대신 xAI API 또는 Grok Build를 사용하세요."
 
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
@@ -184,6 +255,10 @@ msgstr "마지막 백업이 실패했습니다"
 msgid "Latest file"
 msgstr "최신 파일"
 
+#: src/app/screens/settings/mcp-section.tsx:169
+msgid "Let Grok, Claude, ChatGPT and other Model Context Protocol clients work with your journal using a personal access token. This is separate from the built-in AI coach."
+msgstr "Grok, Claude, ChatGPT 등 Model Context Protocol 클라이언트가 개인 액세스 토큰으로 저널을 다룰 수 있게 합니다. 내장 AI 코치와는 별개 기능입니다."
+
 #: src/app/screens/PublicShareView.tsx:295
 msgid "Longest green streak"
 msgstr "최장 수익 연속"
@@ -195,6 +270,22 @@ msgstr "최장 손실 연속"
 #: src/app/screens/settings/backups-section.tsx:162
 msgid "Manual only"
 msgstr "수동 전용"
+
+#: src/app/screens/settings/mcp-section.tsx:253
+msgid "MCP client"
+msgstr "MCP 클라이언트"
+
+#: src/app/screens/settings/mcp-section.tsx:168
+msgid "MCP for AI assistants"
+msgstr "AI 어시스턴트용 MCP"
+
+#: src/app/screens/settings/mcp-section.tsx:181
+msgid "MCP is turned off for this server (TM_MCP_ENABLED=false). Ask the server owner to enable it."
+msgstr "이 서버에서는 MCP가 꺼져 있습니다(TM_MCP_ENABLED=false). 서버 관리자에게 활성화를 요청하세요."
+
+#: src/app/screens/settings/mcp-section.tsx:161
+msgid "Most MCP clients (Cursor, VS Code, Windsurf…) accept this shape: a Streamable HTTP URL plus an Authorization header."
+msgstr "대부분의 MCP 클라이언트(Cursor, VS Code, Windsurf 등)는 이 형식을 받습니다: Streamable HTTP URL과 Authorization 헤더."
 
 #: src/app/screens/PublicShareView.tsx:356
 msgid "Most traded"
@@ -234,6 +325,22 @@ msgstr "없음"
 msgid "of {0} trading days"
 msgstr "거래일 {0}일 중"
 
+#: src/app/screens/settings/mcp-section.tsx:190
+msgid "Off"
+msgstr "끔"
+
+#: src/app/screens/settings/mcp-section.tsx:202
+msgid "Off: assistants can only read. On: they can also log executions and edit or delete trades and notes. Deletions can't be undone."
+msgstr "끔: 어시스턴트는 읽기만 가능합니다. 켬: 체결 기록과 트레이드·노트의 수정 및 삭제도 가능합니다. 삭제는 되돌릴 수 없습니다."
+
+#: src/app/screens/settings/mcp-section.tsx:190
+msgid "On"
+msgstr "켬"
+
+#: src/app/screens/settings/mcp-section.tsx:160
+msgid "Other clients"
+msgstr "기타 클라이언트"
+
 #: src/app/screens/PublicShareView.tsx:252
 msgid "per trade"
 msgstr "거래당"
@@ -246,6 +353,14 @@ msgstr "거래당"
 msgid "Profit factor"
 msgstr "프로핏 팩터"
 
+#: src/app/screens/settings/mcp-section.tsx:206
+msgid "Read & write"
+msgstr "읽기 및 쓰기"
+
+#: src/app/screens/settings/mcp-section.tsx:206
+msgid "Read-only"
+msgstr "읽기 전용"
+
 #: src/app/screens/PublicShareView.tsx:289
 msgid "Red days"
 msgstr "손실일"
@@ -253,6 +368,14 @@ msgstr "손실일"
 #: src/app/screens/NotesView.tsx:61
 msgid "Reviews"
 msgstr "리뷰"
+
+#: src/app/screens/settings/mcp-section.tsx:246
+msgid "Revoke an assistant's token under Access tokens; it stops working on its next request. Turning off MCP above blocks all of them at once. Only a signed-in session can change these switches — a token can't grant itself write access."
+msgstr "액세스 토큰에서 어시스턴트의 토큰을 폐기하면 다음 요청부터 작동하지 않습니다. 위의 MCP를 끄면 모두 한 번에 차단됩니다. 이 스위치는 로그인한 세션에서만 바꿀 수 있어, 토큰이 스스로 쓰기 권한을 얻을 수 없습니다."
+
+#: src/app/screens/settings/mcp-section.tsx:151
+msgid "Runs on your machine. Set TRADERMEMOS_TOKEN in your shell first."
+msgstr "내 컴퓨터에서 실행됩니다. 먼저 셸에 TRADERMEMOS_TOKEN을 설정하세요."
 
 #: src/app/screens/settings/alerts-section.tsx:323
 msgid "Saturday 09:00 in your market timezone: the week's P&L, win rate, R, setups, rule breaks and missed trades, in a review note ready to fill in."
@@ -269,6 +392,14 @@ msgstr "변경 사항 저장"
 #: src/app/screens/settings/backups-section.tsx:131
 msgid "Scheduled backups are off"
 msgstr "예약 백업이 꺼져 있습니다"
+
+#: src/app/screens/settings/mcp-section.tsx:239
+msgid "Send a personal access token (tm_pat_…) as \"Authorization: Bearer <token>\". Create one token per assistant under Access tokens above — the token is shown only once and never appears here."
+msgstr "개인 액세스 토큰(tm_pat_…)을 \"Authorization: Bearer <token>\" 형식으로 보냅니다. 위의 액세스 토큰에서 어시스턴트마다 토큰을 하나씩 만드세요. 토큰은 한 번만 표시되며 여기에는 나타나지 않습니다."
+
+#: src/app/screens/settings/mcp-section.tsx:156
+msgid "Set TRADERMEMOS_TOKEN in your shell first."
+msgstr "먼저 셸에 TRADERMEMOS_TOKEN을 설정하세요."
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
@@ -293,6 +424,10 @@ msgstr "SQN"
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "통계"
+
+#: src/app/screens/settings/mcp-section.tsx:232
+msgid "Streamable HTTP transport. Use the address your assistant can reach — behind a reverse proxy, that's your public URL."
+msgstr "Streamable HTTP 전송 방식입니다. 어시스턴트가 접근할 수 있는 주소를 쓰세요. 리버스 프록시 뒤라면 공개 URL입니다."
 
 #: src/app/screens/PublicShareView.tsx:268
 msgid "The curve"
@@ -332,9 +467,13 @@ msgstr "주간 리뷰"
 msgid "Weekly review alerts"
 msgstr "주간 리뷰 알림"
 
-#: src/app/drawers/NewNoteDrawer.tsx:110
+#: src/app/drawers/NewNoteDrawer.tsx:112
 msgid "Weekly review updated"
 msgstr "주간 리뷰를 업데이트했습니다"
+
+#: src/app/screens/settings/mcp-section.tsx:186
+msgid "When off, every token is refused at the MCP endpoint. The REST API is unaffected."
+msgstr "끄면 MCP 엔드포인트에서 모든 토큰이 거부됩니다. REST API에는 영향이 없습니다."
 
 #: src/app/screens/PublicShareView.tsx:182
 #: src/app/screens/PublicShareView.tsx:226
@@ -345,6 +484,10 @@ msgstr "승률"
 msgid "Worst day"
 msgstr "최악의 날"
 
-#: src/app/drawers/NewNoteDrawer.tsx:195
+#: src/app/screens/settings/mcp-section.tsx:146
+msgid "xAI's servers call TraderMemos, so this URL must be reachable from the internet over HTTPS. Pass the token as-is in the authorization field."
+msgstr "xAI 서버가 TraderMemos를 호출하므로 이 URL은 인터넷에서 HTTPS로 접근 가능해야 합니다. authorization 필드에는 토큰을 그대로 넣으세요."
+
+#: src/app/drawers/NewNoteDrawer.tsx:197
 msgid "Your week in numbers, then what worked, what didn't, and the focus for next week."
 msgstr "한 주의 숫자, 그리고 잘된 점, 안 된 점, 다음 주의 초점."

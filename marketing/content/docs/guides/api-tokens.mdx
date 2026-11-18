@@ -67,6 +67,7 @@ still require auth. `GET /healthz` is also public and returns the running versio
 
 ## MCP / AI agents
 
-Point any HTTP-capable MCP server or agent at your instance with the PAT as a Bearer header
-and `/openapi.yaml` as the tool description. Everything the UI can do — importing fills,
-querying analytics, annotating trades — is scriptable.
+TraderMemos ships a built-in MCP endpoint at `/api/v1/mcp` — Grok, Claude, Cursor and other
+MCP clients connect with a PAT, read-only unless you allow writes. See
+[MCP for AI assistants](/docs/guides/mcp). For anything else, any HTTP-capable agent can use
+the PAT as a Bearer header and `/openapi.yaml` as the tool description.
