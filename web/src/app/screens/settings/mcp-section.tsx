@@ -9,7 +9,7 @@ import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { apiRootUrl, getBaseUrl } from "@/lib/api/client";
 import { useMcpSettings, useSaveMcpSettings } from "@/lib/hooks/useMcpSettings";
 import { cn } from "@/lib/cn";
-import { SettingsCard, SettingsCardNote, SettingsGroupRow, SettingsPanelBody } from "./settings-ui";
+import { SettingsCard, SettingsCardNote, SettingsGroupRow } from "./settings-ui";
 
 /** The token is never filled in: snippets carry a placeholder the user swaps. */
 const TOKEN_PLACEHOLDER = "<YOUR_TM_PAT>";
