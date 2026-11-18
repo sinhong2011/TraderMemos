@@ -1921,7 +1921,8 @@ export function Filters<T = unknown>({
                                 data-highlighted={isHighlighted || undefined}
                                 onMouseEnter={() => {
                                   setHighlightedIndex(index);
-                                  setActiveMenu("root");
+                                  setOpenSubMenu(fieldKey);
+                                  setActiveMenu(fieldKey);
                                 }}
                                 className="data-popup-open:bg-accent data-popup-open:text-accent-foreground data-highlighted:bg-accent data-highlighted:text-accent-foreground"
                               >
