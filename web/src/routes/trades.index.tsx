@@ -103,6 +103,15 @@ function TradesPage() {
         onImport={() => navigate({ to: "/import" })}
         onNewTrade={() => openModal("new-trade")}
         onRetry={() => void tradesQ.refetch()}
+        from={from}
+        to={to}
+        onApplyViewFilters={(view) => {
+          setRange(view.from, view.to);
+          setSymbols(view.symbols);
+          setTradeStatus(view.tradeStatus);
+          setTagIds(view.tagIds);
+          setMarkets(view.markets);
+        }}
       />
       <TradeDetailSheet tradeId={selectedTradeId} onClose={() => setSelectedTradeId(null)} />
     </>

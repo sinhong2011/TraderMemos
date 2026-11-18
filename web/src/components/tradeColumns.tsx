@@ -448,8 +448,9 @@ export function tradeColumns(
   ];
 }
 
-/** Pin the actions column via TanStack `columnPinning` (pass to DataTable). */
-export const TRADE_COLUMN_PINNING: ColumnPinningState = { start: [], end: ["actions"] };
+/** Pin the selection checkbox and actions column via TanStack `columnPinning`
+ *  (pass to DataTable). An id the table doesn't have is ignored. */
+export const TRADE_COLUMN_PINNING: ColumnPinningState = { start: ["select"], end: ["actions"] };
 
 /** Sortable trade columns for the tablecn-style Sort button. */
 export const TRADE_SORT_COLUMNS: { id: string; label: string }[] = [

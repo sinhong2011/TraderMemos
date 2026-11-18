@@ -50,6 +50,8 @@ interface DataTableProps<T extends RowData> {
   /** TanStack column pinning — sticky CSS via getIsPinned / getStart / getAfter. */
   columnPinning?: ColumnPinningState;
   onColumnPinningChange?: OnChangeFn<ColumnPinningState>;
+  /** Rows to paint as selected (bulk selection lives with the caller). */
+  isRowSelected?: (row: T) => boolean;
 }
 
 function tableMetrics(dense: boolean, comfortable: boolean) {
@@ -134,6 +136,7 @@ export function DataTable<T extends RowData>({
   onColumnVisibilityChange,
   columnPinning: pinningProp,
   onColumnPinningChange,
+  isRowSelected,
 }: DataTableProps<T>) {
   const [internalSorting, setInternalSorting] = useState<SortingState>([]);
   const [internalVisibility, setInternalVisibility] = useState<VisibilityState>({});
@@ -280,12 +283,16 @@ export function DataTable<T extends RowData>({
           )}
           {virtualRows.map((virtualRow) => {
             const row = rows[virtualRow.index];
+            const selected = isRowSelected?.(row.original) ?? false;
             return (
               <tr
                 key={row.id}
+                data-selected={selected || undefined}
+                aria-selected={isRowSelected ? selected : undefined}
                 className={cn(
                   "group transition-colors duration-150",
                   onRowClick && "cursor-pointer hover:bg-accent",
+                  selected && "bg-primary/8 hover:bg-primary/12",
                 )}
                 onClick={() => onRowClick?.(row.original)}
               >
