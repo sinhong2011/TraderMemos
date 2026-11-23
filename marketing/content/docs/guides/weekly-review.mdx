@@ -1,0 +1,62 @@
+---
+title: Weekly review
+description: Grade every closed trade in the review inbox, get a pre-filled weekly review note on Saturday morning, and carry its focus into the next week.
+---
+
+The weekly loop has three parts: **grade** each closed trade while it's fresh, **review** the
+week on Saturday, and **carry** one to three commitments into the next week.
+
+## Review inbox
+
+`/review` lists closed trades from the **last 14 days** that have no execution grade, newest
+first, one at a time. A trade counts as reviewed once it has a grade — the lesson and mistakes
+are optional.
+
+| Control | Key | Effect |
+|---------|-----|--------|
+| **Execution grade** A+ · A · A- · B · C | `1`–`5` | Required to save |
+| **Lesson** | — | One line, saved into the trade journal's *Review notes* section (other sections are kept) |
+| **Mistakes** | — | Chips for your mistake tags; replaces only the trade's mistake tags |
+| **Save & next** | `Enter` | Saves and moves on |
+| **Skip** | `→` | Leaves the trade in the inbox |
+| **Back** | `←` | Previous trade |
+
+An empty queue shows **Inbox zero**. Ungraded trades older than the window are counted in the
+header as "N older trades never reviewed" — **Dismiss** → *Stop counting them* clears that
+backlog without grading anything (trades that age out later form a new one).
+
+Entry points: "N trades to review →" in Today's **Session summary**, and *Open the review
+inbox →* on the **Mistake tax** card's unreviewed-losers prompt. The **Unreviewed trades** alert
+counts exactly the same trades (see [Alerts](/en/docs/guides/alerts-and-sharing)).
+
+On mobile, Home shows "N trades to review" under the routine; it opens a queue — "Review 2 of
+5", grade required, **Save and next**, **Skip for now** — ending on *Inbox zero*, *End of the
+queue* or *Nothing to review*. The older backlog can only be dismissed on the web.
+
+## Weekly review note
+
+Every **Saturday at 09:00 in your market timezone** the server writes a review note titled
+**"Week of …"** and sends a push / webhook summary that opens it on mobile. The note is
+pre-filled:
+
+- **Week in numbers** — net P&L, trades (won / lost), win rate, R, best and worst setup, rule
+  breaks, missed trades
+- **Last week's focus** — last review's focus as a checklist (when there was one)
+- **What worked**, **What didn't**, **Focus for next week** — empty, for you to fill in
+
+Turn it on or off under Settings → Rules → **Weekly review** (alerts must be enabled). It's
+created once per week; a restart reuses it. The schedule is driven by
+`TM_JOB_WEEKLY_REVIEW_INTERVAL_MIN` — see [Configuration](/en/docs/self-hosting/configuration).
+
+## Weekly focus
+
+Write up to **three bullets** under **Focus for next week** (plain lines under the heading are
+ignored; only list items count). They become:
+
+- **This week's focus** — a card at the top of Today on the web and on mobile Home, linking back
+  to the review.
+- **Last week's focus** — a checklist in the next generated review. Tick `- [x]` what you kept.
+- **Weekly focus** — the first card on Reports → **Behavior** (web only): items kept, weeks fully
+  kept, and each week's items with ✓ / ○. Click a week to open its review.
+
+A focus older than two weeks isn't revived: skip a review and the card simply disappears.

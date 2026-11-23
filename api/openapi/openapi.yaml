@@ -17,6 +17,11 @@ tags:
   - name: Health
   - name: Auth
   - name: Access tokens
+  - name: MCP
+    description: |
+      Model Context Protocol endpoint for external AI assistants (Grok via the
+      xAI API or Grok Build, Claude, ChatGPT, Cursor, …). Off until the account
+      owner enables it; read-only until they also allow writes.
   - name: Share links
   - name: Accounts
   - name: Trades
@@ -434,6 +439,109 @@ paths:
         "404":
           $ref: "#/components/responses/Error"
         "401":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/settings/mcp:
+    get:
+      tags: [MCP]
+      summary: Get MCP access settings
+      operationId: getMcpSettings
+      responses:
+        "200":
+          description: Current settings (both switches default to off)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpSettings"
+        "401":
+          $ref: "#/components/responses/Error"
+    put:
+      tags: [MCP]
+      summary: Change MCP access settings
+      description: |
+        Requires a signed-in **session**. A personal access token gets
+        `403 session_required`, so a token handed to an assistant can never
+        turn on its own write access.
+      operationId: putMcpSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [enabled, allow_writes]
+              properties:
+                enabled:
+                  type: boolean
+                  description: Let personal access tokens connect over MCP.
+                allow_writes:
+                  type: boolean
+                  description: Expose write tools (log executions, edit/delete trades and notes).
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpSettings"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/mcp:
+    post:
+      tags: [MCP]
+      summary: MCP Streamable HTTP endpoint
+      description: |
+        JSON-RPC 2.0 over [MCP Streamable HTTP](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http),
+        stateless, with `application/json` responses. Point an MCP client at
+        this URL instead of calling it by hand.
+
+        **Authentication:** a personal access token only —
+        `Authorization: Bearer tm_pat_…` (a bare `tm_pat_…` is also accepted).
+        Session JWTs are refused. Responses: `401` missing/invalid/revoked
+        token (with `WWW-Authenticate: Bearer`), `403 mcp_disabled` when the
+        owner has not enabled MCP. The whole endpoint 404s when the instance
+        runs with `TM_MCP_ENABLED=false`.
+
+        **Tools (always):** `get_connection_info`, `list_accounts`,
+        `list_trades`, `get_trade`, `get_analytics`, `list_notes`, `get_note`,
+        `list_tags`, `list_setups`.
+
+        **Tools (only with `allow_writes`):** `log_execution`,
+        `update_trade_journal`, `delete_trade`, `create_note`, `update_note`,
+        `delete_note`.
+
+        Each tool replays the matching REST endpoint with the caller's token,
+        so results, validation and user scoping are identical to this API.
+        Tool annotations are UI hints; permissions are enforced server-side.
+      operationId: mcp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: A JSON-RPC 2.0 request (e.g. `initialize`, `tools/list`, `tools/call`).
+              example:
+                jsonrpc: "2.0"
+                id: 1
+                method: tools/list
+      responses:
+        "200":
+          description: JSON-RPC response
+          content:
+            application/json:
+              schema:
+                type: object
+        "202":
+          description: Notification accepted
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
           $ref: "#/components/responses/Error"
 
   /api/v1/share-links:
@@ -2408,6 +2516,24 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    McpSettings:
+      type: object
+      required: [available, enabled, allow_writes, endpoint_path]
+      properties:
+        available:
+          type: boolean
+          description: False when the instance runs with `TM_MCP_ENABLED=false`.
+        enabled:
+          type: boolean
+        allow_writes:
+          type: boolean
+        endpoint_path:
+          type: string
+          example: /api/v1/mcp
+          description: Path of the MCP endpoint on this API's origin.
+        updated_at:
+          type: string
+          format: date-time
     BackupStatus:
       type: object
       required: [enabled, driver, status, keep, interval_min, running, file_count]

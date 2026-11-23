@@ -5,6 +5,8 @@
     "health",
     "auth",
     "access-tokens",
+    "mcp",
+    "share-links",
     "accounts",
     "trades",
     "executions",
@@ -17,6 +19,7 @@
     "notes",
     "routines",
     "missed-trades",
+    "alerts",
     "trading-system",
     "admin"
   ]

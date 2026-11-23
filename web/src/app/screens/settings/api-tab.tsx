@@ -23,6 +23,7 @@ import {
 } from "@/lib/hooks/useAccessTokens";
 import { useLocale } from "@/i18n";
 import { intlLocale, settingsLabel } from "@/lib/locale";
+import { McpSection } from "./mcp-section";
 import {
   DeleteButton,
   SettingsGroup,
@@ -241,6 +242,8 @@ export function ApiTab() {
           </SettingsGroup>
         )}
       </SettingsSection>
+
+      <McpSection />
 
       <Dialog
         open={createOpen}

@@ -1,0 +1,88 @@
+---
+title: Daily workflow
+description: Run the trading day from one page — the Today page, routines with stages and history, the missed-trade log, and the iOS widgets and Siri actions that tick them off.
+---
+
+**Today** (sidebar, hotkey `G` `D`) is the trading day on one page: the routine that opens it,
+the live desk while it runs, what happened, what you passed on, and the log that closes it.
+`/today` always resolves to the current trading day in your **market timezone**, so a New York
+session viewed from Asia stays one day.
+
+The sidebar is kept short — **Home, Today, Trades, Calendar, Reports**, then **Notes, Playbook,
+Import**. Routines and Missed trades are sections of Today; their full pages are one click away
+from each card, or from the command palette (`⌘K` → *Routines* / *Missed trades*).
+
+## What's on Today
+
+Top to bottom:
+
+| Card | Shows |
+|------|-------|
+| **This week's focus** | The 1–3 commitments from your last [weekly review](/en/docs/guides/weekly-review) |
+| **Routine** | Today's checklist, grouped by stage; **Edit** opens the routine editor |
+| **Daily loss limit** | How much of today's max daily loss is spent — amber from 70%, red when hit. Only shown once **Max daily loss** is set under Settings → Rules |
+| **Open positions** | Everything on the book now (whenever it was opened), the total open risk from recorded stops, and how many positions have **no stop** |
+| **Session summary** | Net P&L, trades, win rate, fees; rule-break and behaviour pills (over-risked, revenge, oversized…); "N trades to review →"; the day's mistake tax |
+| **Intraday P&L** | Cumulative realized P&L, stepped at each close |
+| **Trades** | The day's trades — click one to open its drawer |
+| **Missed trades** | Setups you saw and didn't take that day; **All** opens the full log |
+| **Daily log** | The day's notes, with **New note** |
+
+The arrows step to other days (`/day/YYYY-MM-DD`); the desk cards (loss limit, open positions)
+and the weekly focus only appear on today.
+
+## Routines
+
+A routine is your checklist, split into three stages — **Before trading**, **During trading**,
+**After trading**. Open the editor from **Edit** on Today's routine card, `⌘K` → *Routines*, or
+Settings → Rules → **Daily routine** → *Open Routines*.
+
+- **Per-item days.** Each item runs on its own weekdays (*Every day*, *Weekdays*, or any set),
+  so a Friday-only "weekly prep" item doesn't break Monday.
+- **History.** **Last 13 weeks** shows each day's ticks, with **Completion**, **Streak** and a
+  rate per stage. Click a past day to see or fix its ticks.
+- **Streak** counts consecutive fully-done days. Days with no list (weekends on a weekday
+  routine) neither count nor break it, and an unfinished today doesn't break it either.
+- **Edits never rewrite history.** Removing an item, or changing its stage or days, applies from
+  today on — past days keep what they were.
+- **Ticks land on the market day.** A post-session tick after local midnight still counts
+  toward the session it closed.
+
+On mobile, Home carries a **Today's routine** card; **Daily routine** (Settings → Trading &
+journal) shows the history and **Edit routine** the stage-sectioned editor. On iOS, **Sync to
+Reminders** mirrors each item into the Reminders app as a repeating reminder on its own days,
+due at one time you pick — completing it there ticks it in TraderMemos, and vice versa.
+
+## Missed trades
+
+Log the setups you saw and passed on: `⌘K` → *Missed trades* (`/missed`), the **Missed trades**
+card on Today, or the Tools menu on mobile.
+
+| Field | Notes |
+|-------|-------|
+| Symbol, Side, When you saw it | Required: symbol and side |
+| Entry, Stop, Target | Optional plan; must be coherent for the side. With all three the miss is priced in R |
+| Why you passed | Hesitated, Away from screen, Outside my rules, Other |
+| How it played out | Not checked yet, Hit target, Hit stop, Never triggered — changeable inline from the list |
+| Setup, Account, Notes | Optional |
+
+Scoring: a target hit counts its planned R, a stop-out −1R, an untriggered entry 0R. The summary
+shows **Would have made** (net R), **Left on the table** (target hits), **Losses avoided**
+(stop-outs) and how many still need an outcome, broken down **By reason** and **By setup**.
+Misses **never touch your trade stats**.
+
+## iOS widgets, controls and Siri
+
+The iOS app ships widgets and App Intents that work without opening the app:
+
+- **Daily Routine** widget — small, medium and large Home Screen sizes plus Lock Screen
+  (rectangular, circular, inline). Tap a row to tick or untick it straight to your server. If the
+  server is unreachable the tick is queued and the widget redraws; the app sends the queue on
+  its next launch. It refreshes every 30 minutes and at midnight.
+- **Missed Trades** widget — small and Lock Screen: would-have-made R, logged count, and how
+  many still need an outcome.
+- **Shortcuts / Siri** — *Check Off Routine Item* (Siri asks which), *Check Off Next Routine
+  Item*, *Routine Progress* (spoken), *Log Missed Trade* (asks symbol and side; reason and plan
+  optional).
+- **Control Center** (iOS 18) — *Next Routine Item* ticks the next open item; *Log Missed
+  Trade* opens the form.

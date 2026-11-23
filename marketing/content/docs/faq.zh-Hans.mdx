@@ -34,6 +34,20 @@ CDN + API 分离部署：将 **Server** 设为你的 API 源，如 `https://api.
 docker compose exec api /tradermemos reset-password --email you@example.com --password '…'
 ```
 
+### 怎么开启双重认证登录？
+
+**设置 → 个人档案 → 双重认证** —— 用任意 TOTP 验证器 App 扫描二维码并输入验证码确认。此后登录时，
+输入密码后还需要填写 6 位验证码。
+
+### 我丢失了验证器
+
+没有恢复码 —— 在自托管环境里，服务器的 shell 访问权限就是恢复途径。在 API 容器中关闭双重认证，
+然后用密码登录并重新设置：
+
+```bash
+docker compose exec api /tradermemos disable-totp --email you@example.com
+```
+
 ## 服务端与部署
 
 ### API 拒绝启动：“insecure JWT secret”
@@ -79,8 +93,9 @@ Docker：`tm_data` 数据卷 —— `/data/tradermemos.db` 加上 `/data/attachm
 
 ### 同一个文件导了两次 —— 会有重复吗？
 
-不会。成交按代码 + 方向 + 数量 + 价格 + 时间戳去重；重复部分计入*已跳过*。导错的批次
-也可以在导入页面整批回滚。
+不会。成交按代码 + 方向 + 数量 + 价格 + 时间戳去重；重复部分计入*已跳过*。同一文件内完全
+相同的成交（券商拆分的订单）会保留，再次导入时同样会被跳过。导错的批次可以在**设置 → 账户 →
+同步与导入记录**（或该账户的页面）整批回滚。
 
 ### 支持列表里没有我的券商
 

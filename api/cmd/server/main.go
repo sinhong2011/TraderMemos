@@ -153,6 +153,7 @@ func main() {
 		CORSOrigins:       cfg.CORSOrigins,
 		AuthRateLimit:     2, // 2 req/s per IP on auth + setup + public share
 		ShareLinksEnabled: cfg.ShareLinksEnabled,
+		MCPEnabled:        cfg.MCPEnabled,
 		PublicWebURL:      cfg.PublicWebURL,
 		Driver:            cfg.Driver,
 		Backup:            backupSvc,
@@ -163,6 +164,7 @@ func main() {
 			"coach":           cfg.CoachEnabled,
 			"background_jobs": cfg.JobsEnabled,
 			"share_links":     cfg.ShareLinksEnabled,
+			"mcp":             cfg.MCPEnabled,
 		},
 	})
 	if len(cfg.CORSOrigins) > 0 {

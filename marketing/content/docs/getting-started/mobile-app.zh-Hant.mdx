@@ -4,7 +4,8 @@ description: 安裝 iOS / Android 隨身版，並連接到你自己的伺服器�
 ---
 
 TraderMemos 隨身版直接對接**你自己的伺服器** —— 與 Web 端共用同一套帳戶、
-交易與報表，外出時也能離線查閱。一套 Expo 程式碼同時涵蓋兩個平台。
+交易與報表，離線也能使用：讀取來自本地快取，記帳操作（筆記與快速日誌的編輯）會進入佇列，
+伺服器恢復連線後按順序同步。一套 Expo 程式碼同時涵蓋兩個平台。
 
 <div className="flex flex-wrap gap-3">
   <img src="/screenshots/mobile-home.png" alt="行動應用主畫面 — 權益曲線與績效統計" className="w-52 rounded-xl" />
@@ -14,8 +15,15 @@ TraderMemos 隨身版直接對接**你自己的伺服器** —— 與 Web 端共
 
 ## iOS
 
-**[到 App Store 下載 TraderMemos](https://apps.apple.com/app/id6797427206)**。小工具、即時動態與 Siri / 動作按鈕
-快速記帳為 iOS 專屬功能。
+**[到 App Store 下載 TraderMemos](https://apps.apple.com/app/id6797427206)**。iOS 專屬功能：
+
+- **小工具** —— Today、**Daily Routine**（主畫面與鎖定畫面；點一下即可勾選項目，無需打開應用）
+  與 **Missed Trades**。
+- **控制中心**（iOS 18+）—— *Next Routine Item* 勾選下一個未完成項目；*Log Missed Trade*
+  打開記錄表單。
+- **Siri、捷徑與 Spotlight** —— Journal Last Trade、Log a Trade、Check Off Routine Item、
+  Next Routine Item、Routine Progress、Log Missed Trade。
+- 交易時段中的**即時動態**。
 
 ## Android
 
@@ -32,11 +40,18 @@ TraderMemos 隨身版直接對接**你自己的伺服器** —— 與 Web 端共
 
 ## 連接你的伺服器
 
-首次啟動時，輸入你的實例網址（例如 `https://journal.example.com` 或
-`http://192.168.1.10:8080`）和登入憑證 —— 與 Web 端相同的「登入時指定伺服器」
-模式。應用會先探測 `/healthz`，因此伺服器無法連線時會明確回報連線問題，而不是
-誤報為憑證錯誤。
+首次啟動時，在**伺服器位址**中輸入你的實例網址（例如 `https://journal.example.com` 或
+`http://192.168.1.10:8080`），再輸入登入憑證 —— 與 Web 端相同的「登入時指定伺服器」模式。應用會
+先探測 `/healthz`，因此伺服器無法連線時會明確回報連線問題，而不是誤報為憑證錯誤。如果伺服器還沒有
+任何用戶，應用會改為顯示與 Web 初始化精靈相同的首位用戶設定（**建立擁有者帳戶**）。之後要換到
+另一台伺服器，在設定中使用**更改伺服器**。
 
 手機需要能連到伺服器：同一區域網路、VPN / 隧道，或公開的 HTTPS 網域
 （參見[反向代理](/zh-Hant/docs/self-hosting/reverse-proxy)）。權杖保存在系統
 金鑰庫（iOS Keychain / Android Keystore）中，絕不明文儲存。
+
+## 日常使用
+
+首頁最上方就是覆盤循環：**本週重點**（上次週覆盤寫下的要點）、今日例行清單，以及打開覆盤佇列的
+「N 筆交易待覆盤」一行 —— 逐筆評分，選擇**儲存並下一筆**或**暫時略過**。參見
+[每日流程](/zh-Hant/docs/guides/daily-workflow)與[週覆盤](/zh-Hant/docs/guides/weekly-review)。

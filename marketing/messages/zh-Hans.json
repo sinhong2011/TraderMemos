@@ -168,7 +168,124 @@
     ],
     "licenseHeading": "采用 AGPL-3.0 许可协议",
     "licenseBody": "自由自托管、修改，供个人或公司内部使用。",
-    "readDocs": "阅读文档"
+    "readDocs": "阅读文档",
+    "heroKicker": "全新上线 — 复盘循环",
+    "noteMeta": "10月15日 · NVDA",
+    "noteLine1": "“追了开盘。在止损位离场。”",
+    "noteLine2": "下次等回踩确认。",
+    "chips": [
+      {
+        "label": "复盘收件箱",
+        "value": "待评 3 笔"
+      },
+      {
+        "label": "错误成本",
+        "value": "−$412 · FOMO"
+      },
+      {
+        "label": "本周重点",
+        "value": "5 项完成 4 项"
+      },
+      {
+        "label": "优势评分",
+        "value": "71 / 100"
+      }
+    ],
+    "eyebrowLoop": "复盘循环",
+    "loopHeading": "交易、评分、改一件事。如此往复。",
+    "loopSub": "TraderMemos 围绕真正能改变盈亏的习惯而设计:每天一次诚实的复盘,并把结论带进下周的计划。",
+    "loop": [
+      {
+        "tag": "Today",
+        "title": "一页开启交易日",
+        "body": "Today 汇集开盘前的例行检查、本周重点、日亏损护栏和持仓风险,以及目前已记录的交易。"
+      },
+      {
+        "tag": "记录",
+        "title": "每笔成交自动归组为交易",
+        "body": "导入券商 CSV 和 MT4/MT5 对账单、同步 IBKR Flex,或手动记录。成交会变成带盈亏、R 值和持仓时间的交易。"
+      },
+      {
+        "tag": "复盘",
+        "title": "逐笔清空复盘收件箱",
+        "body": "复盘收件箱带你逐笔过完已平仓交易:为执行评分、标记错误、写下教训。错过的交易也能记录。"
+      },
+      {
+        "tag": "改进",
+        "title": "看清流程的代价",
+        "body": "策略成绩单为每个剧本策略给出结论和期望值区间。错误成本按原因汇总违反自身规则造成的损失。"
+      }
+    ],
+    "eyebrowNew": "近期发布",
+    "newHeading": "日志里最新的页面",
+    "newSub": "均已合入 main,所有运行 TraderMemos 的人都能免费使用 — 没有付费档,也没有功能限制。",
+    "newItems": {
+      "today": {
+        "title": "Today",
+        "description": "交易日的一站式页面:例行检查、重点、风险和当日进展。"
+      },
+      "inbox": {
+        "title": "复盘收件箱",
+        "description": "逐笔为已平仓交易评分 — 网页和手机都可以。"
+      },
+      "focus": {
+        "title": "本周重点",
+        "description": "复盘中的承诺成为下周 Today 的开头,并记录完成率。"
+      },
+      "scorecard": {
+        "title": "策略成绩单",
+        "description": "每个剧本策略的结论、期望值区间和纯净 R。"
+      },
+      "mistakeTax": {
+        "title": "错误成本",
+        "description": "违反自身流程造成的损失,按原因拆分。"
+      },
+      "edge": {
+        "title": "优势评分",
+        "description": "算法公开的评分,以及相对自身基线的滚动表现。"
+      },
+      "routines": {
+        "title": "例行检查",
+        "description": "带阶段和历史的盘前、盘后清单,按市场交易日打勾。"
+      },
+      "backup": {
+        "title": "定时备份",
+        "description": "自动 SQLite 快照,状态显示在 设置 → 关于。"
+      }
+    },
+    "eyebrowNumbers": "数据一览",
+    "numbers": [
+      {
+        "value": 9,
+        "suffix": "",
+        "label": "券商 CSV 预设"
+      },
+      {
+        "value": 4,
+        "suffix": "",
+        "label": "种语言"
+      },
+      {
+        "value": 0,
+        "suffix": "",
+        "prefix": "$",
+        "label": "月费,永久"
+      },
+      {
+        "value": 100,
+        "suffix": "%",
+        "label": "数据留在你的服务器"
+      }
+    ],
+    "eyebrowMobile": "随身携带",
+    "mobileHeading": "日志跟着交易走",
+    "mobileBody": "配套 App 读写同一台服务器。离线记录、通勤时清复盘队列、开盘前看一眼本周重点。",
+    "mobilePoints": [
+      "带同步队列的离线记录",
+      "iOS 小组件、实时活动与 Siri",
+      "首页显示复盘队列和本周重点",
+      "iOS 上架 App Store · Android APK 在 GitHub"
+    ]
   },
   "Footer": {
     "tagline": "自托管交易日志。",

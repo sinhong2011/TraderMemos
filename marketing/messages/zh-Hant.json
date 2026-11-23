@@ -168,7 +168,124 @@
     ],
     "licenseHeading": "採用 AGPL-3.0 授權",
     "licenseBody": "自由自架、修改，供個人或公司內部使用。",
-    "readDocs": "閱讀文件"
+    "readDocs": "閱讀文件",
+    "heroKicker": "全新上線 — 復盤循環",
+    "noteMeta": "10月15日 · NVDA",
+    "noteLine1": "「追了開盤。在止損位離場。」",
+    "noteLine2": "下次等回踩確認。",
+    "chips": [
+      {
+        "label": "復盤收件匣",
+        "value": "待評 3 筆"
+      },
+      {
+        "label": "錯誤成本",
+        "value": "−$412 · FOMO"
+      },
+      {
+        "label": "本週重點",
+        "value": "5 項完成 4 項"
+      },
+      {
+        "label": "優勢評分",
+        "value": "71 / 100"
+      }
+    ],
+    "eyebrowLoop": "復盤循環",
+    "loopHeading": "交易、評分、改一件事。如此往復。",
+    "loopSub": "TraderMemos 圍繞真正能改變盈虧的習慣而設計:每天一次誠實的復盤,並把結論帶進下週的計劃。",
+    "loop": [
+      {
+        "tag": "Today",
+        "title": "一頁開啟交易日",
+        "body": "Today 匯集開盤前的例行檢查、本週重點、日虧損護欄和持倉風險,以及目前已記錄的交易。"
+      },
+      {
+        "tag": "記錄",
+        "title": "每筆成交自動歸組為交易",
+        "body": "匯入券商 CSV 和 MT4/MT5 對帳單、同步 IBKR Flex,或手動記錄。成交會變成附盈虧、R 值和持倉時間的交易。"
+      },
+      {
+        "tag": "復盤",
+        "title": "逐筆清空復盤收件匣",
+        "body": "復盤收件匣帶你逐筆過完已平倉交易:為執行評分、標記錯誤、寫下教訓。錯過的交易也能記錄。"
+      },
+      {
+        "tag": "改進",
+        "title": "看清流程的代價",
+        "body": "策略成績單為每個劇本策略給出結論和期望值區間。錯誤成本按原因匯總違反自身規則造成的損失。"
+      }
+    ],
+    "eyebrowNew": "近期發佈",
+    "newHeading": "日誌裡最新的頁面",
+    "newSub": "均已合入 main,所有運行 TraderMemos 的人都能免費使用 — 沒有付費方案,也沒有功能限制。",
+    "newItems": {
+      "today": {
+        "title": "Today",
+        "description": "交易日的一站式頁面:例行檢查、重點、風險和當日進度。"
+      },
+      "inbox": {
+        "title": "復盤收件匣",
+        "description": "逐筆為已平倉交易評分 — 網頁和手機都可以。"
+      },
+      "focus": {
+        "title": "本週重點",
+        "description": "復盤中的承諾成為下週 Today 的開頭,並記錄達成率。"
+      },
+      "scorecard": {
+        "title": "策略成績單",
+        "description": "每個劇本策略的結論、期望值區間和純淨 R。"
+      },
+      "mistakeTax": {
+        "title": "錯誤成本",
+        "description": "違反自身流程造成的損失,按原因拆分。"
+      },
+      "edge": {
+        "title": "優勢評分",
+        "description": "演算法公開的評分,以及相對自身基線的滾動表現。"
+      },
+      "routines": {
+        "title": "例行檢查",
+        "description": "附階段和歷史的盤前、盤後清單,按市場交易日打勾。"
+      },
+      "backup": {
+        "title": "定時備份",
+        "description": "自動 SQLite 快照,狀態顯示在 設定 → 關於。"
+      }
+    },
+    "eyebrowNumbers": "數據一覽",
+    "numbers": [
+      {
+        "value": 9,
+        "suffix": "",
+        "label": "券商 CSV 預設"
+      },
+      {
+        "value": 4,
+        "suffix": "",
+        "label": "種語言"
+      },
+      {
+        "value": 0,
+        "suffix": "",
+        "prefix": "$",
+        "label": "月費,永久"
+      },
+      {
+        "value": 100,
+        "suffix": "%",
+        "label": "資料留在你的伺服器"
+      }
+    ],
+    "eyebrowMobile": "隨身攜帶",
+    "mobileHeading": "日誌跟著交易走",
+    "mobileBody": "配套 App 讀寫同一台伺服器。離線記錄、通勤時清復盤佇列、開盤前看一眼本週重點。",
+    "mobilePoints": [
+      "附同步佇列的離線記錄",
+      "iOS 小工具、即時動態與 Siri",
+      "首頁顯示復盤佇列和本週重點",
+      "iOS 上架 App Store · Android APK 在 GitHub"
+    ]
   },
   "Footer": {
     "tagline": "自架交易日誌。",

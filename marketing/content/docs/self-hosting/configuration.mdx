@@ -72,6 +72,7 @@ win. Keys are stored server-side and never sent to the browser. See
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `TM_SHARE_LINKS_ENABLED` | `false` | Turns on public share pages. Off by default — a share link makes part of the journal reachable without auth |
+| `TM_MCP_ENABLED` | `true` | Serves the MCP endpoint for AI assistants at `/api/v1/mcp`. Inert until a user turns MCP on in Settings; `false` removes the endpoint entirely ([guide](/docs/guides/mcp)) |
 | `TM_PUBLIC_WEB_URL` | *(empty)* | Public web-app origin used when building share-link URLs. Leave empty when the API origin also serves the web app (the bundled nginx deployment) |
 | `TM_JOBS_ENABLED` | `true` | Global background-job switch. Disable on extra replicas so scheduled work runs on one instance only |
 | `TM_JOB_EXCURSION_INTERVAL_MIN` | `360` | Minutes between MAE/MFE backfill passes (`0` disables) |
@@ -101,4 +102,4 @@ Read by `docker compose` from the root `.env`, never passed into containers:
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `DOCKERHUB_USERNAME` | `sinhong2011` | Docker Hub namespace for `tradermemos-api` / `tradermemos-web` images |
-| `TM_IMAGE_TAG` | `latest` | Image tag — pin a release like `0.1.6` in production |
+| `TM_IMAGE_TAG` | `latest` | Image tag — pin a release like `0.15.0` in production |

@@ -1,7 +1,9 @@
 import type { SortingState, VisibilityState } from "@/lib/table";
 import { List, Plus, Search, Upload } from "lucide-react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { ColumnDef } from "@/lib/table";
+import { BulkTradeBar } from "@/components/BulkTradeBar";
 import { Card } from "@/components/Card";
 import { CreatedAtFilter } from "@/components/CreatedAtFilter";
 import { DataTable } from "@/components/DataTable";
@@ -19,6 +21,8 @@ import {
 } from "@/components/tradeColumns";
 import { TradeListItem } from "@/components/TradeListItem";
 import { TradesFilters } from "@/components/TradesFilters";
+import { TradesViewsMenu } from "@/components/TradesViewsMenu";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { ViewOptions } from "@/components/ViewOptions";
 import type { Trade } from "@/lib/api/types";
@@ -27,6 +31,7 @@ import { useDisplayTimePrefs } from "@/lib/displayPrefs";
 import { COMPACT_VIEWPORT, useMediaQuery } from "@/lib/hooks/use-mobile";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { clampPage, pageCountFor, slicePage } from "@/lib/pagination";
+import type { TradesViewState } from "@/lib/tradeViews";
 import type {
   MarketFacetOption,
   SymbolFacetOption,
@@ -91,6 +96,17 @@ export interface TradesViewProps {
   onImport: () => void;
   onNewTrade: () => void;
   onRetry?: () => void;
+  /** Current date range — captured by saved views. */
+  from?: string;
+  to?: string;
+  /** Restore the filter half of a saved view (sort and columns stay local). */
+  onApplyViewFilters?: (state: TradesViewState) => void;
+}
+
+/** Ids from `anchor` to `target` inclusive, in list order. */
+export function rangeIds(trades: Trade[], anchor: number, target: number): string[] {
+  const [lo, hi] = anchor < target ? [anchor, target] : [target, anchor];
+  return trades.slice(lo, hi + 1).map((t) => t.id);
 }
 
 export function TradesView({
@@ -120,6 +136,9 @@ export function TradesView({
   onImport,
   onNewTrade,
   onRetry,
+  from,
+  to,
+  onApplyViewFilters,
 }: TradesViewProps) {
   useDisplayTimePrefs();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
@@ -133,6 +152,72 @@ export function TradesView({
   const [scrollMargin, setScrollMargin] = useState(0);
 
   const sortedTrades = useMemo(() => sortTrades(trades, sorting), [trades, sorting]);
+
+  // Bulk selection — desktop table only. Ids that drop out of the filtered set
+  // (filter change, deletion) stop counting rather than lingering invisibly.
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set());
+  const selectAnchor = useRef<number | null>(null);
+  const shiftHeld = useRef(false);
+  const selectedTrades = useMemo(
+    () => (compact ? [] : sortedTrades.filter((t) => selectedIds.has(t.id))),
+    [compact, sortedTrades, selectedIds],
+  );
+  const indexById = useMemo(
+    () => new Map(sortedTrades.map((t, i) => [t.id, i] as const)),
+    [sortedTrades],
+  );
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+    selectAnchor.current = null;
+  }, []);
+
+  function toggleRow(id: string, checked: boolean) {
+    const index = indexById.get(id);
+    if (index == null) return;
+    const anchor = selectAnchor.current;
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      // Shift-click extends from the last clicked row, like a file list.
+      const ids =
+        shiftHeld.current && anchor != null ? rangeIds(sortedTrades, anchor, index) : [id];
+      for (const x of ids) {
+        if (checked) next.add(x);
+        else next.delete(x);
+      }
+      return next;
+    });
+    selectAnchor.current = index;
+  }
+
+  useEffect(() => {
+    if (selectedTrades.length === 0) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      // An open menu, modal or drawer owns Escape.
+      if (document.querySelector("[role=dialog],[role=menu],[role=alertdialog]")) return;
+      clearSelection();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedTrades.length, clearSelection]);
+
+  const viewState: TradesViewState = {
+    from,
+    to,
+    symbols,
+    tagIds,
+    markets,
+    tradeStatus,
+    sorting,
+    columnVisibility,
+  };
+
+  function applyView(state: TradesViewState) {
+    setSorting(state.sorting);
+    setColumnVisibility(state.columnVisibility);
+    onApplyViewFilters?.(state);
+    clearSelection();
+  }
   const pageCount = pageCountFor(sortedTrades.length, pageSize);
   const safePage = clampPage(page, pageCount);
   const pageTrades = slicePage(sortedTrades, safePage, pageSize);
@@ -187,6 +272,14 @@ export function TradesView({
     // labels return and the count moves to the pagination footer.
     <div className="flex shrink-0 flex-wrap items-center gap-2 sm:gap-3 md:justify-between">
       <div className="flex flex-wrap items-center gap-2">
+        {onApplyViewFilters ? (
+          <TradesViewsMenu
+            state={viewState}
+            onApply={applyView}
+            iconOnly={compact}
+            className={toolbarControlClass}
+          />
+        ) : null}
         <TradesFilters
           triggerClassName={toolbarControlClass}
           iconOnly={compact}
@@ -241,6 +334,59 @@ export function TradesView({
       </div>
     </div>
   );
+
+  const pageIds = pageTrades.map((t) => t.id);
+  const pageSelected = pageIds.filter((id) => selectedIds.has(id)).length;
+  const selectColumn: ColumnDef<Trade> = {
+    id: "select",
+    enableSorting: false,
+    enableHiding: false,
+    meta: { minWidth: 40 },
+    header: () => (
+      <Checkbox
+        aria-label="Select all trades on this page"
+        checked={pageIds.length > 0 && pageSelected === pageIds.length}
+        indeterminate={pageSelected > 0 && pageSelected < pageIds.length}
+        onCheckedChange={(checked) => {
+          setSelectedIds((prev) => {
+            const next = new Set(prev);
+            for (const id of pageIds) {
+              if (checked) next.add(id);
+              else next.delete(id);
+            }
+            return next;
+          });
+        }}
+      />
+    ),
+    cell: (i) => {
+      const trade = i.row.original;
+      return (
+        // The row opens the drawer on click; the checkbox cell must not.
+        <div
+          className="-my-2 -ms-1 flex h-9 w-8 items-center justify-center"
+          // Shift-click would otherwise also drag a text selection across rows.
+          onMouseDown={(e) => {
+            if (e.shiftKey) e.preventDefault();
+          }}
+          onClickCapture={(e) => {
+            shiftHeld.current = e.shiftKey;
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            // A click on the cell's padding toggles too — a 16px box is a small target.
+            if (e.target === e.currentTarget) toggleRow(trade.id, !selectedIds.has(trade.id));
+          }}
+        >
+          <Checkbox
+            aria-label={`Select ${trade.symbol}`}
+            checked={selectedIds.has(trade.id)}
+            onCheckedChange={(checked) => toggleRow(trade.id, checked)}
+          />
+        </div>
+      );
+    },
+  };
 
   const emptyActions = (
     <>
@@ -327,16 +473,20 @@ export function TradesView({
   ) : (
     <div className="min-h-0 flex-1 overflow-hidden">
       <DataTable
-        columns={tradeColumns(
-          displayCurrency,
-          {
-            onOpenDrawer: (t) => onSelectTrade(t.id),
-            onOpenFullPage: (t) => onOpenFullPage(t.id),
-            onFilterSymbol: (s) => onSymbolsChange([s]),
-            onDeleted: onDeleted ? (t) => onDeleted(t.id) : undefined,
-          },
-          fxRate,
-        )}
+        columns={[
+          selectColumn,
+          ...tradeColumns(
+            displayCurrency,
+            {
+              onOpenDrawer: (t) => onSelectTrade(t.id),
+              onOpenFullPage: (t) => onOpenFullPage(t.id),
+              onFilterSymbol: (s) => onSymbolsChange([s]),
+              onDeleted: onDeleted ? (t) => onDeleted(t.id) : undefined,
+            },
+            fxRate,
+          ),
+        ]}
+        isRowSelected={(t) => selectedIds.has(t.id)}
         data={pageTrades}
         onRowClick={(t) => onSelectTrade(t.id)}
         maxHeight="100%"
@@ -379,6 +529,14 @@ export function TradesView({
           onPageSizeChange={setPageSize}
           alwaysShow
           className="shrink-0 px-0"
+        />
+      ) : null}
+      {selectedTrades.length > 0 ? (
+        <BulkTradeBar
+          selected={selectedTrades}
+          totalMatching={sortedTrades.length}
+          onSelectAllMatching={() => setSelectedIds(new Set(sortedTrades.map((t) => t.id)))}
+          onClear={clearSelection}
         />
       ) : null}
     </Page>

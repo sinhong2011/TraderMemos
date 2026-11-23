@@ -7,6 +7,10 @@ Open **Import** in the sidebar (hotkey `G` `I`). The flow is
 **Upload → Map columns → Result** — pick an account, drop a file, confirm the mapping,
 import. Your file is parsed on your server; nothing goes to third parties.
 
+Not sure how to get the file out of your broker? **Find my broker** on the Import page (or
+`/connect`) opens the broker catalogue — pick yours and the Import page shows that broker's
+export steps for the account you chose.
+
 ## Supported formats
 
 Format is auto-detected from the file's headers. Exports from a
@@ -39,7 +43,18 @@ suggested automatically:
 | `option_right` | — | Call/Put, Option Type, Right |
 
 Timestamps accept ISO 8601 (`2026-07-01T15:04:05Z`), `2026-07-01 15:04:05`,
-`07/01/2026 15:04:05`, and plain dates — all normalized to UTC. Option fills get the
+`07/01/2026 15:04:05`, and plain dates — all stored as UTC instants.
+
+- **Timezone** — times without an offset are read in the file's timezone: the broker preset's
+  zone, or for any other fill CSV the **market timezone** (Eastern by default — most exports
+  are). Change it in the mapping step if your broker exports in another zone.
+- **Date order** — slash dates like `05/01/2026` can mean 1 May or 5 January. When a cell proves
+  the order (`13/01/2026`), the preview just reads it back (*Dates read as day/month*). When
+  every date fits both, a **Date order** picker appears with no default, each option spelling
+  out the example date, and import stays blocked until you choose.
+- **Sample rows** show the import as it will happen: one column per mapped field (with the file
+  column it reads underneath), each time followed by the instant it becomes (`→ Oct 1, 6:08:13
+  AM EDT`), and file columns nothing reads dimmed as *not imported*. Option fills get the
 call/put right (explicit column or inferred from the symbol) and a ×100 multiplier.
 
 ## Duplicates & re-importing
@@ -48,15 +63,21 @@ A fill's identity is the combination **symbol + side + quantity + price + timest
 to the account. Importing the same statement twice — or overlapping date ranges — just counts
 the repeats as **Skipped (duplicates)**. Re-importing is always safe.
 
+Identical fills *within one file* (same symbol, side, quantity, price and second — a broker
+splitting one order) are all kept: each repeat gets its own occurrence-indexed identity, so
+re-importing the file still skips every one of them.
+
 ## How fills become trades
 
 After every import the account is regrouped automatically: fills for the same
 symbol/instrument are walked in time order — same-direction fills scale in, opposite fills
 reduce, and the trade closes when the position returns to zero (a crossing fill opens the next
-trade). Journal notes attach to the trade and survive regrouping.
+trade, and its fees are split by quantity between the two). Journal notes attach to the
+trade and survive regrouping.
 
-Made a mess? Every import is a batch — the Import page lists past batches and **deleting a
-batch reverses it** (removes its fills and regroups).
+Made a mess? Every import and Flex sync is a batch. **Settings → Accounts → Sync & import
+history** lists them (an account's page shows just that account's) — **Roll back** removes the
+batch's fills and regroups. Empty scheduled Flex runs stay hidden until **Show empty syncs**.
 
 ## Limits
 
@@ -67,8 +88,9 @@ dedup makes overlapping files harmless.
 
 ## Other ways in
 
-- **IBKR Flex sync** — schedule automatic imports from an IBKR Flex Query
-  (**Settings → Accounts → Flex sync**; interval via `TM_JOB_FLEX_SYNC_INTERVAL_MIN`)
+- **IBKR Flex sync** — schedule automatic imports from an IBKR Flex Query, set up from
+  `/connect` or the account page's **Interactive Brokers · Flex sync** card (interval via
+  `TM_JOB_FLEX_SYNC_INTERVAL_MIN`)
 - **Screenshot scan** — extract fills from a broker screenshot with an LLM,
   see [AI features](/en/docs/guides/ai-features)
 - **Manual entry** — the **New Trade** drawer (hotkey `c` `t`)

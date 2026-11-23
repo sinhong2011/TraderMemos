@@ -1,0 +1,93 @@
+---
+title: Analytics
+description: Which setups have a real edge, what breaking your own process costs, and the composite and rolling views that sit beside expectancy, SQN, Kelly and Monte Carlo.
+---
+
+Reports (`G` `S`) and Playbook (`G` `P`) answer three questions: **which setups to size up,
+keep testing or stop**, **what your mistakes cost**, and **whether you're trading better or
+worse than your own baseline**. Everything follows the filters at the top — date range,
+accounts, side — and the market timezone.
+
+## Setup scorecard (Playbook)
+
+Each play gets a **verdict**, scored on the selected range. Stats are in R when at least 60% of
+a setup's trades have an initial risk recorded; otherwise in currency.
+
+| Verdict | When |
+|---------|------|
+| **Edge** | 20+ trades and the 95% interval sits above zero — size up within your risk rules |
+| **Execution leak** | Losing overall, but its clean trades (10+) pay — the losses come from trades that broke your process |
+| **Promising** | Positive so far, not proven yet |
+| **Watch** | Negative so far, not enough trades to call it |
+| **Too early** | Fewer than 10 trades (shown as e.g. *Too early · 6/10*) |
+| **Bleeding** | 20+ trades and the interval sits below zero — stop or rework it |
+
+- The **Edge** column draws expectancy per trade as a dot (the mean) with a whisker (the 95%
+  interval) on an axis centred on zero. Rows in the same unit share one scale.
+- **Without mistakes: +1.00R** appears when the clean expectancy differs noticeably. "Clean"
+  drops every trade the mistake tax flags, not just mistake-tagged ones.
+- **Not traded in 60+ days** marks stale setups.
+- **Proven edge** in the summary reads e.g. *1 of 6*, with bleeding / too-early counts beneath.
+- A **No setup** line at the bottom summarises trades logged without one.
+- The list sorts by verdict by default; Name, Trades, Win rate, Expectancy and Net P&L sort too.
+
+## Mistake tax (Reports → Overview)
+
+The first Overview card prices the trades that broke your own process. A trade is flagged by
+any of:
+
+- a **mistake tag** you applied (*Chased*, *Moved stop*…)
+- a broken **risk rule** — over max risk per trade, past the daily loss limit, over max trades
+  per day, past the losing-streak limit (set under Settings → Rules)
+- a detected **revenge trade** or **oversized after a win streak** entry
+
+The card shows the total cost (losses only — a flagged winner never lowers it, it's listed as
+"won anyway"), its **share of the range's losses**, the cost in R, and **Without them: … instead
+of …** — your net had those trades not happened. Below: a weekly or monthly trend, then one row
+per reason; expand a row to list its trades and click one to open it. A trade with several
+reasons counts under each, so rows can add up to more than the total.
+
+When losers have neither a mistake tag nor a note, a prompt lists them and links to the
+[review inbox](/en/docs/guides/weekly-review). Today's session summary carries a one-line
+version ("Mistake tax: $280.00 · Past daily loss limit…", or "clean session").
+
+<Callout type="info">
+Saved Reports presets keep the cards they were saved with. A preset saved before the mistake
+tax existed won't show it until you switch it on under **Cards**.
+</Callout>
+
+## Edge Score
+
+A 0–100 composite on Reports → Overview (and the mobile Reports overview). Each component scores
+0–100 against a fixed target and is weighted:
+
+| Component | Weight | Full marks |
+|-----------|--------|------------|
+| Profit factor | 25% | 3.0 |
+| Avg win / loss | 20% | 2.5 : 1 |
+| Win rate | 15% | 60% |
+| Max drawdown | 15% | 0% of capital (25% scores 0) |
+| Consistency | 15% | best day ≤ 15% of winning-day profit |
+| Recovery | 10% | net P&L 3× max drawdown |
+
+It needs **at least 5 closed trades** in range and no journaled risk or MAE/MFE.
+
+## Rolling performance (Reports → Win / Loss)
+
+Switch between **Win rate** and **Avg P&L** over a rolling window of 10, 20, 50 or 100 trades.
+The latest value is compared against the baseline across every trade in range (*Above* /
+*Below*). Available on mobile too.
+
+## Everything else
+
+- **Overview** — summary metrics with expectancy, profit factor, Kelly % (and half Kelly), SQN;
+  period returns, execution quality score, playbook & leaks, R-multiple performance, execution
+  grade
+- **Win / Loss** — rolling performance, metric evolution
+- **Detailed** — session clock, symbol & tag, day of week & hourly, win/loss bars, duration
+  scatter, P&L heatmap, sessions, symbol heatmap
+- **Risk** — risk & drawdown, Monte Carlo simulation, rule compliance
+- **Behavior** — weekly focus, revenge trading, overconfidence, loss aversion
+
+Trade drawers show MAE/MFE excursion charts. **Cards** shows, hides and reorders cards per tab;
+**Presets** saves the current filters and card layout as a named view.

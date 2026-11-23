@@ -464,6 +464,14 @@ func (p *PG) GetJournalNote(ctx context.Context, arg GetJournalNoteParams) (Jour
 	return JournalNote(v), nil
 }
 
+func (p *PG) GetMCPSettings(ctx context.Context, userID string) (McpSetting, error) {
+	v, err := p.q.GetMCPSettings(ctx, userID)
+	if err != nil {
+		return McpSetting{}, err
+	}
+	return McpSetting(v), nil
+}
+
 func (p *PG) GetMarketBarsCache(ctx context.Context, cacheKey string) (MarketBarsCache, error) {
 	v, err := p.q.GetMarketBarsCache(ctx, cacheKey)
 	if err != nil {
@@ -1393,6 +1401,14 @@ func (p *PG) UpsertFlexSyncSettings(ctx context.Context, arg UpsertFlexSyncSetti
 
 func (p *PG) UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error {
 	return p.q.UpsertInstrumentSpec(ctx, storepg.UpsertInstrumentSpecParams(arg))
+}
+
+func (p *PG) UpsertMCPSettings(ctx context.Context, arg UpsertMCPSettingsParams) (McpSetting, error) {
+	v, err := p.q.UpsertMCPSettings(ctx, storepg.UpsertMCPSettingsParams(arg))
+	if err != nil {
+		return McpSetting{}, err
+	}
+	return McpSetting(v), nil
 }
 
 func (p *PG) UpsertMarketBarsCache(ctx context.Context, arg UpsertMarketBarsCacheParams) error {

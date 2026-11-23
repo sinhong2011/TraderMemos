@@ -179,6 +179,20 @@ vi.mock("../../lib/hooks/useAccessTokens", () => ({
   useRevokeAccessToken: () => ({ mutateAsync: vi.fn<(...args: any[]) => any>(), isPending: false }),
 }));
 
+vi.mock("../../lib/hooks/useMcpSettings", () => ({
+  useMcpSettings: () => ({
+    data: {
+      available: true,
+      enabled: false,
+      allow_writes: false,
+      endpoint_path: "/api/v1/mcp",
+    },
+    isLoading: false,
+    isError: false,
+  }),
+  useSaveMcpSettings: () => ({ mutate: vi.fn<(...args: any[]) => any>(), isPending: false }),
+}));
+
 const noop = async () => {};
 
 const accounts: Account[] = [
@@ -335,6 +349,8 @@ describe("SettingsView", () => {
     expect(await screen.findByRole("heading", { name: /api documentation/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /access tokens/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /open docs/i })).toBeInTheDocument();
+    // By id: an earlier test leaves Lingui on another locale.
+    expect(document.getElementById("mcp")).toBeInTheDocument();
   });
 
   it("shows empty state for cash when no transactions", async () => {

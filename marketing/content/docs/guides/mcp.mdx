@@ -1,0 +1,169 @@
+---
+title: MCP for AI assistants
+description: Connect Grok, Claude, ChatGPT, Cursor and other Model Context Protocol clients to your journal — read-only by default, writes when you allow them.
+---
+
+TraderMemos serves a [Model Context Protocol](https://modelcontextprotocol.io) endpoint, so an
+AI assistant can look up trades, run performance reports, read your notes and — only if you
+allow it — log fills and edit your journal.
+
+This is not the built-in [AI coach](/docs/guides/ai-features): nothing here configures an LLM
+provider. The assistant runs wherever it runs (xAI, Anthropic, your laptop) and calls your
+TraderMemos server with a token you give it.
+
+## Turn it on
+
+1. **Settings → API → Access tokens → Generate token.** Make one token per assistant (`Grok`,
+   `Claude Code`, …) so you can revoke one without touching the others. Copy the `tm_pat_…`
+   secret — it is shown once.
+2. **Settings → API → MCP for AI assistants → Allow MCP connections.** Until you do, every
+   token is refused at the MCP endpoint with `403 mcp_disabled`.
+3. Leave **Allow changes** off for a read-only assistant. Turn it on to let assistants write.
+
+The same section shows your endpoint URL and ready-to-paste configuration for each client.
+
+## Connection details
+
+| | |
+|---|---|
+| Endpoint | `https://<your-host>/api/v1/mcp` (behind a split deployment, the API host) |
+| Transport | Streamable HTTP, stateless, JSON responses |
+| Authentication | `Authorization: Bearer tm_pat_…` — personal access tokens only |
+| Permissions | Read-only unless **Allow changes** is on |
+
+Session logins (the JWT the web app uses) are refused on purpose: personal access tokens are
+named, listed, show where they were last used, and can be revoked one by one.
+
+## Permissions
+
+| Tool | Access | What it does |
+|------|--------|--------------|
+| `get_connection_info` | read | Reports read-only vs read-write and the server version |
+| `list_accounts` | read | Accounts and their ids |
+| `list_trades` | read | Trades, newest first, filtered by account, date, symbol, status, side, duration; paged |
+| `get_trade` | read | One trade with executions, journal, tags and excursions |
+| `get_analytics` | read | `summary`, `r_summary`, `daily`, `equity_curve`, `breakdown`, `behavior`, `compliance`, `execution_score`, `edge_score`, `setup_scorecard`, `mistake_tax` |
+| `list_notes` / `get_note` | read | Journal notes, daily logs, weekly reviews |
+| `list_tags` / `list_setups` | read | Ids for journaling |
+| `log_execution` | write | Records a fill; the server groups fills into trades. Repeating a fill is a no-op |
+| `update_trade_journal` | write | Notes, setups, tags, risk, stop/target, emotion, grades |
+| `delete_trade` | write | Deletes a trade with its fills and attachments |
+| `create_note` / `update_note` / `delete_note` | write | Journal notes |
+
+Write tools are **not listed at all** while **Allow changes** is off, and the server rejects
+them if called anyway. Changes to either switch apply from the next request; a client that
+cached its tool list may need a refresh to show newly allowed tools.
+
+Each tool runs the matching [REST endpoint](/docs/api-reference) with the assistant's token,
+so it sees exactly what that token sees over the API: your data and nobody else's.
+
+<Callout type="warn">
+Tools carry MCP annotations (`readOnlyHint`, `destructiveHint`, …) so clients can label and
+confirm risky calls. They are hints for the client's UI, not security. What an assistant can
+do is decided by the server: the token and the **Allow changes** switch. Deletions cannot be
+undone — keep writes off unless you want an assistant editing your journal.
+</Callout>
+
+Only a signed-in session can change the MCP switches. A token — including the one you gave an
+assistant — gets `403 session_required`, so an assistant cannot grant itself write access.
+
+## Connect a client
+
+### Grok (xAI API)
+
+xAI's [remote MCP tools](https://docs.x.ai/developers/tools/remote-mcp) connect over Streamable
+HTTP and send a token in the `Authorization` header. The call comes from xAI's servers, so your
+endpoint must be **reachable from the internet over HTTPS** — a `localhost` instance won't work.
+
+```python
+from xai_sdk import Client
+from xai_sdk.tools import mcp
+
+client = Client()  # reads XAI_API_KEY
+chat = client.chat.create(
+    model="grok-4.7",
+    tools=[mcp(
+        server_url="https://journal.example.com/api/v1/mcp",
+        server_label="tradermemos",
+        authorization="tm_pat_…",
+    )],
+)
+```
+
+Pass the token as-is in `authorization`; TraderMemos accepts it with or without a `Bearer `
+prefix. The same fields (`server_url`, `server_label`, `authorization`) work with the
+OpenAI-compatible Responses API at `https://api.x.ai/v1/responses`. Use `allowed_tool_names`
+to expose only some tools.
+
+### Grok Build
+
+[Grok Build](https://docs.x.ai/build/features/mcp-servers) runs on your machine, so a LAN or
+`localhost` URL is fine:
+
+```bash
+grok mcp add --transport http tradermemos https://journal.example.com/api/v1/mcp \
+  --header "Authorization: Bearer ${TRADERMEMOS_TOKEN}"
+```
+
+<Callout>
+**Grok on grok.com and in the Grok apps** adds custom connectors by URL and signs in with
+OAuth. TraderMemos authenticates with personal access tokens only and does not run an OAuth
+server, so use the xAI API or Grok Build instead.
+</Callout>
+
+### Claude Code
+
+```bash
+claude mcp add --transport http tradermemos https://journal.example.com/api/v1/mcp \
+  --header "Authorization: Bearer ${TRADERMEMOS_TOKEN}"
+```
+
+### Other clients
+
+Cursor, VS Code, Windsurf and most other MCP clients take a Streamable HTTP URL plus headers:
+
+```json
+{
+  "mcpServers": {
+    "tradermemos": {
+      "type": "http",
+      "url": "https://journal.example.com/api/v1/mcp",
+      "headers": { "Authorization": "Bearer tm_pat_…" }
+    }
+  }
+}
+```
+
+Clients that only support OAuth for remote servers (for example claude.ai custom
+connectors) can't connect yet, for the same reason as grok.com.
+
+## Disconnect an assistant
+
+- **One assistant:** revoke its token under **Settings → API → Access tokens**. It is refused
+  from its next request — every tool call re-checks the token.
+- **All assistants:** turn **Allow MCP connections** off.
+- **Who connected?** Each token keeps an activity log of client IP and user-agent
+  ([details](/docs/guides/api-tokens#where-has-a-token-been-used)).
+
+Tokens never appear in TraderMemos' logs or in the settings screen after creation. Don't paste
+one into a chat with an assistant — put it in the client's configuration or an environment
+variable.
+
+## Self-hosting notes
+
+- `TM_MCP_ENABLED=false` removes the endpoint from the server entirely
+  ([configuration](/docs/self-hosting/configuration)). It is on by default but inert until a
+  user opts in.
+- The endpoint lives under `/api/v1`, so a reverse proxy that already forwards the API needs no
+  change. It is stateless: no sticky sessions, safe across restarts and replicas.
+- To troubleshoot, `curl` it:
+
+```bash
+curl -s https://journal.example.com/api/v1/mcp \
+  -H "Authorization: Bearer $TRADERMEMOS_TOKEN" \
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+`401` means a missing, mistyped, expired or revoked token; `403 mcp_disabled` means MCP is off
+for the account; `404` means the server runs with `TM_MCP_ENABLED=false`.

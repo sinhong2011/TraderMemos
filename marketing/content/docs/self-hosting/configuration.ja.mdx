@@ -73,6 +73,7 @@ description: API が読み取るすべての TM_* 環境変数と、その既定
 | 変数 | デフォルト | 用途 |
 |----------|---------|---------|
 | `TM_SHARE_LINKS_ENABLED` | `false` | 公開シェアページを有効化。デフォルトはオフ — シェアリンクはジャーナルの一部を認証なしで公開します |
+| `TM_MCP_ENABLED` | `true` | AI アシスタント向け MCP エンドポイント（`/api/v1/mcp`）を提供。ユーザーが設定で MCP をオンにするまでは何もしません。`false` でエンドポイント自体を削除（[ガイド](/docs/guides/mcp)） |
 | `TM_PUBLIC_WEB_URL` | *(空)* | シェアリンク URL の生成に使う公開 Web アプリのオリジン。API と同一オリジンで Web を配信する構成（同梱の nginx）では空のまま |
 | `TM_JOBS_ENABLED` | `true` | バックグラウンドジョブの全体スイッチ。レプリカを増やす場合は 1 台だけで動くよう他を無効化 |
 | `TM_JOB_EXCURSION_INTERVAL_MIN` | `360` | MAE/MFE バックフィルの間隔（分、`0` で無効） |
@@ -102,4 +103,4 @@ SPA は静的です。以下はビルド時に埋め込まれる値で、サー�
 | 変数 | 既定値 | 用途 |
 |----------|---------|---------|
 | `DOCKERHUB_USERNAME` | `sinhong2011` | `tradermemos-api` / `tradermemos-web` イメージの Docker Hub ネームスペース |
-| `TM_IMAGE_TAG` | `latest` | イメージタグ — 本番では `0.1.6` のようにリリースを固定してください |
+| `TM_IMAGE_TAG` | `latest` | イメージタグ — 本番では `0.15.0` のようにリリースを固定してください |

@@ -36,6 +36,21 @@ inside the API container resets it:
 docker compose exec api /tradermemos reset-password --email you@example.com --password '…'
 ```
 
+### How do I turn on two-factor sign-in?
+
+**Settings → Profile → Two-factor authentication** — scan the QR code with any TOTP
+authenticator app and confirm a code. From then on, sign-in asks for a 6-digit code after the
+password.
+
+### I lost my authenticator
+
+There are no recovery codes — on a self-hosted box, shell access is the recovery path. Turn
+two-factor off from the API container, then sign in with the password and set it up again:
+
+```bash
+docker compose exec api /tradermemos disable-totp --email you@example.com
+```
+
 ## Server & deployment
 
 ### The API refuses to start: "insecure JWT secret"
@@ -84,7 +99,9 @@ see [Configuration](/en/docs/self-hosting/configuration).
 ### I imported the same file twice — do I have duplicates?
 
 No. Fills are deduplicated by symbol + side + quantity + price + timestamp; repeats count as
-*Skipped*. A bad import can also be reversed as a batch from the Import page.
+*Skipped*. Identical fills inside one file (a split broker order) are kept, and still skip on a
+re-import. A bad import can be rolled back as a batch from **Settings → Accounts → Sync &
+import history** (or the account's own page).
 
 ### My broker isn't listed as supported
 

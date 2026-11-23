@@ -23,6 +23,15 @@ import {
   Tag,
   LineChart,
   Smartphone,
+  Sunrise,
+  Inbox,
+  Target,
+  Gauge,
+  Receipt,
+  Sparkles,
+  ListTodo,
+  DatabaseBackup,
+  Check,
   type LucideIcon,
 } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -32,11 +41,20 @@ import { resolveLocale } from '@/i18n/locales';
 import {
   Reveal,
   WordReveal,
+  InkReveal,
   ScrollFillText,
-  ZoomFrame,
   StatBars,
   TypedTerminal,
 } from '@/components/landing/motion';
+import {
+  Spotlight,
+  HeroStage,
+  CountUp,
+  LoopStory,
+  PhonePair,
+  type LoopStep,
+} from '@/components/landing/story';
+import { CandleField } from '@/components/landing/candle-field';
 import { BrowserFrame } from '@/components/browser-frame';
 import { GlowCard } from '@/components/landing/effects';
 import dashboardShot from '@/public/screenshots/dashboard.png';
@@ -44,6 +62,8 @@ import dashboardLightShot from '@/public/screenshots/dashboard-light.png';
 import tradesShot from '@/public/screenshots/trades.png';
 import calendarShot from '@/public/screenshots/calendar.png';
 import reportsShot from '@/public/screenshots/reports.png';
+import mobileHomeShot from '@/public/screenshots/mobile-home.png';
+import mobileReportsShot from '@/public/screenshots/mobile-reports.png';
 
 const repoUrl = `https://github.com/${gitConfig.user}/${gitConfig.repo}`;
 
@@ -107,10 +127,54 @@ const listFeatureIds = [
   'tools',
   'ai',
   'api',
-  'mobile',
 ] as const;
 
 type FeatureId = (typeof bentoFeatureIds)[number] | (typeof listFeatureIds)[number];
+
+const newIcons = {
+  today: Sunrise,
+  inbox: Inbox,
+  focus: Target,
+  scorecard: Gauge,
+  mistakeTax: Receipt,
+  edge: Sparkles,
+  routines: ListTodo,
+  backup: DatabaseBackup,
+} as const;
+
+const newIds = Object.keys(newIcons) as (keyof typeof newIcons)[];
+
+/* Tone per hero chip, in the order of Home.chips. */
+const chipTones = ['neutral', 'loss', 'profit', 'primary'] as const;
+
+/* A live-journal readout floating beside the hero screenshot. */
+function JournalChip({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: (typeof chipTones)[number];
+}) {
+  const dot =
+    tone === 'profit'
+      ? 'bg-tm-profit'
+      : tone === 'loss'
+        ? 'bg-tm-loss'
+        : tone === 'primary'
+          ? 'bg-fd-primary'
+          : 'bg-fd-muted-foreground';
+  return (
+    <div className="rounded-2xl bg-fd-popover/85 px-4 py-3 shadow-xl shadow-black/20 ring-1 ring-fd-border/70 backdrop-blur-xl">
+      <p className="flex items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-fd-muted-foreground">
+        <span className={`size-1.5 rounded-full ${dot}`} />
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-semibold tabular-nums">{value}</p>
+    </div>
+  );
+}
 
 interface TickerItem {
   label: string;
@@ -204,63 +268,6 @@ function Eyebrow({
       />
       {label}
     </p>
-  );
-}
-
-/*
- * Signature: the journal plotted on the curve. An equity curve — drawdowns
- * included — draws itself behind the hero, with a trade entry annotated on it
- * the way journal notes annotate a session.
- */
-function EquityCurve() {
-  const line =
-    'M0,368 L80,344 L140,354 L220,306 L290,322 L370,270 L440,288 L560,224 L640,246 L730,188 L820,208 L910,152 L1010,174 L1110,108 L1200,84';
-
-  return (
-    <svg
-      viewBox="0 0 1200 420"
-      preserveAspectRatio="none"
-      aria-hidden
-      className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[26rem] w-full sm:h-[30rem]"
-    >
-      <defs>
-        <linearGradient id="tm-curve-area" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--color-fd-primary)" stopOpacity="0.14" />
-          <stop offset="100%" stopColor="var(--color-fd-primary)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path className="tm-curve-fill" d={`${line} L1200,420 L0,420 Z`} fill="url(#tm-curve-area)" />
-      <path
-        className="tm-curve-path text-fd-primary/50"
-        d={line}
-        pathLength={1}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        vectorEffect="non-scaling-stroke"
-      />
-      {/* Light pulse traveling along the curve after it draws in */}
-      <path
-        className="tm-curve-pulse text-fd-primary"
-        d={line}
-        pathLength={1}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
-      />
-      {/* Trade annotation — a journal entry pinned to the curve */}
-      <g
-        className="tm-annot font-mono max-sm:hidden"
-        style={{ '--tm-delay': '2s' } as React.CSSProperties}
-      >
-        <circle cx="1110" cy="108" r="3.5" className="fill-tm-profit" />
-        <text x="1052" y="88" fontSize="12" className="fill-tm-profit">
-          +1.8R · A-setup
-        </text>
-      </g>
-    </svg>
   );
 }
 
@@ -412,6 +419,19 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const features = t.raw('features') as Record<FeatureId, { title: string; description: string }>;
   const comparison = t.raw('comparison') as { row: string; cloud: string; tm: string }[];
   const stack = t.raw('stack') as { layer: string; value: string }[];
+  const chips = t.raw('chips') as { label: string; value: string }[];
+  const loop = t.raw('loop') as LoopStep[];
+  const newItems = t.raw('newItems') as Record<
+    (typeof newIds)[number],
+    { title: string; description: string }
+  >;
+  const numbers = t.raw('numbers') as {
+    value: number;
+    prefix?: string;
+    suffix: string;
+    label: string;
+  }[];
+  const mobilePoints = t.raw('mobilePoints') as string[];
   const stars = await fetchStarCount();
 
   return (
@@ -420,68 +440,58 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScript(softwareSchema(t('metaDescription'))) }}
       />
-      {/* Hero — one centered canvas panel (shadcn.io pattern): bordered muted
-          surface, glyph lattice at the edges, content stacked in the middle */}
-      <section className="px-6 pt-8 sm:pt-12">
-        <div className="relative isolate overflow-hidden rounded-3xl border border-fd-border/60 bg-fd-card/40">
+      {/* Hero — a spotlight canvas over the journal's candle field: kicker pill,
+          display headline, CTAs, then the dashboard lifting out of a tilt with
+          live journal chips drifting around it at their own depths */}
+      <section className="px-4 pt-6 sm:px-6 sm:pt-10">
+        <Spotlight className="relative isolate overflow-hidden rounded-[2rem] bg-fd-card/40 ring-1 ring-fd-border/60">
           <div aria-hidden className="tm-hero-grid pointer-events-none absolute inset-0 -z-20" />
-          <HeroLattice />
-          <EquityCurve />
-
-          <div className="px-6 pb-14 pt-16 text-center sm:pb-16 sm:pt-24">
-            <div
-              className="tm-fade-up flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-mono text-xs text-fd-muted-foreground"
+          <div aria-hidden className="tm-aurora pointer-events-none absolute inset-0 -z-20" />
+          <div className="px-5 pt-14 text-center sm:px-6 sm:pt-20">
+            <Link
+              href={`/${lang}/changelog`}
+              className={`tm-fade-up group inline-flex items-center gap-2 rounded-full bg-fd-background/70 py-1 pl-1 pr-3 text-xs font-medium text-fd-muted-foreground shadow-sm ring-1 ring-fd-border/70 backdrop-blur transition-colors hover:text-fd-foreground ${focusRing}`}
               style={{ '--tm-delay': '0s' } as React.CSSProperties}
             >
-              {badgeParts.map((part, i) => (
-                <span key={part} className="flex items-center gap-3">
-                  {i > 0 && (
-                    <span aria-hidden className="text-fd-muted-foreground/40">
-                      /
-                    </span>
-                  )}
-                  <span className="uppercase tracking-[0.15em]">{part}</span>
-                </span>
-              ))}
-            </div>
-            <h1 className="mx-auto mt-6 max-w-3xl text-balance font-display text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+              <span className="tm-shimmer rounded-full bg-fd-primary px-2 py-0.5 font-mono text-2xs uppercase tracking-[0.12em] text-fd-primary-foreground">
+                {badgeParts[0]}
+              </span>
+              {t('heroKicker')}
+              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+            <h1 className="mx-auto mt-8 max-w-5xl text-balance font-display text-[2.6rem] font-bold leading-[1.02] tracking-[-0.035em] sm:text-6xl lg:text-[5.5rem]">
               <WordReveal text={t('heroTitleLine1')} perChar={isCjk} delay={0.15} />
               <br />
-              <WordReveal
-                text={t('heroTitleLine2')}
-                perChar={isCjk}
-                delay={0.4}
-                className="text-fd-muted-foreground"
-              />
+              <InkReveal text={t('heroTitleLine2')} delay={0.45} className="tm-ink-gradient" />
             </h1>
             <p
-              className="tm-fade-up mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-fd-muted-foreground"
+              className="tm-fade-up mx-auto mt-7 max-w-2xl text-pretty text-base leading-relaxed text-fd-muted-foreground sm:text-lg"
               style={{ '--tm-delay': '0.55s' } as React.CSSProperties}
             >
               {t('heroSubtitle')}
             </p>
             <div
-              className="tm-fade-up mt-8 flex flex-wrap items-center justify-center gap-3"
+              className="tm-fade-up mt-9 flex flex-wrap items-center justify-center gap-3"
               style={{ '--tm-delay': '0.7s' } as React.CSSProperties}
             >
               <Link
                 href={`/${lang}/docs`}
-                className={`inline-flex items-center gap-2 rounded-xl bg-fd-primary px-6 py-3 text-sm font-semibold text-fd-primary-foreground transition-colors hover:bg-fd-primary/90 ${focusRing}`}
+                className={`tm-cta group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-fd-primary px-6 py-3 text-sm font-semibold text-fd-primary-foreground shadow-lg shadow-fd-primary/30 transition-transform active:scale-[0.97] ${focusRing}`}
               >
                 {t('ctaGetStarted')}
-                <ArrowRight className="size-4" />
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <a
                 href={demoConfig.url}
                 rel="noreferrer"
-                className={`inline-flex items-center gap-2 rounded-xl border border-fd-border bg-fd-background px-6 py-3 text-sm font-medium transition-colors hover:bg-fd-accent ${focusRing}`}
+                className={`inline-flex items-center gap-2 rounded-full bg-fd-background/80 px-6 py-3 text-sm font-medium ring-1 ring-fd-border backdrop-blur transition-colors hover:bg-fd-accent active:scale-[0.97] ${focusRing}`}
               >
                 {t('ctaDemo')}
                 <ArrowUpRight className="size-4 opacity-60" />
               </a>
               <Link
                 href={repoUrl}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-fd-muted-foreground transition-colors hover:text-fd-foreground ${focusRing}`}
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-medium text-fd-muted-foreground transition-colors hover:text-fd-foreground ${focusRing}`}
               >
                 <GithubMark className="size-4" />
                 {t('ctaGithub')}
@@ -497,34 +507,42 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
               <span className="text-fd-muted-foreground/50"> / </span>
               <span className="text-fd-foreground">{demoConfig.password}</span>
             </p>
-            {/* Stat row — bold value, muted label */}
-            <div
-              className="tm-fade-up mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-2"
-              style={{ '--tm-delay': '1s' } as React.CSSProperties}
-            >
-              {ticker.slice(0, 3).map((s) => (
-                <span key={s.label} className="flex items-baseline gap-2 text-sm">
-                  <span className="font-semibold tabular-nums text-fd-foreground">{s.value}</span>
-                  <span className="text-fd-muted-foreground">{s.label}</span>
-                </span>
-              ))}
-            </div>
           </div>
+          {/* Candle field band — the journal's season, its worst day annotated */}
+          <div
+            aria-hidden
+            className="relative mt-14 aspect-[16/3] min-h-36 w-full opacity-70 sm:mt-16 dark:opacity-80"
+            style={{
+              maskImage:
+                'linear-gradient(to right, transparent, black 12%, black 88%, transparent), linear-gradient(to bottom, transparent, black 18%)',
+              maskComposite: 'intersect',
+            }}
+          >
+            <CandleField
+              noteMeta={t('noteMeta')}
+              noteLine1={t('noteLine1')}
+              noteLine2={t('noteLine2')}
+            />
+          </div>
+        </Spotlight>
+
+        <div className="relative -mt-8 px-0 pb-24 sm:-mt-12 sm:px-8 lg:px-16">
+          <HeroStage
+            chips={chips.map((c, i) => (
+              <JournalChip key={c.label} label={c.label} value={c.value} tone={chipTones[i]!} />
+            ))}
+          >
+            <BrowserFrame
+              glare
+              image={dashboardShot}
+              lightImage={dashboardLightShot}
+              alt="TraderMemos dashboard — equity curve, annual P&L goal, expectancy and win-rate stats"
+              sizes="(max-width: 1200px) 100vw, 1104px"
+              priority
+            />
+          </HeroStage>
         </div>
-
-        <ZoomFrame className="mt-12 pb-20">
-          <BrowserFrame
-            glare
-            image={dashboardShot}
-            lightImage={dashboardLightShot}
-            alt="TraderMemos dashboard — equity curve, annual P&L goal, expectancy and win-rate stats"
-            sizes="(max-width: 1200px) 100vw, 1104px"
-            priority
-          />
-        </ZoomFrame>
       </section>
-
-      <SectionRule />
 
       {/* Metrics ticker — the numbers a daily review runs on, as drifting glass chips */}
       <div aria-hidden className="select-none overflow-hidden py-5">
@@ -704,58 +722,150 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       <SectionRule />
 
-      {/* A look inside */}
-      <section className="px-6 py-24">
-        <Reveal className="mx-auto max-w-2xl text-center">
-          <Eyebrow label={t('eyebrowInside')} centered />
-          <h2 className="mt-4 text-balance font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            {t('lookInsideHeading')}
+      {/* The review loop — pinned scroll story: steps on the left, the matching
+          screen crossfading on the right */}
+      <section className="px-6 py-24 lg:py-0">
+        <Reveal className="mx-auto max-w-3xl text-center lg:pt-28">
+          <Eyebrow label={t('eyebrowLoop')} centered />
+          <h2 className="mt-4 text-balance font-display text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+            {t('loopHeading')}
           </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-pretty leading-relaxed text-fd-muted-foreground">
+            {t('loopSub')}
+          </p>
         </Reveal>
-        <div className="mt-12 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2">
-          <Reveal>
-            <figure>
-              <BrowserFrame
-                glare
-                image={tradesShot}
-                alt="Trade log with per-trade P&L, hold time, and tags"
-                sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 540px"
-              />
-              <figcaption className="mt-4 text-sm leading-relaxed text-fd-muted-foreground">
-                <strong className="text-fd-foreground">{t('tradeLogCaptionTitle')}</strong> —{' '}
-                {t('tradeLogCaptionBody')}
-              </figcaption>
-            </figure>
-          </Reveal>
-          <Reveal delay={0.12}>
-            <figure>
-              <BrowserFrame
-                glare
-                image={calendarShot}
-                alt="P&L calendar heatmap by day and week"
-                sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 540px"
-              />
-              <figcaption className="mt-4 text-sm leading-relaxed text-fd-muted-foreground">
-                <strong className="text-fd-foreground">{t('calendarCaptionTitle')}</strong> —{' '}
-                {t('calendarCaptionBody')}
-              </figcaption>
-            </figure>
-          </Reveal>
+        <div className="mt-14 lg:mt-0">
+          <LoopStory
+            steps={loop}
+            images={[dashboardShot, tradesShot, calendarShot, reportsShot]}
+            alts={[
+              'Dashboard — equity curve, goal pacing and the day at a glance',
+              'Trade log with per-trade P&L, hold time, and tags',
+              'P&L calendar heatmap by day and week',
+              'Reports — expectancy, profit factor and breakdowns by setup',
+            ]}
+          />
         </div>
-        <figure className="mt-12">
-          <ZoomFrame>
-            <BrowserFrame
-              glare
-              image={reportsShot}
-              alt="Reports — equity curve, profit factor gauge, win-rate donut, annual goal pacing"
-              sizes="(max-width: 1200px) 100vw, 1104px"
-            />
-          </ZoomFrame>
-          <figcaption className="mt-4 text-sm leading-relaxed text-fd-muted-foreground">
-            <strong className="text-fd-foreground">{t('reportsCaptionTitle')}</strong> —{' '}
-            {t('reportsCaptionBody')}
-          </figcaption>
-        </figure>
+      </section>
+
+      <SectionRule />
+
+      {/* Recently shipped — bento of the newest journal pages */}
+      <section className="px-6 py-24">
+        <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl">
+            <Eyebrow label={t('eyebrowNew')} tone="profit" />
+            <h2 className="mt-4 text-balance font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              {t('newHeading')}
+            </h2>
+            <p className="mt-4 text-pretty leading-relaxed text-fd-muted-foreground">{t('newSub')}</p>
+          </div>
+          <Link
+            href={`/${lang}/changelog`}
+            className={`inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-fd-primary hover:underline ${focusRing}`}
+          >
+            {t('eyebrowNew')}
+            <ArrowRight className="size-4" />
+          </Link>
+        </Reveal>
+        <div className="mt-12 grid auto-rows-[minmax(11rem,auto)] gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {newIds.map((id, i) => {
+            const Icon = newIcons[id];
+            const { title, description } = newItems[id];
+            // 4-col rows: [2,1,1] [1,1,2] [2,2] — every row fills
+            const wide = i === 0 || i >= 5;
+            return (
+              <Reveal key={id} delay={(i % 4) * 0.07} className={`h-full ${wide ? 'lg:col-span-2' : ''}`}>
+                <GlowCard className="tm-lift flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-fd-card p-6 ring-1 ring-fd-border/60">
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-fd-primary/10 ring-1 ring-fd-primary/20">
+                    <Icon className="size-5 text-fd-primary" />
+                  </div>
+                  <div className="mt-8">
+                    <h3 className={`font-display font-semibold tracking-tight ${wide ? 'text-2xl' : 'text-lg'}`}>
+                      {title}
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-fd-muted-foreground">
+                      {description}
+                    </p>
+                  </div>
+                </GlowCard>
+              </Reveal>
+            );
+          })}
+        </div>
+      </section>
+
+      <SectionRule />
+
+      {/* By the numbers — count-up band */}
+      <section className="px-6 py-20">
+        <Reveal>
+          <Eyebrow label={t('eyebrowNumbers')} centered />
+          <dl className="mt-10 grid grid-cols-2 gap-y-10 lg:grid-cols-4">
+            {numbers.map((n) => (
+              <div key={n.label} className="text-center">
+                <dt className="sr-only">{n.label}</dt>
+                <dd>
+                  <CountUp
+                    value={n.value}
+                    prefix={n.prefix ?? ''}
+                    suffix={n.suffix}
+                    className="block font-display text-5xl font-semibold tracking-[-0.04em] sm:text-6xl"
+                  />
+                  <span className="mt-2 block text-sm text-fd-muted-foreground">{n.label}</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
+      </section>
+
+      <SectionRule />
+
+      {/* Mobile — parallax phone pair */}
+      <section className="overflow-hidden px-6 py-24">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+          <Reveal>
+            <Eyebrow label={t('eyebrowMobile')} />
+            <h2 className="mt-4 text-balance font-display text-3xl font-semibold tracking-tight sm:text-5xl sm:tracking-[-0.03em]">
+              {t('mobileHeading')}
+            </h2>
+            <p className="mt-5 max-w-xl text-pretty leading-relaxed text-fd-muted-foreground">
+              {t('mobileBody')}
+            </p>
+            <ul className="mt-8 space-y-3">
+              {mobilePoints.map((pt) => (
+                <li key={pt} className="flex items-start gap-3 text-sm">
+                  <Check className="mt-0.5 size-4 shrink-0 text-tm-profit" />
+                  {pt}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a
+                href="https://apps.apple.com/app/id6797427206"
+                rel="noreferrer"
+                className={`inline-flex items-center gap-2 rounded-full bg-fd-foreground px-5 py-2.5 text-sm font-medium text-fd-background transition-transform active:scale-[0.97] ${focusRing}`}
+              >
+                {d('appIos')}
+                <ArrowUpRight className="size-3.5 opacity-70" />
+              </a>
+              <Link
+                href={`/${lang}/docs/getting-started/mobile-app#android`}
+                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium ring-1 ring-fd-border transition-colors hover:bg-fd-accent ${focusRing}`}
+              >
+                {d('appAndroid')}
+                <ArrowRight className="size-3.5 opacity-60" />
+              </Link>
+            </div>
+          </Reveal>
+          <PhonePair
+            front={mobileHomeShot}
+            back={mobileReportsShot}
+            frontAlt="TraderMemos iOS app — Home with P&L summary"
+            backAlt="TraderMemos iOS app — Reports"
+          />
+        </div>
       </section>
 
       <SectionRule />
@@ -872,33 +982,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                 </a>
               </div>
               <p className="mt-4 text-sm text-fd-muted-foreground/80">{d('note')}</p>
-              {/* Companion app — App Store for iOS, sideloaded APK for Android */}
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-2 text-sm font-medium text-fd-muted-foreground">
-                  <Smartphone className="size-4" />
-                  {d('appLead')}
-                </span>
-                {/* iOS goes straight to the App Store listing. Android still
-                    lands on the install guide: sideloading needs the
-                    unknown-apps step and the checksum beside it, and a 127MB
-                    APK that starts downloading on tap from a landing page
-                    reads as a hijack. The direct link lives on that page. */}
-                <a
-                  href="https://apps.apple.com/app/id6797427206"
-                  rel="noreferrer"
-                  className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition hover:-translate-y-0.5 hover:bg-fd-accent ${focusRing}`}
-                >
-                  {d('appIos')}
-                  <ArrowRight className="size-3.5 opacity-60" />
-                </a>
-                <Link
-                  href={`/${lang}/docs/getting-started/mobile-app#android`}
-                  className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition hover:-translate-y-0.5 hover:bg-fd-accent ${focusRing}`}
-                >
-                  {d('appAndroid')}
-                  <ArrowRight className="size-3.5 opacity-60" />
-                </Link>
-              </div>
             </div>
             <div className="relative self-center">
               <div className="overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-white/10">

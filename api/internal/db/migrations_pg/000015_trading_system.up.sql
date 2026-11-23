@@ -1,4 +1,4 @@
--- Trading system builder (Postgres). New tables only — see SQLite 000050.
+-- Trading system builder (Postgres). New tables only — see SQLite 000051.
 
 CREATE TABLE IF NOT EXISTS trading_systems (
     id         TEXT PRIMARY KEY,

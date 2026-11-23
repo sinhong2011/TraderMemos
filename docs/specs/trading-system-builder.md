@@ -14,7 +14,7 @@ Sample bands are thin / indicative / adequate — never "reliable". Week 4 of th
 plan is version revision (activate next), not "completed review". Mixed-currency
 portfolios are rejected by the shared loader (`mixed_currencies`).
 
-Data: migration 000050 (PG 000014) — new tables only, no trade_journal rebuild.
+Data: migration 000051 (PG 000015) — new tables only, no trade_journal rebuild. Official 000050 / PG 000014 is mcp_settings.
 
 **Built on the map:** stage C plans (revisions, statuses, confirmed trade links)
 and stage D holding evidence (append-only revisions, withdraw, scaling-rule

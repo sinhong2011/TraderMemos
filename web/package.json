@@ -1,6 +1,6 @@
 {
   "name": "tradermemos-web",
-  "version": "0.15.0",
+  "version": "0.16.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -45,7 +45,7 @@
     "date-fns": "^4.4.0",
     "lightweight-charts": "^5.2.1",
     "lucide-react": "^1.49.0",
-    "motion": "13",
+    "motion": "14",
     "qrcode": "^1.5.4",
     "react": "^19.3.0",
     "react-day-picker": "^10.0.2",

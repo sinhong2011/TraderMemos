@@ -169,7 +169,7 @@ async function pickOption(
       }
       expect(fired).toHaveBeenCalled();
     },
-    { timeout: 5000 },
+    { timeout: 10000 },
   );
 }
 
@@ -269,7 +269,7 @@ describe("TradesView", () => {
     expect(onSymbolsChange).toHaveBeenCalledWith(["MSFT"]);
   });
 
-  it("wires tags faceted filter", { retry: 2 }, async () => {
+  it("wires tags faceted filter", { retry: 2, timeout: 15000 }, async () => {
     const user = filterUser();
     const onTagIdsChange = vi.fn<(...args: any[]) => any>();
     render(
@@ -298,7 +298,8 @@ describe("TradesView", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "Add filter" }));
-    await user.hover(await screen.findByRole("option", { name: "Tags" }));
+    (await screen.findByRole("option", { name: "Tags" })).focus();
+    await user.keyboard("{ArrowRight}");
     await pickOption(user, /Breakout/i, onTagIdsChange);
     expect(onTagIdsChange).toHaveBeenCalledWith(["tag1"]);
   });

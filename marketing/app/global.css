@@ -13,10 +13,14 @@
   --color-fd-ring: oklch(0.5013 0.1428 252.49);
   --color-fd-muted-foreground: oklch(0.5 0 0);
   --radius: 0.625rem;
+  /* DESIGN.md floor: 11px is the smallest step */
+  --text-2xs: 0.6875rem;
 }
 
 /* P&L domain colors — mirror web app profit/loss tokens */
 :root {
+  /* Candle ink — the web app's chart-accent: brand blue in light, blue-500 in dark */
+  --tm-ink: oklch(0.5013 0.1428 252.49);
   --tm-profit: oklch(0.52 0.14 152);
   --tm-loss: oklch(0.55 0.19 25);
 }
@@ -26,11 +30,13 @@
   --color-fd-primary-foreground: oklch(0.985 0 0);
   --color-fd-ring: oklch(0.5013 0.1428 252.49);
   --color-fd-muted-foreground: oklch(0.708 0 0);
+  --tm-ink: oklch(0.623 0.214 259.815);
   --tm-profit: oklch(0.76 0.15 155);
   --tm-loss: oklch(0.68 0.19 25);
 }
 
 @theme inline {
+  --color-tm-ink: var(--tm-ink);
   --color-tm-profit: var(--tm-profit);
   --color-tm-loss: var(--tm-loss);
   --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
@@ -278,6 +284,169 @@ html > body[data-scroll-locked] {
 
 .tm-ticker-track:hover {
   animation-play-state: paused;
+}
+
+/* ---------- Homepage revamp ---------- */
+
+/* Candle field rises left to right once, then the journal note pins */
+@keyframes tm-candle-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+.tm-candle {
+  transform-box: fill-box;
+  animation: tm-candle-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tm-note {
+  opacity: 0;
+  animation: tm-fade 0.6s ease-out 1.5s forwards;
+}
+
+/* Pointer spotlight over the hero canvas (coords from <Spotlight>) */
+.tm-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -15;
+  pointer-events: none;
+  background: radial-gradient(
+    520px circle at var(--tm-sx, 50%) var(--tm-sy, 0%),
+    color-mix(in oklch, var(--color-fd-primary) 16%, transparent),
+    transparent 70%
+  );
+  transition: background 0.2s;
+}
+
+/* Slow-drifting brand aurora behind the headline */
+@keyframes tm-aurora {
+  0%,
+  100% {
+    transform: translate3d(-6%, -4%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6%, 3%, 0) scale(1.08);
+  }
+}
+
+.tm-aurora::before,
+.tm-aurora::after {
+  content: '';
+  position: absolute;
+  width: 55%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.35;
+  animation: tm-aurora 18s ease-in-out infinite;
+}
+
+.tm-aurora::before {
+  top: -30%;
+  left: 5%;
+  background: var(--color-fd-primary);
+}
+
+.tm-aurora::after {
+  top: -20%;
+  right: 0;
+  background: var(--tm-profit);
+  opacity: 0.16;
+  animation-delay: -9s;
+  animation-direction: reverse;
+}
+
+/* Second headline line in a brand ink gradient */
+.tm-ink-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-fd-primary) 0%,
+    color-mix(in oklch, var(--color-fd-primary) 55%, var(--tm-profit)) 55%,
+    var(--tm-profit) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-bottom: 0.06em;
+}
+
+.dark .tm-ink-gradient {
+  background-image: linear-gradient(100deg, oklch(0.72 0.15 252) 0%, var(--tm-profit) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Kicker pill + primary CTA sheen */
+@keyframes tm-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  60%,
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.tm-shimmer {
+  background-image: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgb(255 255 255 / 0.35) 50%,
+    transparent 65%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: tm-shimmer 3.6s ease-in-out 1.2s infinite;
+}
+
+.tm-cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.28) 50%, transparent 70%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.tm-cta:hover::after {
+  transform: translateX(120%);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Bento cards lift a touch on hover */
+.tm-lift {
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s;
+}
+
+@media (hover: hover) {
+  .tm-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px -20px color-mix(in oklch, var(--color-fd-primary) 45%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tm-candle,
+  .tm-note,
+  .tm-aurora::before,
+  .tm-aurora::after,
+  .tm-shimmer {
+    animation: none;
+  }
+  .tm-note {
+    opacity: 1;
+  }
+  .tm-cta::after {
+    display: none;
+  }
+  .tm-lift:hover {
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

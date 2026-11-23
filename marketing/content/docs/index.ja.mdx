@@ -18,18 +18,20 @@ TradeZella や TraderSync のようなクラウド型ジャーナルは洗練さ
 ## 主な機能
 
 - **ダッシュボード** — 資産曲線、期待値、連勝・連敗、保有時間、年間目標の進捗ペース。口座ごとにもポートフォリオ全体でも
+- **今日** — 取引日を 1 ページに。寄り前のルーティン、日次損失ガードレールとオープンリスク、セッション損益、見送ったトレード、日次ログ — [デイリーワークフロー](/ja/docs/guides/daily-workflow)を参照
+- **振り返りのサイクル** — 未評価のトレードを 1 件ずつ処理する振り返りインボックス、自動で下書きされる週次レビュー、翌週の今日のページに表示される週次フォーカス — [週次レビュー](/ja/docs/guides/weekly-review)を参照
 - **トレードログ** — 約定をトレード単位にグループ化し、フィルタ・並べ替え・タグ付け・MAE/MFE チャートつきの約定明細へのドリルダウン
 - **損益カレンダー** — 日次ヒートマップに週間合計と日別詳細ドリルダウン
-- **レポート** — 期待値、SQN、ケリー%、MAE/MFE、モンテカルロ、執行クオリティ。セットアップ別／時間帯別／セッション別、ビューとして保存可能
-- **プレイブック** — 各セットアップを使ったトレードに紐づく戦略ライブラリ、ルール遵守スコアリング付き
-- **インポート** — ブローカー CSV プリセット、MT4/MT5 明細、IBKR Flex 同期 — [対応ブローカー](/ja/docs/guides/supported-brokers)を参照
-- **アラート** — リスクルール、日次損失上限、プロップのドローダウン警告をプッシュ通知と Webhook で
+- **レポート** — 期待値、SQN、ケリー%、MAE/MFE、モンテカルロ、執行クオリティ。セットアップ別／時間帯別／セッション別、ビューとして保存可能。さらに Edge Score、ミス税（自分のルールを破った代償）、セットアップ別スコアカード — [分析](/ja/docs/guides/analytics)を参照
+- **プレイブック** — 各セットアップを使ったトレードに紐づく戦略ライブラリ、ルール遵守スコアリングと、期待値の信頼区間に基づくセットアップごとの判定（Edge、Promising、Bleeding など）付き
+- **インポート** — 証券会社から選ぶ接続フロー（`/connect`）、ブローカー CSV プリセット、MT4/MT5 明細、IBKR Flex 同期 — [対応ブローカー](/ja/docs/guides/supported-brokers)を参照
+- **アラート** — リスクルール、日次損失上限、プロップのドローダウン警告をプッシュ通知と Webhook で — [アラートと共有](/ja/docs/guides/alerts-and-sharing)を参照
 - **バーリプレイ** — 任意のシンボルをバー単位でリプレイし、永続するペーパーアカウントで検証
 - **共有** — 取り消し可能な読み取り専用パフォーマンスリンクとシェアカード
-- **ツール** — ポジションサイズ・FX・ケリー計算機、高機能チャート、経済指標カレンダー、資金台帳
+- **ツール** — ポジションサイズ・FX・ケリー・R-multiple & FVG 計算機、高機能チャート、経済指標カレンダー、資金台帳
 - **AI** *(任意)* — OpenAI 互換 API によるスクリーンショットからの約定抽出とトレードコーチ（キーはあなたのもの）
 - **API アクセス** — MCP／スクリプト向けのパーソナルアクセストークン（`tm_pat_…`）、OpenAPI ドキュメントは `/docs`
-- **モバイルアプリ** *(ベータ)* — iOS / Android 両対応のネイティブコンパニオンアプリ。オフライン記帳、iOS ではウィジェット、Live Activities、Siri クイック記録 — [モバイルアプリ](/ja/docs/getting-started/mobile-app)を参照
+- **モバイルアプリ** — iOS（App Store）/ Android 両対応のネイティブコンパニオンアプリ。オフライン記帳と振り返りキュー、iOS ではウィジェット、コントロールセンター、Live Activities、Siri / ショートカット — [モバイルアプリ](/ja/docs/getting-started/mobile-app)を参照
 
 ## 技術スタック
 
@@ -45,6 +47,10 @@ TradeZella や TraderSync のようなクラウド型ジャーナルは洗練さ
 <Cards>
   <Card title="クイックスタート" href="/ja/docs/getting-started/quick-start" description="Docker のコマンド 1 つで、スタック全体をローカルで起動します。" />
   <Card title="最初の一歩" href="/ja/docs/getting-started/first-steps" description="セットアップウィザード、最初のトレード、初めての方向けのアプリ案内。" />
+  <Card title="デイリーワークフロー" href="/ja/docs/guides/daily-workflow" description="今日のページ、ルーティン、見送ったトレード、振り返りインボックス。" />
+  <Card title="週次レビュー" href="/ja/docs/guides/weekly-review" description="土曜のレビューノートと、そこで決める週次フォーカス。" />
+  <Card title="分析" href="/ja/docs/guides/analytics" description="レポート、Edge Score、ミス税、セットアップ別スコアカード。" />
+  <Card title="アラートと共有" href="/ja/docs/guides/alerts-and-sharing" description="リスクアラート、プッシュと Webhook、読み取り専用の共有リンク。" />
   <Card title="モバイルアプリ" href="/ja/docs/getting-started/mobile-app" description="iOS（App Store）／ Android（APK）のコンパニオンアプリをインストールし、自分のサーバーに接続します。" />
   <Card title="デプロイ" href="/ja/docs/self-hosting/deploy" description="Docker 一体型、CDN + API 分離、エッジリライトの 3 つのデプロイ方式。" />
   <Card title="フォークしてデプロイ" href="/ja/docs/self-hosting/fork-deploy" description="Web UI をあなた自身の Vercel / Cloudflare / Netlify アカウントにワンクリックでデプロイ。" />

@@ -70,6 +70,7 @@ description: API 读取的全部 TM_* 环境变量，含默认值与作用说明
 | 变量 | 默认值 | 用途 |
 |----------|---------|---------|
 | `TM_SHARE_LINKS_ENABLED` | `false` | 开启公开分享页。默认关闭 —— 分享链接会让日志的一部分无需登录即可访问 |
+| `TM_MCP_ENABLED` | `true` | 在 `/api/v1/mcp` 提供面向 AI 助手的 MCP 端点。用户在设置中开启 MCP 前不起作用；设为 `false` 则完全移除该端点（[指南](/docs/guides/mcp)） |
 | `TM_PUBLIC_WEB_URL` | *（空）* | 生成分享链接时使用的公开 Web 应用地址。若 API 与 Web 同源部署（自带 nginx），留空即可 |
 | `TM_JOBS_ENABLED` | `true` | 后台任务总开关。多副本部署时只在一个实例上开启 |
 | `TM_JOB_EXCURSION_INTERVAL_MIN` | `360` | MAE/MFE 回填间隔（分钟，`0` 为禁用） |
@@ -99,4 +100,4 @@ SPA 是静态的 —— 以下变量在构建时打包进产物，服务端不�
 | 变量 | 默认值 | 用途 |
 |----------|---------|---------|
 | `DOCKERHUB_USERNAME` | `sinhong2011` | `tradermemos-api` / `tradermemos-web` 镜像所在的 Docker Hub 命名空间 |
-| `TM_IMAGE_TAG` | `latest` | 镜像标签 —— 生产环境建议锁定具体版本，如 `0.1.6` |
+| `TM_IMAGE_TAG` | `latest` | 镜像标签 —— 生产环境建议锁定具体版本，如 `0.15.0` |

@@ -32,6 +32,13 @@ export function ToastItem({ toast }: { toast: ToastObject }) {
           </BaseToast.Description>
         ) : null}
       </BaseToast.Content>
+      {/* `toast.add({ actionProps: { children: "Undo", onClick } })` */}
+      {toast.actionProps ? (
+        <BaseToast.Action
+          {...toast.actionProps}
+          className="h-7 shrink-0 cursor-pointer self-center rounded-md border border-input bg-background px-2.5 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-accent"
+        />
+      ) : null}
       <BaseToast.Close
         className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground"
         aria-label="Dismiss"
@@ -43,3 +50,6 @@ export function ToastItem({ toast }: { toast: ToastObject }) {
 }
 
 export const useToastManager = BaseToast.useToastManager;
+
+/** Lifetime of a toast that carries an Undo action. */
+export const UNDO_TOAST_MS = 10_000;

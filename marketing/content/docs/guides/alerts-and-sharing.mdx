@@ -1,0 +1,91 @@
+---
+title: Alerts, sharing & security
+description: Journal alert rules delivered by push or webhook, prop account rules, revocable public share links, privacy mode, and two-factor sign-in.
+---
+
+## Alert rules
+
+Alerts are evaluated **on your own server** — after every trade write and on a background scan
+— and delivered for free. Configure them under Settings → Rules → **Journal Alerts**; the master
+switch is **Enable alerts**.
+
+| Rule | Fires when |
+|------|-----------|
+| **Risk rule broken** | A closed trade risked more than your max risk per trade (Risk Rules) |
+| **Daily loss limit** | Realized P&L dipped below your max daily loss, even if the day recovered |
+| **Consecutive losses** | This many losing trades in a row, ending today (default 3) |
+| **Prop drawdown approaching** | A prop account has used this share of its drawdown budget (default 80%). Breaches always alert |
+| **Unreviewed trades** | Weekly nudge when closed trades older than N days (default 7) have no execution grade — the same trades the [review inbox](/en/docs/guides/weekly-review) counts. Tapping it on mobile opens the review queue |
+| **Weekly review** | Saturday 09:00 in your market timezone, with a pre-filled review note |
+
+**Timezone** sets when "today" rolls over for the daily rules. Each event fires once (a daily
+breach once per day, the unreviewed nudge once per week). **Recent Alerts** lists what the
+server sent.
+
+On mobile, Settings → Trading & journal → **Alerts** has the same rule toggles plus **Push to
+this device**; thresholds, timezone and webhooks are edited on the web.
+
+## Channels
+
+**Alert Channels** lists where alerts go:
+
+- **Mobile push** — registers itself when you sign in on the iOS / Android app (Expo push).
+- **Webhook** — **Add webhook** with an http(s) URL and an optional label. The JSON renders
+  natively in Discord, Slack and ntfy.
+
+Each channel has a **Test** button and shows its last delivery error. Webhooks to private / LAN
+addresses are blocked unless `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS=true`; the scan interval is
+`TM_JOB_ALERTS_INTERVAL_MIN` — see [Configuration](/en/docs/self-hosting/configuration).
+
+## Prop accounts
+
+Set an account's type to **Prop** (Settings → Accounts), then open the account and click **Prop
+rules**: profit target, max drawdown, drawdown model (*Trailing*, *End-of-day trailing*,
+*Static*), daily loss limit and a consistency rule (% of profit one day may hold). Leave a field
+empty to skip that rule. Home's **Prop program** card tracks equity, trading days, best day and
+progress against target and drawdown; the drawdown alert above watches the same budget.
+
+## Share links
+
+A share link is a revocable, read-only public page with an **aggregate** performance record —
+win rate, profit factor, cumulative P&L curve and rhythm stats. No trades, notes or account
+details are ever exposed.
+
+- **Create** from Settings → **Sharing** → *New share link*, or the share button on Reports
+  (which scopes the link to the current account and date range). On mobile, from Reports.
+- **Show money amounts** is off by default: the page shows ratios and the curve's shape only.
+- **Expiry**: 30 days, 90 days (default), 1 year or never.
+- The Sharing list shows each link's scope, created / expires dates and view count. **Revoke**
+  cuts off access immediately.
+
+Public pages are **off by default** — set `TM_SHARE_LINKS_ENABLED=true` on the API (and
+`TM_PUBLIC_WEB_URL` when the web app lives on another origin).
+
+## Privacy mode
+
+The eye button in the header (web) or on Home (mobile) masks every money amount as `••••` —
+stats and ratios stay visible. Use it for screenshots and screen-sharing. It's a per-device
+display setting; on mobile it also lives under Settings → General → Display.
+
+## Two-factor authentication
+
+Settings → **Profile** → Security → **Two-factor authentication** → *Set up*: scan the QR code
+(or type the key) into any authenticator app and confirm with a 6-digit code. Turning it off
+needs both your password and a current code. On mobile the same screen lives under Settings →
+Profile; it shows the key without a QR code, since the phone is usually the authenticator.
+
+<Callout type="warn">
+There are **no recovery codes** by design — shell access to the server is the recovery path. If
+you lose your authenticator:
+
+```bash
+docker compose exec api /tradermemos disable-totp --email you@example.com
+```
+</Callout>
+
+## Token activity
+
+Beyond *last used*, the server records which clients use each [API token](/en/docs/guides/api-tokens)
+— IP and user agent, one row per client (a repeat from the same IP and app folds in for ten
+minutes; the 50 most recent are kept). Open a token under Settings → Integrations → **API tokens**
+in the mobile app to see its activity, or call `GET /api/v1/access-tokens/{id}/uses`.
