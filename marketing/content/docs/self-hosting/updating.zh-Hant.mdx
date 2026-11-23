@@ -55,6 +55,26 @@ docker compose pull && make up
 - **不支持自動降級**。schema 遷移完成後回退到舊版鏡像是不受支持的 —— 請改用
   [升級前的備份](/zh-Hant/docs/self-hosting/backup-restore)進行恢復。
 
+## 自訂 trading-system schema（一次性）
+
+一份草稿版 trading-system 地圖構建，在官方 0.16.1 把 `mcp_settings` 發布為 SQLite 50 /
+Postgres 14 之前，就把功能遷移占用了這些編號（SQLite 50–52、Postgres 14–16）。
+因此官方 0.16.1 會在這些資料庫上拒絕啟動（`no migration found for version 52`）。
+
+目前官方編號為：
+
+- SQLite 50 `mcp_settings`、51 `trading_system`、52 `system_plans`、53 `system_plan_evidence`
+- Postgres 14 `mcp_settings`、15–17 為同一條功能鏈
+
+啟動時，如果 API 發現 trading-system 表已存在、缺少 `mcp_settings`，且
+`schema_migrations` 仍停留在舊的自訂版本（SQLite 50–52 或 Postgres 14–16），
+就會先套用 `mcp_settings`，依既有資料表寫入對應的官方版本號，再繼續執行剩餘遷移。
+既有的 trading-system、計劃、證據和週回顧列會保留。MCP 在擁有者主動開啟前保持關閉。
+升級前仍需先做[備份](/zh-Hant/docs/self-hosting/backup-restore)。
+
+如果 `schema_migrations` 顯示這些版本，但資料庫既不符合自訂歷史、也不符合官方鏈，
+啟動會報錯退出，而不會改寫版本號。
+
 ## Fork / CDN 部署
 
 - **Vercel / Cloudflare / Netlify 的 Web**：推送到 fork 默認分支即自動重新部署；把 fork

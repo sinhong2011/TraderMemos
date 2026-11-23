@@ -57,6 +57,30 @@ Images are multi-arch (`amd64` + `arm64`). Releases and notable changes are list
   is not supported — restore the [pre-upgrade backup](/en/docs/self-hosting/backup-restore)
   instead.
 
+## Custom trading-system schema (one-time)
+
+A draft trading-system map build applied its SQLite migrations as versions 50–52
+(Postgres 14–16) before official 0.16.1 published `mcp_settings` as SQLite 50 /
+Postgres 14. Official 0.16.1 then refused to start on those databases
+(`no migration found for version 52`).
+
+Current official numbering is:
+
+- SQLite 50 `mcp_settings`, 51 `trading_system`, 52 `system_plans`, 53 `system_plan_evidence`
+- Postgres 14 `mcp_settings`, 15–17 the same feature chain
+
+On startup, if the API finds trading-system tables already present, `mcp_settings`
+missing, and `schema_migrations` still at the old custom version (SQLite 50–52 or
+Postgres 14–16), it applies `mcp_settings` and records the matching official
+version from the tables that already exist, then runs any remaining migrations.
+Existing trading-system, plan, evidence, and weekly-review rows are left in place.
+MCP stays off until the owner opts in. A [pre-upgrade backup](/en/docs/self-hosting/backup-restore)
+is still required.
+
+If `schema_migrations` reports one of those versions but the database matches
+neither the custom history nor the official chain, startup stops with an error
+rather than rewriting the version.
+
 ## Fork / CDN deployments
 
 - **Vercel / Cloudflare / Netlify web**: pushes to your fork's default branch redeploy

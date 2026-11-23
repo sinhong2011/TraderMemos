@@ -59,6 +59,28 @@ docker compose pull && make up
   サポートされていません。代わりに[アップグレード前のバックアップ](/ja/docs/self-hosting/backup-restore)
   から復元してください。
 
+## カスタムの trading-system スキーマ（一度きり）
+
+ドラフト版の trading-system マップは、公式 0.16.1 が `mcp_settings` を SQLite 50 /
+Postgres 14 として公開する前に、同じ番号で機能用マイグレーション（SQLite 50–52、
+Postgres 14–16）を適用していました。そのため公式 0.16.1 は、それらのデータベースで
+起動に失敗します（`no migration found for version 52`）。
+
+現在の公式の番号は次のとおりです。
+
+- SQLite 50 `mcp_settings`、51 `trading_system`、52 `system_plans`、53 `system_plan_evidence`
+- Postgres 14 `mcp_settings`、15–17 は同じ機能の連鎖
+
+起動時に、trading-system のテーブルが既にあり、`mcp_settings` がなく、
+`schema_migrations` が旧カスタム版（SQLite 50–52 または Postgres 14–16）のままなら、
+API は `mcp_settings` を適用し、既にあるテーブルから公式のバージョン番号を記録してから、
+残りのマイグレーションを実行します。既存の trading-system、プラン、エビデンス、
+週次レビューの行はそのまま残ります。MCP は所有者が有効にするまでオフのままです。
+それでも[アップグレード前のバックアップ](/ja/docs/self-hosting/backup-restore)は必要です。
+
+`schema_migrations` がこれらのバージョンを示していても、データベースがカスタム履歴にも
+公式チェーンにも一致しない場合は、バージョンを書き換えず、エラーで起動を停止します。
+
 ## フォーク / CDN 構成の場合
 
 - **Vercel / Cloudflare / Netlify の Web**: 自分のフォークの既定ブランチへプッシュすると自動的に

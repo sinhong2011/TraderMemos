@@ -54,15 +54,8 @@ func migrateSQLite(conn *sql.DB) error {
 		return err
 	}
 
-	// air / crash mid-migrate leaves dirty=1 even when DDL mostly applied.
-	// Clear it before Up so startup can re-apply idempotent migrations.
-	// This rewinds one version, so every up migration must be safe to re-run
-	// against a database that already has it (CREATE TABLE/INDEX IF NOT EXISTS).
-	if ver, dirty, vErr := drv.Version(); vErr == nil && dirty {
-		prev := max(ver-1, 0)
-		if err := drv.SetVersion(prev, false); err != nil {
-			return fmt.Errorf("dirty migration at version %d: could not reset: %w", ver, err)
-		}
+	if err := reconcileSQLiteMigrations(conn, drv); err != nil {
+		return err
 	}
 
 	m, err := migrate.NewWithInstance("iofs", src, "sqlite", drv)
@@ -84,6 +77,9 @@ func migratePostgres(conn *sql.DB) error {
 	}
 	drv, err := postgres.WithInstance(conn, &postgres.Config{})
 	if err != nil {
+		return err
+	}
+	if err := reconcilePostgresMigrations(conn, drv); err != nil {
 		return err
 	}
 	m, err := migrate.NewWithInstance("iofs", src, "postgres", drv)
