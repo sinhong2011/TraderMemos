@@ -1,0 +1,69 @@
+/* Shared map + inspector surface — one level, dotted void (draft mockup). */
+.system-workspace {
+  background-color: color-mix(in oklab, var(--color-muted) 25%, var(--color-background));
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--color-border) 90%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+}
+
+/* Theme @xyflow Controls to match TraderMemos dark/light tokens.
+   Default Controls ship a white panel that washes out on dark canvas. */
+.system-map-flow .react-flow__controls {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
+  box-shadow: none;
+  background: transparent;
+}
+
+.system-map-flow .react-flow__controls-button {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
+  background: var(--color-card);
+  fill: var(--color-muted-foreground);
+}
+
+.system-map-flow .react-flow__controls-button:hover {
+  background: var(--color-accent);
+  fill: var(--color-foreground);
+}
+
+.system-map-flow .react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+
+.system-map-flow .react-flow__controls-button svg {
+  max-width: 12px;
+  max-height: 12px;
+}
+
+.system-map-flow .react-flow__edge-textbg {
+  fill: var(--color-card);
+}
+
+.system-map-flow .react-flow__edge-text {
+  fill: var(--color-muted-foreground);
+}
+
+.system-map-flow .react-flow__node {
+  cursor: grab;
+  border-radius: var(--radius-xl);
+}
+
+.system-map-flow .react-flow__node:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 3px;
+}
+
+.system-map-flow .react-flow__node-watch:focus-visible {
+  border-radius: 9999px;
+}
+
+.system-map-flow .react-flow__node.dragging {
+  cursor: grabbing;
+}

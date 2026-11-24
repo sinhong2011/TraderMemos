@@ -2,6 +2,7 @@ import {
   BookOpen,
   CalendarCheck,
   CalendarDays,
+  Compass,
   House,
   List,
   PieChart,
@@ -68,6 +69,7 @@ export const PRIMARY_NAV: NavItem[] = [
 export const SECONDARY_NAV: NavItem[] = [
   { to: "/notes", labelKey: "notes", icon: StickyNote },
   { to: "/playbook", labelKey: "playbook", icon: BookOpen },
+  { to: "/system", labelKey: "system", icon: Compass },
   { to: "/import", labelKey: "import", icon: Upload },
 ];
 
