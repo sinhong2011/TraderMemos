@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.17.0](https://github.com/sinhong2011/TraderMemos/compare/v0.16.1...v0.17.0) (2026-11-24)
+
+
+### Features
+
+* **system:** rule map, follow-trade plans, and holding evidence ([#350](https://github.com/sinhong2011/TraderMemos/issues/350)) ([e06c6cd](https://github.com/sinhong2011/TraderMemos/commit/e06c6cd942602583c189466bb056ab818dd73118))
+
 ## [0.16.1](https://github.com/sinhong2011/TraderMemos/compare/v0.16.0...v0.16.1) (2026-11-18)
 
 
