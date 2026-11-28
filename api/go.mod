@@ -6,22 +6,22 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/golang-migrate/migrate/v4 v4.20.1
 	github.com/google/uuid v1.6.0
-	github.com/jackc/pgx/v5 v5.12.0
+	github.com/jackc/pgx/v5 v5.13.0
 	github.com/knadh/koanf/providers/confmap v1.0.1
 	github.com/knadh/koanf/providers/env v1.1.0
 	github.com/knadh/koanf/v2 v2.4.1
-	github.com/labstack/echo/v5 v5.4.4
+	github.com/labstack/echo/v5 v5.4.7
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/pquerna/otp v1.5.0
 	github.com/rs/zerolog v1.35.1
 	github.com/samber/slog-zerolog/v2 v2.9.2
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
-	golang.org/x/crypto v0.58.0
-	golang.org/x/net v0.60.0
-	golang.org/x/sync v0.24.0
-	golang.org/x/sys v0.49.0
-	modernc.org/sqlite v1.61.1
+	golang.org/x/crypto v0.59.0
+	golang.org/x/net v0.62.0
+	golang.org/x/sync v0.25.0
+	golang.org/x/sys v0.50.0
+	modernc.org/sqlite v1.63.0
 )
 
 require (
@@ -49,9 +49,9 @@ require (
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
-	golang.org/x/text v0.43.0 // indirect
+	golang.org/x/text v0.44.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	modernc.org/libc v1.79.0 // indirect
+	modernc.org/libc v1.80.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 )
